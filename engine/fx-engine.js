@@ -92,6 +92,50 @@ function post(){
   if(FX.bars>.02){const b=FX.bars*H*.075;CX.fillStyle='#000';CX.fillRect(0,0,W,b);CX.fillRect(0,H-b,W,b);}
 }
 
+
+/* ---------- fase 2: sensación de control (game feel) ---------- */
+const FEEL=window.FX.feel={jumpCut:.5,fallMul:.38,apexHang:.45,turnBrake:.82,on:true};
+let runT=0;
+function feel(dt){
+  if(!FEEL.on||!P||!P.alive||!GS.running||GS.dying)return;
+  const jP=K['ArrowUp']||K[' ']||K['Space']||K['KeyW'];
+  const bg=typeof curLV==='function'&&curLV()?curLV().bg:'';
+  if(P.onGround){P._cut=false;}
+  else if(!P.lowGrav&&!P.rocketOn){
+    /* salto variable: soltar el botón corta la subida */
+    if(P.vy<-3&&!jP&&P.jumping&&!P._cut){P.vy*=FEEL.jumpCut;P._cut=true;}
+    /* caída más pesada y "colgado" en el punto más alto */
+    if(P.vy>0)P.vy+=GRAV*FEEL.fallMul*dt;
+    else if(Math.abs(P.vy)<1.6)P.vy-=GRAV*FEEL.apexHang*dt;
+  }
+  /* frenado al cambiar de dirección (más respuesta, sin tocar el hielo) */
+  const L=K['ArrowLeft']||K['KeyA'],R=K['ArrowRight']||K['KeyD'];
+  if(bg!=='ice'&&((L&&P.vx>1.5)||(R&&P.vx<-1.5))){
+    P.vx*=Math.pow(FEEL.turnBrake,dt);
+    if(P.onGround&&Math.random()<.5)dust(P.x+P.w/2,P.y+P.h,1);
+  }
+  /* polvo al correr */
+  if(P.onGround&&Math.abs(P.vx)>P.spd*.7){runT+=dt;if(runT>7){runT=0;dust(P.x+P.w/2-P.facing*8,P.y+P.h,1);}}
+}
+
+/* ---------- mando (Gamepad API) y vibración ---------- */
+const PAD={ArrowLeft:0,ArrowRight:0,ArrowUp:0,ArrowDown:0,KeyF:0,KeyX:0,KeyC:0};
+function pollPad(){
+  const gp=(navigator.getGamepads?navigator.getGamepads():[])[0]||null;
+  const now={ArrowLeft:0,ArrowRight:0,ArrowUp:0,ArrowDown:0,KeyF:0,KeyX:0,KeyC:0};
+  if(gp){const b=i=>gp.buttons[i]&&gp.buttons[i].pressed,ax=gp.axes[0]||0,ay=gp.axes[1]||0;
+    now.ArrowLeft=(ax<-.35||b(14))?1:0;now.ArrowRight=(ax>.35||b(15))?1:0;
+    now.ArrowUp=(b(0)||b(12)||ay<-.6)?1:0;now.ArrowDown=(b(13)||ay>.6)?1:0;
+    now.KeyF=(b(2)||b(7))?1:0;now.KeyX=(b(1)||b(5))?1:0;now.KeyC=b(3)?1:0;}
+  for(const k in now){if(now[k]!==PAD[k]){K[k]=now[k];if(k==='ArrowUp')K['Space']=now[k];PAD[k]=now[k];}}
+}
+function rumble(ms,str){
+  try{if(navigator.vibrate)navigator.vibrate(ms);
+    const gp=(navigator.getGamepads?navigator.getGamepads():[])[0];
+    if(gp&&gp.vibrationActuator)gp.vibrationActuator.playEffect('dual-rumble',{duration:ms,strongMagnitude:str,weakMagnitude:str/2});}catch(e){}
+}
+FX.rumble=rumble;
+
 /* ---------- ganchos sobre el juego original ---------- */
 const _update=window.update,_render=window.render;
 window.update=function(dt){
@@ -101,10 +145,11 @@ window.update=function(dt){
   FX.ts+=(FX.tsT-FX.ts)*clamp(.18*dt,0,1);
   FX.zoom+=(FX.zoomT-FX.zoom)*clamp(.2*dt,0,1);
   FX.bars+=((FX.tsT<.7?1:0)-FX.bars)*clamp(.1*dt,0,1);
+  pollPad();feel(dt*FX.ts);
   const wasG=P.onGround,vy0=P.vy;
   tick(dt*FX.ts);
   const r=_update(dt*FX.ts);
-  if(P.onGround&&!wasG&&vy0>5){dust(P.x+P.w/2,P.y+P.h,Math.min(10,Math.round(vy0)));SFX.land();}
+  if(P.onGround&&!wasG&&vy0>5){P._squashY=Math.max(.74,1-vy0*.022);P._squashX=Math.min(1.28,1+vy0*.022);dust(P.x+P.w/2,P.y+P.h,Math.min(10,Math.round(vy0)));SFX.land();}
   return r;
 };
 window.render=function(){
@@ -116,9 +161,9 @@ window.render=function(){
 };
 function hook(name,fn){const o=window[name];if(typeof o!=='function')return;
   window[name]=function(){const r=o.apply(this,arguments);try{fn.apply(this,arguments);}catch(e){}return r;};}
-hook('killEnemy',(e,sx,sy)=>{FX.freeze(4);FX.punch(1.05);burst(sx+camX,sy+(e?e.h/2:0),26,'#ffd35a');});
+hook('killEnemy',(e,sx,sy)=>{FX.freeze(4);FX.punch(1.05);burst(sx+camX,sy+(e?e.h/2:0),26,'#ffd35a');rumble(50,.4);});
 hook('doJump',()=>dust(P.x+P.w/2,P.y+P.h,6));
-hook('flashRed',()=>{FX.freeze(5);FX.punch(1.04);});
+hook('flashRed',()=>{FX.freeze(5);FX.punch(1.04);rumble(180,.8);});
 hook('gameOver',()=>{FX.slowmo(.25,80);FX.punch(1.12);});
 hook('showComboBanner',s=>{if(s>=5)FX.slowmo(.55,20);});
 
