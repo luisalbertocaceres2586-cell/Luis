@@ -1,4 +1,4 @@
-/* Generado a partir de las hojas de sprites de Sakura (14 cuadros de carrera, sprint, salto, agachado) */
+/* Generado a partir de las hojas de sprites de Sakura: carrera, sprint, salto, agachado, reposo, ataque, golpe y caída */
 window.SAKURA_MANIFEST={
  "run": [
   {
@@ -220,5 +220,244 @@ window.SAKURA_MANIFEST={
   2,
   3
  ],
- "scale": 0.38
+ "scale": 0.38,
+ "idle": [
+  {
+   "file": "idle_00.png",
+   "ax": 112.1,
+   "ay": 244,
+   "w": 196,
+   "h": 245
+  },
+  {
+   "file": "idle_01.png",
+   "ax": 115.5,
+   "ay": 249,
+   "w": 201,
+   "h": 250
+  },
+  {
+   "file": "idle_02.png",
+   "ax": 113.0,
+   "ay": 250,
+   "w": 201,
+   "h": 251
+  },
+  {
+   "file": "idle_03.png",
+   "ax": 106.2,
+   "ay": 248,
+   "w": 185,
+   "h": 249
+  },
+  {
+   "file": "idle_04.png",
+   "ax": 108.5,
+   "ay": 251,
+   "w": 186,
+   "h": 251
+  },
+  {
+   "file": "idle_05.png",
+   "ax": 111.9,
+   "ay": 249,
+   "w": 196,
+   "h": 250
+  }
+ ],
+ "run2": [
+  {
+   "file": "run2_00.png",
+   "ax": 76.8,
+   "ay": 212,
+   "w": 194,
+   "h": 212
+  },
+  {
+   "file": "run2_01.png",
+   "ax": 78.5,
+   "ay": 204,
+   "w": 181,
+   "h": 205
+  },
+  {
+   "file": "run2_02.png",
+   "ax": 77.9,
+   "ay": 204,
+   "w": 180,
+   "h": 204
+  },
+  {
+   "file": "run2_03.png",
+   "ax": 80.0,
+   "ay": 197,
+   "w": 172,
+   "h": 198
+  },
+  {
+   "file": "run2_04.png",
+   "ax": 75.7,
+   "ay": 194,
+   "w": 168,
+   "h": 195
+  },
+  {
+   "file": "run2_05.png",
+   "ax": 69.5,
+   "ay": 191,
+   "w": 160,
+   "h": 192
+  },
+  {
+   "file": "run2_06.png",
+   "ax": 65.1,
+   "ay": 201,
+   "w": 161,
+   "h": 202
+  },
+  {
+   "file": "run2_07.png",
+   "ax": 67.6,
+   "ay": 198,
+   "w": 146,
+   "h": 199
+  }
+ ],
+ "atk": [
+  {
+   "file": "atk_00.png",
+   "ax": 101.2,
+   "ay": 195,
+   "w": 234,
+   "h": 196
+  },
+  {
+   "file": "atk_01.png",
+   "ax": 91.4,
+   "ay": 197,
+   "w": 202,
+   "h": 198
+  },
+  {
+   "file": "atk_02.png",
+   "ax": 80.0,
+   "ay": 189,
+   "w": 199,
+   "h": 189
+  },
+  {
+   "file": "atk_03.png",
+   "ax": 93.6,
+   "ay": 189,
+   "w": 206,
+   "h": 189
+  },
+  {
+   "file": "atk_04.png",
+   "ax": 106.9,
+   "ay": 185,
+   "w": 201,
+   "h": 186
+  },
+  {
+   "file": "atk_05.png",
+   "ax": 92.9,
+   "ay": 167,
+   "w": 218,
+   "h": 167
+  },
+  {
+   "file": "atk_06.png",
+   "ax": 91.7,
+   "ay": 221,
+   "w": 205,
+   "h": 222
+  }
+ ],
+ "hurt": [
+  {
+   "file": "hurt_00.png",
+   "ax": 120.8,
+   "ay": 173,
+   "w": 201,
+   "h": 174
+  },
+  {
+   "file": "hurt_01.png",
+   "ax": 141.3,
+   "ay": 183,
+   "w": 241,
+   "h": 184
+  },
+  {
+   "file": "hurt_02.png",
+   "ax": 134.7,
+   "ay": 167,
+   "w": 224,
+   "h": 168
+  },
+  {
+   "file": "hurt_03.png",
+   "ax": 125.3,
+   "ay": 165,
+   "w": 218,
+   "h": 166
+  },
+  {
+   "file": "hurt_04.png",
+   "ax": 129.3,
+   "ay": 156,
+   "w": 226,
+   "h": 157
+  }
+ ],
+ "death": [
+  {
+   "file": "death_00.png",
+   "ax": 98.6,
+   "ay": 121,
+   "w": 186,
+   "h": 122
+  },
+  {
+   "file": "death_01.png",
+   "ax": 99.4,
+   "ay": 114,
+   "w": 188,
+   "h": 115
+  },
+  {
+   "file": "death_02.png",
+   "ax": 109.6,
+   "ay": 109,
+   "w": 211,
+   "h": 109
+  },
+  {
+   "file": "death_03.png",
+   "ax": 118.3,
+   "ay": 88,
+   "w": 226,
+   "h": 89
+  },
+  {
+   "file": "death_04.png",
+   "ax": 116.2,
+   "ay": 76,
+   "w": 237,
+   "h": 77
+  },
+  {
+   "file": "death_05.png",
+   "ax": 128.6,
+   "ay": 58,
+   "w": 257,
+   "h": 59
+  }
+ ],
+ "hurtMap": [
+  1,
+  2,
+  3
+ ]
 };
