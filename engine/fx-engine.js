@@ -252,7 +252,7 @@ CanvasRenderingContext2D.prototype.drawImage=function(img){
   }
   return _di.apply(this,arguments);
 };
-collect();setTimeout(collect,1500);
+collect();setTimeout(collect,1500);FX.collect=collect;
 
 /* ---------- carrera: pasos con polvo, compresión por zancada, estela de velocidad ---------- */
 function runFx(){
