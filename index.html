@@ -920,6 +920,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   </div>
 </div>
 
+<script src="assets/nivel1/nubes.js"></script>
+<script src="assets/islas/islas.js"></script>
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════
@@ -1733,32 +1735,51 @@ const NINJA_TILES = {
   ground:_img(_BJ_njGround), platLong:_img(_BJ_njPlatLong), pipe:_img(_BJ_njPipe),
   torii:_img(_BJ_njTorii), lanternPost:_img(_BJ_njLanternPost), bamboo:_img(_BJ_njBamboo), cherryTree:_img(_BJ_njCherryTree),
 };
-// ── NIVEL 1 · fondo de amanecer con capas (cielo, sol, nubes, montañas) — arte en assets/nivel1/ ──
-// Si algún PNG falta o no carga, el nivel sigue usando el fondo nocturno anterior (sin romper nada).
-const N1={imgs:{},
-  ok(){return ['sol','nubes','mont'].every(k=>{const i=this.imgs[k];return i&&i.complete&&i.naturalWidth>0;});},
-  load(){const b='assets/nivel1/';[['sol','n1_bg_sol.png'],['nubes','n1_bg_nubes.png'],['mont','n1_bg_montanas_lejos.png']]
-    .forEach(([k,f])=>{const i=new Image();i.src=b+f;this.imgs[k]=i;});},
+// ── NIVEL 1 · cielo de amanecer con capas independientes — arte en assets/nivel1/ ──
+// Cada nube (assets/nivel1/nubes/*.png, lista en assets/nivel1/nubes.js) es un objeto con su propia
+// velocidad, profundidad, tamaño y transparencia, así que se mueven unas sobre otras sin repetirse.
+// Si algún PNG no carga, el nivel usa el fondo nocturno anterior (no se rompe nada).
+const N1={imgs:{},nubes:[],inst:[],
+  ok(){const m=this.imgs.mont;return !!(m&&m.complete&&m.naturalWidth>0&&this.nubes.some(i=>i.complete&&i.naturalWidth>0));},
+  load(){
+    const b='assets/nivel1/',m=new Image();m.src=b+'n1_bg_montanas_lejos.png';this.imgs.mont=m;
+    (window.N1_NUBES||['nube_01.png']).forEach(f=>{const i=new Image();i.src=b+'nubes/'+f;this.nubes.push(i);});
+    // instancias: 3 capas de profundidad; cada una con parámetros propios (determinista para que no "salte")
+    const rnd=(n=>{let s=n;return()=>{s=(s*16807)%2147483647;return s/2147483647;};})(20261103);
+    const capas=[{z:0,n:4,sc:[.22,.34],al:[.45,.6],sp:[.004,.009],par:[.02,.04],y:[.10,.42]},   // lejanas, tras las montañas
+                 {z:1,n:4,sc:[.34,.52],al:[.65,.82],sp:[.010,.020],par:[.05,.09],y:[.04,.50]},  // medias
+                 {z:2,n:3,sc:[.55,.85],al:[.82,.95],sp:[.022,.040],par:[.11,.18],y:[-.04,.30]}]; // cercanas, delante de las montañas
+    capas.forEach(c=>{for(let k=0;k<c.n;k++){const R=(r)=>r[0]+rnd()*(r[1]-r[0]);
+      this.inst.push({z:c.z,img:k%Math.max(1,this.nubes.length),sc:R(c.sc),al:R(c.al),sp:R(c.sp),par:R(c.par),y:R(c.y),
+        flip:rnd()<.5,x0:rnd(),bob:rnd()*6.28,bobA:2+rnd()*5});}});
+  },
+  nube(c,GYv,t,z){
+    const per0=W+700;
+    for(const n of this.inst){
+      if(n.z!==z)continue;const im=this.nubes[n.img%this.nubes.length];if(!im||!im.complete||!im.naturalWidth)continue;
+      const cw=Math.min(W*1.1,GYv*1.15)*n.sc*1.9,ch=cw*(im.naturalHeight/im.naturalWidth),per=per0+cw;
+      // posición propia: deriva a su velocidad + parallax con la cámara, envuelta en el ancho visible
+      const x=(((n.x0*per - t*n.sp*60 - camX*n.par)%per)+per)%per-cw;
+      const y=GYv*n.y+Math.sin(t*.0006+n.bob)*n.bobA;
+      c.globalAlpha=n.al;
+      if(n.flip){c.save();c.translate(x+cw,y);c.scale(-1,1);c.drawImage(im,0,0,cw,ch);c.restore();}
+      else c.drawImage(im,x,y,cw,ch);
+    }
+    c.globalAlpha=1;
+  },
   draw(t){
     const I=this.imgs,GYv=groundY();
-    // 1) cielo de amanecer (degradado en código: sin costuras ni peso extra)
+    // 1) cielo de amanecer (degradado en código)
     const g=CX.createLinearGradient(0,0,0,GYv);
-    g.addColorStop(0,'#5860D6');g.addColorStop(.38,'#B078E2');g.addColorStop(.62,'#FA96BE');g.addColorStop(.82,'#FFC496');g.addColorStop(1,'#FFE2A8');
+    g.addColorStop(0,'#4F58C9');g.addColorStop(.36,'#A072DA');g.addColorStop(.62,'#F08CB4');g.addColorStop(.84,'#FFBE92');g.addColorStop(1,'#FFE0A6');
     CX.fillStyle=g;CX.fillRect(0,0,W,H);
-    // 2) sol — capa más lejana, casi inmóvil
-    const sH=Math.min(H*.5,260),sX=W*.74-camX*.004,sY=GYv*.46;
-    CX.drawImage(I.sol,sX-sH/2,sY-sH/2,sH,sH);
-    // 3) nubes — espejo alterno para repetir sin corte, parallax lento + deriva
-    const ch=GYv*1.02,cw=ch*(I.nubes.naturalWidth/I.nubes.naturalHeight),per=cw*2;
-    const off=(((camX*.03+t*.008)%per)+per)%per;
-    CX.save();CX.globalAlpha=.95;
-    for(let k=-1;k*cw-off<W+cw;k++){
-      const x=k*cw-off;
-      if(((k%2)+2)%2===0){CX.drawImage(I.nubes,x,0,cw,ch);}
-      else{CX.save();CX.translate(x+cw,0);CX.scale(-1,1);CX.drawImage(I.nubes,0,0,cw,ch);CX.restore();}
-    }
-    CX.restore();
-    // 4) dos capas de montañas con parallax (lejana más pequeña y tenue)
+    // 2) resplandor suave del amanecer en el horizonte (sin disco de sol)
+    const gl=CX.createRadialGradient(W*.72,GYv*.9,0,W*.72,GYv*.9,Math.max(W,GYv)*.7);
+    gl.addColorStop(0,'rgba(255,236,170,.55)');gl.addColorStop(.45,'rgba(255,190,140,.18)');gl.addColorStop(1,'rgba(255,190,140,0)');
+    CX.fillStyle=gl;CX.fillRect(0,0,W,H);
+    // 3) nubes lejanas y medias (detrás de las montañas)
+    CX.save();this.nube(CX,GYv,t,0);this.nube(CX,GYv,t,1);CX.restore();
+    // 4) dos capas de montañas con parallax
     const mr=I.mont.naturalWidth/I.mont.naturalHeight;
     [[.06,.30,.55],[.12,.40,1]].forEach(([par,hf,al])=>{
       const mh=Math.min(GYv*hf+40,330),mw=mh*mr,off2=(((camX*par)%mw)+mw)%mw;
@@ -1766,6 +1787,8 @@ const N1={imgs:{},
       for(let x=-off2;x<W;x+=mw)CX.drawImage(I.mont,x,GYv-mh+14,mw+1,mh);
       CX.restore();
     });
+    // 5) nubes cercanas (delante de las montañas, detrás de las plataformas)
+    CX.save();this.nube(CX,GYv,t,2);CX.restore();
   }
 };
 N1.load();
@@ -9557,5 +9580,14 @@ function drawMiniPeach(canvasId){
 <script src="assets/sakura/manifest.js"></script>
 <script src="engine/sakura-pro.js"></script>
 <script src="engine/intro-pro.js"></script>
+<!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
+<script src="engine/core/modulos.js"></script>
+<script src="engine/escenario/islas.js"></script>
+<script src="engine/ui/seleccion-personajes.js"></script>
+<script src="engine/ui/controles-tactiles-extra.js"></script>
+<script src="engine/ui/barra-progreso.js"></script>
+<script src="engine/movimiento/caida-rapida.js"></script>
+<script src="engine/combate/racha.js"></script>
+<script src="engine/educativo/repaso-errores.js"></script>
 </body>
 </html>
