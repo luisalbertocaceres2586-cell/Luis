@@ -459,5 +459,14 @@ window.SAKURA_MANIFEST={
   1,
   2,
   3
- ]
+ ],
+ "kmul": {
+  "run": 1.0,
+  "sprint": 1.08,
+  "jump": 1.08,
+  "crouch": 1.05,
+  "idle": 0.78,
+  "atk": 0.82,
+  "hurt": 0.8
+ }
 };
