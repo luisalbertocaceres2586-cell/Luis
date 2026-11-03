@@ -1759,7 +1759,8 @@ const N1={imgs:{},nubes:[],inst:[],
       if(n.z!==z)continue;const im=this.nubes[n.img%this.nubes.length];if(!im||!im.complete||!im.naturalWidth)continue;
       const cw=Math.min(W*1.1,GYv*1.15)*n.sc*1.9,ch=cw*(im.naturalHeight/im.naturalWidth),per=per0+cw;
       // posición propia: deriva a su velocidad + parallax con la cámara, envuelta en el ancho visible
-      const x=(((n.x0*per - t*n.sp*60 - camX*n.par)%per)+per)%per-cw;
+      // deriva en px/segundo (t viene en milisegundos): lejanas ≈2 px/s, cercanas ≈20 px/s
+      const x=(((n.x0*per - (t/1000)*n.sp*500 - camX*n.par)%per)+per)%per-cw;
       const y=GYv*n.y+Math.sin(t*.0006+n.bob)*n.bobA;
       c.globalAlpha=n.al;
       if(n.flip){c.save();c.translate(x+cw,y);c.scale(-1,1);c.drawImage(im,0,0,cw,ch);c.restore();}
