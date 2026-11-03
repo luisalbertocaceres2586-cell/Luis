@@ -1,0 +1,6 @@
+Arte de la intro:
+  villain.png   (incluido) Mago del Caos, aparece en el acto 2
+Opcional (reemplazan los fondos de cada acto si existen):
+  panel_1.jpg  Acto 1 - el Reino de los Numeros en paz (16:9, 1920x1080)
+  panel_2.jpg  Acto 2 - la corrupcion
+  panel_3.jpg  Acto 3 - fondo de los heroes
