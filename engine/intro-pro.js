@@ -25,6 +25,7 @@ const IM={logo:dom('#cineLogo')||dom('#introTitle'),panel:dom('#cineBeat3 img'),
   const m=d&&/url\(["']?([^"')]+)["']?\)/.exec(d.style.backgroundImage);IM.bg=m?img(m[1]):null;})();
 IM.villain=img('assets/intro/villain.png');
 const SK=((window.SAKURA_MANIFEST&&SAKURA_MANIFEST.run)||[]).map(f=>({img:img('assets/sakura/'+f.file),ax:f.ax,ay:f.ay}));
+const KG=((window.KAGE_MANIFEST&&KAGE_MANIFEST.run)||[]).map(f=>({img:img('assets/kage/'+f.file),ax:f.ax,ay:f.ay}));
 const PAN=[null,null,null,null];
 function tryPanel(n){return new Promise(res=>{const a=img('assets/intro/panel_'+n+'.jpg');
   a.onload=()=>{PAN[n-1]=a;res();};
@@ -158,7 +159,7 @@ function sparks(x,y,n){for(let i=0;i<n;i++){const a=rnd(0,6.283),s=rnd(120,620);
 function lightning(){boltT=T;flash=.85;shake=Math.max(shake,.7);
   const pts=[];let x=rnd(VW*.2,VW*.8),y=0;while(y<VH*.62){pts.push([x,y]);x+=rnd(-50,50);y+=rnd(25,60);}bolt=pts;}
 function skFrame(t,fps){return SK.length?SK[Math.floor(t*fps)%SK.length]:null;}
-function sprite(fr,x,gy,h,al){if(!fr||!ok(fr.img))return;const s=h/200;cx.globalAlpha=al==null?1:al;
+function sprite(fr,x,gy,h,al,nom){if(!fr||!ok(fr.img))return;const s=h/(nom||200);cx.globalAlpha=al==null?1:al;
   cx.drawImage(fr.img,x-fr.ax*s,gy-fr.ay*s,fr.img.naturalWidth*s,fr.img.naturalHeight*s);cx.globalAlpha=1;}
 function glitchPass(k){
   const b=document.createElement('canvas');b.width=cv.width;b.height=cv.height;const bx=b.getContext('2d');bx.drawImage(cv,0,0);
@@ -295,7 +296,9 @@ function drawStory(){
     const run=u<.98&&t<18.2;
     if(SK.length&&ok(SK[0].img)){const fr=run?skFrame(t,18):SK[1%SK.length];sprite(fr,xL,gyH,hh,fade);}
     else if(ok(IM.heroL)){cx.save();cx.globalAlpha=fade;cx.translate(xL,gyH-hh*.5);cx.scale(-1,1);const ar=IM.heroL.naturalWidth/IM.heroL.naturalHeight;cx.drawImage(IM.heroL,-hh*ar/2,-hh/2,hh*ar,hh);cx.restore();}
-    if(ok(IM.heroR)){const ar=IM.heroR.naturalWidth/IM.heroR.naturalHeight;cx.save();cx.globalAlpha=fade;cx.shadowColor='rgba(120,80,255,.8)';cx.shadowBlur=26;cx.drawImage(IM.heroR,xR-hh*ar/2,gyH-hh,hh*ar,hh);cx.restore();}
+    if(KG.length&&ok(KG[0].img)){const fr=run?KG[Math.floor(t*18)%KG.length]:KG[1%KG.length];
+      cx.save();cx.translate(xR,0);cx.scale(-1,1);cx.shadowColor='rgba(255,40,40,.6)';cx.shadowBlur=24;sprite(fr,0,gyH,hh,fade,240);cx.restore();}
+    else if(ok(IM.heroR)){const ar=IM.heroR.naturalWidth/IM.heroR.naturalHeight;cx.save();cx.globalAlpha=fade;cx.shadowColor='rgba(120,80,255,.8)';cx.shadowBlur=26;cx.drawImage(IM.heroR,xR-hh*ar/2,gyH-hh,hh*ar,hh);cx.restore();}
     if(run&&Math.random()<dt*28){sparks(xL-30,gyH-6,1);}
     const pa=ss(15.0,15.5,t)*(1-ss(17.7,18.1,t)),py=gyH-hh-VH*.03;
     plate('SAKURA','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
@@ -361,7 +364,7 @@ function runLoader(){
   const items=[];const add=p=>items.push(p);
   add(document.readyState==='complete'?Promise.resolve():new Promise(r=>addEventListener('load',r,{once:true})));
   add(document.fonts&&document.fonts.load?document.fonts.load('14px "Press Start 2P"').catch(()=>{}):Promise.resolve());
-  [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash,IM.villain].concat(SK.map(f=>f.img)).forEach(i=>{if(!i)return;add(ok(i)?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));});
+  [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash,IM.villain].concat(SK.map(f=>f.img),KG.map(f=>f.img)).forEach(i=>{if(!i)return;add(ok(i)?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));});
   [1,2,3,4].forEach(n=>add(tryPanel(n)));
   let done=0;items.forEach(p=>p.then(()=>{done++;real=done/items.length;}));real=0;
 }
