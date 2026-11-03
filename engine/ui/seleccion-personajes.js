@@ -51,21 +51,63 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Pantalla de p
   #cpick .cp-chip{font-family:inherit;font-size:clamp(7px,1.5vw,9px);padding:9px 12px;border-radius:20px;cursor:pointer;color:rgba(255,255,255,.7);
     background:rgba(0,0,30,.6);border:2px solid rgba(255,255,255,.2);-webkit-tap-highlight-color:transparent}
   #cpick .cp-chip.on{color:#fff;border-color:var(--c1);background:var(--c2);box-shadow:0 0 14px var(--c1)}
-  @media (max-height:520px){#cpick .cp-stage{height:clamp(120px,34vh,170px)}#cpick .cp-desc{display:none}#cpick .cp-name{margin-top:6px}#cpick .cp-role{margin:3px 0 5px}#cpick .cp-stats{margin-bottom:6px}#cpick .cp-skill{margin-bottom:6px;padding:6px 9px}}
+
+  .heroPick{max-width:min(96vw,860px)!important}
+  #cpick{max-width:100%}
+  #cpick .cp-grid{display:grid;grid-template-columns:1fr;gap:8px}
+  #cpick .cp-stage{height:clamp(140px,27vh,250px)}
+  #cpick .cp-name{font-size:clamp(15px,3.6vh,26px);margin-top:4px}
+  #cpick .cp-desc{display:none}
+  #cpick .cp-stats{margin-bottom:6px}#cpick .cp-skill{margin-bottom:6px;padding:7px 10px}
+  #cpick .cp-play{margin-top:4px}
+  #cpPlay #btnStart{margin:4px auto 0!important}
+  #cpPlay #btnStart img{width:auto!important;height:clamp(50px,10vh,86px)!important;max-width:100%}
+  #cpPlay #btnCont{margin:0 auto 4px!important;font-size:clamp(7px,1.4vw,9px)!important;padding:8px 12px!important}
+  #introTitle{max-height:19vh!important;width:auto!important;max-width:88vw}
+  /* PANTALLAS ANCHAS (computador, celular horizontal): dos columnas — personaje a la izquierda, información y JUGAR a la derecha */
+  @media (min-width:600px) and (min-aspect-ratio:11/10){
+    #cpick .cp-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center}
+    #cpick .cp-stage{height:clamp(150px,50vh,360px)}
+    #cpick .cp-right{text-align:left}
+    #cpick .cp-name,#cpick .cp-role{text-align:left}
+    #cpick .cp-name{margin-top:0;font-size:clamp(16px,4.4vh,30px)}
+    #cpick .cp-role{margin:3px 0 6px}
+    #cpick .cp-desc{display:block;margin:0 0 7px;max-width:none;font-size:clamp(6px,1.9vh,8px)}
+    #cpick .cp-stats,#cpick .cp-skill{margin-left:0;margin-right:0;max-width:none}
+    #cpick .cp-chips{justify-content:flex-start}
+    #cpPlay #btnStart{margin:6px 0 0!important}
+    #cpPlay #btnCont{margin:0 0 4px!important}
+    #introTitle{max-height:15vh!important}
+  }
+  @media (min-width:600px) and (min-aspect-ratio:11/10) and (max-height:520px){
+    #cpick .cp-desc{display:none}#cpick .cp-title{margin-bottom:2px}
+    #cpick .cp-stage{height:clamp(120px,46vh,200px)}
+    #cpick .cp-skill{padding:5px 8px}#cpick .cp-skill span{font-size:6px}
+    #cpick .cp-chip{padding:6px 10px}
+    #cpPlay #btnStart img{height:clamp(42px,12vh,60px)!important}
+    #introTitle{max-height:12vh!important}
+  }
   `;document.head.appendChild(css);
 
   const box=document.createElement('div');box.id='cpick';
   box.innerHTML=`<div class="cp-title">ELIGE A TU NINJA</div>
-   <div class="cp-stage swap" id="cpStage"><div class="cp-floor"></div><canvas id="cpCv" width="320" height="320"></canvas>
-     <div class="cp-emoji" id="cpEmo"></div>
-     <button class="cp-arrow l" id="cpL" aria-label="Anterior">◀</button><button class="cp-arrow r" id="cpR" aria-label="Siguiente">▶</button></div>
-   <div class="cp-name" id="cpName"></div><div class="cp-role" id="cpRole"></div><div class="cp-desc" id="cpDesc"></div>
-   <div class="cp-stats">
-     <label>SALTO</label><div class="cp-bar"><i id="cpJump"></i></div>
-     <label>VELOCIDAD</label><div class="cp-bar"><i id="cpSpd"></i></div></div>
-   <div class="cp-skill"><b id="cpSk"></b><span id="cpSkd"></span></div>
-   <div class="cp-chips" id="cpChips"></div>`;
+   <div class="cp-grid">
+    <div class="cp-left"><div class="cp-stage swap" id="cpStage"><div class="cp-floor"></div><canvas id="cpCv" width="320" height="320"></canvas>
+      <div class="cp-emoji" id="cpEmo"></div>
+      <button class="cp-arrow l" id="cpL" aria-label="Anterior">◀</button><button class="cp-arrow r" id="cpR" aria-label="Siguiente">▶</button></div></div>
+    <div class="cp-right">
+     <div class="cp-name" id="cpName"></div><div class="cp-role" id="cpRole"></div><div class="cp-desc" id="cpDesc"></div>
+     <div class="cp-stats">
+       <label>SALTO</label><div class="cp-bar"><i id="cpJump"></i></div>
+       <label>VELOCIDAD</label><div class="cp-bar"><i id="cpSpd"></i></div></div>
+     <div class="cp-skill"><b id="cpSk"></b><span id="cpSkd"></span></div>
+     <div class="cp-chips" id="cpChips"></div>
+     <div class="cp-play" id="cpPlay"></div>
+    </div>
+   </div>`;
   grid.parentNode.insertBefore(box,grid);
+  const play=document.getElementById('cpPlay');
+  ['btnCont','btnStart'].forEach(id=>{const el=document.getElementById(id);if(el)play.appendChild(el);});
   const chips=document.getElementById('cpChips');
   ORDER.forEach(c=>{const b=document.createElement('button');b.className='cp-chip';b.dataset.c=c;b.textContent=CH[c].emoji+' '+CH[c].n;
     b.onclick=()=>window.selChar(c);chips.appendChild(b);});
