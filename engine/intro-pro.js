@@ -87,6 +87,7 @@ const bell=(t,f,v)=>{osc('sine',f,t,1.8,v||.07,null,.005);osc('sine',f*2.76,t,.9
 function score(){
   [3.4,4.2,5.0,5.9,6.6].forEach((t,i)=>bell(t,[660,784,988,880,1175][i],.06));
   pad(2.0,5.4,55,.2);pad(2.0,5.4,82.4,.12);
+  [8.7,8.85,9.0].forEach((t,i)=>{nz(t,.18,.18+i*.06,'highpass',2200,7000);osc('square',180-i*30,t,.08,.05,60);});nz(9.2,.8,.45,'bandpass',2000,180);
   [7.4,9.2,10.9,12.3].forEach((t,i)=>{boom(t,.5);if(i!==1)nz(t,.35,.35,'highpass',3000,9000);});
   pad(7.2,6.4,49,.2);pad(7.2,6.4,73.4,.1);
   for(let t=13.6,i=0;t<17.8;t+=.5,i++)taiko(t,i%4===0?.55:.3);
@@ -166,6 +167,56 @@ function glitchPass(k){
   cx.restore();
 }
 
+
+/* ---------- la Tabla de Multiplicar (se agrieta y estalla) ---------- */
+const tabC=document.createElement('canvas'),SHARDS=[];let tabG=null,CRACKS=[];
+function rr(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
+function makeTablet(){
+  const w=Math.round(Math.min(VW*.2,250)),h=Math.round(w*1.3);if(tabG&&tabG.w===w)return;tabG={w,h};tabC.width=w;tabC.height=h;const x=tabC.getContext('2d');
+  const g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,'#6b6f85');g.addColorStop(.5,'#8d92ad');g.addColorStop(1,'#4d5068');
+  rr(x,5,5,w-10,h-10,w*.07);x.fillStyle=g;x.fill();x.lineWidth=5;x.strokeStyle='#2c2e3f';x.stroke();
+  rr(x,w*.09,w*.09,w-w*.18,h-w*.18,w*.04);x.lineWidth=2;x.strokeStyle='rgba(255,211,107,.8)';x.stroke();
+  x.textAlign='center';x.fillStyle='#ffd36b';x.shadowColor='#ff9a00';x.shadowBlur=12;
+  x.font=(w*.1)+'px "Press Start 2P",monospace';x.fillText('TABLA',w/2,h*.17);x.fillText('DEL 7',w/2,h*.17+w*.14);
+  x.font=(w*.088)+'px "Press Start 2P",monospace';
+  for(let i=1;i<=6;i++)x.fillText('7×'+i+'='+(7*i),w/2,h*.42+(i-1)*w*.14);
+  CRACKS=[];for(let k=0;k<5;k++){let px=w/2,py=h/2,a=k*1.25+rnd(-.3,.3);const pts=[[px,py]];for(let i=0;i<7;i++){a+=rnd(-.5,.5);px+=Math.cos(a)*w*.13;py+=Math.sin(a)*w*.13;pts.push([px,py]);}CRACKS.push(pts);}
+}
+function shatter(){
+  makeTablet();const {w,h}=tabG,gx=5,gy=6,cw=w/gx,ch=h/gy;SHARDS.length=0;
+  for(let i=0;i<gx;i++)for(let j=0;j<gy;j++){
+    const x0=i*cw-w/2,y0=j*ch-h/2,P=[[x0,y0],[x0+cw,y0],[x0+cw,y0+ch],[x0,y0+ch]],tris=Math.random()<.5?[[P[0],P[1],P[2]],[P[0],P[2],P[3]]]:[[P[0],P[1],P[3]],[P[1],P[2],P[3]]];
+    tris.forEach(tr=>{const c=[(tr[0][0]+tr[1][0]+tr[2][0])/3,(tr[0][1]+tr[1][1]+tr[2][1])/3];
+      SHARDS.push({tr,c,x:0,y:0,r:0,vx:c[0]*rnd(2.2,5),vy:c[1]*rnd(2,4)-rnd(80,260),vr:rnd(-7,7),l:0,L:rnd(1.6,2.6)});});}
+  shatterAt={x:VW/2,y:VH*.4};ring(VW/2,VH*.4,.8,VW*.5,'#ff3b5c');sparks(VW/2,VH*.4,90);
+}
+let shatterAt={x:0,y:0};
+function drawTablet(t,dt){
+  makeTablet();const {w,h}=tabG;
+  if(t>=7.9&&t<9.2){
+    const a=ss(7.9,8.6,t),tr=ss(8.4,9.2,t)*4,k=ss(8.6,9.15,t);
+    cx.save();cx.translate(VW/2+rnd(-tr,tr),VH*.4+Math.sin(t*2)*6+rnd(-tr,tr));cx.globalAlpha=a;
+    cx.shadowColor='rgba('+(255-k*60|0)+','+(170-k*130|0)+',40,.9)';cx.shadowBlur=30+k*30;cx.drawImage(tabC,-w/2,-h/2);cx.shadowBlur=0;
+    if(k>0){cx.translate(-w/2,-h/2);cx.lineCap='round';
+      CRACKS.forEach(pts=>{const n=Math.max(1,Math.floor(pts.length*k));cx.beginPath();pts.slice(0,n+1).forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1]));
+        cx.strokeStyle='#120410';cx.lineWidth=4;cx.stroke();cx.strokeStyle='rgba(255,70,90,'+(.4+k*.6)+')';cx.lineWidth=1.5;cx.stroke();});}
+    cx.restore();
+  }
+  for(let i=SHARDS.length-1;i>=0;i--){const p=SHARDS[i];p.l+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=760*dt;p.r+=p.vr*dt;
+    if(p.l>p.L){SHARDS.splice(i,1);continue;}
+    cx.save();cx.globalAlpha=1-ss(.6,1,p.l/p.L);cx.translate(shatterAt.x+p.c[0]+p.x,shatterAt.y+p.c[1]+p.y);cx.rotate(p.r);cx.translate(-p.c[0],-p.c[1]);
+    cx.beginPath();cx.moveTo(p.tr[0][0],p.tr[0][1]);cx.lineTo(p.tr[1][0],p.tr[1][1]);cx.lineTo(p.tr[2][0],p.tr[2][1]);cx.closePath();cx.clip();
+    cx.drawImage(tabC,-w/2,-h/2);cx.fillStyle='rgba(255,50,70,.25)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();}
+}
+/* ---------- placas de nombre de los héroes ---------- */
+function plate(txt,sub,x,y,col,a,off){
+  if(a<=0)return;const fs=Math.max(11,VW*.019);cx.save();cx.globalAlpha=a;cx.translate(x+off,y);cx.transform(1,0,-.22,1,0,0);
+  const w=Math.max(txt.length*fs*1.05,VW*.14)+fs,h=fs*3;const g=cx.createLinearGradient(-w/2,0,w/2,0);g.addColorStop(0,'rgba(5,0,25,.92)');g.addColorStop(1,col.replace('1)','.35)'));
+  cx.fillStyle=g;cx.fillRect(-w/2,-h/2,w,h);cx.fillStyle=col;cx.fillRect(-w/2,-h/2,w,3);cx.fillRect(-w/2,h/2-3,w,3);cx.fillRect(-w/2,-h/2,6,h);
+  cx.textAlign='center';cx.shadowColor=col;cx.shadowBlur=14;cx.fillStyle='#fff';cx.font=fs+'px "Press Start 2P",monospace';cx.fillText(txt,0,fs*.1);
+  cx.shadowBlur=0;cx.fillStyle='rgba(210,225,255,.85)';cx.font=(fs*.55)+'px "Press Start 2P",monospace';cx.fillText(sub,0,fs*1.1);cx.restore();
+}
+
 /* ---------- subtítulos con efecto de escritura ---------- */
 function say(txt){const cap=document.getElementById('ipCap');if(!cap)return;clearInterval(capTimer);cap.textContent='';cap.style.opacity=1;let i=0;
   capTimer=setInterval(()=>{cap.textContent=txt.slice(0,++i);if(i>=txt.length)clearInterval(capTimer);},34);}
@@ -176,7 +227,7 @@ function buildCues(){cues=[
  {t:2.6,f:()=>root.classList.add('cin')},
  {t:3.0,f:()=>say('Hace mucho tiempo, el Reino de los Números vivía en armonía…')},{t:6.6,f:hideCap},
  {t:7.4,f:lightning},{t:7.8,f:()=>say('…hasta que el CAOS robó todas las Tablas de Multiplicar.')},
- {t:9.2,f:lightning},{t:12.3,f:lightning},{t:12.8,f:hideCap},
+ {t:9.2,f:()=>{lightning();shatter();}},{t:12.3,f:lightning},{t:12.8,f:hideCap},
  {t:14.6,f:()=>say('Solo dos ninjas pueden recuperarlas…')},{t:17.5,f:()=>say('¡y necesitan TU ayuda!')},
  {t:18.2,f:()=>{flash=1;shake=1;ring(VW/2,VH*.6,.9,VW*.7,'#fff');ring(VW/2,VH*.6,1.3,VW*.9,'#ffb347');sparks(VW/2,VH*.6,70);}},
  {t:19.7,f:hideCap},{t:19.85,f:()=>flash=1},
@@ -200,6 +251,7 @@ function drawStory(){
   if(t>=19.5){const a=c3;const g=cx.createRadialGradient(VW/2,VH*.46,0,VW/2,VH*.46,Math.max(VW,VH)*.7);
     g.addColorStop(0,'rgba(120,50,10,'+(.7*a)+')');g.addColorStop(.5,'rgba(30,5,40,'+(.8*a)+')');g.addColorStop(1,'rgba(2,0,10,'+a+')');cx.fillStyle=g;cx.fillRect(0,0,VW,VH);}
   rays(t,t<7.3?ss(3,6,t):t<13.4?.3:t<19.6?.6:1);
+  if(t>=7.9&&t<13.5)drawTablet(t,dtG);
   /* tarjeta del estudio */
   if(t<3.6){const a=ss(.3,1.1,t)*(1-ss(2.6,3.5,t));cx.save();cx.globalAlpha=a;cx.textAlign='center';cx.fillStyle='#9fc8ff';
     cx.font=Math.max(9,VW*.012)+'px "Press Start 2P",monospace';cx.fillText('I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN',VW/2,VH*.46);
@@ -222,6 +274,9 @@ function drawStory(){
     else if(ok(IM.heroL)){cx.save();cx.globalAlpha=fade;cx.translate(xL,gyH-hh*.5);cx.scale(-1,1);const ar=IM.heroL.naturalWidth/IM.heroL.naturalHeight;cx.drawImage(IM.heroL,-hh*ar/2,-hh/2,hh*ar,hh);cx.restore();}
     if(ok(IM.heroR)){const ar=IM.heroR.naturalWidth/IM.heroR.naturalHeight;cx.save();cx.globalAlpha=fade;cx.shadowColor='rgba(120,80,255,.8)';cx.shadowBlur=26;cx.drawImage(IM.heroR,xR-hh*ar/2,gyH-hh,hh*ar,hh);cx.restore();}
     if(run&&Math.random()<dt*28){sparks(xL-30,gyH-6,1);}
+    const pa=ss(15.0,15.5,t)*(1-ss(17.7,18.1,t)),py=gyH-hh-VH*.03;
+    plate('SAKURA','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
+    plate('KAGE','LA SOMBRA',VW*.66,py,'rgba(130,100,255,1)',ss(15.4,15.9,t)*(1-ss(17.7,18.1,t)),(1-ss(15.4,16.0,t))*140);
     if(t>=18.2&&t<19.8&&ok(IM.slash)){const sc=.3+eo((t-18.2)/.5)*.9,al=1-ss(18.9,19.7,t);const ar=IM.slash.naturalHeight/IM.slash.naturalWidth,w=VW*.6*sc;
       const sw=Math.max(8,w|0),shh=Math.max(8,(w*ar)|0);slashC.width=sw;slashC.height=shh;const sx=slashC.getContext('2d');
       sx.clearRect(0,0,sw,shh);sx.drawImage(IM.slash,0,0,sw,shh);sx.globalCompositeOperation='destination-in';
@@ -336,7 +391,7 @@ function loop(ts){
 }
 
 function build(opts){
-  dead=false;phase='load';DIG.length=EMB.length=RING.length=SPK.length=0;shake=flash=glitchK=0;bolt=null;
+  dead=false;phase='load';DIG.length=EMB.length=RING.length=SPK.length=SHARDS.length=0;shake=flash=glitchK=0;bolt=null;
   full=opts.full;
   document.documentElement.classList.add('ipActive');
   root=mk('div','ipRoot',document.body);cv=mk('canvas','ipCv',root);cx=cv.getContext('2d');
