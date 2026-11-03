@@ -23,7 +23,5 @@ function release(){
 }
 ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>addEventListener(ev,e=>{if(e.target&&e.target.id==='mbJ')release();},true));
 addEventListener('blur',()=>{K['Space']=0;held=false;});
-const st=document.createElement('style');
-st.textContent='#mctl{--mbs:clamp(46px,14vh,66px)!important}.mbt{opacity:.7}';
-document.head.appendChild(st);
+/* El tamaño de los botones lo controla ahora engine/ui/controles-tactiles-extra.js (🧩 MEJORAS → tamaño). */
 })();
