@@ -23,6 +23,7 @@ const IM={logo:dom('#cineLogo')||dom('#introTitle'),panel:dom('#cineBeat3 img'),
   heroL:dom('#cineBeat4 img',0),heroR:dom('#cineBeat4 img',1),slash:dom('#cineSlash')};
 (function(){const d=S0.querySelector('div[style*="background-image"]');
   const m=d&&/url\(["']?([^"')]+)["']?\)/.exec(d.style.backgroundImage);IM.bg=m?img(m[1]):null;})();
+IM.villain=img('assets/intro/villain.png');
 const SK=((window.SAKURA_MANIFEST&&SAKURA_MANIFEST.run)||[]).map(f=>({img:img('assets/sakura/'+f.file),ax:f.ax,ay:f.ay}));
 const PAN=[null,null,null,null];
 function tryPanel(n){return new Promise(res=>{const a=img('assets/intro/panel_'+n+'.jpg');
@@ -87,6 +88,8 @@ const bell=(t,f,v)=>{osc('sine',f,t,1.8,v||.07,null,.005);osc('sine',f*2.76,t,.9
 function score(){
   [3.4,4.2,5.0,5.9,6.6].forEach((t,i)=>bell(t,[660,784,988,880,1175][i],.06));
   pad(2.0,5.4,55,.2);pad(2.0,5.4,82.4,.12);
+  osc('sawtooth',74,9.5,2.8,.12,34,.7);osc('square',37,9.5,2.8,.07,30,.9);nz(9.5,2.4,.12,'lowpass',500,90,.8);
+  osc('sawtooth',233,9.7,1.6,.045,220,.5);osc('sawtooth',247,9.7,1.6,.045,233,.5);
   [8.7,8.85,9.0].forEach((t,i)=>{nz(t,.18,.18+i*.06,'highpass',2200,7000);osc('square',180-i*30,t,.08,.05,60);});nz(9.2,.8,.45,'bandpass',2000,180);
   [7.4,9.2,10.9,12.3].forEach((t,i)=>{boom(t,.5);if(i!==1)nz(t,.35,.35,'highpass',3000,9000);});
   pad(7.2,6.4,49,.2);pad(7.2,6.4,73.4,.1);
@@ -117,7 +120,8 @@ function spawnDig(kind){
   else DIG.push({s,size,x:rnd(0,VW),y:-30,vx:rnd(-30,30),vy:rnd(120,320),l:0,L:rnd(2,4),col:Math.random()<.8?'#ff3b5c':'#ffffff'});
 }
 function spawnEmb(kind){
-  if(kind==='petal')EMB.push({k:1,x:rnd(-40,VW),y:-20,vx:rnd(20,60),vy:rnd(30,70),r:rnd(2,5),l:0,L:rnd(7,12),ph:rnd(0,6),col:'#ffb7d5'});
+  if(kind==='magic')EMB.push({k:0,x:rnd(VW*.35,VW*.95),y:rnd(VH*.5,VH*.95),vx:rnd(-15,15),vy:-rnd(60,170),r:rnd(1.5,4),l:0,L:rnd(2,4),ph:rnd(0,6),col:Math.random()<.5?'#b45cff':'#e6a0ff'});
+  else if(kind==='petal')EMB.push({k:1,x:rnd(-40,VW),y:-20,vx:rnd(20,60),vy:rnd(30,70),r:rnd(2,5),l:0,L:rnd(7,12),ph:rnd(0,6),col:'#ffb7d5'});
   else EMB.push({k:0,x:rnd(0,VW),y:VH+10,vx:rnd(-20,20),vy:-rnd(40,130),r:rnd(1,3),l:0,L:rnd(3,6),ph:rnd(0,6),col:Math.random()<.5?'#ffb347':'#ff6a3d'});
 }
 function cover(im,a,z,px,py){if(!ok(im)||a<=0)return;const s=Math.max(VW/im.naturalWidth,VH/im.naturalHeight)*z,w=im.naturalWidth*s,h=im.naturalHeight*s;
@@ -208,6 +212,23 @@ function drawTablet(t,dt){
     cx.beginPath();cx.moveTo(p.tr[0][0],p.tr[0][1]);cx.lineTo(p.tr[1][0],p.tr[1][1]);cx.lineTo(p.tr[2][0],p.tr[2][1]);cx.closePath();cx.clip();
     cx.drawImage(tabC,-w/2,-h/2);cx.fillStyle='rgba(255,50,70,.25)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();}
 }
+
+/* ---------- el villano: Mago del Caos ---------- */
+const EYES=[[.5156,.1431],[.6001,.1596]],BOOK=[.825,.303];
+function glowAt(x,y,r,rgba0){const g=cx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba0);g.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=g;cx.fillRect(x-r,y-r,r*2,r*2);}
+function drawVillain(t){
+  const im=IM.villain;if(!ok(im))return;const a=ss(9.5,11.0,t)*(1-ss(12.9,13.6,t));if(a<=.01)return;
+  const rise=eo((t-9.5)/2.0),h=VH*.78*(.9+.1*rise)+Math.sin(t*1.4)*4,w=h*im.naturalWidth/im.naturalHeight;
+  const x=VW*.66,base=VH*.9+(1-rise)*VH*.2+Math.sin(t*1.5)*5,tx=x-w/2,ty=base-h,sh=shake*5;
+  cx.save();cx.translate(rnd(-sh,sh),rnd(-sh,sh));
+  cx.globalCompositeOperation='lighter';glowAt(x,base-h*.5,h*.75,'rgba(150,40,255,'+(.5*a)+')');cx.globalCompositeOperation='source-over';
+  cx.globalAlpha=a;cx.drawImage(im,tx,ty,w,h);cx.globalAlpha=1;
+  cx.globalCompositeOperation='lighter';
+  const pul=.65+.35*Math.sin(t*7)+(Math.random()<.04?.5:0);
+  EYES.forEach(e=>{const ex=tx+e[0]*w,ey=ty+e[1]*h;glowAt(ex,ey,h*.07,'rgba(255,40,30,'+Math.min(1,.9*pul)*a+')');glowAt(ex,ey,h*.022,'rgba(255,230,160,'+a+')');});
+  glowAt(tx+BOOK[0]*w,ty+BOOK[1]*h,h*.12,'rgba(190,110,255,'+(.45+.25*Math.sin(t*4))*a+')');
+  cx.restore();
+}
 /* ---------- placas de nombre de los héroes ---------- */
 function plate(txt,sub,x,y,col,a,off){
   if(a<=0)return;const fs=Math.max(11,VW*.019);cx.save();cx.globalAlpha=a;cx.translate(x+off,y);cx.transform(1,0,-.22,1,0,0);
@@ -252,6 +273,7 @@ function drawStory(){
     g.addColorStop(0,'rgba(120,50,10,'+(.7*a)+')');g.addColorStop(.5,'rgba(30,5,40,'+(.8*a)+')');g.addColorStop(1,'rgba(2,0,10,'+a+')');cx.fillStyle=g;cx.fillRect(0,0,VW,VH);}
   rays(t,t<7.3?ss(3,6,t):t<13.4?.3:t<19.6?.6:1);
   if(t>=7.9&&t<13.5)drawTablet(t,dtG);
+  if(t>=9.5&&t<13.7){drawVillain(t);plate('MAGO DEL CAOS','EL LADRÓN DE TABLAS',VW*.3,VH*.46,'rgba(170,70,255,1)',ss(10.6,11.1,t)*(1-ss(12.5,12.9,t)),-(1-ss(10.6,11.3,t))*150);}
   /* tarjeta del estudio */
   if(t<3.6){const a=ss(.3,1.1,t)*(1-ss(2.6,3.5,t));cx.save();cx.globalAlpha=a;cx.textAlign='center';cx.fillStyle='#9fc8ff';
     cx.font=Math.max(9,VW*.012)+'px "Press Start 2P",monospace';cx.fillText('I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN',VW/2,VH*.46);
@@ -260,6 +282,7 @@ function drawStory(){
   const dt=dtG;
   if(t>1.5&&t<7.3&&Math.random()<dt*9)spawnDig('up');
   if(t>=7.3&&t<13.6&&Math.random()<dt*(14+(t-7.3)*3))spawnDig('down');
+  if(t>=9.6&&t<13.4&&Math.random()<dt*26)spawnEmb('magic');
   if(t>13.6&&t<19.5&&Math.random()<dt*3)spawnEmb('ember');
   if(t>=20&&Math.random()<dt*70)spawnEmb('ember');
   if(t>1.5&&t<7.3&&Math.random()<dt*7)spawnEmb('petal');
@@ -338,7 +361,7 @@ function runLoader(){
   const items=[];const add=p=>items.push(p);
   add(document.readyState==='complete'?Promise.resolve():new Promise(r=>addEventListener('load',r,{once:true})));
   add(document.fonts&&document.fonts.load?document.fonts.load('14px "Press Start 2P"').catch(()=>{}):Promise.resolve());
-  [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash].concat(SK.map(f=>f.img)).forEach(i=>{if(!i)return;add(ok(i)?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));});
+  [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash,IM.villain].concat(SK.map(f=>f.img)).forEach(i=>{if(!i)return;add(ok(i)?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));});
   [1,2,3,4].forEach(n=>add(tryPanel(n)));
   let done=0;items.forEach(p=>p.then(()=>{done++;real=done/items.length;}));real=0;
 }
