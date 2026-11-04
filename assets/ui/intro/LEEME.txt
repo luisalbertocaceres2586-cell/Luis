@@ -1,0 +1,5 @@
+Arte opcional de la intro (reemplaza los fondos de cada acto si existe):
+  panel_1.jpg  Acto 1 - el Reino de los Numeros en paz (16:9, 1920x1080)
+  panel_2.jpg  Acto 2 - la corrupcion
+  panel_3.jpg  Acto 3 - fondo de los heroes
+(tambien se aceptan .png). El retrato del villano esta en assets/characters/villain/portrait.png

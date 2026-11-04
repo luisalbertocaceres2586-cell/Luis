@@ -1,6 +1,6 @@
 /* INTRO PRO — apertura cinematográfica: carga real → "toca para comenzar" → historia en 4 actos → título → transición al menú.
    · Usa las imágenes que el juego ya trae (fondo, logo, héroes, panel oscuro) y las animaciones nuevas de Sakura.
-   · Arte opcional: assets/intro/panel_1.jpg … panel_4.jpg (o .png) reemplazan los fondos de cada acto.
+   · Arte opcional: assets/ui/intro/panel_1.jpg … panel_4.jpg (o .png) reemplazan los fondos de cada acto.
    · Jugadores con partida guardada ven una versión corta (carga + título). ?intro=full fuerza la historia · ?intro=0 la desactiva.
    · Botón "HISTORIA" en el menú (o IntroPro.replay()) la repite. */
 (function(){
@@ -23,13 +23,13 @@ const IM={logo:dom('#cineLogo')||dom('#introTitle'),panel:dom('#cineBeat3 img'),
   heroL:dom('#cineBeat4 img',0),heroR:dom('#cineBeat4 img',1),slash:dom('#cineSlash')};
 (function(){const d=S0.querySelector('div[style*="background-image"]');
   const m=d&&/url\(["']?([^"')]+)["']?\)/.exec(d.style.backgroundImage);IM.bg=m?img(m[1]):null;})();
-IM.villain=img('assets/intro/villain.png');
-const SK=((window.SAKURA_MANIFEST&&SAKURA_MANIFEST.run)||[]).map(f=>({img:img('assets/sakura/'+f.file),ax:f.ax,ay:f.ay}));
-const KG=((window.KAGE_MANIFEST&&KAGE_MANIFEST.run)||[]).map(f=>({img:img('assets/kage/'+f.file),ax:f.ax,ay:f.ay}));
+IM.villain=img('assets/characters/villain/portrait.png');
+const SK=((window.SAKURA_MANIFEST&&SAKURA_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/sakura/'+f.file),ax:f.ax,ay:f.ay}));
+const KG=((window.KAGE_MANIFEST&&KAGE_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/kage/'+f.file),ax:f.ax,ay:f.ay}));
 const PAN=[null,null,null,null];
-function tryPanel(n){return new Promise(res=>{const a=img('assets/intro/panel_'+n+'.jpg');
+function tryPanel(n){return new Promise(res=>{const a=img('assets/ui/intro/panel_'+n+'.jpg');
   a.onload=()=>{PAN[n-1]=a;res();};
-  a.onerror=()=>{const b=img('assets/intro/panel_'+n+'.png');b.onload=()=>{PAN[n-1]=b;res();};b.onerror=()=>res();};});}
+  a.onerror=()=>{const b=img('assets/ui/intro/panel_'+n+'.png');b.onload=()=>{PAN[n-1]=b;res();};b.onerror=()=>res();};});}
 
 /* ---------- estilos ---------- */
 if(!document.getElementById('ipCss')){const st=mk('style','ipCss',document.head);st.textContent=`

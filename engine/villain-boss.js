@@ -1,12 +1,12 @@
 /* VILLAIN BOSS — el Mago del Caos como jefe final (nivel "El Trono del Caos Final").
-   Sustituye el sprite estático del jefe 7 por su ciclo de caminata (assets/villain/): pasea de lado a lado frente al jugador,
+   Sustituye el sprite estático del jefe 7 por su ciclo de caminata (assets/characters/villain/): pasea de lado a lado frente al jugador,
    con aura morada; al estar herido (≤ mitad de vida) se tiñe de rojo. La lógica de combate, vida y preguntas no cambia.
    Desactivar: ?villain=0 en la URL. */
 (function(){
 'use strict';
 if(/[?&]villain=0/.test(location.search))return;
 if(!window.VILLAIN_MANIFEST||typeof SPR==='undefined')return;
-const M=VILLAIN_MANIFEST,base='assets/villain/';
+const M=VILLAIN_MANIFEST,base='assets/characters/villain/';
 const all=M.walk.map(f=>({img:Object.assign(new Image(),{src:base+f.file}),ax:f.ax,ay:f.ay}));
 const loop=all.slice(5);                       /* cuadros 5–24 = ciclo de caminata continuo (0–4 son el arranque) */
 const tint=new WeakMap();

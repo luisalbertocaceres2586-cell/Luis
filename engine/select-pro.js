@@ -1,11 +1,11 @@
-/* SELECT PRO — ilustraciones nuevas en el selector de personajes de la portada (assets/select/).
+/* SELECT PRO — ilustraciones nuevas en el selector de personajes de la portada (assets/ui/select/).
    Kage = asignado a la tarjeta "peach", Sakura = tarjeta "mario". Se pueden probar los 3 pares de arte con ?sel=1, ?sel=2 o ?sel=3 (por defecto 3).
    Si una imagen no carga, la tarjeta conserva su ilustración anterior. Desactivar: ?sel=0 */
 (function(){
 'use strict';
 const m=/[?&]sel=(\d)/.exec(location.search),N=m?m[1]:'3';
 if(N==='0'||!/^[123]$/.test(N))return;
-const ART={mario:'assets/select/sakura_'+N+'.png',peach:'assets/select/kage_'+N+'.png'};
+const ART={mario:'assets/ui/select/sakura_'+N+'.png',peach:'assets/ui/select/kage_'+N+'.png'};
 const st=document.createElement('style');
 st.textContent=`
 .hcardArtBig{width:auto!important;height:clamp(160px,33vh,250px)!important;max-width:100%!important;object-fit:contain;border-radius:0!important;
