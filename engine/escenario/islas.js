@@ -18,7 +18,15 @@ const SETS={
   castle:['203','209','108','215'],crypt:['203','209','215','206'],boss:['215','110','204','108'],
   storm:['214','206','210','113']
 };
-const MOVING=['107','213','207'];                 // plataformas móviles: tablones de madera
+const MOVING=['107','213','207'];
+/* PLATAFORMAS MÓVILES: UNA sola imagen fija por tipo, sin elegir nada al azar ni depender de la posición:
+   las que suben y bajan (elevator) siempre usan el tablón 213; las que van de lado a lado (horizontal), el 107. */
+const FIJA={elevator:'213',horizontal:'107'};
+function islaDe(pl,list){
+  if(pl.moving)return FIJA[pl.mvType]||'213';                 // móvil de diseño: siempre la misma
+  if(pl._islK&&ISLAS_META[pl._islK])return pl._islK;          // las demás: se elige una vez y se recuerda
+  return pl._islK=pick(list,pl);
+}                 // plataformas móviles: tablones de madera
 const imgs={};
 function img(k){let i=imgs[k];if(!i){i=imgs[k]=new Image();i.src='assets/islas/isla_'+k+'.png';}return i;}
 /* La isla de cada plataforma se elige UNA sola vez y se guarda en la plataforma (pl._islK):
@@ -33,7 +41,7 @@ NinjaMods.register({id:'islas-flotantes',carpeta:'escenario',nombre:'Islas flota
   window.drawPlatform=function(pl,bg,style){
     if(pl.isSkyZone||pl.isSkyPortal||pl.type==='ground')return o.apply(this,arguments);
     const px=pl.x-camX;if(px+pl.w<-80||px>W+80)return;
-    const list=pl.moving?MOVING:(SETS[bg]||SETS.prairie),k=(pl._islK&&ISLAS_META[pl._islK]?pl._islK:(pl._islK=pick(list,pl))),m=ISLAS_META[k],im=img(k);
+    const list=pl.moving?MOVING:(SETS[bg]||SETS.prairie),k=islaDe(pl,list),m=ISLAS_META[k],im=img(k);
     if(!m||!im.complete||!im.naturalWidth)return o.apply(this,arguments);   // mientras carga, dibujo original
     // ancho: un poco más que la plataforma; alto limitado para que no tape el escenario
     let dw=Math.min(pl.w*1.1,200),sc=dw/m.w;const maxH=125;if(m.h*sc>maxH){sc=maxH/m.h;dw=m.w*sc;}
