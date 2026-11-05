@@ -26,6 +26,45 @@ const M=window.NinjaMods={list:[],changed:false,
   tap(code,ms){K[code]=1;setTimeout(()=>{K[code]=0;},ms||90);}
 };
 
+
+/* ---------- utilidades compartidas por las mejoras (banner, destello, chips, posiciones) ---------- */
+(function(){
+  const st=document.createElement('style');st.textContent=`
+  #nmBanner{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%) scale(.6);z-index:9000;pointer-events:none;opacity:0;text-align:center;
+    font-family:'Press Start 2P',monospace;font-size:clamp(14px,3.6vw,28px);color:#fff;text-shadow:0 0 14px var(--nb,#fff),3px 3px 0 #000;white-space:nowrap}
+  #nmBanner small{display:block;margin-top:8px;font-size:.42em;color:#FFE9A8;text-shadow:2px 2px 0 #000}
+  #nmBanner.on{animation:nmBan 1.7s cubic-bezier(.2,1.2,.3,1) forwards}
+  @keyframes nmBan{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}22%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+  #nmFlash{position:fixed;inset:0;z-index:8999;pointer-events:none;opacity:0;background:radial-gradient(circle,var(--nf,#fff) 0%,transparent 70%)}
+  #nmFlash.on{animation:nmFl .38s ease-out}@keyframes nmFl{0%{opacity:.85}100%{opacity:0}}
+  #nmChips{position:fixed;left:8px;top:92px;z-index:60;display:flex;flex-direction:column;gap:4px;pointer-events:none;font-family:'Press Start 2P',monospace}
+  #nmChips div{font-size:clamp(6px,1.2vw,8px);color:#fff;padding:4px 8px;border-radius:14px;background:rgba(0,0,40,.72);border:1px solid var(--c,#8cf);text-shadow:1px 1px 0 #000;animation:pillPop .25s cubic-bezier(.34,1.56,.64,1)}`;
+  document.head.appendChild(st);
+  const ban=document.createElement('div');ban.id='nmBanner';document.body.appendChild(ban);
+  const fl=document.createElement('div');fl.id='nmFlash';document.body.appendChild(fl);
+  const chips=document.createElement('div');chips.id='nmChips';document.body.appendChild(chips);
+  const U=M.util={
+    banner(t,sub,col){ban.style.setProperty('--nb',col||'#fff');ban.innerHTML=t+(sub?'<small>'+sub+'</small>':'');ban.classList.remove('on');void ban.offsetWidth;ban.classList.add('on');},
+    flash(col){fl.style.setProperty('--nf',col||'#fff');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');},
+    chip(id,html,col){let e=document.getElementById('nmc-'+id);
+      if(!html){if(e)e.remove();return;}
+      if(!e){e=document.createElement('div');e.id='nmc-'+id;chips.appendChild(e);}
+      e.style.setProperty('--c',col||'#8cf');e.innerHTML=html;},
+    vibrar(ms){try{if(navigator.vibrate)navigator.vibrate(ms||25);}catch(e){}},
+    /* plataformas fijas (no suelo, no móviles, no del cielo), ordenadas de izquierda a derecha */
+    /* alcanzables: a una altura que se puede saltar desde el suelo (sin las del cielo) */
+    fijas(){const gy=(typeof groundY==='function')?groundY():320;
+      return (typeof platforms!=='undefined'?platforms:[]).filter(p=>p.type!=='ground'&&!p.moving&&!p.mvType&&!p.isSkyZone&&!p.isSkyPortal&&p.w>=60&&p.y>gy-175&&p.y<gy-30).sort((a,b)=>a.x-b.x);},
+    /* pantalla del héroe */
+    heroXY(){return{x:P.x-camX+P.w/2,y:P.y+P.h/2};},
+    /* congelar el mundo unos cuadros (impacto al recoger un poder, sala secreta...) */
+    congelar(n){M._frz=Math.max(M._frz||0,n);}
+  };
+  /* "update" con congelación: se envuelve UNA vez aquí para todas las mejoras */
+  const o=window.update;
+  if(typeof o==='function')window.update=function(dt){if(M._frz>0){M._frz--;return;}if(M.pausaMundo)return;return o.apply(this,arguments);};
+})();
+
 /* ---------- panel "🧩 MEJORAS" ---------- */
 const css=document.createElement('style');css.textContent=`
 #modsPanel{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(2,0,20,.86);padding:12px}

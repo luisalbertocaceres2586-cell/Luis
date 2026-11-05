@@ -1759,7 +1759,8 @@ const N1={imgs:{},nubes:[],inst:[],
       if(n.z!==z)continue;const im=this.nubes[n.img%this.nubes.length];if(!im||!im.complete||!im.naturalWidth)continue;
       const cw=Math.min(W*1.1,GYv*1.15)*n.sc*1.9,ch=cw*(im.naturalHeight/im.naturalWidth),per=per0+cw;
       // posición propia: deriva a su velocidad + parallax con la cámara, envuelta en el ancho visible
-      const x=(((n.x0*per - t*n.sp*60 - camX*n.par)%per)+per)%per-cw;
+      // deriva en px/segundo (t viene en milisegundos): lejanas ≈2 px/s, cercanas ≈20 px/s
+      const x=(((n.x0*per - (t/1000)*n.sp*500 - camX*n.par)%per)+per)%per-cw;
       const y=GYv*n.y+Math.sin(t*.0006+n.bob)*n.bobA;
       c.globalAlpha=n.al;
       if(n.flip){c.save();c.translate(x+cw,y);c.scale(-1,1);c.drawImage(im,0,0,cw,ch);c.restore();}
@@ -4357,7 +4358,7 @@ function drawSkyItems(){
     CX.shadowBlur=0;
     const pIcon = POWER_ICONS[s.type];
     if(pIcon && pIcon.complete && pIcon.naturalWidth>0){
-      const iSize=40;
+      const iSize=54;   // iconos nuevos (assets/poderes), más grandes para que se lean bien
       CX.drawImage(pIcon,0,0,pIcon.naturalWidth,pIcon.naturalHeight,sx+16-iSize/2,sy+16-iSize/2,iSize,iSize);
     } else {
       CX.fillStyle='rgba(0,0,10,0.75)';
@@ -9585,13 +9586,18 @@ function drawMiniPeach(canvasId){
 <script src="engine/villain-boss.js"></script>
 <script src="engine/intro-pro.js"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script src="engine/core/modulos.js"></script>
-<script src="engine/escenario/islas.js"></script>
-<script src="engine/ui/seleccion-personajes.js"></script>
-<script src="engine/ui/controles-tactiles-extra.js"></script>
-<script src="engine/ui/barra-progreso.js"></script>
-<script src="engine/movimiento/caida-rapida.js"></script>
-<script src="engine/combate/racha.js"></script>
-<script src="engine/educativo/repaso-errores.js"></script>
+<script src="engine/core/modulos.js?v=4"></script>
+<script src="engine/escenario/islas.js?v=4"></script>
+<script src="engine/ui/seleccion-personajes.js?v=4"></script>
+<script src="engine/ui/controles-tactiles-extra.js?v=4"></script>
+<script src="engine/ui/barra-progreso.js?v=4"></script>
+<script src="engine/movimiento/caida-rapida.js?v=4"></script>
+<script src="engine/combate/racha.js?v=4"></script>
+<script src="engine/educativo/repaso-errores.js?v=4"></script>
+<script src="engine/poderes/iconos.js?v=5"></script>
+<script src="engine/poderes/impacto-poderes.js?v=4"></script>
+<script src="engine/poderes/pista-reloj.js?v=4"></script>
+<script src="engine/secretos/flores-doradas.js?v=4"></script>
+<script src="engine/secretos/tuberia-secreta.js?v=4"></script>
 </body>
 </html>
