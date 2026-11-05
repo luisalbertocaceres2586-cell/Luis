@@ -4358,7 +4358,7 @@ function drawSkyItems(){
     CX.shadowBlur=0;
     const pIcon = POWER_ICONS[s.type];
     if(pIcon && pIcon.complete && pIcon.naturalWidth>0){
-      const iSize=40;
+      const iSize=54;   // iconos nuevos (assets/poderes), más grandes para que se lean bien
       CX.drawImage(pIcon,0,0,pIcon.naturalWidth,pIcon.naturalHeight,sx+16-iSize/2,sy+16-iSize/2,iSize,iSize);
     } else {
       CX.fillStyle='rgba(0,0,10,0.75)';
@@ -9595,6 +9595,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/movimiento/caida-rapida.js?v=4"></script>
 <script src="engine/combate/racha.js?v=4"></script>
 <script src="engine/educativo/repaso-errores.js?v=4"></script>
+<script src="engine/poderes/iconos.js?v=5"></script>
 <script src="engine/poderes/impacto-poderes.js?v=4"></script>
 <script src="engine/poderes/pista-reloj.js?v=4"></script>
 <script src="engine/secretos/flores-doradas.js?v=4"></script>
