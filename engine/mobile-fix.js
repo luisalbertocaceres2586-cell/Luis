@@ -11,19 +11,23 @@ if(typeof doJump!=='function'||typeof update!=='function'||typeof K==='undefined
 let inUpd=false,downAt=0,relT=0,held=false;
 const _u=window.update;
 window.update=function(){inUpd=true;try{return _u.apply(this,arguments);}finally{inUpd=false;}};
+function touchJump(){
+  held=true;downAt=performance.now();K['Space']=1;    /* toque: se comporta como tecla */
+  clearTimeout(relT);relT=setTimeout(release,700);   /* seguridad: nunca queda "pegada" */
+}
 const _j=window.doJump;
 window.doJump=function(){
   if(inUpd)return _j.apply(this,arguments);          /* llamada legítima desde la física (suelo/coyote/buffer) */
-  held=true;downAt=performance.now();K['Space']=1;    /* toque: se comporta como tecla */
-  clearTimeout(relT);relT=setTimeout(release,700);   /* seguridad: nunca queda "pegada" */
+  touchJump();                                        /* llamada directa (versiones antiguas del botón) */
 };
+/* El botón ⬆ actual ya presiona la flecha ↑ (salto solo desde el suelo). Aquí solo se garantiza una pulsación mínima de
+   ~150 ms para que un toque rápido dé un salto casi completo (el salto variable corta el salto al soltar el botón). */
+addEventListener('pointerdown',e=>{if(e.target&&e.target.id==='mbJ')touchJump();},true);
 function release(){
   if(!held)return;const wait=Math.max(0,150-(performance.now()-downAt));   /* mínimo ~9 cuadros (un toque = salto casi completo) para que la física vea el toque */
   clearTimeout(relT);relT=setTimeout(()=>{K['Space']=0;held=false;},wait);
 }
 ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>addEventListener(ev,e=>{if(e.target&&e.target.id==='mbJ')release();},true));
 addEventListener('blur',()=>{K['Space']=0;held=false;});
-const st=document.createElement('style');
-st.textContent='#mctl{--mbs:clamp(46px,14vh,66px)!important}.mbt{opacity:.7}';
-document.head.appendChild(st);
+/* El tamaño de los botones lo controla ahora engine/ui/controles-tactiles-extra.js (🧩 MEJORAS → tamaño). */
 })();
