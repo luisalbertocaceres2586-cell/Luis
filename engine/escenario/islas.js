@@ -1,5 +1,5 @@
 /* engine/escenario — Islas flotantes
-   Sustituye el dibujo de las plataformas del aire por islas pintadas (assets/islas/, 30 sprites).
+   Sustituye el dibujo de las plataformas del aire por islas pintadas (assets/environment/platforms/islands/, 30 sprites).
    La COLISIÓN no cambia: cada isla se escala al ancho de la plataforma y se alinea para que la "superficie"
    del dibujo quede justo donde se para el héroe. Cada nivel usa su propio set de islas según su tema.
    El suelo continuo y las plataformas de la zona del cielo se siguen dibujando como antes. */
@@ -28,7 +28,7 @@ function islaDe(pl,list){
   return pl._islK=pick(list,pl);
 }                 // plataformas móviles: tablones de madera
 const imgs={};
-function img(k){let i=imgs[k];if(!i){i=imgs[k]=new Image();i.src='assets/islas/isla_'+k+'.png';}return i;}
+function img(k){let i=imgs[k];if(!i){i=imgs[k]=new Image();i.src='assets/environment/platforms/islands/isla_'+k+'.png';}return i;}
 /* La isla de cada plataforma se elige UNA sola vez y se guarda en la plataforma (pl._islK):
    antes dependía de pl.x, y en las plataformas móviles cambiaba en cada cuadro, así que las islas se intercambiaban sin parar. */
 function pick(list,pl){const h=Math.abs(Math.floor(pl.x*0.37+pl.y*1.31+(pl.w||0)*0.11));return list[h%list.length];}

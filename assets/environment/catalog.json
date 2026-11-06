@@ -375,19 +375,6 @@
   "sheet": 4
  },
  {
-  "id": "floating_island_grass_b",
-  "file": "assets/environment/props/islands/floating_island_grass_b.png",
-  "cat": "props",
-  "sub": "islands",
-  "w": 367,
-  "h": 274,
-  "anchor": [
-   0.5,
-   1.0
-  ],
-  "sheet": 4
- },
- {
   "id": "rope_bridge_b",
   "file": "assets/environment/props/bridges/rope_bridge_b.png",
   "cat": "props",
@@ -498,45 +485,6 @@
   "sub": "objects",
   "w": 167,
   "h": 350,
-  "anchor": [
-   0.5,
-   1.0
-  ],
-  "sheet": 5
- },
- {
-  "id": "island_waterfall_c",
-  "file": "assets/environment/props/islands/island_waterfall_c.png",
-  "cat": "props",
-  "sub": "islands",
-  "w": 296,
-  "h": 216,
-  "anchor": [
-   0.5,
-   1.0
-  ],
-  "sheet": 5
- },
- {
-  "id": "island_small_c",
-  "file": "assets/environment/props/islands/island_small_c.png",
-  "cat": "props",
-  "sub": "islands",
-  "w": 161,
-  "h": 149,
-  "anchor": [
-   0.5,
-   1.0
-  ],
-  "sheet": 5
- },
- {
-  "id": "island_waterfall_flowers_c",
-  "file": "assets/environment/props/islands/island_waterfall_flowers_c.png",
-  "cat": "props",
-  "sub": "islands",
-  "w": 263,
-  "h": 205,
   "anchor": [
    0.5,
    1.0
@@ -850,19 +798,6 @@
   "sub": "water",
   "w": 318,
   "h": 298,
-  "anchor": [
-   0.5,
-   1.0
-  ],
-  "sheet": 6
- },
- {
-  "id": "floating_island_d",
-  "file": "assets/environment/props/islands/floating_island_d.png",
-  "cat": "props",
-  "sub": "islands",
-  "w": 349,
-  "h": 258,
   "anchor": [
    0.5,
    1.0
@@ -2547,5 +2482,481 @@
    0.5
   ],
   "sheet": 11
+ },
+ {
+  "id": "isla_101",
+  "file": "assets/environment/platforms/islands/isla_101.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 418,
+  "h": 335,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.34,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_102",
+  "file": "assets/environment/platforms/islands/isla_102.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 246,
+  "h": 320,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.444,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_103",
+  "file": "assets/environment/platforms/islands/isla_103.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 308,
+  "h": 311,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.203,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_104",
+  "file": "assets/environment/platforms/islands/isla_104.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 308,
+  "h": 336,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.25,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_105",
+  "file": "assets/environment/platforms/islands/isla_105.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 200,
+  "h": 277,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.372,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_106",
+  "file": "assets/environment/platforms/islands/isla_106.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 304,
+  "h": 310,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.248,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_107",
+  "file": "assets/environment/platforms/islands/isla_107.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 288,
+  "h": 252,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.063,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_108",
+  "file": "assets/environment/platforms/islands/isla_108.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 282,
+  "h": 238,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.076,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_109",
+  "file": "assets/environment/platforms/islands/isla_109.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 272,
+  "h": 310,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.413,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_110",
+  "file": "assets/environment/platforms/islands/isla_110.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 329,
+  "h": 274,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.109,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_111",
+  "file": "assets/environment/platforms/islands/isla_111.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 212,
+  "h": 352,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.389,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_112",
+  "file": "assets/environment/platforms/islands/isla_112.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 340,
+  "h": 287,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.237,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_113",
+  "file": "assets/environment/platforms/islands/isla_113.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 320,
+  "h": 305,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.511,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_114",
+  "file": "assets/environment/platforms/islands/isla_114.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 276,
+  "h": 360,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.489,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_115",
+  "file": "assets/environment/platforms/islands/isla_115.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 286,
+  "h": 357,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.392,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_201",
+  "file": "assets/environment/platforms/islands/isla_201.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 300,
+  "h": 211,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.104,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_202",
+  "file": "assets/environment/platforms/islands/isla_202.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 297,
+  "h": 225,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.062,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_203",
+  "file": "assets/environment/platforms/islands/isla_203.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 283,
+  "h": 224,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.107,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_204",
+  "file": "assets/environment/platforms/islands/isla_204.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 301,
+  "h": 229,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.066,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_205",
+  "file": "assets/environment/platforms/islands/isla_205.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 277,
+  "h": 274,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.299,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_206",
+  "file": "assets/environment/platforms/islands/isla_206.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 273,
+  "h": 232,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.116,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_207",
+  "file": "assets/environment/platforms/islands/isla_207.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 300,
+  "h": 206,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.087,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_208",
+  "file": "assets/environment/platforms/islands/isla_208.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 285,
+  "h": 237,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.11,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_209",
+  "file": "assets/environment/platforms/islands/isla_209.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 311,
+  "h": 258,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.221,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_210",
+  "file": "assets/environment/platforms/islands/isla_210.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 275,
+  "h": 198,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.121,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_211",
+  "file": "assets/environment/platforms/islands/isla_211.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 282,
+  "h": 311,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.254,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_212",
+  "file": "assets/environment/platforms/islands/isla_212.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 296,
+  "h": 274,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.12,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_213",
+  "file": "assets/environment/platforms/islands/isla_213.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 287,
+  "h": 232,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.125,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_214",
+  "file": "assets/environment/platforms/islands/isla_214.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 288,
+  "h": 224,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.027,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "isla_215",
+  "file": "assets/environment/platforms/islands/isla_215.png",
+  "cat": "platforms",
+  "sub": "islands",
+  "w": 277,
+  "h": 256,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "top": 0.074,
+  "biome": "islands",
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "n1_bg_montanas_lejos",
+  "file": "assets/environment/levels/nivel1/n1_bg_montanas_lejos.png",
+  "cat": "backgrounds",
+  "sub": "nivel1",
+  "w": 2141,
+  "h": 401,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "origin": "sesion-islas"
+ },
+ {
+  "id": "n1_nube_01",
+  "file": "assets/environment/levels/nivel1/nubes/nube_01.png",
+  "cat": "sky",
+  "sub": "nivel1",
+  "w": 1100,
+  "h": 378,
+  "anchor": [
+   0.5,
+   0.5
+  ],
+  "origin": "sesion-islas"
  }
 ]

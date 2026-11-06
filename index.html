@@ -920,8 +920,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   </div>
 </div>
 
-<script src="assets/nivel1/nubes.js"></script>
-<script src="assets/islas/islas.js"></script>
+<script src="assets/environment/levels/nivel1/nubes.js"></script>
+<script src="assets/environment/platforms/islands/islas.js"></script>
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════
@@ -1735,14 +1735,14 @@ const NINJA_TILES = {
   ground:_img(_BJ_njGround), platLong:_img(_BJ_njPlatLong), pipe:_img(_BJ_njPipe),
   torii:_img(_BJ_njTorii), lanternPost:_img(_BJ_njLanternPost), bamboo:_img(_BJ_njBamboo), cherryTree:_img(_BJ_njCherryTree),
 };
-// ── NIVEL 1 · cielo de amanecer con capas independientes — arte en assets/nivel1/ ──
-// Cada nube (assets/nivel1/nubes/*.png, lista en assets/nivel1/nubes.js) es un objeto con su propia
+// ── NIVEL 1 · cielo de amanecer con capas independientes — arte en assets/environment/levels/nivel1/ ──
+// Cada nube (assets/environment/levels/nivel1/nubes/*.png, lista en assets/environment/levels/nivel1/nubes.js) es un objeto con su propia
 // velocidad, profundidad, tamaño y transparencia, así que se mueven unas sobre otras sin repetirse.
 // Si algún PNG no carga, el nivel usa el fondo nocturno anterior (no se rompe nada).
 const N1={imgs:{},nubes:[],inst:[],
   ok(){const m=this.imgs.mont;return !!(m&&m.complete&&m.naturalWidth>0&&this.nubes.some(i=>i.complete&&i.naturalWidth>0));},
   load(){
-    const b='assets/nivel1/',m=new Image();m.src=b+'n1_bg_montanas_lejos.png';this.imgs.mont=m;
+    const b='assets/environment/levels/nivel1/',m=new Image();m.src=b+'n1_bg_montanas_lejos.png';this.imgs.mont=m;
     (window.N1_NUBES||['nube_01.png']).forEach(f=>{const i=new Image();i.src=b+'nubes/'+f;this.nubes.push(i);});
     // instancias: 3 capas de profundidad; cada una con parámetros propios (determinista para que no "salte")
     const rnd=(n=>{let s=n;return()=>{s=(s*16807)%2147483647;return s/2147483647;};})(20261103);

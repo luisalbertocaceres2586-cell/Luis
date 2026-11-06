@@ -12,11 +12,14 @@ assets/
 ├── ui/
 │   ├── select/          retratos del selector de personajes (3 pares de arte: ?sel=1|2|3)
 │   └── intro/           paneles opcionales de la intro (panel_1.jpg … panel_3.jpg)
-├── environment/         187 sprites de entornos + catalog.json / catalog.js
+├── environment/         214 sprites de entornos + catalog.json / catalog.js
 │   ├── backgrounds/scenery/   escenas grandes (montañas de hielo, islas flotantes con pagoda)
-│   ├── platforms/{grass,stone,ice,lava,wood,crystal,desert}/   plataformas por bioma (campo `top` = línea de la superficie)
+│   ├── platforms/{grass,stone,ice,lava,wood,crystal,desert}/   plataformas anchas por bioma (campo `top` = línea de la superficie)
+│   ├── platforms/islands/     30 islas flotantes compactas que usa el módulo de islas del juego (+ islas.js con la superficie de cada una)
+│   ├── levels/nivel1/         arte exclusivo del nivel 1 (montañas lejanas y nubes) + nubes.js
 │   ├── props/{nature,structures,water,bridges,lights,crystals,objects,islands,decor}/   decorados
 │   └── sky/{sun_moon,clouds,clouds_warm,storm,wind,vortex,fx}/   cielo y efectos
+├── poderes/             íconos de poderes (24; pendiente de moverlo a ui/ cuando la otra sesión termine con ese módulo)
 └── _previews/           hojas de contacto (JPG) para ver todo de un vistazo
 ```
 
