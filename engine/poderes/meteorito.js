@@ -11,6 +11,12 @@ const HEAD={w:560,h:380,ax:189,ay:258,r:114},TRAIL={w:1100,h:352,ax:1050,ay:183}
 const HEAD_DIR=Math.atan2(0.52,-0.85);             // hacia dónde "viaja" el dibujo original (abajo-izquierda)
 const LIFE=720;                                    // ≈12 s a 60 pasos por segundo
 const ok=i=>i&&i.complete&&i.naturalWidth>0;
+/* Explosión de impacto: 6 cuadros (hoja 3×2 de 384×329) en 3 colores × 2 diseños (assets/efectos/explosion_<color>_<a|b>.png) */
+const EXP={},CW=384,CH=329,DUR=[70,90,110,120,130,150];
+const TOT=DUR.reduce((a,b)=>a+b,0);
+['fuego','hielo','magia'].forEach(v=>['a','b'].forEach(n=>{const i=new Image();i.src='assets/efectos/explosion_'+v+'_'+n+'.png';EXP[v+n]=i;}));
+let booms=[];
+function variante(){try{const b=String((curLV()||{}).bg||'');if(/ice|snow|water|ocean/.test(b))return'hielo';if(/night|space|galaxy|crypt|boss|neon|storm/.test(b))return'magia';}catch(e){}return'fuego';}
 NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que caen como meteoritos ☄️',
  desc:'Los poderes entran en diagonal dentro de una bola de fuego con estela, marcan dónde caerán, golpean con onda y cráter, y esperan unos segundos para ser recogidos.',
  init(){
@@ -51,8 +57,10 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
     s.y=m.landY;s.wx=m.tx;m.fase='reposo';s._hide=false;s.vy=0;m.golpe=Date.now();
     try{
       const sx=s.wx-camX+16,gy=m.gt;
-      spawnShockwave(sx,gy,'#FF8A00',130);spawnShockwave(sx,gy,'#FFD27A',80);
-      spawnPfx(sx,gy-8,'#FF7A00',16);spawnPfx(sx,gy-8,'#FFD54A',10);
+      const im=EXP[variante()+(Math.random()<.5?'a':'b')];
+      if(ok(im))booms.push({x:s.wx+16,gt:gy,t0:Date.now(),img:im});
+      else{spawnShockwave(sx,gy,'#FF8A00',130);spawnShockwave(sx,gy,'#FFD27A',80);}
+      spawnPfx(sx,gy-8,'#FFD54A',8);
       screenShake(5,230);if(window.SFX&&SFX.explode)SFX.explode();
       if(navigator.vibrate)navigator.vibrate(30);
     }catch(e){}
@@ -97,6 +105,22 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
         CX.fillStyle='rgba(30,12,6,.75)';CX.beginPath();CX.ellipse(tx,m.gt+1,30,6,0,0,7);CX.fill();
         CX.strokeStyle='rgba(255,140,30,'+(.5+pul*.4)+')';CX.lineWidth=2;CX.beginPath();CX.ellipse(tx,m.gt+1,30,6,0,0,7);CX.stroke();
         if(Math.floor(now/90)%4===0){CX.fillStyle='#FFB84A';CX.fillRect(tx+(Math.random()-.5)*44,m.gt-4-Math.random()*26,2,2);}   // brasas
+        CX.restore();
+      }
+    }
+    // explosiones de impacto (por encima de todo lo demás del mundo)
+    if(booms.length){
+      const t=Date.now();
+      booms=booms.filter(b=>t-b.t0<TOT);
+      for(const b of booms){
+        const e=t-b.t0;let f=0,acc=0;for(let i=0;i<6;i++){if(e<acc+DUR[i]){f=i;break;}acc+=DUR[i];f=i;}
+        const sx=b.x-camX;if(sx<-220||sx>W+220)continue;
+        const dw=300,dh=dw*CH/CW,al=f===5?Math.max(0,1-(e-(TOT-DUR[5]))/DUR[5]):1;
+        CX.save();
+        if(f===0){const g=CX.createRadialGradient(sx,b.gt-dh*.35,4,sx,b.gt-dh*.35,150);g.addColorStop(0,'rgba(255,240,200,.65)');g.addColorStop(1,'rgba(255,160,40,0)');
+          CX.globalCompositeOperation='lighter';CX.fillStyle=g;CX.fillRect(sx-160,b.gt-dh*.35-160,320,320);CX.globalCompositeOperation='source-over';}
+        CX.globalAlpha=al;
+        CX.drawImage(b.img,(f%3)*CW,Math.floor(f/3)*CH,CW,CH,sx-dw/2,b.gt+10-dh,dw,dh);
         CX.restore();
       }
     }
