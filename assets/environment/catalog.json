@@ -2958,5 +2958,75 @@
    0.5
   ],
   "origin": "sesion-islas"
+ },
+ {
+  "id": "floating_island_d",
+  "file": "assets/environment/props/islands/floating_island_d.png",
+  "cat": "props",
+  "sub": "islands",
+  "w": 349,
+  "h": 258,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "sheet": 6,
+  "origin": "biblioteca-hojas"
+ },
+ {
+  "id": "floating_island_grass_b",
+  "file": "assets/environment/props/islands/floating_island_grass_b.png",
+  "cat": "props",
+  "sub": "islands",
+  "w": 367,
+  "h": 274,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "sheet": 4,
+  "origin": "biblioteca-hojas"
+ },
+ {
+  "id": "island_small_c",
+  "file": "assets/environment/props/islands/island_small_c.png",
+  "cat": "props",
+  "sub": "islands",
+  "w": 161,
+  "h": 149,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "sheet": 5,
+  "origin": "biblioteca-hojas"
+ },
+ {
+  "id": "island_waterfall_c",
+  "file": "assets/environment/props/islands/island_waterfall_c.png",
+  "cat": "props",
+  "sub": "islands",
+  "w": 296,
+  "h": 216,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "sheet": 5,
+  "origin": "biblioteca-hojas"
+ },
+ {
+  "id": "island_waterfall_flowers_c",
+  "file": "assets/environment/props/islands/island_waterfall_flowers_c.png",
+  "cat": "props",
+  "sub": "islands",
+  "w": 263,
+  "h": 205,
+  "anchor": [
+   0.5,
+   1.0
+  ],
+  "sheet": 5,
+  "origin": "biblioteca-hojas"
  }
 ]
