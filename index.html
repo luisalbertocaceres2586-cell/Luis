@@ -4315,7 +4315,7 @@ function collectSkyItem(s,sx,sy){
 function drawSkyItems(){
   const t2=Date.now()*.001;
   skyItems.forEach(s=>{
-    if(s.taken)return;
+    if(s.taken||s._hide)return;
     const sx=(s.wx-camX)+Math.sin(s.t*2)*8;
     const sy=s.y;
     if(sx<-60||sx>W+60)return;
@@ -9595,7 +9595,8 @@ function drawMiniPeach(canvasId){
 <script src="engine/movimiento/caida-rapida.js?v=4"></script>
 <script src="engine/combate/racha.js?v=4"></script>
 <script src="engine/educativo/repaso-errores.js?v=4"></script>
-<script src="engine/poderes/iconos.js?v=5"></script>
+<script src="engine/poderes/iconos.js?v=6"></script>
+<script src="engine/poderes/meteorito.js?v=6"></script>
 <script src="engine/poderes/impacto-poderes.js?v=4"></script>
 <script src="engine/poderes/pista-reloj.js?v=4"></script>
 <script src="engine/secretos/flores-doradas.js?v=4"></script>
