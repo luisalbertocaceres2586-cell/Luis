@@ -2,7 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#06031a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <title>🥷 NINJA MULTIPLICACIÓN — Tablas con el Profe Luis · ColBolívar</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -6450,7 +6456,7 @@ function render(){
   }
 
   // LEVEL 1 TUTORIAL OVERLAY — top-right box, first 8 seconds
-  if(GS.phase==='easy'&&GS.level===0){
+  if(GS.phase==='easy'&&GS.level===0&&!('ontouchstart' in window)&&!(navigator.maxTouchPoints>0)){   // guía de teclado: no se muestra en pantallas táctiles
     const elT=(Date.now()-GS.lvStart)/1000;
     if(elT<8){
       const fade=elT<5?1:Math.max(0,1-(elT-5)/3);
@@ -8487,7 +8493,7 @@ function startLevel(idx,phase){
   initBoss();
   // Fullscreen first, then layout after a tick so dimensions are correct
   const doStart=()=>{
-    W=CV.width=window.innerWidth; H=CV.height=window.innerHeight;
+    resizeCanvas();
     layoutLevel(); initP(); updHUD();
     document.getElementById('hud').classList.add('on');
     document.getElementById('miniLB').classList.add('on');
@@ -9493,10 +9499,26 @@ function drawMiniPeach(canvasId){
 // ── CONTROLES TÁCTILES: grandes, con brillo y movibles ──
 (function(){
   const box=document.getElementById('mctl'); if(!box) return;
-  const KEY='ninja_btn_pos_v2';
-  const DEF={L:[.07,.82],R:[.17,.82],J:[.86,.84],A:[.94,.70]};
-  let pos=JSON.parse(JSON.stringify(DEF));
-  try{ const sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv) for(const k in DEF) if(sv[k]&&sv[k].length===2) pos[k]=sv[k]; }catch(e){}
+  const KEY='ninja_btn_pos_v3';
+  /* ── POSICIONES ERGONÓMICAS (se calculan con el tamaño real de la pantalla) ──
+     u = diámetro de un botón. Pulgar izquierdo: ◀ ▶ abajo y ⬇ entre ellos. Pulgar derecho: SALTAR grande en la esquina,
+     ATACAR a su izquierda, y las acciones extra en arco por encima. Respeta el notch y deja libre el centro de la pantalla. */
+  function njSafe(){
+    const d=document.createElement('div');d.style.cssText='position:fixed;left:0;top:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+    document.body.appendChild(d);const c=getComputedStyle(d),r={t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0};d.remove();return r;
+  }
+  function njLayout(){
+    const w=window.innerWidth,h=window.innerHeight,u=Math.max(48,Math.min(66,0.14*h)),sa=njSafe();
+    const xm=Math.max(16,sa.l+10),xr=Math.max(16,sa.r+10),ym=Math.max(12,sa.b+10);
+    const bl=(dx,dy)=>[(xm+dx)/w,(h-ym-dy)/h],br=(dx,dy)=>[(w-xr-dx)/w,(h-ym-dy)/h];
+    return{L:bl(.5*u,.5*u),R:bl(1.75*u,.5*u),B:bl(1.125*u,1.7*u),
+           J:br(.75*u,.75*u),A:br(2.1*u,.5*u),D:br(3.55*u,.5*u),X:br(1.0*u,2.25*u),C:br(2.45*u,1.95*u)};
+  }
+  window.njLayout=njLayout;
+  const mkDEF=()=>{const l=njLayout();return{L:l.L,R:l.R,J:l.J,A:l.A};};
+  let DEF=mkDEF();
+  let pos=JSON.parse(JSON.stringify(DEF)),custom=false;
+  try{ const sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){custom=true; for(const k in DEF) if(sv[k]&&sv[k].length===2) pos[k]=sv[k];} }catch(e){}
   const btns={L:document.getElementById('mbL'),R:document.getElementById('mbR'),J:document.getElementById('mbJ'),A:document.getElementById('mbA')};
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   function place(k){
@@ -9505,8 +9527,8 @@ function drawMiniPeach(canvasId){
     const x=clamp(pos[k][0]*w,r,w-r), y=clamp(pos[k][1]*h,r,h-r);
     el.style.left=x+'px'; el.style.top=y+'px';
   }
-  function placeAll(){ for(const k in btns) place(k); }
-  function save(){ try{localStorage.setItem(KEY,JSON.stringify(pos));}catch(e){} }
+  function placeAll(){ if(!custom){DEF=mkDEF();pos=JSON.parse(JSON.stringify(DEF));} for(const k in btns) place(k); }
+  function save(){ custom=true; try{localStorage.setItem(KEY,JSON.stringify(pos));}catch(e){} }
   window.addEventListener('resize',placeAll);
   window.addEventListener('orientationchange',()=>setTimeout(placeAll,250));
   new MutationObserver(placeAll).observe(box,{attributes:true,attributeFilter:['class']});
@@ -9515,7 +9537,7 @@ function drawMiniPeach(canvasId){
   let editMode=false;
   const eb=document.getElementById('mbEdit'), rb=document.getElementById('mbReset');
   eb.addEventListener('click',()=>{ editMode=!editMode; box.classList.toggle('edit',editMode); eb.textContent=editMode?'✔ LISTO':'✥ MOVER'; });
-  rb.addEventListener('click',()=>{ pos=JSON.parse(JSON.stringify(DEF)); placeAll(); save(); });
+  rb.addEventListener('click',()=>{ custom=false; try{localStorage.removeItem(KEY);}catch(e){} placeAll(); });
   box.addEventListener('contextmenu',e=>e.preventDefault());
 
   const HOLD_MS=800, MOVE_TOL=14;
@@ -9590,7 +9612,8 @@ function drawMiniPeach(canvasId){
 <script src="engine/core/modulos.js?v=4"></script>
 <script src="engine/escenario/islas.js?v=4"></script>
 <script src="engine/ui/seleccion-personajes.js?v=4"></script>
-<script src="engine/ui/controles-tactiles-extra.js?v=4"></script>
+<script src="engine/ui/pantalla-movil.js?v=11"></script>
+<script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
 <script src="engine/ui/barra-progreso.js?v=4"></script>
 <script src="engine/movimiento/caida-rapida.js?v=4"></script>
 <script src="engine/combate/racha.js?v=4"></script>

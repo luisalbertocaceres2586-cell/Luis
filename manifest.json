@@ -1,0 +1,26 @@
+{
+ "name": "Ninja Multiplicación",
+ "short_name": "Ninja ×",
+ "description": "Juego de tablas de multiplicar",
+ "start_url": ".",
+ "scope": ".",
+ "display": "fullscreen",
+ "orientation": "landscape",
+ "background_color": "#06031a",
+ "theme_color": "#06031a",
+ "lang": "es",
+ "icons": [
+  {
+   "src": "assets/icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "assets/icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  }
+ ]
+}
