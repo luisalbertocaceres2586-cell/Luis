@@ -17,7 +17,7 @@ const FX={};
 const cargar=(k,f)=>{const i=new Image();i.src='assets/efectos/'+f;FX[k]=i;};
 ['fuego','hielo','magia'].forEach(v=>{
   ['a','b','c'].forEach(n=>cargar('exp_'+v+n,'explosion_'+v+'_'+n+'.png'));
-  ['crater','brasas','anillos','grietas'].forEach(e=>cargar(e+v,'fx_'+e+'_'+v+'.png'));
+  ['crater','brasas','anillos','grietas','grieta_cielo'].forEach(e=>cargar(e+v,'fx_'+e+'_'+v+'.png'));
 });
 cargar('humo','fx_humo.png');cargar('haz','fx_haz.png');cargar('rocas','fx_rocas.png');
 const rep=(n,ms)=>Array(n).fill(ms);
@@ -71,10 +71,15 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
       try{
         const GY=groundY();let tx=s.wx,gt=groundYAt(tx);
         for(let k=0;k<8&&gt>GY+8;k++){tx+=110;gt=groundYAt(tx);}          // si cae sobre un foso, se corre hacia suelo firme
-        const landY=gt-64,vy=11.5,vx=-6.2,y0=-70,frames=(landY-y0)/vy;
-        s._met={fase:'cae',vx,vy,tx,landY,gt,life:LIFE};
-        s.wx=tx-vx*frames;s.y=y0;s.vy=0;s._hide=true;
-        s.x=tx;
+        const vy=11.5,vx=-6.2,y0=6;
+        let landY=gt-64,frames=(landY-y0)/vy,wx0=tx-vx*frames;
+        const sobra=(wx0-camX)-(W-70);                                       // la grieta de entrada debe verse en pantalla
+        if(sobra>0){tx-=sobra;gt=groundYAt(tx);if(gt>GY+8)gt=GY;landY=gt-64;frames=(landY-y0)/vy;wx0=tx-vx*frames;}
+        if(tx-camX<45){tx=camX+45;gt=groundYAt(tx);if(gt>GY+8)gt=GY;landY=gt-64;frames=(landY-y0)/vy;wx0=tx-vx*frames;}
+        s._met={fase:'portal',espera:20,vx,vy,tx,landY,gt,life:LIFE};
+        s.wx=wx0;s.y=y0;s.vy=0;s._hide=true;s.x=tx;
+        // grieta de luz en el cielo, justo donde aparece el meteorito
+        anim({img:FX['grieta_cielo'+variante()],cols:2,n:4,durs:[70,90,110,150],w:200,anc:'c',x:wx0+16,y:26,oy:0,delay:0});
       }catch(e){}
     }
   };
@@ -83,6 +88,7 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
     dt=dt||1;
     for(const s of skyItems){
       const m=s._met;if(!m||s.taken)continue;
+      if(m.fase==='portal'){m.espera-=dt;if(m.espera<=0)m.fase='cae';continue;}
       if(m.fase==='cae'){
         s.wx+=m.vx*dt;s.y+=m.vy*dt;
         if(s.y>=m.landY){impacto(s,m);}
@@ -146,7 +152,7 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
     for(const s of skyItems){
       const m=s._met;if(!m||s.taken)continue;
       const sx=s.wx-camX+16,tx=m.tx-camX+16;
-      if(m.fase==='cae'){
+      if(m.fase==='cae'||m.fase==='portal'){
         // aviso en el suelo: un anillo que se cierra a medida que se acerca
         const prog=Math.max(0,Math.min(1,(s.y+70)/(m.landY+70)));
         if(tx>-40&&tx<W+40){
@@ -155,7 +161,7 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
           CX.beginPath();CX.ellipse(tx,m.gt,rw,rh,0,0,7);CX.stroke();
           CX.globalAlpha=.18*prog+.1;CX.fillStyle='#FF8A00';CX.fill();CX.restore();
         }
-        if(sx<-200||sx>W+200||!good)continue;
+        if(m.fase==='portal'||sx<-200||sx>W+200||!good)continue;
         const sy=s.y+16,ang=Math.atan2(m.vy,m.vx);
         CX.save();CX.translate(sx,sy);
         // estela larga, detrás
