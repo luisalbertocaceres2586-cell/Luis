@@ -21,18 +21,24 @@ NinjaMods.register({id:'botones-extra',carpeta:'ui',nombre:'Botones táctiles ex
   .mbx.on{transform:scale(.9);background:radial-gradient(circle,rgba(255,255,255,.55),rgba(0,120,255,.7))}
   .mbx small{position:absolute;bottom:-11px;font-size:7px;font-family:'Press Start 2P',monospace;color:rgba(255,255,255,.75);text-shadow:0 1px 2px #000;white-space:nowrap}`;
   document.head.appendChild(st);
-  const B=[['⬇','KeyS','BAJAR',.27,.84],['💨','ShiftLeft','ESQUIVA',.78,.86],['✨','KeyX','ESPECIAL',.78,.58],['🗡','KeyC','TAJO',.94,.50]];
-  B.forEach(([ico,code,lab,fx,fy])=>{
+  const B=[['⬇','KeyS','BAJAR','B'],['💨','ShiftLeft','ESQUIVA','D'],['✨','KeyX','ESPECIAL','X'],['🗡','KeyC','TAJO','C']];
+  const lay=()=>(typeof window.njLayout==='function')?window.njLayout():{B:[.27,.84],D:[.78,.86],X:[.78,.58],C:[.94,.5]};
+  const colocar=[];
+  B.forEach(([ico,code,lab,key])=>{
     const b=document.createElement('div');b.className='mbx';b.innerHTML=ico+'<small>'+lab+'</small>';
-    const place=()=>{const w=b.offsetWidth||44;b.style.left=Math.round(innerWidth*fx-w/2)+'px';b.style.top=Math.round(innerHeight*fy-w/2)+'px';};
+    const place=()=>{const w=b.offsetWidth||44,l=lay()[key];b.style.left=Math.round(innerWidth*l[0]-w/2)+'px';b.style.top=Math.round(innerHeight*l[1]-w/2)+'px';};
+    colocar.push(place);
     const hold=code==='KeyS';
     b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('on');if(hold){K['KeyS']=1;K['ArrowDown']=1;}else NinjaMods.tap(code,110);});
     const up=()=>{b.classList.remove('on');if(hold){K['KeyS']=0;K['ArrowDown']=0;}};
     b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);
-    m.appendChild(b);place();window.addEventListener('resize',place);
+    m.appendChild(b);
   });
+  const ponerTodo=()=>{if(!localStorage.getItem(SK)){const u=Math.max(48,Math.min(66,.14*innerHeight));document.documentElement.style.setProperty('--mbx',Math.round(u*.78)+'px');}colocar.forEach(f=>f());};
+  window.addEventListener('resize',()=>setTimeout(ponerTodo,30));window.addEventListener('orientationchange',()=>setTimeout(ponerTodo,300));
+  ponerTodo();setTimeout(ponerTodo,400);
   let v=parseInt(localStorage.getItem(SK)||'0',10);
-  if(v>=36&&v<=110)applySize(v);else document.documentElement.style.setProperty('--mbx','44px');
+  if(v>=36&&v<=110)applySize(v);
  },
  panel(el){
   const cur=parseInt(localStorage.getItem(SK)||'0',10)||58;

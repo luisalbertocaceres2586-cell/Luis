@@ -7,7 +7,7 @@
 if(!window.NinjaMods)return;
 const LISTA=['life','star','speed','shield','magnet','giant','gun','dualshot','clone','rocket','bounce','meteor',
   'timefreeze','timewarp','freeze','mirror','ghost','phantom','lightning_storm','rainbowstorm','berserker','aura','crown','dash',
-  'superjump','superjump3x','float','gravity'];
+  'superjump','superjump3x','float','gravity','turbo'];
 const BASE='assets/poderes/';
 const listo={};                                   // clave -> Image cargada
 NinjaMods.register({id:'iconos-poderes',carpeta:'poderes',nombre:'Iconos nuevos de los poderes',
@@ -39,7 +39,7 @@ NinjaMods.register({id:'iconos-poderes',carpeta:'poderes',nombre:'Iconos nuevos 
 
   /* ---- barra de poderes activos (arriba): cambia el emoji inicial por el icono ---- */
   const EMO={'🌟':'star','💢':'berserker','🦘':'superjump3x','🌀':'phantom','⚡':'lightning_storm','🛡️':'shield','👻':'ghost','👑':'crown',
-    '🧲':'magnet','🔥':'aura','🐒':'superjump','🔵':'clone','🔫':'gun','🔁':'dualshot','⏱️':'timefreeze','🌈':'rainbowstorm',
+    '🧲':'magnet','🔥':'aura','🐒':'superjump','🔵':'clone','🔫':'gun','🔁':'dualshot','⭐':'turbo','⏱️':'timefreeze','🌈':'rainbowstorm',
     '🪞':'mirror','👊':'giant','🕰️':'timewarp','💨':'dash'};
   const pills=document.getElementById('powerPills');
   if(pills){
