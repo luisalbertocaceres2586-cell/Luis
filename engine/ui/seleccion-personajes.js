@@ -122,7 +122,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Pantalla de p
   function frames(c){
     if(cache[c])return cache[c];let list=[];
     try{
-      const MAN=c==='mario'?window.SAKURA_MANIFEST:window.KAGE_MANIFEST,BASE=c==='mario'?'assets/sakura/':'assets/kage/';
+      const MAN=c==='mario'?window.SAKURA_MANIFEST:window.KAGE_MANIFEST,BASE=c==='mario'?'assets/characters/sakura/':'assets/characters/kage/';
       if(MAN&&MAN.idle){
         list=MAN.idle.map(f=>{const img=new Image();img.src=BASE+f.file;return{img,ax:f.ax,ay:f.ay};});
       }else if(typeof NJX!=='undefined'){
@@ -133,7 +133,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Pantalla de p
   }
   const cv=document.getElementById('cpCv'),cx=cv.getContext('2d'),art=document.getElementById('cpArt');
   const _m=/[?&]sel=(\d)/.exec(location.search),SEL=_m?_m[1]:'3';
-  const ART={mario:'assets/select/sakura_'+SEL+'.png',peach:'assets/select/kage_'+SEL+'.png'};
+  const ART={mario:'assets/ui/select/sakura_'+SEL+'.png',peach:'assets/ui/select/kage_'+SEL+'.png'};
   const useArt=/^[123]$/.test(SEL);
   function showArt(c){
     if(!useArt){art.style.display='none';cv.style.display='block';return;}
