@@ -6,6 +6,8 @@
 'use strict';
 if(/[?&]villain=0/.test(location.search))return;
 if(!window.VILLAIN_MANIFEST||typeof SPR==='undefined')return;
+window.VILLAIN_NAME=window.VILLAIN_NAME||'REY DEL CAOS';   /* nombre que usa el juego ("¡EL REY DEL CAOS DESPIERTA!") */
+const VB=window.VillainBoss={last:null};                   /* última posición dibujada: la usan las cinemáticas */
 const M=VILLAIN_MANIFEST,base='assets/characters/villain/';
 const all=M.walk.map(f=>({img:Object.assign(new Image(),{src:base+f.file}),ax:f.ax,ay:f.ay}));
 const loop=all.slice(5);                       /* cuadros 5–24 = ciclo de caminata continuo (0–4 son el arranque) */
@@ -30,6 +32,7 @@ function activate(){
     if(img&&img.__villain){
       const f=frame(),s=dh/f.img.naturalHeight,t=performance.now(),ph=t*.0011,pace=Math.sin(ph)*40,dir=Math.cos(ph)>=0?1:-1;
       const cxp=dx+dw/2+pace,feet=dy+dh;
+      VB.last={x:cxp,feet:feet,dh:dh,s:s,dir:dir,f:f,t:t};
       this.save();
       this.globalCompositeOperation='lighter';
       const r=dh*.75,g=this.createRadialGradient(cxp,feet-dh*.5,0,cxp,feet-dh*.5,r);

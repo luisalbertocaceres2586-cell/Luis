@@ -214,7 +214,7 @@ function drawTablet(t,dt){
     cx.drawImage(tabC,-w/2,-h/2);cx.fillStyle='rgba(255,50,70,.25)';cx.fillRect(-w/2,-h/2,w,h);cx.restore();}
 }
 
-/* ---------- el villano: Mago del Caos ---------- */
+/* ---------- el villano: Rey del Caos ---------- */
 const EYES=[[.5156,.1431],[.6001,.1596]],BOOK=[.825,.303];
 function glowAt(x,y,r,rgba0){const g=cx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba0);g.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=g;cx.fillRect(x-r,y-r,r*2,r*2);}
 function drawVillain(t){
@@ -274,7 +274,7 @@ function drawStory(){
     g.addColorStop(0,'rgba(120,50,10,'+(.7*a)+')');g.addColorStop(.5,'rgba(30,5,40,'+(.8*a)+')');g.addColorStop(1,'rgba(2,0,10,'+a+')');cx.fillStyle=g;cx.fillRect(0,0,VW,VH);}
   rays(t,t<7.3?ss(3,6,t):t<13.4?.3:t<19.6?.6:1);
   if(t>=7.9&&t<13.5)drawTablet(t,dtG);
-  if(t>=9.5&&t<13.7){drawVillain(t);plate('MAGO DEL CAOS','EL LADRÓN DE TABLAS',VW*.3,VH*.46,'rgba(170,70,255,1)',ss(10.6,11.1,t)*(1-ss(12.5,12.9,t)),-(1-ss(10.6,11.3,t))*150);}
+  if(t>=9.5&&t<13.7){drawVillain(t);plate(window.VILLAIN_NAME||'REY DEL CAOS','EL LADRÓN DE TABLAS',VW*.3,VH*.46,'rgba(170,70,255,1)',ss(10.6,11.1,t)*(1-ss(12.5,12.9,t)),-(1-ss(10.6,11.3,t))*150);}
   /* tarjeta del estudio */
   if(t<3.6){const a=ss(.3,1.1,t)*(1-ss(2.6,3.5,t));cx.save();cx.globalAlpha=a;cx.textAlign='center';cx.fillStyle='#9fc8ff';
     cx.font=Math.max(9,VW*.012)+'px "Press Start 2P",monospace';cx.fillText('I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN',VW/2,VH*.46);

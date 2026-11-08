@@ -13,6 +13,7 @@ const hash=n=>{const s=Math.sin(n*127.1)*43758.5453;return s-Math.floor(s);};
 FX.slowmo=(k,f)=>{FX.tsT=k;FX._slow=f;};
 FX.punch=z=>{FX.zoomT=z;FX._punch=10;};
 FX.freeze=f=>{FX.hold=Math.max(FX.hold,f);};
+FX.burst=(...a)=>burst(...a);FX.dust=(...a)=>dust(...a);   /* usados por las cinemáticas */
 
 /* ---------- partículas (coordenadas de mundo, mezcla aditiva) ---------- */
 function burst(wx,wy,n,col){
