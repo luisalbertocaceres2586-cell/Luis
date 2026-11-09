@@ -86,14 +86,15 @@ function speedLines(){
     CX.beginPath();CX.moveTo(x,y);CX.lineTo(x+L,y);CX.stroke();CX.beginPath();CX.moveTo(W-x,y);CX.lineTo(W-x-L,y);CX.stroke();}
   CX.restore();
 }
+FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1};   /* interruptores por efecto (los usa el control de calidad automático) */
 function post(){
-  if(!FX.post)return;
+  if(!FX.post)return;const Q=FX.q;
   const t=Date.now(),lv=typeof curLV==='function'?curLV():null,bg=lv&&lv.bg;
-  if(!lite()){rays(t,bg);fog(t,GRADE[bg]||'#9fb8ff');ambient(t,bg);foreground(t);}
-  lights(t);
-  bloom();
-  if(GRADE[bg]){CX.save();CX.globalCompositeOperation='soft-light';CX.globalAlpha=.16;CX.fillStyle=GRADE[bg];CX.fillRect(0,0,W,H);CX.restore();}
-  vignette();
+  if(!lite()){if(Q.rays)rays(t,bg);if(Q.fog)fog(t,GRADE[bg]||'#9fb8ff');if(Q.ambient)ambient(t,bg);if(Q.fore)foreground(t);}
+  if(Q.lights)lights(t);
+  if(Q.bloom)bloom();
+  if(Q.grade&&GRADE[bg]){CX.save();CX.globalCompositeOperation='soft-light';CX.globalAlpha=.16;CX.fillStyle=GRADE[bg];CX.fillRect(0,0,W,H);CX.restore();}
+  if(Q.vig)vignette();
   if(GS.running&&GS.lives<=1){CX.save();CX.fillStyle='rgba(255,0,30,'+(.07+.07*Math.sin(t*.008)).toFixed(3)+')';CX.fillRect(0,0,W,H);CX.restore();}
   if(P&&(P.dashOn||P.speedBoost||P.rocketOn)&&!lite())speedLines();
   if(FX.bars>.02){const b=FX.bars*H*.075;CX.fillStyle='#000';CX.fillRect(0,0,W,b);CX.fillRect(0,H-b,W,b);}
@@ -308,13 +309,13 @@ hook('gameOver',()=>{FX.slowmo(.25,80);FX.punch(1.12);});
 const _dp=window.drawPlayer,_de=window.drawEnemy;let inGhost=false;
 if(typeof _dp==='function')window.drawPlayer=function(x,y){
   if(!inGhost&&FX.post){try{
-    shadowAt(x+P.w/2,P.onGround?y+P.h:groundYAt(P.x+P.w/2),y+P.h,P.w*1.1);
+    if(FX.q.shadows)shadowAt(x+P.w/2,P.onGround?y+P.h:groundYAt(P.x+P.w/2),y+P.h,P.w*1.1);
     inGhost=true;
     for(const g of FX.ghosts){CX.save();CX.globalAlpha=.34*(1-g.l/g.L);_dp(g.x-camX,g.y,g.f,0,false,false);CX.restore();}
   }catch(e){}inGhost=false;}
   return _dp.apply(this,arguments);};
 if(typeof _de==='function')window.drawEnemy=function(e,ex,ey){
-  if(FX.post&&e&&e.alive!==false){try{shadowAt(ex+e.w/2,groundYAt(e.x+e.w/2),ey+e.h,e.w);}catch(x){}}
+  if(FX.post&&FX.q.shadows&&e&&e.alive!==false){try{shadowAt(ex+e.w/2,groundYAt(e.x+e.w/2),ey+e.h,e.w);}catch(x){}}
   return _de.apply(this,arguments);};
 hook('screenShake',(a)=>{FX.trauma=Math.min(1,FX.trauma+(a||4)/12+.12);});
 hook('showComboBanner',s=>{if(s>=5)FX.slowmo(.55,20);});

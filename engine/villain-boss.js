@@ -46,7 +46,7 @@ function activate(){
     return _di.apply(this,arguments);
   };
   SPR.boss_7_normal=pN;SPR.boss_7_herido=pH;
-  console.log('[Villano] Mago del Caos activo como jefe final');
+  console.log('[Villano] Rey del Caos activo como jefe final');
 }
 let left=all.length;
 all.forEach(f=>{const d=()=>{if(--left===0)activate();};if(f.img.complete&&f.img.naturalWidth)d();else{f.img.onload=d;f.img.onerror=d;}});
