@@ -1,20 +1,20 @@
 /* engine/poderes — Poderes que caen como METEORITOS ☄️
    Antes los poderes bajaban despacio y de lado a lado. Ahora cada uno entra en diagonal y rápido dentro de una bola de fuego
-   (assets/efectos/meteoro_cabeza.png + meteoro_estela.png) con su icono al centro. Antes de caer se marca en el suelo dónde
+   (assets/effects/meteoro_cabeza.png + meteoro_estela.png) con su icono al centro. Antes de caer se marca en el suelo dónde
    va a golpear. Al impactar: onda de choque, chispas, sacudida y un cráter brillante; el poder queda flotando sobre el cráter
    unos 12 segundos (parpadea al final) para que lo recojas, en vez de pasar de largo. */
 (function(){
 if(!window.NinjaMods)return;
 const IMG={};
-function img(k,f){if(!IMG[k]){IMG[k]=new Image();IMG[k].src='assets/efectos/'+f;}return IMG[k];}
+function img(k,f){if(!IMG[k]){IMG[k]=new Image();IMG[k].src='assets/effects/'+f;}return IMG[k];}
 const HEAD={w:560,h:380,ax:189,ay:258,r:114},TRAIL={w:1100,h:352,ax:1050,ay:183};
 const HEAD_DIR=Math.atan2(0.52,-0.85);             // hacia dónde "viaja" el dibujo original (abajo-izquierda)
 const LIFE=720;                                    // ≈12 s a 60 pasos por segundo
 const ok=i=>i&&i.complete&&i.naturalWidth>0;
-/* EFECTOS DE IMPACTO (assets/efectos/): hojas de animación con transparencia. Cada una se reproduce con retraso propio:
+/* EFECTOS DE IMPACTO (assets/effects/): hojas de animación con transparencia. Cada una se reproduce con retraso propio:
      grietas · anillos de onda · explosión (3 diseños) · rocas · brasas · cráter que se queda · haz de luz teñido · humo */
 const FX={};
-const cargar=(k,f)=>{const i=new Image();i.src='assets/efectos/'+f;FX[k]=i;};
+const cargar=(k,f)=>{const i=new Image();i.src='assets/effects/'+f;FX[k]=i;};
 ['fuego','hielo','magia'].forEach(v=>{
   ['a','b','c'].forEach(n=>cargar('exp_'+v+n,'explosion_'+v+'_'+n+'.png'));
   ['crater','brasas','anillos','grietas','grieta_cielo'].forEach(e=>cargar(e+v,'fx_'+e+'_'+v+'.png'));

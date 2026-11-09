@@ -5,10 +5,10 @@
    · Arriba-centro: barra de progreso con el ninja, la bandera de meta y el punto de control.  Arriba-derecha: botón de pausa.
    · El estado de la barra cambia al héroe: ≥90 % radiante (aura dorada) · 50-89 % normal · 25-49 % herido · <25 % agotado (sudor, mareo y bordes rojos que laten).
    · Al recibir un golpe: tajo rojo + destello en los bordes; al curarse: anillo verde.
-   Imágenes en assets/hud/ (ver assets/CATALOGO.md). Nombre del jugador y vidas en corazones: eliminados. */
+   Imágenes en assets/ui/hud/ (ver assets/CATALOGO.md). Nombre del jugador y vidas en corazones: eliminados. */
 (function(){
 if(!window.NinjaMods)return;
-const B='assets/hud/',MAXV=8;
+const B='assets/ui/hud/',MAXV=8;
 NinjaMods.register({id:'hud-nuevo',carpeta:'ui',nombre:'HUD nuevo: retrato + barra de vida',
  desc:'Barra de vida con retrato que cambia según la salud, fichas de puntos/enemigos que aparecen solo al cambiar, progreso con ninja y bandera, y efectos de héroe radiante, herido o agotado.',
  init(){

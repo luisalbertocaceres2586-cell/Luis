@@ -1,14 +1,14 @@
-/* engine/poderes — Iconos nuevos de los poderes (assets/poderes/*.png, 256×256 con transparencia)
+/* engine/poderes — Iconos nuevos de los poderes (assets/ui/poderes/*.png, 256×256 con transparencia)
    Reemplaza el arte viejo de POWER_ICONS por las ilustraciones nuevas. Si un PNG falta o no carga, el juego sigue usando
    el icono anterior de ese poder (así se puede ir entregando por tandas). Se muestran en:
      · los objetos que caen del cielo,  · el selector "ELIGE TU PODER",  · la barra de poderes activos de arriba.
-   Para agregar un icono nuevo: copia su PNG a assets/poderes/ y añade la clave a LISTA. */
+   Para agregar un icono nuevo: copia su PNG a assets/ui/poderes/ y añade la clave a LISTA. */
 (function(){
 if(!window.NinjaMods)return;
 const LISTA=['life','star','speed','shield','magnet','giant','gun','dualshot','clone','rocket','bounce','meteor',
   'timefreeze','timewarp','freeze','mirror','ghost','phantom','lightning_storm','rainbowstorm','berserker','aura','crown','dash',
   'superjump','superjump3x','float','gravity','turbo'];
-const BASE='assets/poderes/';
+const BASE='assets/ui/poderes/';
 const listo={};                                   // clave -> Image cargada
 NinjaMods.register({id:'iconos-poderes',carpeta:'poderes',nombre:'Iconos nuevos de los poderes',
  desc:'Ilustraciones nuevas para los poderes que caen del cielo, el selector de poder y la barra de poderes activos.',

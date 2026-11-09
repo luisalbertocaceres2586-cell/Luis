@@ -1,6 +1,6 @@
 [
  {
-  "ruta": "assets/hud/marcos/medallon_marco.png",
+  "ruta": "assets/ui/hud/marcos/medallon_marco.png",
   "grupo": "HUD · marcos",
   "nombre": "Medallón (aro vacío)",
   "descripcion": "Aro de acero azul con borde dorado, brillo cian por dentro, seis pinchos plateados y un shuriken dorado en la esquina superior izquierda. El centro está vacío y transparente.",
@@ -21,7 +21,7 @@
   "usado_en": "Banco (aún sin usar en el juego)"
  },
  {
-  "ruta": "assets/hud/marcos/insignia_nivel.png",
+  "ruta": "assets/ui/hud/marcos/insignia_nivel.png",
   "grupo": "HUD · marcos",
   "nombre": "Insignia hexagonal de nivel",
   "descripcion": "Placa hexagonal dorada con interior de acero azul cepillado, línea cian y un shuriken dorado abajo. Interior vacío para escribir un número.",
@@ -41,7 +41,7 @@
   "usado_en": "HUD nuevo (insignia del nivel junto al retrato; hoy solo se ve el número)"
  },
  {
-  "ruta": "assets/hud/marcos/boton_pausa.png",
+  "ruta": "assets/ui/hud/marcos/boton_pausa.png",
   "grupo": "HUD · marcos",
   "nombre": "Botón de pausa",
   "descripcion": "Botón redondo azul marino con borde dorado y dos barras doradas de pausa, con brillo arriba a la izquierda.",
@@ -61,7 +61,7 @@
   "usado_en": "HUD nuevo (arriba a la derecha)"
  },
  {
-  "ruta": "assets/hud/barra-vida/barra_marco.png",
+  "ruta": "assets/ui/hud/barra-vida/barra_marco.png",
   "grupo": "HUD · barra de vida",
   "nombre": "Marco de la barra de vida con casilla de retrato",
   "descripcion": "Cápsula larga de acero azul y dorado con luz cian por dentro y una casilla redonda a la izquierda para el retrato. Los dos huecos (casilla e interior de la barra) son transparentes.",
@@ -84,7 +84,7 @@
   "usado_en": "HUD nuevo (barra de vida)"
  },
  {
-  "ruta": "assets/hud/barra-vida/barra_relleno.png",
+  "ruta": "assets/ui/hud/barra-vida/barra_relleno.png",
   "grupo": "HUD · barra de vida",
   "nombre": "Relleno líquido (gris, se pinta por código)",
   "descripcion": "Franja brillante tipo líquido en blanco y grises, con olas suaves y burbujas. Sin color a propósito.",
@@ -105,7 +105,7 @@
   "usado_en": "HUD nuevo (se tiñe verde → amarillo → rojo)"
  },
  {
-  "ruta": "assets/hud/barra-vida/barra_brillo.png",
+  "ruta": "assets/ui/hud/barra-vida/barra_brillo.png",
   "grupo": "HUD · barra de vida",
   "nombre": "Destello diagonal de la barra",
   "descripcion": "Franja suave con destellos diagonales blancos y azul claro, que se desvanece en los bordes.",
@@ -125,7 +125,7 @@
   "usado_en": "HUD nuevo (barrido de brillo cada ~3 s)"
  },
  {
-  "ruta": "assets/hud/retratos/sakura_radiante.png",
+  "ruta": "assets/ui/hud/retratos/sakura_radiante.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Sakura · radiante",
   "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"radiante\", fondo amarillo con destellos. Recorte circular.",
@@ -146,7 +146,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/sakura_normal.png",
+  "ruta": "assets/ui/hud/retratos/sakura_normal.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Sakura · normal",
   "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"normal\", fondo morado. Recorte circular.",
@@ -167,7 +167,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/sakura_herido.png",
+  "ruta": "assets/ui/hud/retratos/sakura_herido.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Sakura · herido",
   "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"herido\", fondo rojo. Recorte circular.",
@@ -188,7 +188,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/sakura_agotado.png",
+  "ruta": "assets/ui/hud/retratos/sakura_agotado.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Sakura · agotado",
   "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"agotado\", fondo azul. Recorte circular.",
@@ -209,7 +209,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/kage_radiante.png",
+  "ruta": "assets/ui/hud/retratos/kage_radiante.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Kage · radiante",
   "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"radiante\", fondo amarillo con destellos. Recorte circular.",
@@ -230,7 +230,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/kage_normal.png",
+  "ruta": "assets/ui/hud/retratos/kage_normal.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Kage · normal",
   "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"normal\", fondo morado. Recorte circular.",
@@ -251,7 +251,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/kage_herido.png",
+  "ruta": "assets/ui/hud/retratos/kage_herido.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Kage · herido",
   "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"herido\", fondo rojo. Recorte circular.",
@@ -272,7 +272,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/retratos/kage_agotado.png",
+  "ruta": "assets/ui/hud/retratos/kage_agotado.png",
   "grupo": "HUD · retratos",
   "nombre": "Retrato de Kage · agotado",
   "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"agotado\", fondo azul. Recorte circular.",
@@ -293,7 +293,7 @@
   "usado_en": "HUD nuevo (según la salud)"
  },
  {
-  "ruta": "assets/hud/iconos/moneda.png",
+  "ruta": "assets/ui/hud/iconos/moneda.png",
   "grupo": "HUD · iconos",
   "nombre": "Moneda con estrella",
   "descripcion": "Moneda dorada brillante con una estrella grabada.",
@@ -311,7 +311,7 @@
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)"
  },
  {
-  "ruta": "assets/hud/iconos/calavera.png",
+  "ruta": "assets/ui/hud/iconos/calavera.png",
   "grupo": "HUD · iconos",
   "nombre": "Calavera con banda roja",
   "descripcion": "Calavera blanca con banda ninja roja y ojos rojos brillantes.",
@@ -330,7 +330,7 @@
   "usado_en": "HUD nuevo (ficha de enemigos)"
  },
  {
-  "ruta": "assets/hud/iconos/bandera_meta.png",
+  "ruta": "assets/ui/hud/iconos/bandera_meta.png",
   "grupo": "HUD · iconos",
   "nombre": "Bandera de meta",
   "descripcion": "Bandera roja con un shuriken negro sobre un asta de madera con puntas doradas.",
@@ -349,7 +349,7 @@
   "usado_en": "HUD nuevo (final de la barra de progreso)"
  },
  {
-  "ruta": "assets/hud/iconos/bandera_control.png",
+  "ruta": "assets/ui/hud/iconos/bandera_control.png",
   "grupo": "HUD · iconos",
   "nombre": "Bandera de punto de control",
   "descripcion": "Bandera verde con un farol dibujado, sobre un asta de madera.",
@@ -369,7 +369,7 @@
   "usado_en": "HUD nuevo (marca en la barra de progreso)"
  },
  {
-  "ruta": "assets/hud/iconos/cabeza_ninja.png",
+  "ruta": "assets/ui/hud/iconos/cabeza_ninja.png",
   "grupo": "HUD · iconos",
   "nombre": "Cabeza de ninja (banda azul)",
   "descripcion": "Cabeza de ninja con banda azul y máscara negra.",
@@ -388,7 +388,7 @@
   "usado_en": "HUD nuevo (se mueve por la barra de progreso)"
  },
  {
-  "ruta": "assets/hud/iconos/ficha_contador_parcial.png",
+  "ruta": "assets/ui/hud/iconos/ficha_contador_parcial.png",
   "grupo": "HUD · iconos",
   "nombre": "Ficha de contador (cortada)",
   "descripcion": "Cápsula azul y dorada con una casilla redonda a la izquierda. LA IMAGEN ORIGINAL VENÍA CORTADA a la derecha.",
@@ -407,7 +407,7 @@
   "nota": "Si se necesita completa, pedir de nuevo con la cápsula entera visible."
  },
  {
-  "ruta": "assets/hud/animados/corazon_latido.png",
+  "ruta": "assets/ui/hud/animados/corazon_latido.png",
   "grupo": "HUD · animados",
   "nombre": "Corazón latiendo (6 cuadros)",
   "descripcion": "Corazón rojo brillante con un shuriken dorado. Late: crece con un resplandor y vuelve a su tamaño.",
@@ -432,7 +432,7 @@
   "usado_en": "HUD nuevo (extremo de la barra de vida)"
  },
  {
-  "ruta": "assets/hud/animados/moneda_girando.png",
+  "ruta": "assets/ui/hud/animados/moneda_girando.png",
   "grupo": "HUD · animados",
   "nombre": "Moneda girando (6 cuadros)",
   "descripcion": "Moneda dorada con estrella girando sobre su eje vertical, con un destello al final.",
@@ -457,7 +457,7 @@
   "usado_en": "HUD nuevo (ficha de puntos)"
  },
  {
-  "ruta": "assets/hud/progreso/progreso_marco.png",
+  "ruta": "assets/ui/hud/progreso/progreso_marco.png",
   "grupo": "HUD · progreso",
   "nombre": "Marco de la barra de progreso",
   "descripcion": "Cápsula delgada azul marino con borde dorado y un shuriken ornamental en cada extremo.",
@@ -478,7 +478,7 @@
   "usado_en": "HUD nuevo (arriba al centro)"
  },
  {
-  "ruta": "assets/hud/efectos-heroe/aura_radiante.png",
+  "ruta": "assets/ui/hud/efectos-heroe/aura_radiante.png",
   "grupo": "HUD · efectos del héroe",
   "nombre": "Aura radiante",
   "descripcion": "Anillo de destellos dorados que gira alrededor de un centro vacío, con estrellitas.",
@@ -503,7 +503,7 @@
   "usado_en": "HUD nuevo (Salud ≥ 90 %)"
  },
  {
-  "ruta": "assets/hud/efectos-heroe/curacion.png",
+  "ruta": "assets/ui/hud/efectos-heroe/curacion.png",
   "grupo": "HUD · efectos del héroe",
   "nombre": "Pulso de curación",
   "descripcion": "Anillo verde que se expande con signos de más (+) que suben y se desvanecen.",
@@ -528,7 +528,7 @@
   "usado_en": "HUD nuevo (Al curarse)"
  },
  {
-  "ruta": "assets/hud/efectos-heroe/golpe.png",
+  "ruta": "assets/ui/hud/efectos-heroe/golpe.png",
   "grupo": "HUD · efectos del héroe",
   "nombre": "Tajo de golpe",
   "descripcion": "Cortes rojos y blancos en diagonal con chispas.",
@@ -553,7 +553,7 @@
   "usado_en": "HUD nuevo (Al recibir un golpe)"
  },
  {
-  "ruta": "assets/hud/efectos-heroe/sudor.png",
+  "ruta": "assets/ui/hud/efectos-heroe/sudor.png",
   "grupo": "HUD · efectos del héroe",
   "nombre": "Gotas de sudor",
   "descripcion": "Tres gotas azules claras que salen disparadas hacia un lado.",
@@ -578,7 +578,7 @@
   "usado_en": "HUD nuevo (Salud < 25 %)"
  },
  {
-  "ruta": "assets/hud/efectos-heroe/mareo.png",
+  "ruta": "assets/ui/hud/efectos-heroe/mareo.png",
   "grupo": "HUD · efectos del héroe",
   "nombre": "Estrellas de mareo",
   "descripcion": "Anillo de estrellitas amarillas que gira (para ponerlo sobre la cabeza).",
@@ -603,7 +603,7 @@
   "usado_en": "HUD nuevo (Salud < 25 %)"
  },
  {
-  "ruta": "assets/hud/pantalla/esquina_roja_sup_izq.png",
+  "ruta": "assets/ui/hud/pantalla/esquina_roja_sup_izq.png",
   "grupo": "HUD · pantalla",
   "nombre": "Esquina roja agrietada (arriba izquierda)",
   "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
@@ -625,7 +625,7 @@
   "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
  },
  {
-  "ruta": "assets/hud/pantalla/esquina_roja_sup_der.png",
+  "ruta": "assets/ui/hud/pantalla/esquina_roja_sup_der.png",
   "grupo": "HUD · pantalla",
   "nombre": "Esquina roja agrietada (arriba derecha)",
   "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
@@ -647,7 +647,7 @@
   "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
  },
  {
-  "ruta": "assets/hud/pantalla/esquina_roja_inf_izq.png",
+  "ruta": "assets/ui/hud/pantalla/esquina_roja_inf_izq.png",
   "grupo": "HUD · pantalla",
   "nombre": "Esquina roja agrietada (abajo izquierda)",
   "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
@@ -669,7 +669,7 @@
   "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
  },
  {
-  "ruta": "assets/hud/pantalla/esquina_roja_inf_der.png",
+  "ruta": "assets/ui/hud/pantalla/esquina_roja_inf_der.png",
   "grupo": "HUD · pantalla",
   "nombre": "Esquina roja agrietada (abajo derecha)",
   "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
@@ -691,7 +691,7 @@
   "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
  },
  {
-  "ruta": "assets/hud/pantalla/vineta_peligro_izquierda_1920x1080.png",
+  "ruta": "assets/ui/hud/pantalla/vineta_peligro_izquierda_1920x1080.png",
   "grupo": "HUD · pantalla",
   "nombre": "Viñeta de peligro (solo el lado izquierdo)",
   "descripcion": "Borde rojo agrietado de pantalla completa 1920×1080. SOLO TIENE el lado izquierdo (y algo de arriba); el centro y la derecha están vacíos.",
@@ -710,7 +710,7 @@
   "nota": "Salió incompleta; las esquinas rojas la reemplazan."
  },
  {
-  "ruta": "assets/hud/extras/barra_ornamental_azul_dorada.png",
+  "ruta": "assets/ui/hud/extras/barra_ornamental_azul_dorada.png",
   "grupo": "HUD · extras",
   "nombre": "Barra ornamental azul con extremos dorados",
   "descripcion": "Barra de cristal azul brillante con extremos dorados ornamentados (estilo fantasía). Fondo limpiado a partir de un original con cuadriculado pintado.",
@@ -732,7 +732,7 @@
   "usado_en": "Banco (aún sin usar)"
  },
  {
-  "ruta": "assets/poderes/life.png",
+  "ruta": "assets/ui/poderes/life.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: life",
   "descripcion": "Hongo verde con corazón (vida extra). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -751,7 +751,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/star.png",
+  "ruta": "assets/ui/poderes/star.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: star",
   "descripcion": "Estrella dorada con estela arcoíris (invencible). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -770,7 +770,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/speed.png",
+  "ruta": "assets/ui/poderes/speed.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: speed",
   "descripcion": "Bota azul con alas (velocidad). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -789,7 +789,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/shield.png",
+  "ruta": "assets/ui/poderes/shield.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: shield",
   "descripcion": "Escudo verde jade con shuriken (escudo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -808,7 +808,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/magnet.png",
+  "ruta": "assets/ui/poderes/magnet.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: magnet",
   "descripcion": "Imán rojo atrayendo monedas (imán). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -827,7 +827,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/giant.png",
+  "ruta": "assets/ui/poderes/giant.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: giant",
   "descripcion": "Puño naranja con ondas (gigante). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -846,7 +846,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/gun.png",
+  "ruta": "assets/ui/poderes/gun.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: gun",
   "descripcion": "Pistola láser naranja (disparo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -865,7 +865,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/dualshot.png",
+  "ruta": "assets/ui/poderes/dualshot.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: dualshot",
   "descripcion": "Dos pistolas magenta cruzadas (doble disparo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -884,7 +884,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/clone.png",
+  "ruta": "assets/ui/poderes/clone.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: clone",
   "descripcion": "Dos ninjas azules, uno translúcido (clon). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -903,7 +903,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/rocket.png",
+  "ruta": "assets/ui/poderes/rocket.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: rocket",
   "descripcion": "Cohete magenta (cohete). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -922,7 +922,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/bounce.png",
+  "ruta": "assets/ui/poderes/bounce.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: bounce",
   "descripcion": "Pelota dorada rebotando (rebote). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -941,7 +941,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/meteor.png",
+  "ruta": "assets/ui/poderes/meteor.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: meteor",
   "descripcion": "Meteorito en llamas (lluvia de meteoros). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -960,7 +960,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/timefreeze.png",
+  "ruta": "assets/ui/poderes/timefreeze.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: timefreeze",
   "descripcion": "Reloj de arena entre cristales de hielo (congelar tiempo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -979,7 +979,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/timewarp.png",
+  "ruta": "assets/ui/poderes/timewarp.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: timewarp",
   "descripcion": "Reloj de bolsillo morado con flechas (tiempo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -998,7 +998,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/freeze.png",
+  "ruta": "assets/ui/poderes/freeze.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: freeze",
   "descripcion": "Flor de cerezo congelada (congelar enemigos). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1017,7 +1017,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/mirror.png",
+  "ruta": "assets/ui/poderes/mirror.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: mirror",
   "descripcion": "Espejo con silueta de ninja (espejo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1036,7 +1036,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/ghost.png",
+  "ruta": "assets/ui/poderes/ghost.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: ghost",
   "descripcion": "Fantasma lavanda (fantasma). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1055,7 +1055,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/phantom.png",
+  "ruta": "assets/ui/poderes/phantom.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: phantom",
   "descripcion": "Vórtice morado con ninja (fantasma/portal). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1074,7 +1074,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/lightning_storm.png",
+  "ruta": "assets/ui/poderes/lightning_storm.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: lightning_storm",
   "descripcion": "Rayo amarillo en nube de tormenta (tormenta). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1093,7 +1093,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/rainbowstorm.png",
+  "ruta": "assets/ui/poderes/rainbowstorm.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: rainbowstorm",
   "descripcion": "Arcoíris con monedas (tormenta arcoíris). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1112,7 +1112,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/berserker.png",
+  "ruta": "assets/ui/poderes/berserker.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: berserker",
   "descripcion": "Máscara ninja furiosa en llamas (berserker). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1131,7 +1131,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/aura.png",
+  "ruta": "assets/ui/poderes/aura.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: aura",
   "descripcion": "Ninja envuelto en llamas (aura). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1150,7 +1150,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/crown.png",
+  "ruta": "assets/ui/poderes/crown.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: crown",
   "descripcion": "Corona dorada con rubíes (puntos dobles). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1169,7 +1169,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/dash.png",
+  "ruta": "assets/ui/poderes/dash.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: dash",
   "descripcion": "Pez azul veloz con agua (dash marino). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1188,7 +1188,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/superjump.png",
+  "ruta": "assets/ui/poderes/superjump.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: superjump",
   "descripcion": "Resorte verde con flecha (supersalto). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1207,7 +1207,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/superjump3x.png",
+  "ruta": "assets/ui/poderes/superjump3x.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: superjump3x",
   "descripcion": "Huella verde con tres flechas (triple salto). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1226,7 +1226,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/float.png",
+  "ruta": "assets/ui/poderes/float.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: float",
   "descripcion": "Ninja sobre una nube (flotar). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1245,7 +1245,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/gravity.png",
+  "ruta": "assets/ui/poderes/gravity.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: gravity",
   "descripcion": "Planeta morado con pluma (baja gravedad). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1264,7 +1264,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/poderes/turbo.png",
+  "ruta": "assets/ui/poderes/turbo.png",
   "grupo": "Poderes · iconos",
   "nombre": "Icono de poder: turbo",
   "descripcion": "Bota dorada con alas (turbo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
@@ -1283,7 +1283,7 @@
   "usado_en": "Juego (objetos que caen, selector y poderes activos)"
  },
  {
-  "ruta": "assets/efectos/explosion_fuego_a.png",
+  "ruta": "assets/effects/explosion_fuego_a.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto a (fuego)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1305,7 +1305,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_fuego_b.png",
+  "ruta": "assets/effects/explosion_fuego_b.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto b (fuego)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1327,7 +1327,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_fuego_c.png",
+  "ruta": "assets/effects/explosion_fuego_c.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto c (fuego)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1349,7 +1349,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_anillos_fuego.png",
+  "ruta": "assets/effects/fx_anillos_fuego.png",
   "grupo": "Efectos · impacto",
   "nombre": "Anillos (fuego)",
   "descripcion": "Anillos de energía que se expanden en el suelo, con rocas.",
@@ -1369,7 +1369,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_brasas_fuego.png",
+  "ruta": "assets/effects/fx_brasas_fuego.png",
   "grupo": "Efectos · impacto",
   "nombre": "Brasas (fuego)",
   "descripcion": "Brasas, chispas y estrellitas que salen despedidas.",
@@ -1389,7 +1389,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_crater_fuego.png",
+  "ruta": "assets/effects/fx_crater_fuego.png",
   "grupo": "Efectos · impacto",
   "nombre": "Crater (fuego)",
   "descripcion": "Cráter ardiente: fuego y rocas al inicio, termina en brasas y humo.",
@@ -1409,7 +1409,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_grietas_fuego.png",
+  "ruta": "assets/effects/fx_grietas_fuego.png",
   "grupo": "Efectos · impacto",
   "nombre": "Grietas (fuego)",
   "descripcion": "Grietas doradas de energía en el suelo con una columna de luz.",
@@ -1429,7 +1429,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_grieta_cielo_fuego.png",
+  "ruta": "assets/effects/fx_grieta_cielo_fuego.png",
   "grupo": "Efectos · impacto",
   "nombre": "Grieta cielo (fuego)",
   "descripcion": "Grieta de luz que se abre en el cielo (4 cuadros).",
@@ -1449,7 +1449,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_hielo_a.png",
+  "ruta": "assets/effects/explosion_hielo_a.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto a (hielo)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1471,7 +1471,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_hielo_b.png",
+  "ruta": "assets/effects/explosion_hielo_b.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto b (hielo)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1493,7 +1493,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_hielo_c.png",
+  "ruta": "assets/effects/explosion_hielo_c.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto c (hielo)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1515,7 +1515,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_anillos_hielo.png",
+  "ruta": "assets/effects/fx_anillos_hielo.png",
   "grupo": "Efectos · impacto",
   "nombre": "Anillos (hielo)",
   "descripcion": "Anillos de energía que se expanden en el suelo, con rocas.",
@@ -1535,7 +1535,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_brasas_hielo.png",
+  "ruta": "assets/effects/fx_brasas_hielo.png",
   "grupo": "Efectos · impacto",
   "nombre": "Brasas (hielo)",
   "descripcion": "Brasas, chispas y estrellitas que salen despedidas.",
@@ -1555,7 +1555,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_crater_hielo.png",
+  "ruta": "assets/effects/fx_crater_hielo.png",
   "grupo": "Efectos · impacto",
   "nombre": "Crater (hielo)",
   "descripcion": "Cráter ardiente: fuego y rocas al inicio, termina en brasas y humo.",
@@ -1575,7 +1575,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_grietas_hielo.png",
+  "ruta": "assets/effects/fx_grietas_hielo.png",
   "grupo": "Efectos · impacto",
   "nombre": "Grietas (hielo)",
   "descripcion": "Grietas doradas de energía en el suelo con una columna de luz.",
@@ -1595,7 +1595,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_grieta_cielo_hielo.png",
+  "ruta": "assets/effects/fx_grieta_cielo_hielo.png",
   "grupo": "Efectos · impacto",
   "nombre": "Grieta cielo (hielo)",
   "descripcion": "Grieta de luz que se abre en el cielo (4 cuadros).",
@@ -1615,7 +1615,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_magia_a.png",
+  "ruta": "assets/effects/explosion_magia_a.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto a (magia)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1637,7 +1637,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_magia_b.png",
+  "ruta": "assets/effects/explosion_magia_b.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto b (magia)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1659,7 +1659,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/explosion_magia_c.png",
+  "ruta": "assets/effects/explosion_magia_c.png",
   "grupo": "Efectos · impacto",
   "nombre": "Explosión de impacto c (magia)",
   "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
@@ -1681,7 +1681,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_anillos_magia.png",
+  "ruta": "assets/effects/fx_anillos_magia.png",
   "grupo": "Efectos · impacto",
   "nombre": "Anillos (magia)",
   "descripcion": "Anillos de energía que se expanden en el suelo, con rocas.",
@@ -1701,7 +1701,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_brasas_magia.png",
+  "ruta": "assets/effects/fx_brasas_magia.png",
   "grupo": "Efectos · impacto",
   "nombre": "Brasas (magia)",
   "descripcion": "Brasas, chispas y estrellitas que salen despedidas.",
@@ -1721,7 +1721,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_crater_magia.png",
+  "ruta": "assets/effects/fx_crater_magia.png",
   "grupo": "Efectos · impacto",
   "nombre": "Crater (magia)",
   "descripcion": "Cráter ardiente: fuego y rocas al inicio, termina en brasas y humo.",
@@ -1741,7 +1741,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_grietas_magia.png",
+  "ruta": "assets/effects/fx_grietas_magia.png",
   "grupo": "Efectos · impacto",
   "nombre": "Grietas (magia)",
   "descripcion": "Grietas doradas de energía en el suelo con una columna de luz.",
@@ -1761,7 +1761,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_grieta_cielo_magia.png",
+  "ruta": "assets/effects/fx_grieta_cielo_magia.png",
   "grupo": "Efectos · impacto",
   "nombre": "Grieta cielo (magia)",
   "descripcion": "Grieta de luz que se abre en el cielo (4 cuadros).",
@@ -1781,7 +1781,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_haz.png",
+  "ruta": "assets/effects/fx_haz.png",
   "grupo": "Efectos · impacto",
   "nombre": "Haz de luz (gris, se tiñe)",
   "descripcion": "Columna de luz que sube con salpicaduras en la base y se disuelve en volutas. En grises.",
@@ -1801,7 +1801,7 @@
   "usado_en": "Juego (poderes)"
  },
  {
-  "ruta": "assets/efectos/fx_humo.png",
+  "ruta": "assets/effects/fx_humo.png",
   "grupo": "Efectos · impacto",
   "nombre": "Humo que se disipa",
   "descripcion": "Nube de humo gris oscuro que sube y se deshace (6 cuadros).",
@@ -1819,7 +1819,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/fx_rocas.png",
+  "ruta": "assets/effects/fx_rocas.png",
   "grupo": "Efectos · impacto",
   "nombre": "Rocas dispersándose",
   "descripcion": "Rocas oscuras con vetas naranjas que se separan (6 cuadros; halo blanco original eliminado).",
@@ -1838,7 +1838,7 @@
   "usado_en": "Juego (impacto del meteorito)"
  },
  {
-  "ruta": "assets/efectos/meteoro_cabeza.png",
+  "ruta": "assets/effects/meteoro_cabeza.png",
   "grupo": "Efectos · impacto",
   "nombre": "Meteorito (bola de fuego)",
   "descripcion": "Roca incandescente envuelta en llamas con su cola, vista de lado, avanzando abajo-izquierda.",
@@ -1856,7 +1856,7 @@
   "usado_en": "Juego (poderes que caen)"
  },
  {
-  "ruta": "assets/efectos/meteoro_estela.png",
+  "ruta": "assets/effects/meteoro_estela.png",
   "grupo": "Efectos · impacto",
   "nombre": "Estela de fuego larga",
   "descripcion": "Cola de fuego horizontal con cabeza blanco-amarilla a la derecha.",
@@ -1874,7 +1874,7 @@
   "usado_en": "Juego (poderes que caen)"
  },
  {
-  "ruta": "assets/islas/isla_101.png",
+  "ruta": "assets/environment/platforms/islands/isla_101.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 101",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -1892,7 +1892,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_201.png",
+  "ruta": "assets/environment/platforms/islands/isla_201.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 201",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -1910,7 +1910,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_102.png",
+  "ruta": "assets/environment/platforms/islands/isla_102.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 102",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -1928,7 +1928,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_202.png",
+  "ruta": "assets/environment/platforms/islands/isla_202.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 202",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -1946,7 +1946,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_103.png",
+  "ruta": "assets/environment/platforms/islands/isla_103.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 103",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -1964,7 +1964,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_203.png",
+  "ruta": "assets/environment/platforms/islands/isla_203.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 203",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -1982,7 +1982,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_104.png",
+  "ruta": "assets/environment/platforms/islands/isla_104.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 104",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2000,7 +2000,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_204.png",
+  "ruta": "assets/environment/platforms/islands/isla_204.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 204",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2018,7 +2018,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_105.png",
+  "ruta": "assets/environment/platforms/islands/isla_105.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 105",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2036,7 +2036,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_205.png",
+  "ruta": "assets/environment/platforms/islands/isla_205.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 205",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2054,7 +2054,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_106.png",
+  "ruta": "assets/environment/platforms/islands/isla_106.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 106",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2072,7 +2072,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_206.png",
+  "ruta": "assets/environment/platforms/islands/isla_206.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 206",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2090,7 +2090,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_107.png",
+  "ruta": "assets/environment/platforms/islands/isla_107.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 107",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2108,7 +2108,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_207.png",
+  "ruta": "assets/environment/platforms/islands/isla_207.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 207",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2126,7 +2126,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_108.png",
+  "ruta": "assets/environment/platforms/islands/isla_108.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 108",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2144,7 +2144,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_208.png",
+  "ruta": "assets/environment/platforms/islands/isla_208.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 208",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2162,7 +2162,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_109.png",
+  "ruta": "assets/environment/platforms/islands/isla_109.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 109",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2180,7 +2180,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_209.png",
+  "ruta": "assets/environment/platforms/islands/isla_209.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 209",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2198,7 +2198,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_110.png",
+  "ruta": "assets/environment/platforms/islands/isla_110.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 110",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2216,7 +2216,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_210.png",
+  "ruta": "assets/environment/platforms/islands/isla_210.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 210",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2234,7 +2234,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_111.png",
+  "ruta": "assets/environment/platforms/islands/isla_111.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 111",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2252,7 +2252,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_211.png",
+  "ruta": "assets/environment/platforms/islands/isla_211.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 211",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2270,7 +2270,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_112.png",
+  "ruta": "assets/environment/platforms/islands/isla_112.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 112",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2288,7 +2288,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_212.png",
+  "ruta": "assets/environment/platforms/islands/isla_212.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 212",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2306,7 +2306,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_113.png",
+  "ruta": "assets/environment/platforms/islands/isla_113.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 113",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2324,7 +2324,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_213.png",
+  "ruta": "assets/environment/platforms/islands/isla_213.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 213",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2342,7 +2342,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_114.png",
+  "ruta": "assets/environment/platforms/islands/isla_114.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 114",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2360,7 +2360,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_214.png",
+  "ruta": "assets/environment/platforms/islands/isla_214.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 214",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2378,7 +2378,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_115.png",
+  "ruta": "assets/environment/platforms/islands/isla_115.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 115",
   "descripcion": "Isla flotante pintada (hoja 1).",
@@ -2396,7 +2396,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/islas/isla_215.png",
+  "ruta": "assets/environment/platforms/islands/isla_215.png",
   "grupo": "Escenario · islas flotantes",
   "nombre": "Isla 215",
   "descripcion": "Isla flotante pintada (hoja 2).",
@@ -2414,7 +2414,7 @@
   "usado_en": "Juego (plataformas)"
  },
  {
-  "ruta": "assets/nivel1/n1_bg_montanas_lejos.png",
+  "ruta": "assets/environment/levels/nivel1/n1_bg_montanas_lejos.png",
   "grupo": "Escenario · Nivel 1",
   "nombre": "Montañas azules con niebla",
   "descripcion": "Cordillera azul y lila con pinos verdes y niebla; repetible sin costura; base difuminada.",
@@ -2433,7 +2433,7 @@
   "usado_en": "Juego (Nivel 1)"
  },
  {
-  "ruta": "assets/nivel1/nubes/nube_01.png",
+  "ruta": "assets/environment/levels/nivel1/nubes/nube_01.png",
   "grupo": "Escenario · Nivel 1",
   "nombre": "Nube de atardecer",
   "descripcion": "Gran nube rosa, amarilla y morada con contorno fino.",
@@ -2451,7 +2451,7 @@
   "usado_en": "Juego (Nivel 1)"
  },
  {
-  "ruta": "assets/sakura/",
+  "ruta": "assets/characters/sakura/",
   "grupo": "Personajes · sprites",
   "nombre": "Sakura (fotogramas)",
   "descripcion": "Carpeta con las animaciones de Sakura: idle (6), run (14), run2 (8), sprint (5), jump (4), atk (7), hurt (5), death (6), crouch, extra. manifest.js trae anclas y escalas.",
@@ -2467,7 +2467,7 @@
   "usado_en": "Juego (hero-pro.js)"
  },
  {
-  "ruta": "assets/kage/",
+  "ruta": "assets/characters/kage/",
   "grupo": "Personajes · sprites",
   "nombre": "Kage (fotogramas)",
   "descripcion": "Carpeta con las animaciones de Kage: idle (6), run (15), atk (6), hurt (6), death (6). manifest.js trae anclas y escalas.",
@@ -2483,7 +2483,7 @@
   "usado_en": "Juego (hero-pro.js)"
  },
  {
-  "ruta": "assets/villain/",
+  "ruta": "assets/characters/villain/",
   "grupo": "Personajes · sprites",
   "nombre": "Mago del Caos (25 cuadros de caminar)",
   "descripcion": "Jefe final: ciclo de caminar de 25 cuadros con manifest.js.",
@@ -2498,7 +2498,7 @@
   "usado_en": "Juego (jefe final)"
  },
  {
-  "ruta": "assets/select/sakura_3.png",
+  "ruta": "assets/ui/select/sakura_3.png",
   "grupo": "Personajes · ilustraciones",
   "nombre": "Ilustración de selección (3 opciones por héroe)",
   "descripcion": "Ilustración de cuerpo completo en pose de combate: select/sakura_1-3.png y select/kage_1-3.png.",
@@ -2517,7 +2517,7 @@
   "usado_en": "Juego (selección de personaje)"
  },
  {
-  "ruta": "assets/intro/villain.png",
+  "ruta": "assets/ui/intro/villain.png",
   "grupo": "Personajes · ilustraciones",
   "nombre": "Mago del Caos (intro)",
   "descripcion": "Ilustración del villano para la introducción (acto 2).",
@@ -2527,10 +2527,7 @@
    "intro",
    "ilustración"
   ],
-  "tamano_px": [
-   727,
-   1100
-  ],
+  "tamano_px": null,
   "origen": "Entregado por el proyecto",
   "usado_en": "Juego (intro)"
  },

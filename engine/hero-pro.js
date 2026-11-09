@@ -1,5 +1,5 @@
 /* HERO PRO — reemplaza las animaciones de los dos héroes por las nuevas hojas de sprites.
-   · Sakura (ninja rosa, assets/sakura/) y Kage (ninja rojo y negro, assets/kage/).
+   · Sakura (ninja rosa, assets/characters/sakura/) y Kage (ninja rojo y negro, assets/characters/kage/).
    · Cada héroe define en su manifest: run, sprint (dash / impulso), jump + jumpMap, crouch, idle, atk, hurt + hurtMap,
      kmul (corrección de tamaño por animación) y scale. Un manifest puede reutilizar el mismo archivo en varios grupos.
    · Idle/ataque/golpe/etc. que falten en un manifest siguen con el arte anterior.
@@ -9,8 +9,8 @@
 if(typeof NJX==='undefined')return;
 const _prev=window._drawNinjaX;
 const heroes=[
-  {name:'Sakura',kind:'pink',man:'SAKURA_MANIFEST',base:'assets/sakura/',off:/[?&]sakura=0/},
-  {name:'Kage',kind:'black',man:'KAGE_MANIFEST',base:'assets/kage/',off:/[?&]kage=0/}
+  {name:'Sakura',kind:'pink',man:'SAKURA_MANIFEST',base:'assets/characters/sakura/',off:/[?&]sakura=0/},
+  {name:'Kage',kind:'black',man:'KAGE_MANIFEST',base:'assets/characters/kage/',off:/[?&]kage=0/}
 ];
 const act={};                                           /* kind -> datos del héroe activo */
 function install(h){

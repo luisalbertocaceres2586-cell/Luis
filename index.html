@@ -926,8 +926,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   </div>
 </div>
 
-<script src="assets/nivel1/nubes.js"></script>
-<script src="assets/islas/islas.js"></script>
+<script src="assets/environment/levels/nivel1/nubes.js"></script>
+<script src="assets/environment/platforms/islands/islas.js"></script>
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════
@@ -1741,14 +1741,14 @@ const NINJA_TILES = {
   ground:_img(_BJ_njGround), platLong:_img(_BJ_njPlatLong), pipe:_img(_BJ_njPipe),
   torii:_img(_BJ_njTorii), lanternPost:_img(_BJ_njLanternPost), bamboo:_img(_BJ_njBamboo), cherryTree:_img(_BJ_njCherryTree),
 };
-// ── NIVEL 1 · cielo de amanecer con capas independientes — arte en assets/nivel1/ ──
-// Cada nube (assets/nivel1/nubes/*.png, lista en assets/nivel1/nubes.js) es un objeto con su propia
+// ── NIVEL 1 · cielo de amanecer con capas independientes — arte en assets/environment/levels/nivel1/ ──
+// Cada nube (assets/environment/levels/nivel1/nubes/*.png, lista en assets/environment/levels/nivel1/nubes.js) es un objeto con su propia
 // velocidad, profundidad, tamaño y transparencia, así que se mueven unas sobre otras sin repetirse.
 // Si algún PNG no carga, el nivel usa el fondo nocturno anterior (no se rompe nada).
 const N1={imgs:{},nubes:[],inst:[],
   ok(){const m=this.imgs.mont;return !!(m&&m.complete&&m.naturalWidth>0&&this.nubes.some(i=>i.complete&&i.naturalWidth>0));},
   load(){
-    const b='assets/nivel1/',m=new Image();m.src=b+'n1_bg_montanas_lejos.png';this.imgs.mont=m;
+    const b='assets/environment/levels/nivel1/',m=new Image();m.src=b+'n1_bg_montanas_lejos.png';this.imgs.mont=m;
     (window.N1_NUBES||['nube_01.png']).forEach(f=>{const i=new Image();i.src=b+'nubes/'+f;this.nubes.push(i);});
     // instancias: 3 capas de profundidad; cada una con parámetros propios (determinista para que no "salte")
     const rnd=(n=>{let s=n;return()=>{s=(s*16807)%2147483647;return s/2147483647;};})(20261103);
@@ -4364,7 +4364,7 @@ function drawSkyItems(){
     CX.shadowBlur=0;
     const pIcon = POWER_ICONS[s.type];
     if(pIcon && pIcon.complete && pIcon.naturalWidth>0){
-      const iSize=54;   // iconos nuevos (assets/poderes), más grandes para que se lean bien
+      const iSize=54;   // iconos nuevos (assets/ui/poderes), más grandes para que se lean bien
       CX.drawImage(pIcon,0,0,pIcon.naturalWidth,pIcon.naturalHeight,sx+16-iSize/2,sy+16-iSize/2,iSize,iSize);
     } else {
       CX.fillStyle='rgba(0,0,10,0.75)';
@@ -9601,12 +9601,11 @@ function drawMiniPeach(canvasId){
 </script>
 <script src="engine/fx-engine.js"></script>
 <script src="engine/mobile-fix.js"></script>
-<script src="assets/sakura/manifest.js"></script>
-<script src="assets/kage/manifest.js"></script>
+<script src="assets/characters/sakura/manifest.js"></script>
+<script src="assets/characters/kage/manifest.js"></script>
 <script src="engine/hero-pro.js"></script>
-<script src="assets/villain/manifest.js"></script>
+<script src="assets/characters/villain/manifest.js"></script>
 <script src="engine/villain-boss.js"></script>
-<script src="engine/select-pro.js"></script>
 <script src="engine/intro-pro.js"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
 <script src="engine/core/modulos.js?v=4"></script>
@@ -9618,6 +9617,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/ui/barra-progreso.js?v=4"></script>
 <script src="engine/movimiento/caida-rapida.js?v=4"></script>
 <script src="engine/combate/racha.js?v=4"></script>
+<script src="engine/combate/jefe-cinematica.js?v=1"></script>
 <script src="engine/educativo/repaso-errores.js?v=4"></script>
 <script src="engine/poderes/iconos.js?v=6"></script>
 <script src="engine/poderes/meteorito.js?v=10"></script>
