@@ -1,0 +1,2555 @@
+[
+ {
+  "ruta": "assets/hud/marcos/medallon_marco.png",
+  "grupo": "HUD · marcos",
+  "nombre": "Medallón (aro vacío)",
+  "descripcion": "Aro de acero azul con borde dorado, brillo cian por dentro, seis pinchos plateados y un shuriken dorado en la esquina superior izquierda. El centro está vacío y transparente.",
+  "uso": "Marco para retratos o logros: pantalla de pausa, perfil, ranking, selección de personaje, diálogos.",
+  "etiquetas": [
+   "marco",
+   "medallón",
+   "retrato",
+   "ui",
+   "dorado",
+   "shuriken"
+  ],
+  "tamano_px": [
+   320,
+   320
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Banco (aún sin usar en el juego)"
+ },
+ {
+  "ruta": "assets/hud/marcos/insignia_nivel.png",
+  "grupo": "HUD · marcos",
+  "nombre": "Insignia hexagonal de nivel",
+  "descripcion": "Placa hexagonal dorada con interior de acero azul cepillado, línea cian y un shuriken dorado abajo. Interior vacío para escribir un número.",
+  "uso": "Número de nivel, rango, grado escolar, cantidad de algo. Escribe el número encima con texto (blanco con borde negro).",
+  "etiquetas": [
+   "insignia",
+   "hexágono",
+   "nivel",
+   "ui",
+   "número"
+  ],
+  "tamano_px": [
+   320,
+   320
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (insignia del nivel junto al retrato; hoy solo se ve el número)"
+ },
+ {
+  "ruta": "assets/hud/marcos/boton_pausa.png",
+  "grupo": "HUD · marcos",
+  "nombre": "Botón de pausa",
+  "descripcion": "Botón redondo azul marino con borde dorado y dos barras doradas de pausa, con brillo arriba a la izquierda.",
+  "uso": "Botón táctil de pausa (≈ 36-44 px). Se puede reutilizar como botón redondo para cualquier acción cambiando el símbolo.",
+  "etiquetas": [
+   "botón",
+   "pausa",
+   "ui",
+   "redondo",
+   "dorado"
+  ],
+  "tamano_px": [
+   320,
+   320
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (arriba a la derecha)"
+ },
+ {
+  "ruta": "assets/hud/barra-vida/barra_marco.png",
+  "grupo": "HUD · barra de vida",
+  "nombre": "Marco de la barra de vida con casilla de retrato",
+  "descripcion": "Cápsula larga de acero azul y dorado con luz cian por dentro y una casilla redonda a la izquierda para el retrato. Los dos huecos (casilla e interior de la barra) son transparentes.",
+  "uso": "Barra de vida/energía con retrato. Se corta en 3 partes (izquierda 0-300 px, centro 600-700 px que se repite, derecha 1290-1400 px) para hacerla tan larga como se necesite. El relleno va DETRÁS del marco.",
+  "etiquetas": [
+   "barra",
+   "vida",
+   "marco",
+   "retrato",
+   "hp",
+   "capsula",
+   "ui"
+  ],
+  "tamano_px": [
+   1400,
+   214
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "nota": "Hueco de la casilla: x52-193, y39-175 · hueco de la barra: x222-1348, y60-157 (en píxeles del archivo de 1400×214).",
+  "usado_en": "HUD nuevo (barra de vida)"
+ },
+ {
+  "ruta": "assets/hud/barra-vida/barra_relleno.png",
+  "grupo": "HUD · barra de vida",
+  "nombre": "Relleno líquido (gris, se pinta por código)",
+  "descripcion": "Franja brillante tipo líquido en blanco y grises, con olas suaves y burbujas. Sin color a propósito.",
+  "uso": "Se estira dentro del hueco de la barra y se tiñe con color (verde, amarillo, rojo) usando fondo de color + multiplicar y un poco de brillo. Sirve para cualquier barra: energía, maná, carga.",
+  "etiquetas": [
+   "barra",
+   "relleno",
+   "líquido",
+   "tintable",
+   "gris",
+   "ui"
+  ],
+  "tamano_px": [
+   1400,
+   105
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (se tiñe verde → amarillo → rojo)"
+ },
+ {
+  "ruta": "assets/hud/barra-vida/barra_brillo.png",
+  "grupo": "HUD · barra de vida",
+  "nombre": "Destello diagonal de la barra",
+  "descripcion": "Franja suave con destellos diagonales blancos y azul claro, que se desvanece en los bordes.",
+  "uso": "Pasarlo de izquierda a derecha sobre la barra con mezcla \"pantalla\" (screen) y opacidad ~0,7 para dar brillo.",
+  "etiquetas": [
+   "brillo",
+   "destello",
+   "barra",
+   "ui",
+   "efecto"
+  ],
+  "tamano_px": [
+   1400,
+   86
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (barrido de brillo cada ~3 s)"
+ },
+ {
+  "ruta": "assets/hud/retratos/sakura_radiante.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Sakura · radiante",
+  "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"radiante\", fondo amarillo con destellos. Recorte circular.",
+  "uso": "Vida llena (≥ 90 %): sonriente, confiado, con chispas. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "sakura",
+   "radiante",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/sakura_normal.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Sakura · normal",
+  "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"normal\", fondo morado. Recorte circular.",
+  "uso": "Vida entre 50 % y 89 %: determinado, tranquilo. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "sakura",
+   "normal",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/sakura_herido.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Sakura · herido",
+  "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"herido\", fondo rojo. Recorte circular.",
+  "uso": "Vida entre 25 % y 49 %: preocupado, con un rasguño. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "sakura",
+   "herido",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/sakura_agotado.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Sakura · agotado",
+  "descripcion": "Sakura: ninja joven, pelo negro recogido con flor de cerezo rosa y mechas magenta, máscara negra y armadura oscura. Expresión \"agotado\", fondo azul. Recorte circular.",
+  "uso": "Vida menor a 25 %: ojos cerrados o casi, sudor, colores apagados. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "sakura",
+   "agotado",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/kage_radiante.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Kage · radiante",
+  "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"radiante\", fondo amarillo con destellos. Recorte circular.",
+  "uso": "Vida llena (≥ 90 %): sonriente, confiado, con chispas. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "kage",
+   "radiante",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/kage_normal.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Kage · normal",
+  "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"normal\", fondo morado. Recorte circular.",
+  "uso": "Vida entre 50 % y 89 %: determinado, tranquilo. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "kage",
+   "normal",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/kage_herido.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Kage · herido",
+  "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"herido\", fondo rojo. Recorte circular.",
+  "uso": "Vida entre 25 % y 49 %: preocupado, con un rasguño. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "kage",
+   "herido",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/retratos/kage_agotado.png",
+  "grupo": "HUD · retratos",
+  "nombre": "Retrato de Kage · agotado",
+  "descripcion": "Kage: ninja joven, pelo negro de puntas, máscara negra, bufanda roja y armadura negra con detalles rojos. Expresión \"agotado\", fondo azul. Recorte circular.",
+  "uso": "Vida menor a 25 %: ojos cerrados o casi, sudor, colores apagados. Se cambia solo según la barra de vida. También sirve para ranking, perfiles y diálogos.",
+  "etiquetas": [
+   "retrato",
+   "kage",
+   "agotado",
+   "personaje",
+   "expresión",
+   "círculo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (según la salud)"
+ },
+ {
+  "ruta": "assets/hud/iconos/moneda.png",
+  "grupo": "HUD · iconos",
+  "nombre": "Moneda con estrella",
+  "descripcion": "Moneda dorada brillante con una estrella grabada.",
+  "uso": "Icono de puntos o monedas, fijo. Para la versión que gira usa animados/moneda_girando.png.",
+  "etiquetas": [
+   "moneda",
+   "puntos",
+   "icono",
+   "dorado"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)"
+ },
+ {
+  "ruta": "assets/hud/iconos/calavera.png",
+  "grupo": "HUD · iconos",
+  "nombre": "Calavera con banda roja",
+  "descripcion": "Calavera blanca con banda ninja roja y ojos rojos brillantes.",
+  "uso": "Icono de enemigos derrotados / enemigos restantes.",
+  "etiquetas": [
+   "calavera",
+   "enemigos",
+   "icono",
+   "rojo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (ficha de enemigos)"
+ },
+ {
+  "ruta": "assets/hud/iconos/bandera_meta.png",
+  "grupo": "HUD · iconos",
+  "nombre": "Bandera de meta",
+  "descripcion": "Bandera roja con un shuriken negro sobre un asta de madera con puntas doradas.",
+  "uso": "Marca de llegada o meta (barra de progreso, mapa).",
+  "etiquetas": [
+   "bandera",
+   "meta",
+   "icono",
+   "rojo"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (final de la barra de progreso)"
+ },
+ {
+  "ruta": "assets/hud/iconos/bandera_control.png",
+  "grupo": "HUD · iconos",
+  "nombre": "Bandera de punto de control",
+  "descripcion": "Bandera verde con un farol dibujado, sobre un asta de madera.",
+  "uso": "Punto de control / guardado.",
+  "etiquetas": [
+   "bandera",
+   "checkpoint",
+   "punto de control",
+   "icono",
+   "verde"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (marca en la barra de progreso)"
+ },
+ {
+  "ruta": "assets/hud/iconos/cabeza_ninja.png",
+  "grupo": "HUD · iconos",
+  "nombre": "Cabeza de ninja (banda azul)",
+  "descripcion": "Cabeza de ninja con banda azul y máscara negra.",
+  "uso": "Marcador del jugador sobre una barra de progreso o mapa.",
+  "etiquetas": [
+   "ninja",
+   "marcador",
+   "jugador",
+   "icono"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (se mueve por la barra de progreso)"
+ },
+ {
+  "ruta": "assets/hud/iconos/ficha_contador_parcial.png",
+  "grupo": "HUD · iconos",
+  "nombre": "Ficha de contador (cortada)",
+  "descripcion": "Cápsula azul y dorada con una casilla redonda a la izquierda. LA IMAGEN ORIGINAL VENÍA CORTADA a la derecha.",
+  "uso": "Solo de referencia de estilo. En el juego las fichas se arman con CSS imitando esta forma.",
+  "etiquetas": [
+   "ficha",
+   "contador",
+   "referencia",
+   "cortada"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "nota": "Si se necesita completa, pedir de nuevo con la cápsula entera visible."
+ },
+ {
+  "ruta": "assets/hud/animados/corazon_latido.png",
+  "grupo": "HUD · animados",
+  "nombre": "Corazón latiendo (6 cuadros)",
+  "descripcion": "Corazón rojo brillante con un shuriken dorado. Late: crece con un resplandor y vuelve a su tamaño.",
+  "uso": "Tira horizontal de 6 cuadros. Se reproduce con CSS (steps(6)); más rápido cuando hay poca vida.",
+  "etiquetas": [
+   "corazón",
+   "latido",
+   "vida",
+   "animación",
+   "tira"
+  ],
+  "tamano_px": [
+   1200,
+   175
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "celda_px": [
+   200,
+   175
+  ],
+  "usado_en": "HUD nuevo (extremo de la barra de vida)"
+ },
+ {
+  "ruta": "assets/hud/animados/moneda_girando.png",
+  "grupo": "HUD · animados",
+  "nombre": "Moneda girando (6 cuadros)",
+  "descripcion": "Moneda dorada con estrella girando sobre su eje vertical, con un destello al final.",
+  "uso": "Tira horizontal de 6 cuadros.",
+  "etiquetas": [
+   "moneda",
+   "giro",
+   "animación",
+   "tira",
+   "puntos"
+  ],
+  "tamano_px": [
+   960,
+   160
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "celda_px": [
+   160,
+   160
+  ],
+  "usado_en": "HUD nuevo (ficha de puntos)"
+ },
+ {
+  "ruta": "assets/hud/progreso/progreso_marco.png",
+  "grupo": "HUD · progreso",
+  "nombre": "Marco de la barra de progreso",
+  "descripcion": "Cápsula delgada azul marino con borde dorado y un shuriken ornamental en cada extremo.",
+  "uso": "Barra de progreso del nivel o cualquier barra larga y fina. Interior oscuro y sólido (no transparente): rellenar con una capa encima.",
+  "etiquetas": [
+   "progreso",
+   "barra",
+   "marco",
+   "nivel",
+   "ui"
+  ],
+  "tamano_px": [
+   1200,
+   53
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "nota": "Interior aprox. de x28 a x1171 (en el archivo de 1200 px de ancho).",
+  "usado_en": "HUD nuevo (arriba al centro)"
+ },
+ {
+  "ruta": "assets/hud/efectos-heroe/aura_radiante.png",
+  "grupo": "HUD · efectos del héroe",
+  "nombre": "Aura radiante",
+  "descripcion": "Anillo de destellos dorados que gira alrededor de un centro vacío, con estrellitas.",
+  "uso": "Héroe con la vida llena: dibujarla centrada en el personaje con transparencia ~0,5. Tira horizontal de 6 cuadros.",
+  "etiquetas": [
+   "efecto",
+   "héroe",
+   "animación",
+   "tira",
+   "aura radiante"
+  ],
+  "tamano_px": [
+   1410,
+   264
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "celda_px": [
+   235,
+   264
+  ],
+  "usado_en": "HUD nuevo (Salud ≥ 90 %)"
+ },
+ {
+  "ruta": "assets/hud/efectos-heroe/curacion.png",
+  "grupo": "HUD · efectos del héroe",
+  "nombre": "Pulso de curación",
+  "descripcion": "Anillo verde que se expande con signos de más (+) que suben y se desvanecen.",
+  "uso": "Al recuperar vida o recoger una vida extra: dibujarlo a los pies del héroe. Tira horizontal de 6 cuadros.",
+  "etiquetas": [
+   "efecto",
+   "héroe",
+   "animación",
+   "tira",
+   "curacion"
+  ],
+  "tamano_px": [
+   1230,
+   264
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "celda_px": [
+   205,
+   264
+  ],
+  "usado_en": "HUD nuevo (Al curarse)"
+ },
+ {
+  "ruta": "assets/hud/efectos-heroe/golpe.png",
+  "grupo": "HUD · efectos del héroe",
+  "nombre": "Tajo de golpe",
+  "descripcion": "Cortes rojos y blancos en diagonal con chispas.",
+  "uso": "Al recibir daño: dibujarlo sobre el héroe unos 0,4 s. Tira horizontal de 6 cuadros.",
+  "etiquetas": [
+   "efecto",
+   "héroe",
+   "animación",
+   "tira",
+   "golpe"
+  ],
+  "tamano_px": [
+   1500,
+   264
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "celda_px": [
+   250,
+   264
+  ],
+  "usado_en": "HUD nuevo (Al recibir un golpe)"
+ },
+ {
+  "ruta": "assets/hud/efectos-heroe/sudor.png",
+  "grupo": "HUD · efectos del héroe",
+  "nombre": "Gotas de sudor",
+  "descripcion": "Tres gotas azules claras que salen disparadas hacia un lado.",
+  "uso": "Héroe cansado: junto a la cabeza, de vez en cuando. Tira horizontal de 4 cuadros.",
+  "etiquetas": [
+   "efecto",
+   "héroe",
+   "animación",
+   "tira",
+   "sudor"
+  ],
+  "tamano_px": [
+   1056,
+   102
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 4,
+  "celda_px": [
+   264,
+   102
+  ],
+  "usado_en": "HUD nuevo (Salud < 25 %)"
+ },
+ {
+  "ruta": "assets/hud/efectos-heroe/mareo.png",
+  "grupo": "HUD · efectos del héroe",
+  "nombre": "Estrellas de mareo",
+  "descripcion": "Anillo de estrellitas amarillas que gira (para ponerlo sobre la cabeza).",
+  "uso": "Héroe agotado, aturdido o noqueado. Tira horizontal de 6 cuadros.",
+  "etiquetas": [
+   "efecto",
+   "héroe",
+   "animación",
+   "tira",
+   "mareo"
+  ],
+  "tamano_px": [
+   1584,
+   162
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "celda_px": [
+   264,
+   162
+  ],
+  "usado_en": "HUD nuevo (Salud < 25 %)"
+ },
+ {
+  "ruta": "assets/hud/pantalla/esquina_roja_sup_izq.png",
+  "grupo": "HUD · pantalla",
+  "nombre": "Esquina roja agrietada (arriba izquierda)",
+  "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
+  "uso": "Cuatro esquinas juntas forman el borde de peligro de la pantalla. Se pone cada una en su esquina y se hace latir su opacidad.",
+  "etiquetas": [
+   "peligro",
+   "vida baja",
+   "esquina",
+   "rojo",
+   "borde",
+   "pantalla",
+   "viñeta"
+  ],
+  "tamano_px": [
+   512,
+   512
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
+ },
+ {
+  "ruta": "assets/hud/pantalla/esquina_roja_sup_der.png",
+  "grupo": "HUD · pantalla",
+  "nombre": "Esquina roja agrietada (arriba derecha)",
+  "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
+  "uso": "Cuatro esquinas juntas forman el borde de peligro de la pantalla. Se pone cada una en su esquina y se hace latir su opacidad.",
+  "etiquetas": [
+   "peligro",
+   "vida baja",
+   "esquina",
+   "rojo",
+   "borde",
+   "pantalla",
+   "viñeta"
+  ],
+  "tamano_px": [
+   512,
+   512
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
+ },
+ {
+  "ruta": "assets/hud/pantalla/esquina_roja_inf_izq.png",
+  "grupo": "HUD · pantalla",
+  "nombre": "Esquina roja agrietada (abajo izquierda)",
+  "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
+  "uso": "Cuatro esquinas juntas forman el borde de peligro de la pantalla. Se pone cada una en su esquina y se hace latir su opacidad.",
+  "etiquetas": [
+   "peligro",
+   "vida baja",
+   "esquina",
+   "rojo",
+   "borde",
+   "pantalla",
+   "viñeta"
+  ],
+  "tamano_px": [
+   512,
+   512
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
+ },
+ {
+  "ruta": "assets/hud/pantalla/esquina_roja_inf_der.png",
+  "grupo": "HUD · pantalla",
+  "nombre": "Esquina roja agrietada (abajo derecha)",
+  "descripcion": "Esquina con roca roja agrietada y vetas brillantes, el resto transparente.",
+  "uso": "Cuatro esquinas juntas forman el borde de peligro de la pantalla. Se pone cada una en su esquina y se hace latir su opacidad.",
+  "etiquetas": [
+   "peligro",
+   "vida baja",
+   "esquina",
+   "rojo",
+   "borde",
+   "pantalla",
+   "viñeta"
+  ],
+  "tamano_px": [
+   512,
+   512
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "HUD nuevo (peligro con vida baja y destello al golpe)"
+ },
+ {
+  "ruta": "assets/hud/pantalla/vineta_peligro_izquierda_1920x1080.png",
+  "grupo": "HUD · pantalla",
+  "nombre": "Viñeta de peligro (solo el lado izquierdo)",
+  "descripcion": "Borde rojo agrietado de pantalla completa 1920×1080. SOLO TIENE el lado izquierdo (y algo de arriba); el centro y la derecha están vacíos.",
+  "uso": "Se puede reflejar horizontalmente para cubrir el lado derecho. Alternativa a las esquinas.",
+  "etiquetas": [
+   "viñeta",
+   "peligro",
+   "pantalla",
+   "rojo"
+  ],
+  "tamano_px": [
+   1920,
+   1080
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "nota": "Salió incompleta; las esquinas rojas la reemplazan."
+ },
+ {
+  "ruta": "assets/hud/extras/barra_ornamental_azul_dorada.png",
+  "grupo": "HUD · extras",
+  "nombre": "Barra ornamental azul con extremos dorados",
+  "descripcion": "Barra de cristal azul brillante con extremos dorados ornamentados (estilo fantasía). Fondo limpiado a partir de un original con cuadriculado pintado.",
+  "uso": "Título, barra de carga, banner o cabecera de menú. Estilo distinto al HUD ninja: sirve para otros juegos o pantallas de fantasía.",
+  "etiquetas": [
+   "barra",
+   "banner",
+   "dorado",
+   "azul",
+   "ornamental",
+   "fantasía",
+   "extra"
+  ],
+  "tamano_px": [
+   1400,
+   250
+  ],
+  "origen": "Generado con ChatGPT; fondo limpiado con código",
+  "usado_en": "Banco (aún sin usar)"
+ },
+ {
+  "ruta": "assets/poderes/life.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: life",
+  "descripcion": "Hongo verde con corazón (vida extra). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "life",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/star.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: star",
+  "descripcion": "Estrella dorada con estela arcoíris (invencible). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "star",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/speed.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: speed",
+  "descripcion": "Bota azul con alas (velocidad). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "speed",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/shield.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: shield",
+  "descripcion": "Escudo verde jade con shuriken (escudo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "shield",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/magnet.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: magnet",
+  "descripcion": "Imán rojo atrayendo monedas (imán). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "magnet",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/giant.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: giant",
+  "descripcion": "Puño naranja con ondas (gigante). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "giant",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/gun.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: gun",
+  "descripcion": "Pistola láser naranja (disparo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "gun",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/dualshot.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: dualshot",
+  "descripcion": "Dos pistolas magenta cruzadas (doble disparo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "dualshot",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/clone.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: clone",
+  "descripcion": "Dos ninjas azules, uno translúcido (clon). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "clone",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/rocket.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: rocket",
+  "descripcion": "Cohete magenta (cohete). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "rocket",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/bounce.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: bounce",
+  "descripcion": "Pelota dorada rebotando (rebote). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "bounce",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/meteor.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: meteor",
+  "descripcion": "Meteorito en llamas (lluvia de meteoros). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "meteor",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/timefreeze.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: timefreeze",
+  "descripcion": "Reloj de arena entre cristales de hielo (congelar tiempo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "timefreeze",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/timewarp.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: timewarp",
+  "descripcion": "Reloj de bolsillo morado con flechas (tiempo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "timewarp",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/freeze.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: freeze",
+  "descripcion": "Flor de cerezo congelada (congelar enemigos). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "freeze",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/mirror.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: mirror",
+  "descripcion": "Espejo con silueta de ninja (espejo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "mirror",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/ghost.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: ghost",
+  "descripcion": "Fantasma lavanda (fantasma). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "ghost",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/phantom.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: phantom",
+  "descripcion": "Vórtice morado con ninja (fantasma/portal). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "phantom",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/lightning_storm.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: lightning_storm",
+  "descripcion": "Rayo amarillo en nube de tormenta (tormenta). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "lightning_storm",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/rainbowstorm.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: rainbowstorm",
+  "descripcion": "Arcoíris con monedas (tormenta arcoíris). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "rainbowstorm",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/berserker.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: berserker",
+  "descripcion": "Máscara ninja furiosa en llamas (berserker). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "berserker",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/aura.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: aura",
+  "descripcion": "Ninja envuelto en llamas (aura). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "aura",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/crown.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: crown",
+  "descripcion": "Corona dorada con rubíes (puntos dobles). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "crown",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/dash.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: dash",
+  "descripcion": "Pez azul veloz con agua (dash marino). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "dash",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/superjump.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: superjump",
+  "descripcion": "Resorte verde con flecha (supersalto). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "superjump",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/superjump3x.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: superjump3x",
+  "descripcion": "Huella verde con tres flechas (triple salto). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "superjump3x",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/float.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: float",
+  "descripcion": "Ninja sobre una nube (flotar). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "float",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/gravity.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: gravity",
+  "descripcion": "Planeta morado con pluma (baja gravedad). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "gravity",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/poderes/turbo.png",
+  "grupo": "Poderes · iconos",
+  "nombre": "Icono de poder: turbo",
+  "descripcion": "Bota dorada con alas (turbo). Insignia redonda o silueta con contorno azul marino grueso, estilo brillante.",
+  "uso": "Objeto que cae del cielo, selector \"Elige tu poder\" y barra de poderes activos (el juego los carga solo).",
+  "etiquetas": [
+   "poder",
+   "icono",
+   "turbo",
+   "power-up"
+  ],
+  "tamano_px": [
+   256,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (objetos que caen, selector y poderes activos)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_fuego_a.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto a (fuego)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   658
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_fuego_b.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto b (fuego)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   658
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_fuego_c.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto c (fuego)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   726
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_anillos_fuego.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Anillos (fuego)",
+  "descripcion": "Anillos de energía que se expanden en el suelo, con rocas.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión fuego.",
+  "etiquetas": [
+   "efecto",
+   "anillos",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1020,
+   364
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_brasas_fuego.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Brasas (fuego)",
+  "descripcion": "Brasas, chispas y estrellitas que salen despedidas.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión fuego.",
+  "etiquetas": [
+   "efecto",
+   "brasas",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   900,
+   592
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_crater_fuego.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Crater (fuego)",
+  "descripcion": "Cráter ardiente: fuego y rocas al inicio, termina en brasas y humo.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión fuego.",
+  "etiquetas": [
+   "efecto",
+   "crater",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   990,
+   686
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_grietas_fuego.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Grietas (fuego)",
+  "descripcion": "Grietas doradas de energía en el suelo con una columna de luz.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión fuego.",
+  "etiquetas": [
+   "efecto",
+   "grietas",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   840,
+   432
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_grieta_cielo_fuego.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Grieta cielo (fuego)",
+  "descripcion": "Grieta de luz que se abre en el cielo (4 cuadros).",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión fuego.",
+  "etiquetas": [
+   "efecto",
+   "grieta cielo",
+   "fuego",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   800,
+   534
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_hielo_a.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto a (hielo)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   658
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_hielo_b.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto b (hielo)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   658
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_hielo_c.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto c (hielo)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   726
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_anillos_hielo.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Anillos (hielo)",
+  "descripcion": "Anillos de energía que se expanden en el suelo, con rocas.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión hielo.",
+  "etiquetas": [
+   "efecto",
+   "anillos",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1020,
+   364
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_brasas_hielo.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Brasas (hielo)",
+  "descripcion": "Brasas, chispas y estrellitas que salen despedidas.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión hielo.",
+  "etiquetas": [
+   "efecto",
+   "brasas",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   900,
+   592
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_crater_hielo.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Crater (hielo)",
+  "descripcion": "Cráter ardiente: fuego y rocas al inicio, termina en brasas y humo.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión hielo.",
+  "etiquetas": [
+   "efecto",
+   "crater",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   990,
+   686
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_grietas_hielo.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Grietas (hielo)",
+  "descripcion": "Grietas doradas de energía en el suelo con una columna de luz.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión hielo.",
+  "etiquetas": [
+   "efecto",
+   "grietas",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   840,
+   432
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_grieta_cielo_hielo.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Grieta cielo (hielo)",
+  "descripcion": "Grieta de luz que se abre en el cielo (4 cuadros).",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión hielo.",
+  "etiquetas": [
+   "efecto",
+   "grieta cielo",
+   "hielo",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   800,
+   534
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_magia_a.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto a (magia)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   658
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_magia_b.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto b (magia)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   658
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/explosion_magia_c.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Explosión de impacto c (magia)",
+  "descripcion": "Explosión cartoon de 6 cuadros: destello, anillo con polvo, estallido con rocas, humo y polvo que se disipa.",
+  "uso": "Hoja 3×2 (6 cuadros). Se reproduce al caer un poder. Fuego = original; hielo y magia son versiones recoloreadas por código.",
+  "etiquetas": [
+   "explosión",
+   "impacto",
+   "meteorito",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1152,
+   726
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "cuadros": 6,
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_anillos_magia.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Anillos (magia)",
+  "descripcion": "Anillos de energía que se expanden en el suelo, con rocas.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión magia.",
+  "etiquetas": [
+   "efecto",
+   "anillos",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   1020,
+   364
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_brasas_magia.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Brasas (magia)",
+  "descripcion": "Brasas, chispas y estrellitas que salen despedidas.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión magia.",
+  "etiquetas": [
+   "efecto",
+   "brasas",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   900,
+   592
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_crater_magia.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Crater (magia)",
+  "descripcion": "Cráter ardiente: fuego y rocas al inicio, termina en brasas y humo.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión magia.",
+  "etiquetas": [
+   "efecto",
+   "crater",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   990,
+   686
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_grietas_magia.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Grietas (magia)",
+  "descripcion": "Grietas doradas de energía en el suelo con una columna de luz.",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión magia.",
+  "etiquetas": [
+   "efecto",
+   "grietas",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   840,
+   432
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_grieta_cielo_magia.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Grieta cielo (magia)",
+  "descripcion": "Grieta de luz que se abre en el cielo (4 cuadros).",
+  "uso": "Hoja de animación (cuadros iguales en rejilla). Versión magia.",
+  "etiquetas": [
+   "efecto",
+   "grieta cielo",
+   "magia",
+   "animación",
+   "hoja"
+  ],
+  "tamano_px": [
+   800,
+   534
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_haz.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Haz de luz (gris, se tiñe)",
+  "descripcion": "Columna de luz que sube con salpicaduras en la base y se disuelve en volutas. En grises.",
+  "uso": "Se tiñe con el color del poder y se mezcla con \"lighter\". Al aterrizar y al recoger.",
+  "etiquetas": [
+   "haz",
+   "luz",
+   "columna",
+   "tintable",
+   "animación"
+  ],
+  "tamano_px": [
+   780,
+   934
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (poderes)"
+ },
+ {
+  "ruta": "assets/efectos/fx_humo.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Humo que se disipa",
+  "descripcion": "Nube de humo gris oscuro que sube y se deshace (6 cuadros).",
+  "uso": "Humo de impactos, explosiones, cráteres.",
+  "etiquetas": [
+   "humo",
+   "efecto",
+   "animación"
+  ],
+  "tamano_px": [
+   900,
+   726
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/fx_rocas.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Rocas dispersándose",
+  "descripcion": "Rocas oscuras con vetas naranjas que se separan (6 cuadros; halo blanco original eliminado).",
+  "uso": "Escombros de explosiones.",
+  "etiquetas": [
+   "rocas",
+   "escombros",
+   "efecto",
+   "animación"
+  ],
+  "tamano_px": [
+   900,
+   552
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (impacto del meteorito)"
+ },
+ {
+  "ruta": "assets/efectos/meteoro_cabeza.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Meteorito (bola de fuego)",
+  "descripcion": "Roca incandescente envuelta en llamas con su cola, vista de lado, avanzando abajo-izquierda.",
+  "uso": "Cuerpo del meteorito; se gira hacia donde se mueve.",
+  "etiquetas": [
+   "meteorito",
+   "fuego",
+   "roca"
+  ],
+  "tamano_px": [
+   560,
+   380
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (poderes que caen)"
+ },
+ {
+  "ruta": "assets/efectos/meteoro_estela.png",
+  "grupo": "Efectos · impacto",
+  "nombre": "Estela de fuego larga",
+  "descripcion": "Cola de fuego horizontal con cabeza blanco-amarilla a la derecha.",
+  "uso": "Estela detrás del meteorito (cabeza a la derecha).",
+  "etiquetas": [
+   "estela",
+   "fuego",
+   "cometa"
+  ],
+  "tamano_px": [
+   1100,
+   352
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (poderes que caen)"
+ },
+ {
+  "ruta": "assets/islas/isla_101.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 101",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   418,
+   335
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_201.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 201",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   300,
+   211
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_102.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 102",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   246,
+   320
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_202.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 202",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   297,
+   225
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_103.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 103",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   308,
+   311
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_203.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 203",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   283,
+   224
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_104.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 104",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   308,
+   336
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_204.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 204",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   301,
+   229
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_105.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 105",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   200,
+   277
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_205.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 205",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   277,
+   274
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_106.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 106",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   304,
+   310
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_206.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 206",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   273,
+   232
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_107.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 107",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   288,
+   252
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_207.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 207",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   300,
+   206
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_108.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 108",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   282,
+   238
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_208.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 208",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   285,
+   237
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_109.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 109",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   272,
+   310
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_209.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 209",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   311,
+   258
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_110.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 110",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   329,
+   274
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_210.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 210",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   275,
+   198
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_111.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 111",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   212,
+   352
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_211.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 211",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   282,
+   311
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_112.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 112",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   340,
+   287
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_212.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 212",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   296,
+   274
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_113.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 113",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   320,
+   305
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_213.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 213",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   287,
+   232
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_114.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 114",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   276,
+   360
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_214.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 214",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   288,
+   224
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_115.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 115",
+  "descripcion": "Isla flotante pintada (hoja 1).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   286,
+   357
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/islas/isla_215.png",
+  "grupo": "Escenario · islas flotantes",
+  "nombre": "Isla 215",
+  "descripcion": "Isla flotante pintada (hoja 2).",
+  "uso": "Plataforma del aire. La fila de la superficie está en islas/islas.js (campo \"s\").",
+  "etiquetas": [
+   "isla",
+   "plataforma",
+   "escenario"
+  ],
+  "tamano_px": [
+   277,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (plataformas)"
+ },
+ {
+  "ruta": "assets/nivel1/n1_bg_montanas_lejos.png",
+  "grupo": "Escenario · Nivel 1",
+  "nombre": "Montañas azules con niebla",
+  "descripcion": "Cordillera azul y lila con pinos verdes y niebla; repetible sin costura; base difuminada.",
+  "uso": "Fondo con parallax del Nivel 1 (dos capas).",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "nivel 1"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (Nivel 1)"
+ },
+ {
+  "ruta": "assets/nivel1/nubes/nube_01.png",
+  "grupo": "Escenario · Nivel 1",
+  "nombre": "Nube de atardecer",
+  "descripcion": "Gran nube rosa, amarilla y morada con contorno fino.",
+  "uso": "Nubes con movimiento independiente (se añaden más en nubes.js).",
+  "etiquetas": [
+   "nube",
+   "cielo",
+   "nivel 1"
+  ],
+  "tamano_px": [
+   1100,
+   378
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "Juego (Nivel 1)"
+ },
+ {
+  "ruta": "assets/sakura/",
+  "grupo": "Personajes · sprites",
+  "nombre": "Sakura (fotogramas)",
+  "descripcion": "Carpeta con las animaciones de Sakura: idle (6), run (14), run2 (8), sprint (5), jump (4), atk (7), hurt (5), death (6), crouch, extra. manifest.js trae anclas y escalas.",
+  "uso": "Animación del héroe en el juego.",
+  "etiquetas": [
+   "sakura",
+   "héroe",
+   "sprites",
+   "animación"
+  ],
+  "tamano_px": null,
+  "origen": "Entregado por el proyecto",
+  "usado_en": "Juego (hero-pro.js)"
+ },
+ {
+  "ruta": "assets/kage/",
+  "grupo": "Personajes · sprites",
+  "nombre": "Kage (fotogramas)",
+  "descripcion": "Carpeta con las animaciones de Kage: idle (6), run (15), atk (6), hurt (6), death (6). manifest.js trae anclas y escalas.",
+  "uso": "Animación del héroe en el juego.",
+  "etiquetas": [
+   "kage",
+   "héroe",
+   "sprites",
+   "animación"
+  ],
+  "tamano_px": null,
+  "origen": "Entregado por el proyecto",
+  "usado_en": "Juego (hero-pro.js)"
+ },
+ {
+  "ruta": "assets/villain/",
+  "grupo": "Personajes · sprites",
+  "nombre": "Mago del Caos (25 cuadros de caminar)",
+  "descripcion": "Jefe final: ciclo de caminar de 25 cuadros con manifest.js.",
+  "uso": "Jefe del juego.",
+  "etiquetas": [
+   "jefe",
+   "villano",
+   "sprites"
+  ],
+  "tamano_px": null,
+  "origen": "Entregado por el proyecto",
+  "usado_en": "Juego (jefe final)"
+ },
+ {
+  "ruta": "assets/select/sakura_3.png",
+  "grupo": "Personajes · ilustraciones",
+  "nombre": "Ilustración de selección (3 opciones por héroe)",
+  "descripcion": "Ilustración de cuerpo completo en pose de combate: select/sakura_1-3.png y select/kage_1-3.png.",
+  "uso": "Pantalla de elegir personaje (se elige con ?sel=1|2|3).",
+  "etiquetas": [
+   "sakura",
+   "kage",
+   "ilustración",
+   "selección"
+  ],
+  "tamano_px": [
+   398,
+   560
+  ],
+  "origen": "Entregado por el proyecto",
+  "usado_en": "Juego (selección de personaje)"
+ },
+ {
+  "ruta": "assets/intro/villain.png",
+  "grupo": "Personajes · ilustraciones",
+  "nombre": "Mago del Caos (intro)",
+  "descripcion": "Ilustración del villano para la introducción (acto 2).",
+  "uso": "Introducción del juego.",
+  "etiquetas": [
+   "villano",
+   "intro",
+   "ilustración"
+  ],
+  "tamano_px": [
+   727,
+   1100
+  ],
+  "origen": "Entregado por el proyecto",
+  "usado_en": "Juego (intro)"
+ },
+ {
+  "ruta": "assets/icons/icon-512.png",
+  "grupo": "App",
+  "nombre": "Icono de la app (192 y 512)",
+  "descripcion": "Busto de Sakura sobre fondo morado oscuro, para instalar el juego en el teléfono.",
+  "uso": "manifest.json (instalar en pantalla de inicio).",
+  "etiquetas": [
+   "icono",
+   "app",
+   "manifest"
+  ],
+  "tamano_px": [
+   512,
+   512
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "manifest.json"
+ }
+]
