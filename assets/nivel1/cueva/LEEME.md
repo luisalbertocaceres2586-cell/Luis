@@ -17,4 +17,4 @@ Todas las piezas son PNG con fondo transparente, recortadas de la hoja. El juego
 | `telarana.png` | Telaraña de esquina | Acto 2: obstáculo que frena al héroe. |
 | `boca_cueva.png` | Boca de cueva | Transición del acto 1 al acto 2. |
 
-Estado: **pendiente de recibir la hoja** (aún no hay PNG en esta carpeta).
+Estado: ✅ **hoja recibida y recortada** (piezas listas en esta carpeta).
