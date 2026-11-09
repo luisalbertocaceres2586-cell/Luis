@@ -1,0 +1,31 @@
+INSTRUCCIONES GENERALES PARA TODAS LAS HOJAS DEL NIVEL 1 (léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL pura (de perfil, como un juego de scroll horizontal). Nada de vista cenital ni de tres cuartos, salvo que la pieza lo indique.
+
+ESTILO: arte digital de altísima calidad, como el de un estudio de animación profesional y un juego móvil premium: pintura detallada, texturas pintadas a mano (madera, piedra, tela, metal, papel), colores ricos y saturados, contorno oscuro azul marino limpio y nítido, luz principal desde arriba a la izquierda con luz de borde suave, y brillos y sombras coherentes en todas las piezas. Los personajes son chibi-anime (cabeza grande, cuerpo compacto) con armadura oscura brillante y acentos de color; el mundo es detallado y épico, nada de caricatura plana. No imites ninguna marca ni personaje conocido.
+
+FONDO (lo más importante): TODA la imagen, fuera de las piezas, debe ser un color plano, uniforme y sólido: MAGENTA PURO #FF00FF. Sin degradados, sin textura, sin viñeta, sin cuadriculado, sin suelo, sin sombras proyectadas, sin reflejos, sin humo ni brillos difusos que se salgan de la pieza. Ninguna pieza debe usar magenta, rosa ni morado, para poder quitar el fondo sin dañarla. Los bordes de cada pieza deben ser nítidos (sin difuminado ni halo).
+
+ORDEN Y LIMPIEZA: cuadrícula invisible con celdas del mismo tamaño. Una sola pieza por celda, centrada, con al menos 30 px de fondo magenta alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Sin líneas de cuadrícula, sin números, sin letras, sin textos, sin símbolos escritos (si hace falta un emblema, que sea un dibujo abstracto, nunca letras), sin marcas de agua. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista.
+
+CALIDAD: usa la máxima resolución disponible con la proporción indicada, imagen nítida, sin recortar ni comprimir, entregada como PNG. Mantén el mismo estilo, paleta y escala entre las 10 piezas y respeta la orientación indicada (los personajes y objetos miran a la DERECHA, salvo que se diga otra cosa).
+
+
+FORMATO DE ESTA HOJA: imagen HORIZONTAL de 1536 × 1024 px con una cuadrícula de 5 columnas × 2 filas (10 celdas verticales de unos 307 × 512 px). Orden: fila 1 = piezas 1 a 5, fila 2 = piezas 6 a 10.
+
+HOJA 4 — ENEMIGOS Y PERSEGUIDORES
+Esta hoja son ENEMIGOS. Todos mirando a la DERECHA salvo que se diga lo contrario. Evita morado y rosa: usa grises carbón, verdes oscuros, azules, rojos y dorados.
+
+LAS 10 PIEZAS, EN ORDEN:
+1. Ninja sombra (enemigo básico). Ninja enemigo de cuerpo completo, de pie en guardia, mirando a la derecha: traje gris carbón con vendas envolviendo brazos y piernas, capucha, ojos rojos brillantes, una katana corta en la mano. Proporciones chibi (cabeza grande). Aspecto amenazante pero estilizado.
+2. Ninja sombra atacando. El MISMO ninja sombra de la pieza 1, mismo traje y tamaño, ahora en pose de ataque: se lanza hacia la derecha con la katana extendida en un tajo, cuerpo inclinado, bufanda al viento.
+3. Murciélago de cueva. Murciélago grande de cueva con las alas completamente abiertas, visto de frente, pelaje gris azulado, ojos amarillos brillantes, colmillos, orejas puntiagudas. Ocupa casi todo el ancho de la celda.
+4. Araña colgante. Araña grande de cueva vista de lado, patas largas dobladas, cuerpo negro verdoso con marcas, varios ojos rojos brillantes, con un hilo corto de seda que sale hacia arriba y se corta recto arriba.
+5. Guardia de piedra. Guardia samurái de piedra (gólem) pesado, mirando a la derecha, hombros anchos, armadura de roca con musgo, casco con cuernos, ojos naranjas brillantes, sosteniendo un escudo grande redondo con relieve de piedra delante del cuerpo.
+6. Cuervo tengu. Cuervo guerrero tengu volando, de perfil mirando a la derecha, alas desplegadas, plumas negras con reflejos azules, pico largo y una máscara roja de tengu en la cara, garras al frente.
+7. Espíritu de fuego fatuo. Espíritu hitodama: llama flotante turquesa y verde azulado con una cara fantasmal de sonrisa maligna y ojos huecos, y una cola ondulante hacia abajo. Colores turquesa, no morado. El brillo queda dentro de la silueta.
+8. Roca gigante rodante. Roca esférica gigante, vista de lado, con grietas profundas, musgo, bandas de metal oxidado y cadenas rotas colgando; se ve pesada y peligrosa, con un poco de polvo en la parte baja pegado a la roca.
+9. Sombra perseguidora. Gigantesca masa de humo negro con forma de demonio: dos ojos rojos brillantes enormes, boca con dientes dentados, brazos de humo con garras extendidos. Mirando hacia la IZQUIERDA (excepción a la regla). Bordes de humo definidos, no difuminados.
+10. Oni rojo (mini jefe). Oni (demonio japonés) de tamaño mediano, piel roja intensa, dos cuernos, colmillos, melena negra, taparrabos de piel de tigre amarillo con rayas negras, brazaletes dorados, sosteniendo un garrote kanabō con púas. De pie, mirando a la derecha.
+
+RECUERDA: fondo magenta plano #FF00FF en toda la imagen, exactamente 10 piezas separadas, ninguna con texto, letras ni números, y ninguna pieza usa magenta, rosa ni morado.
