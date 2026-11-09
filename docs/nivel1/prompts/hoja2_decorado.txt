@@ -1,0 +1,31 @@
+INSTRUCCIONES GENERALES PARA TODAS LAS HOJAS DEL NIVEL 1 (léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL pura (de perfil, como un juego de scroll horizontal). Nada de vista cenital ni de tres cuartos, salvo que la pieza lo indique.
+
+ESTILO: arte digital de altísima calidad, como el de un estudio de animación profesional y un juego móvil premium: pintura detallada, texturas pintadas a mano (madera, piedra, tela, metal, papel), colores ricos y saturados, contorno oscuro azul marino limpio y nítido, luz principal desde arriba a la izquierda con luz de borde suave, y brillos y sombras coherentes en todas las piezas. Los personajes son chibi-anime (cabeza grande, cuerpo compacto) con armadura oscura brillante y acentos de color; el mundo es detallado y épico, nada de caricatura plana. No imites ninguna marca ni personaje conocido.
+
+FONDO (lo más importante): TODA la imagen, fuera de las piezas, debe ser un color plano, uniforme y sólido: MAGENTA PURO #FF00FF. Sin degradados, sin textura, sin viñeta, sin cuadriculado, sin suelo, sin sombras proyectadas, sin reflejos, sin humo ni brillos difusos que se salgan de la pieza. Ninguna pieza debe usar magenta, rosa ni morado, para poder quitar el fondo sin dañarla. Los bordes de cada pieza deben ser nítidos (sin difuminado ni halo).
+
+ORDEN Y LIMPIEZA: cuadrícula invisible con celdas del mismo tamaño. Una sola pieza por celda, centrada, con al menos 30 px de fondo magenta alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Sin líneas de cuadrícula, sin números, sin letras, sin textos, sin símbolos escritos (si hace falta un emblema, que sea un dibujo abstracto, nunca letras), sin marcas de agua. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista.
+
+CALIDAD: usa la máxima resolución disponible con la proporción indicada, imagen nítida, sin recortar ni comprimir, entregada como PNG. Mantén el mismo estilo, paleta y escala entre las 10 piezas y respeta la orientación indicada (los personajes y objetos miran a la DERECHA, salvo que se diga otra cosa).
+
+
+FORMATO DE ESTA HOJA: imagen HORIZONTAL de 1536 × 1024 px con una cuadrícula de 5 columnas × 2 filas (10 celdas verticales de unos 307 × 512 px). Orden: fila 1 = piezas 1 a 5, fila 2 = piezas 6 a 10.
+
+HOJA 2 — DECORADO, PUERTAS Y PORTALES
+Esta hoja son PIEZAS DE DECORADO ALTAS (portales, linternas, pilares). Cada pieza se ve de frente, como un elemento del escenario.
+
+LAS 10 PIEZAS, EN ORDEN:
+1. Torii apagado (checkpoint inactivo). Gran portal torii japonés rojo bermellón, visto de frente, pilares gruesos, travesaño superior curvo negro, dos faroles de papel crema colgando, APAGADOS, con aspecto opaco y apagado, pequeño altar de piedra en la base. Sin textos.
+2. Torii encendido (checkpoint activo). El MISMO torii de la pieza 1, idéntico en tamaño y diseño, pero ACTIVADO: faroles encendidos con luz dorada cálida, colores más vivos, unos pocos pétalos de luz dorada flotando cerca. El brillo debe quedar dentro de la silueta, sin halo difuso hacia el fondo.
+3. Portón del santuario cerrado. Gran portón doble de madera oscura reforzado con bandas de hierro, dentro de un arco de piedra con musgo; sellado con cadenas gruesas cruzadas y un sello circular de pergamino rojo con un emblema de remolino abstracto (sin letras). Vista de frente, imponente.
+4. Portón del santuario abierto. El MISMO portón de la pieza 3, mismo tamaño y diseño, ahora abierto de par en par: cadenas rotas colgando, el sello partido, escalones de piedra y luz dorada cálida saliendo del interior (la luz se queda dentro del marco, sin halo hacia afuera).
+5. Linterna de piedra grande. Linterna japonesa de piedra (tōrō) grande: base, columna, caja de luz con luz cálida tenue dentro y tejadillo curvo, cubierta de musgo y con grietas. Vista de frente.
+6. Macizo de bambú. Macizo de 5 o 6 tallos de bambú verde brillante, altos, con nudos y hojas largas y delgadas, algunas hojas cayendo. Composición alta y estrecha; la base cortada recta abajo para pegarla al suelo; la punta de los tallos se ve completa dentro de la celda.
+7. Estatua de zorro kitsune. Estatua de piedra de un zorro kitsune sentado, mirando a la derecha, con babero rojo de tela, musgo en el cuerpo, orejas erguidas, sobre un pedestal de piedra pequeño.
+8. Pilar de templo. Pilar alto de madera roja lacada con base de piedra redonda y capitel dorado, con cuerdas decorativas. El borde superior y el inferior cortados rectos, para poder apilarlo verticalmente.
+9. Estandarte colgante. Estandarte largo de tela roja oscura con borde dorado y un emblema circular dorado abstracto (como un shuriken, sin letras), colgando de una barra de madera con borlas, con una ligera ondulación.
+10. Panel shoji. Panel deslizante shoji japonés: papel translúcido cálido en un marco de madera oscura con cuadrícula fina, luz cálida tenue desde detrás. Vista de frente, alto.
+
+RECUERDA: fondo magenta plano #FF00FF en toda la imagen, exactamente 10 piezas separadas, ninguna con texto, letras ni números, y ninguna pieza usa magenta, rosa ni morado.
