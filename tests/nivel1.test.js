@@ -140,3 +140,26 @@ ok('adaptativo: el estudiante que falla 2x7 lo ve más que los hechos que domina
   assert(otros.length >= 8, 'sigue repasando casi toda la tabla');
 });
 console.log('\n' + n + ' pruebas OK');
+
+// ---------- Generador del Acto 1 ----------
+const Gen = require('../engine/nivel1/gen-bosque.js');
+console.log('Acto 1 (generador)');
+ok('300 semillas: siempre recorrible, con 6 estaciones y una respuesta correcta', () => {
+  let ancho = [];
+  for (let s = 1; s <= 300; s++) {
+    const N = Gen.generar({ semilla: s, dificultad: 1 + (s % 3), preguntas: 6 });
+    const f = Gen.validar(N); assert.deepStrictEqual(f, [], 'semilla ' + s + ': ' + f.join('; '));
+    ancho.push(N.ancho);
+  }
+  console.log('    (largo del bosque: ' + Math.min(...ancho) + '–' + Math.max(...ancho) + ' px)');
+});
+ok('semillas distintas dan bosques distintos y la misma semilla da el mismo', () => {
+  const firma = s => JSON.stringify(Gen.generar({ semilla: s, dificultad: 1, preguntas: 6 }).suelo) + JSON.stringify(Gen.generar({ semilla: s, dificultad: 1, preguntas: 6 }).est.map(e => e.mecanica));
+  assert.strictEqual(firma(5), firma(5)); const set = new Set(); for (let s = 1; s <= 40; s++) set.add(firma(s)); assert(set.size >= 38);
+});
+ok('la primera estación es la más sencilla (farol) y las mecánicas varían', () => {
+  const vistas = new Set();
+  for (let s = 1; s <= 100; s++) { const N = Gen.generar({ semilla: s, dificultad: 1, preguntas: 6 }); assert.strictEqual(N.est[0].mecanica, 'encender_farol'); N.est.forEach(e => vistas.add(e.mecanica)); }
+  assert(vistas.size >= 4);
+});
+console.log('\n' + n + ' pruebas OK');

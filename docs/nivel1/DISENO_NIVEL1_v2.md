@@ -72,7 +72,9 @@ Medido: cerca del 75 % del `index.html` (≈ 7.1 MB) son imágenes incrustadas c
 | Pantalla "¿Quién juega?" conectada al menú (`perfil-ui.js`) | ✅ probada en navegador |
 | Árbol de decisiones y semillas (`ruta.js`) | ✅ probado con 300 semillas |
 | Generador de acertijos y maestría (`acertijos.js`) | ✅ probado |
-| Motor de actos (cámara, física, interacciones, acto 1 jugable) | ⏳ siguiente |
-| Actos 2–7, jefe, controles táctiles del nuevo motor | ⏳ después |
+| Generador del Acto 1 (`gen-bosque.js`): bosques distintos por semilla | ✅ 300 semillas verificadas |
+| Motor del Nivel 1 (`motor.js`): física, enemigos, trampas, tambores, acertijos en el mundo, decisión final | ✅ Acto 1 jugable |
+| Conexión con el menú: JUGAR abre el Nivel 1 nuevo; al terminar se puede seguir al Nivel 2 del juego anterior | ✅ probado de punta a punta |
+| Actos 2–7, jefe y controles táctiles probados en teléfono real | ⏳ siguientes |
 
-Pruebas: `node tests/nivel1.test.js` (16 pruebas).
+Pruebas: `node tests/nivel1.test.js` (19 pruebas) · navegador: `tests/navegador/`.

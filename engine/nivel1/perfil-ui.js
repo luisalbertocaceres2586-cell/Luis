@@ -55,11 +55,29 @@
     Perfiles.elegir(p.id); actualizarChip();
   }
   function cerrar() { const o = document.getElementById('pfOverlay'); if (o) o.remove(); }
-  function jugarNuevo(p) {
-    aplicar(p); listo = true; cerrar();
-    const b = document.getElementById('btnStart'); if (b) b.click();
+  // El Nivel 1 rediseñado se descarga solo cuando se juega (así el index.html no engorda).
+  let cargaN1 = null;
+  function cargarNivel1() {
+    if (window.Nivel1) return Promise.resolve();
+    if (cargaN1) return cargaN1;
+    const lista = ['ruta', 'acertijos', 'gen-bosque', 'motor'];
+    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=1'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
+    return cargaN1;
   }
+  function nivel2Anterior(p) {
+    Perfiles.actualizar(p.id, q => { q.progreso = { fase: 'easy', nivel: 1, puntos: q.progreso.puntos }; });
+    try { GS.phase = 'easy'; GS.level = 1; GS.totalScore = Perfiles.obtener(p.id).progreso.puntos; startLevel(1, 'easy'); } catch (e) { const b = document.getElementById('btnStart'); if (b) b.click(); }
+  }
+  function jugarNivel1(p) {
+    aplicar(p); listo = true; cerrar();
+    cargarNivel1().then(() => {
+      const fresco = Perfiles.obtener(p.id);
+      Nivel1.iniciar({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: fresco, onSalir: () => actualizarChip(), onSiguiente: () => nivel2Anterior(Perfiles.obtener(p.id)) });
+    }).catch(e => { alert('No se pudo abrir el Nivel 1: ' + e.message); });
+  }
+  function jugarNuevo(p) { jugarNivel1(p); }
   function continuar(p) {
+    if ((p.progreso.nivel || 0) === 0) return jugarNivel1(p);
     aplicar(p); listo = true; cerrar();
     try {
       GS.phase = p.progreso.fase || 'easy'; GS.level = p.progreso.nivel || 0; GS.totalScore = p.progreso.puntos || 0;
