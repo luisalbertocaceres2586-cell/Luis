@@ -1,0 +1,31 @@
+INSTRUCCIONES GENERALES PARA TODAS LAS HOJAS DEL NIVEL 1 (léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL pura (de perfil, como un juego de scroll horizontal). Nada de vista cenital ni de tres cuartos, salvo que la pieza lo indique.
+
+ESTILO: arte digital de altísima calidad, como el de un estudio de animación profesional y un juego móvil premium: pintura detallada, texturas pintadas a mano (madera, piedra, tela, metal, papel), colores ricos y saturados, contorno oscuro azul marino limpio y nítido, luz principal desde arriba a la izquierda con luz de borde suave, y brillos y sombras coherentes en todas las piezas. Los personajes son chibi-anime (cabeza grande, cuerpo compacto) con armadura oscura brillante y acentos de color; el mundo es detallado y épico, nada de caricatura plana. No imites ninguna marca ni personaje conocido.
+
+FONDO (lo más importante): TODA la imagen, fuera de las piezas, debe ser un color plano, uniforme y sólido: MAGENTA PURO #FF00FF. Sin degradados, sin textura, sin viñeta, sin cuadriculado, sin suelo, sin sombras proyectadas, sin reflejos, sin humo ni brillos difusos que se salgan de la pieza. Ninguna pieza debe usar magenta, rosa ni morado, para poder quitar el fondo sin dañarla. Los bordes de cada pieza deben ser nítidos (sin difuminado ni halo).
+
+ORDEN Y LIMPIEZA: cuadrícula invisible con celdas del mismo tamaño. Una sola pieza por celda, centrada, con al menos 30 px de fondo magenta alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Sin líneas de cuadrícula, sin números, sin letras, sin textos, sin símbolos escritos (si hace falta un emblema, que sea un dibujo abstracto, nunca letras), sin marcas de agua. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista.
+
+CALIDAD: usa la máxima resolución disponible con la proporción indicada, imagen nítida, sin recortar ni comprimir, entregada como PNG. Mantén el mismo estilo, paleta y escala entre las 10 piezas y respeta la orientación indicada (los personajes y objetos miran a la DERECHA, salvo que se diga otra cosa).
+
+
+FORMATO DE ESTA HOJA: imagen VERTICAL de 1024 × 1536 px con una cuadrícula de 2 columnas × 5 filas (10 celdas horizontales de unos 512 × 307 px). Orden: fila 1 = piezas 1 y 2, fila 2 = piezas 3 y 4, fila 3 = piezas 5 y 6, fila 4 = piezas 7 y 8, fila 5 = piezas 9 y 10.
+
+HOJA 1 — TERRENO Y PLATAFORMAS
+Esta hoja son PLATAFORMAS Y SUELOS vistos de lado. Cada pieza es una franja horizontal ancha. Los suelos deben tener los extremos izquierdo y derecho cortados rectos y sin elementos grandes pegados a los bordes, para poder repetirlos en mosaico.
+
+LAS 10 PIEZAS, EN ORDEN:
+1. Suelo del bosque de bambú. Franja de suelo de bosque vista de lado: arriba una capa de hierba verde brillante con florecitas blancas y amarillas, raíces finas y piedrecitas; debajo, tierra marrón rojiza con piedras y capas visibles, con corte frontal profundo (ocupa unos 60 % del alto de la celda). Extremos cortados rectos, para repetir en mosaico.
+2. Suelo de la cueva. Franja de suelo de cueva vista de lado: roca oscura gris azulada con grietas, borde superior cubierto de musgo turquesa luminoso y pequeñas gemas azules incrustadas; debajo roca más oscura con vetas. Extremos cortados rectos, para repetir en mosaico.
+3. Cumbrera de tejado japonés. Franja larga de cumbrera de tejado japonés vista de lado: tejas curvas gris azulado oscuro con remate de tejas redondeadas en el borde superior (con un reflejo cálido anaranjado de atardecer) y la pared de tejas debajo. Extremos cortados rectos, para repetir en mosaico.
+4. Puente de cuerda y bambú. Puente colgante largo hecho de tablones de bambú atados con cuerda gruesa de cáñamo, con barandas de cuerda y un poste de bambú grueso en cada extremo; ligeramente curvado hacia abajo en el centro; algunas hojas de bambú sueltas. Superficie de caminar bien definida arriba.
+5. Plataforma de bambú atado. Plataforma corta y flotante hecha de 6 o 7 troncos de bambú verde colocados horizontalmente y atados con cuerda roja, con nudos del bambú y unas pocas hojas. Sin soportes externos. Superficie superior bien plana.
+6. Plataforma de piedra con linterna. Plataforma flotante de roca cubierta de musgo, con una pequeña linterna de piedra japonesa (tōrō) en un extremo y un arbusto pequeño; raíces colgando por debajo. La superficie plana de caminar debe quedar despejada en la mayor parte de su largo.
+7. Roca flotante de cueva. Isla pequeña de roca oscura vista de lado, con cristales azul cian pequeños brotando de la superficie y estalactitas cortas colgando por debajo. Superficie superior plana y rugosa.
+8. Viga de madera de la torre. Viga gruesa de madera roja lacada de templo con refuerzos de metal dorado en los extremos; en un lado cuelga una cuerda trenzada blanca (shimenawa) con tiras de papel blanco en zigzag, sin ningún texto. Vista lateral, superficie superior plana.
+9. Alero de tejado. Plataforma corta con forma de alero de tejado japonés: tejas curvas gris azulado, borde con remate redondeado y una viga de madera debajo; la esquina se curva un poco hacia arriba. Superficie superior bien definida.
+10. Trampa de kunai clavados. Franja horizontal de 7 u 8 kunai (dagas ninja) clavados con la punta hacia ARRIBA entre tierra y hojas secas; metal azul plateado brillante con empuñadura de tela roja. Pieza baja: ocupa solo el 45 % inferior de la celda, pegada abajo. Debe verse peligrosa.
+
+RECUERDA: fondo magenta plano #FF00FF en toda la imagen, exactamente 10 piezas separadas, ninguna con texto, letras ni números, y ninguna pieza usa magenta, rosa ni morado.
