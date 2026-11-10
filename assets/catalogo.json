@@ -2451,6 +2451,153 @@
   "usado_en": "Juego (Nivel 1)"
  },
  {
+  "ruta": "assets/environment/backgrounds/themes/montanas_desert.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Desierto",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: dunas y picos en naranja, arena y crema. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema desierto. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "desert",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
+  "ruta": "assets/environment/backgrounds/themes/montanas_night.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Noche",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: siluetas azul marino y violeta con niebla clara. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema noche. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "night",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
+  "ruta": "assets/environment/backgrounds/themes/montanas_jungle.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Selva",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: cerros verdes con neblina verde claro. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema selva. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "jungle",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
+  "ruta": "assets/environment/backgrounds/themes/montanas_water.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Agua",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: picos azul profundo y turquesa con bruma celeste. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema agua. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "water",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
+  "ruta": "assets/environment/backgrounds/themes/montanas_lava.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Lava / infierno",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: roca casi negra con vetas rojas y cumbres naranjas. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema lava / infierno. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "lava",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
+  "ruta": "assets/environment/backgrounds/themes/montanas_storm.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Tormenta",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: gris azulado oscuro, picos grises claros. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema tormenta. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "storm",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
+  "ruta": "assets/environment/backgrounds/themes/montanas_ice.png",
+  "grupo": "Escenario · fondos por tema",
+  "nombre": "Montañas — Hielo",
+  "descripcion": "Cordillera repetible sin costura (misma silueta del Nivel 1) recoloreada: azul real y celeste con cumbres blancas. Fondo transparente, base difuminada en niebla.",
+  "uso": "Capa de montañas con parallax (dos capas a distinta velocidad) del tema hielo. Se tiñe por mapeo de luminosidad a una paleta de 3 colores.",
+  "etiquetas": [
+   "montañas",
+   "fondo",
+   "parallax",
+   "tema",
+   "ice",
+   "repetible"
+  ],
+  "tamano_px": [
+   2141,
+   401
+  ],
+  "origen": "Derivado de n1_bg_montanas_lejos.png por código",
+  "usado_en": "Juego (fondos por tema: engine/escenario/fondos-tema.js)"
+ },
+ {
   "ruta": "assets/characters/sakura/",
   "grupo": "Personajes · sprites",
   "nombre": "Sakura (fotogramas)",
