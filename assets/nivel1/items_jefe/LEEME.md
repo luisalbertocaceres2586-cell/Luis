@@ -17,4 +17,4 @@ Todas las piezas son PNG con fondo transparente, recortadas de la hoja. El juego
 | `oni_guardian_ataque.png` | Oni Guardián (ataque) | Acto 7: animación de ataque del jefe. |
 | `orbe_energia.png` | Orbe de energía | Acto 7: proyectil del jefe con una multiplicación. |
 
-Estado: **pendiente de recibir la hoja** (aún no hay PNG en esta carpeta).
+Estado: ✅ **hoja recibida y recortada** (piezas listas en esta carpeta).

@@ -17,4 +17,4 @@ Todas las piezas son PNG con fondo transparente, recortadas de la hoja. El juego
 | `sombra_perseguidora.png` | Sombra perseguidora | Acto 5: persigue desde la derecha mientras el héroe corre a la izquierda. |
 | `oni_rojo_minijefe.png` | Oni rojo (mini jefe) | Mini jefe a mitad del nivel. |
 
-Estado: **pendiente de recibir la hoja** (aún no hay PNG en esta carpeta).
+Estado: ✅ **hoja recibida y recortada** (piezas listas en esta carpeta).

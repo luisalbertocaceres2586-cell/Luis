@@ -1,0 +1,379 @@
+{
+ "version": 1,
+ "piezas": {
+  "suelo_bosque": {
+   "ruta": "assets/nivel1/terreno/suelo_bosque.png",
+   "w": 460,
+   "h": 200
+  },
+  "suelo_cueva": {
+   "ruta": "assets/nivel1/terreno/suelo_cueva.png",
+   "w": 461,
+   "h": 193
+  },
+  "suelo_azotea": {
+   "ruta": "assets/nivel1/terreno/suelo_azotea.png",
+   "w": 469,
+   "h": 167
+  },
+  "puente_cuerda": {
+   "ruta": "assets/nivel1/terreno/puente_cuerda.png",
+   "w": 473,
+   "h": 170
+  },
+  "plataforma_bambu": {
+   "ruta": "assets/nivel1/terreno/plataforma_bambu.png",
+   "w": 459,
+   "h": 155
+  },
+  "plataforma_piedra_toro": {
+   "ruta": "assets/nivel1/terreno/plataforma_piedra_toro.png",
+   "w": 458,
+   "h": 294
+  },
+  "roca_cueva_flotante": {
+   "ruta": "assets/nivel1/terreno/roca_cueva_flotante.png",
+   "w": 459,
+   "h": 249
+  },
+  "viga_torre": {
+   "ruta": "assets/nivel1/terreno/viga_torre.png",
+   "w": 464,
+   "h": 184
+  },
+  "alero_tejas": {
+   "ruta": "assets/nivel1/terreno/alero_tejas.png",
+   "w": 469,
+   "h": 192
+  },
+  "kunai_trampa": {
+   "ruta": "assets/nivel1/terreno/kunai_trampa.png",
+   "w": 473,
+   "h": 146
+  },
+  "torii_inactivo": {
+   "ruta": "assets/nivel1/decorado/torii_inactivo.png",
+   "w": 281,
+   "h": 377
+  },
+  "torii_activo": {
+   "ruta": "assets/nivel1/decorado/torii_activo.png",
+   "w": 277,
+   "h": 377
+  },
+  "puerta_santuario_cerrada": {
+   "ruta": "assets/nivel1/decorado/puerta_santuario_cerrada.png",
+   "w": 298,
+   "h": 398
+  },
+  "puerta_santuario_abierta": {
+   "ruta": "assets/nivel1/decorado/puerta_santuario_abierta.png",
+   "w": 315,
+   "h": 398
+  },
+  "toro_piedra": {
+   "ruta": "assets/nivel1/decorado/toro_piedra.png",
+   "w": 249,
+   "h": 417
+  },
+  "bambu_primer_plano": {
+   "ruta": "assets/nivel1/decorado/bambu_primer_plano.png",
+   "w": 264,
+   "h": 456
+  },
+  "estatua_kitsune": {
+   "ruta": "assets/nivel1/decorado/estatua_kitsune.png",
+   "w": 277,
+   "h": 430
+  },
+  "pilar_rojo": {
+   "ruta": "assets/nivel1/decorado/pilar_rojo.png",
+   "w": 174,
+   "h": 462
+  },
+  "estandarte_colgante": {
+   "ruta": "assets/nivel1/decorado/estandarte_colgante.png",
+   "w": 229,
+   "h": 436
+  },
+  "shoji": {
+   "ruta": "assets/nivel1/decorado/shoji.png",
+   "w": 218,
+   "h": 449
+  },
+  "antorcha_pared_apagada": {
+   "ruta": "assets/nivel1/cueva/antorcha_pared_apagada.png",
+   "w": 177,
+   "h": 372
+  },
+  "antorcha_pared_encendida": {
+   "ruta": "assets/nivel1/cueva/antorcha_pared_encendida.png",
+   "w": 199,
+   "h": 456
+  },
+  "antorcha_mano": {
+   "ruta": "assets/nivel1/cueva/antorcha_mano.png",
+   "w": 143,
+   "h": 470
+  },
+  "estalactita_grande": {
+   "ruta": "assets/nivel1/cueva/estalactita_grande.png",
+   "w": 298,
+   "h": 373
+  },
+  "cristales_azules": {
+   "ruta": "assets/nivel1/cueva/cristales_azules.png",
+   "w": 283,
+   "h": 361
+  },
+  "hongos_luminosos": {
+   "ruta": "assets/nivel1/cueva/hongos_luminosos.png",
+   "w": 272,
+   "h": 347
+  },
+  "farol_papel_apagado": {
+   "ruta": "assets/nivel1/cueva/farol_papel_apagado.png",
+   "w": 161,
+   "h": 431
+  },
+  "farol_papel_encendido": {
+   "ruta": "assets/nivel1/cueva/farol_papel_encendido.png",
+   "w": 303,
+   "h": 431
+  },
+  "telarana": {
+   "ruta": "assets/nivel1/cueva/telarana.png",
+   "w": 257,
+   "h": 291
+  },
+  "boca_cueva": {
+   "ruta": "assets/nivel1/cueva/boca_cueva.png",
+   "w": 444,
+   "h": 424
+  },
+  "ninja_sombra": {
+   "ruta": "assets/nivel1/enemigos/ninja_sombra.png",
+   "w": 251,
+   "h": 353
+  },
+  "ninja_sombra_ataque": {
+   "ruta": "assets/nivel1/enemigos/ninja_sombra_ataque.png",
+   "w": 296,
+   "h": 341
+  },
+  "murcielago": {
+   "ruta": "assets/nivel1/enemigos/murcielago.png",
+   "w": 415,
+   "h": 251
+  },
+  "arana_colgante": {
+   "ruta": "assets/nivel1/enemigos/arana_colgante.png",
+   "w": 261,
+   "h": 352
+  },
+  "guardia_piedra": {
+   "ruta": "assets/nivel1/enemigos/guardia_piedra.png",
+   "w": 289,
+   "h": 373
+  },
+  "tengu_cuervo": {
+   "ruta": "assets/nivel1/enemigos/tengu_cuervo.png",
+   "w": 317,
+   "h": 332
+  },
+  "espiritu_fuego_fatuo": {
+   "ruta": "assets/nivel1/enemigos/espiritu_fuego_fatuo.png",
+   "w": 217,
+   "h": 391
+  },
+  "roca_gigante": {
+   "ruta": "assets/nivel1/enemigos/roca_gigante.png",
+   "w": 328,
+   "h": 337
+  },
+  "sombra_perseguidora": {
+   "ruta": "assets/nivel1/enemigos/sombra_perseguidora.png",
+   "w": 319,
+   "h": 389
+  },
+  "oni_rojo_minijefe": {
+   "ruta": "assets/nivel1/enemigos/oni_rojo_minijefe.png",
+   "w": 272,
+   "h": 397
+  },
+  "armadura_idle": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_idle.png",
+   "w": 260,
+   "h": 415
+  },
+  "armadura_run_1": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_run_1.png",
+   "w": 278,
+   "h": 357
+  },
+  "armadura_run_2": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_run_2.png",
+   "w": 262,
+   "h": 402
+  },
+  "armadura_run_3": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_run_3.png",
+   "w": 284,
+   "h": 355
+  },
+  "armadura_run_4": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_run_4.png",
+   "w": 250,
+   "h": 356
+  },
+  "armadura_salto": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_salto.png",
+   "w": 243,
+   "h": 417
+  },
+  "armadura_caida": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_caida.png",
+   "w": 302,
+   "h": 351
+  },
+  "armadura_embestida": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_embestida.png",
+   "w": 305,
+   "h": 325
+  },
+  "armadura_golpe": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_golpe.png",
+   "w": 314,
+   "h": 335
+  },
+  "armadura_casco_icono": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_casco_icono.png",
+   "w": 256,
+   "h": 300
+  },
+  "pergamino": {
+   "ruta": "assets/nivel1/items_jefe/pergamino.png",
+   "w": 276,
+   "h": 272
+  },
+  "cofre_cerrado": {
+   "ruta": "assets/nivel1/items_jefe/cofre_cerrado.png",
+   "w": 274,
+   "h": 220
+  },
+  "cofre_abierto": {
+   "ruta": "assets/nivel1/items_jefe/cofre_abierto.png",
+   "w": 263,
+   "h": 277
+  },
+  "onigiri_curacion": {
+   "ruta": "assets/nivel1/items_jefe/onigiri_curacion.png",
+   "w": 252,
+   "h": 215
+  },
+  "tambor_taiko": {
+   "ruta": "assets/nivel1/items_jefe/tambor_taiko.png",
+   "w": 263,
+   "h": 323
+  },
+  "sello_piedra": {
+   "ruta": "assets/nivel1/items_jefe/sello_piedra.png",
+   "w": 273,
+   "h": 287
+  },
+  "dragon_papel": {
+   "ruta": "assets/nivel1/items_jefe/dragon_papel.png",
+   "w": 314,
+   "h": 286
+  },
+  "oni_guardian_reposo": {
+   "ruta": "assets/nivel1/items_jefe/oni_guardian_reposo.png",
+   "w": 283,
+   "h": 421
+  },
+  "oni_guardian_ataque": {
+   "ruta": "assets/nivel1/items_jefe/oni_guardian_ataque.png",
+   "w": 326,
+   "h": 388
+  },
+  "orbe_energia": {
+   "ruta": "assets/nivel1/items_jefe/orbe_energia.png",
+   "w": 261,
+   "h": 288
+  },
+  "farol_templo": {
+   "ruta": "assets/nivel1/decorado/farol_templo.png",
+   "w": 338,
+   "h": 481
+  },
+  "estandarte_emblema": {
+   "ruta": "assets/nivel1/decorado/estandarte_emblema.png",
+   "w": 421,
+   "h": 461
+  },
+  "santuario_jizo": {
+   "ruta": "assets/nivel1/decorado/santuario_jizo.png",
+   "w": 463,
+   "h": 475
+  },
+  "portal_azul": {
+   "ruta": "assets/nivel1/decorado/portal_azul.png",
+   "w": 472,
+   "h": 464
+  },
+  "carreta_madera": {
+   "ruta": "assets/nivel1/decorado/carreta_madera.png",
+   "w": 483,
+   "h": 411
+  },
+  "bambu_roca": {
+   "ruta": "assets/nivel1/decorado/bambu_roca.png",
+   "w": 330,
+   "h": 485
+  }
+ },
+ "animaciones": {
+  "antorcha_llama": {
+   "ruta": "assets/nivel1/animados/antorcha_llama_10.png",
+   "cuadros": 10,
+   "w": 209,
+   "h": 487,
+   "ms": 120
+  },
+  "shuriken_espiritual": {
+   "ruta": "assets/nivel1/animados/shuriken_espiritual_8.png",
+   "cuadros": 8,
+   "w": 351,
+   "h": 365,
+   "ms": 120
+  },
+  "armadura_poses": {
+   "ruta": "assets/nivel1/heroe_armadura/armadura_poses_6.png",
+   "cuadros": 6,
+   "w": 502,
+   "h": 466,
+   "ms": 180
+  },
+  "oni_ataque": {
+   "ruta": "assets/nivel1/jefe/oni_ataque_6.png",
+   "cuadros": 6,
+   "w": 465,
+   "h": 497,
+   "ms": 160
+  },
+  "oni_caminar": {
+   "ruta": "assets/nivel1/jefe/oni_caminar_8.png",
+   "cuadros": 8,
+   "w": 380,
+   "h": 463,
+   "ms": 220
+  },
+  "ninja_poses": {
+   "ruta": "assets/nivel1/heroes_extra/ninja_poses_6.png",
+   "cuadros": 6,
+   "w": 375,
+   "h": 485,
+   "ms": 180
+  }
+ }
+}

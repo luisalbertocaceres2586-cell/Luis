@@ -17,4 +17,4 @@ Todas las piezas son PNG con fondo transparente, recortadas de la hoja. El juego
 | `alero_tejas.png` | Alero de tejado | Actos 3 y 5: plataformas de tejado. |
 | `kunai_trampa.png` | Trampa de kunai clavados | Trampa de suelo en todos los actos (reemplaza los pinchos). |
 
-Estado: **pendiente de recibir la hoja** (aún no hay PNG en esta carpeta).
+Estado: ✅ **hoja recibida y recortada** (piezas listas en esta carpeta).
