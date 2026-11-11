@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Nivel 1 · La Senda del Aprendiz Ninja (modo de desarrollo)</title>
+<style>html,body{margin:0;height:100%;background:#0a0618;color:#fff;font-family:ui-monospace,monospace}#ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}button{font:inherit;padding:12px 18px;border-radius:8px;border:0;background:#ffc93c;cursor:pointer}</style></head>
+<body>
+<div id="ini"><div>Nivel 1 · modo de desarrollo</div><button id="go">▶ JUGAR</button></div>
+<script src="engine/nivel1/perfiles.js"></script>
+<script src="engine/nivel1/ruta.js"></script>
+<script src="engine/nivel1/acertijos.js"></script>
+<script src="engine/nivel1/gen-bosque.js"></script>
+<script src="engine/nivel1/motor.js"></script>
+<script>
+const q=new URLSearchParams(location.search);
+function arrancar(){document.getElementById('ini').remove();Nivel1.iniciar({heroe:q.get('heroe')||'sakura',semilla:q.get('semilla')?+q.get('semilla'):undefined,dispositivo:q.get('movil')?'movil':'pc',onSalir:()=>location.reload()});}
+document.getElementById('go').onclick=arrancar; if(q.get('auto'))arrancar();
+</script></body></html>

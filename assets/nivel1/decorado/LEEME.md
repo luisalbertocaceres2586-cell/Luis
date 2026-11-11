@@ -17,4 +17,15 @@ Todas las piezas son PNG con fondo transparente, recortadas de la hoja. El juego
 | `estandarte_colgante.png` | Estandarte colgante | Acto 3 y 7: decorado de la torre y del santuario. |
 | `shoji.png` | Panel shoji | Acto 3: fondo de la torre y puertas de respuesta. |
 
-Estado: **pendiente de recibir la hoja** (aún no hay PNG en esta carpeta).
+Estado: ✅ **hoja recibida y recortada** (piezas listas en esta carpeta).
+
+## Extras recibidos en el GIF de "activos japoneses"
+
+| Archivo | Qué es | Uso previsto |
+|---|---|---|
+| `farol_templo.png` | Farol de madera con tejado azul sobre base de piedra | Decorado / luz |
+| `estandarte_emblema.png` | Estandarte rojo y dorado con barra | Decorado |
+| `santuario_jizo.png` | Altar de piedra con estatua y dos faroles | Checkpoint / altar |
+| `portal_azul.png` | Arco de piedra con remolino azul | Portal entre actos y atajos |
+| `carreta_madera.png` | Carreta de madera con faroles y barriles | Objeto que se empuja (acertijos) |
+| `bambu_roca.png` | Bambú sobre roca | Decorado |

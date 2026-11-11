@@ -17,4 +17,4 @@ Todas las piezas son PNG con fondo transparente, recortadas de la hoja. El juego
 | `armadura_golpe.png` | Golpe recibido | Animación de daño. |
 | `armadura_casco_icono.png` | Icono del casco | Icono de HUD: indica que la armadura está puesta. |
 
-Estado: **pendiente de recibir la hoja** (aún no hay PNG en esta carpeta).
+Estado: ✅ **hoja recibida y recortada** (piezas listas en esta carpeta).
