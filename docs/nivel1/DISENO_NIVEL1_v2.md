@@ -78,3 +78,25 @@ Medido: cerca del 75 % del `index.html` (≈ 7.1 MB) son imágenes incrustadas c
 | Actos 2–7, jefe y controles táctiles probados en teléfono real | ⏳ siguientes |
 
 Pruebas: `node tests/nivel1.test.js` (19 pruebas) · navegador: `tests/navegador/`.
+
+
+---
+
+## 7. Actualización: Nivel 1 largo con cueva a oscuras (v3)
+
+Respuesta a las pruebas con estudiantes: el nivel se pasaba en menos de un minuto, apuntar el shuriken a respuestas "una detrás de otra" fallaba y no se veía la cueva.
+
+**Cómo se responde ahora (sin errores por tocar sin querer)**
+- **Mantén F** para apuntar (el tiempo se vuelve lento), **← →** eligen la respuesta, **suelta F** y el shuriken va directo a la elegida, sin chocar con las demás. También se puede tocar/clicar la respuesta.
+- El **tajo (C)** golpea solo UNA respuesta: la más cercana al héroe.
+- Los faroles ya no se activan al rozarlos.
+- **Tutoriales**: la primera vez que aparece cada cosa sale un cartel con las teclas dibujadas (mover, saltar, tajo, apuntar, tambor, carreta, palanca, viento, emboscada, roca, ritmo, cueva, antorchas, jefe, telarañas, sellos). Se guardan por jugador.
+
+**El nivel**: 68–73 mil px, 16 acertijos y **unos 24–26 minutos estimados** (estimación por tipo de reto; falta medirla con estudiantes). Bosque de Bambú → Oni rojo (jefe) → Cueva de las Luciérnagas.
+- **Retos del bosque (todos aparecen en cada partida):** tambores que lanzan en cadena, plataformas que se mueven, puentes de tablones que se caen, carreta que se empuja contra un muro, palanca que abre una reja, emboscada de 3 oleadas, roca gigante que persigue, kunai que suben y bajan a ritmo, sierras de shuriken, corriente de viento, pared de sellos con tesoro, ninjas que embisten, cuervos tengu.
+- **Cueva:** oscuridad con tu antorcha (la luz se encoge con el tiempo y con cada error; se recarga en los puntos de control), murciélagos, arañas que caen del techo, fuegos fatuos que te siguen, estalactitas que se desploman, telarañas que frenan, hongos trampolín, y la **estación final: enciende 4 antorchas en el orden de la cuenta (2, 4, 6, 8…)**.
+- **Acertijos (5 + 1):** faroles, sellos, dianas, piedras que se rompen, **carreta hasta la plataforma con el resultado** y las antorchas en orden.
+
+**Qué se probó**: 22 pruebas automáticas (400 semillas válidas, todos los enemigos y retos presentes en cada nivel) y un robot jugador que completó 8 de 8 niveles de punta a punta, incluidos la emboscada y el jefe, y la ruta desde el menú real.
+
+**Pendiente**: medir duración real con estudiantes, probar controles táctiles en un teléfono, afinar dificultad, y construir los actos siguientes.

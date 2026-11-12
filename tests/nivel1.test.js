@@ -141,25 +141,37 @@ ok('adaptativo: el estudiante que falla 2x7 lo ve más que los hechos que domina
 });
 console.log('\n' + n + ' pruebas OK');
 
-// ---------- Generador del Acto 1 ----------
-const Gen = require('../engine/nivel1/gen-bosque.js');
-console.log('Acto 1 (generador)');
-ok('300 semillas: siempre recorrible, con 6 estaciones y una respuesta correcta', () => {
-  let ancho = [];
-  for (let s = 1; s <= 300; s++) {
-    const N = Gen.generar({ semilla: s, dificultad: 1 + (s % 3), preguntas: 6 });
-    const f = Gen.validar(N); assert.deepStrictEqual(f, [], 'semilla ' + s + ': ' + f.join('; '));
-    ancho.push(N.ancho);
-  }
-  console.log('    (largo del bosque: ' + Math.min(...ancho) + '–' + Math.max(...ancho) + ' px)');
+// ---------- Generador del Nivel 1 largo ----------
+const Gen = require('../engine/nivel1/gen-nivel.js');
+console.log('Nivel 1 largo (generador)');
+const gen = s => Gen.generar({ semilla: s, dificultad: 1, preguntas: 16 }, null);
+ok('400 semillas: recorribles, con 16 estaciones y una respuesta correcta cada una', () => {
+  for (let s = 1; s <= 400; s++) { const f = Gen.validar(gen(s)); assert.deepStrictEqual(f, [], 'semilla ' + s + ': ' + f.join('; ')); }
 });
-ok('semillas distintas dan bosques distintos y la misma semilla da el mismo', () => {
-  const firma = s => JSON.stringify(Gen.generar({ semilla: s, dificultad: 1, preguntas: 6 }).suelo) + JSON.stringify(Gen.generar({ semilla: s, dificultad: 1, preguntas: 6 }).est.map(e => e.mecanica));
+ok('cada nivel incluye todos los enemigos y todos los retos (cueva, jefe, emboscada, roca, sierras...)', () => {
+  for (let s = 1; s <= 400; s++) {
+    const N = gen(s), k = N.enem.map(e => e.kind), t = N.elem.map(e => e.t);
+    ['ninja', 'ninjaAtk', 'tengu', 'murcielago', 'arana', 'aranaTecho', 'fuego', 'oni'].forEach(x => assert(k.includes(x), 'falta enemigo ' + x + ' en semilla ' + s));
+    ['carreta', 'palanca', 'emb', 'roca', 'kunaiR', 'sierra', 'viento', 'estal', 'tela', 'jefe'].forEach(x => assert(t.includes(x), 'falta reto ' + x + ' en semilla ' + s));
+    assert(N.tambores.some(d => d.hongo) && N.tambores.some(d => !d.hongo), 'faltan tambores u hongos');
+    assert(N.plat.some(p => p.mov) && N.plat.some(p => p.fragil), 'faltan plataformas móviles o frágiles');
+  }
+});
+ok('largo y duración estimada: ≈ 20–30 minutos y 65–75 mil px', () => {
+  let lo = 99, hi = 0, mn = 1e9, mx = 0;
+  for (let s = 1; s <= 200; s++) { const N = gen(s); lo = Math.min(lo, N.costoMin); hi = Math.max(hi, N.costoMin); mn = Math.min(mn, N.ancho); mx = Math.max(mx, N.ancho); }
+  assert(lo >= 20 && hi <= 32, lo + '–' + hi + ' min'); assert(mn > 55000 && mx < 90000); console.log('    (' + lo + '–' + hi + ' min estimados · ' + mn + '–' + mx + ' px)');
+});
+ok('semillas distintas dan niveles distintos; la misma semilla da el mismo', () => {
+  const firma = s => JSON.stringify(gen(s).suelo.map(x => x.x1)) + gen(s).est.map(e => e.mecanica).join();
   assert.strictEqual(firma(5), firma(5)); const set = new Set(); for (let s = 1; s <= 40; s++) set.add(firma(s)); assert(set.size >= 38);
 });
-ok('la primera estación es la más sencilla (farol) y las mecánicas varían', () => {
-  const vistas = new Set();
-  for (let s = 1; s <= 100; s++) { const N = Gen.generar({ semilla: s, dificultad: 1, preguntas: 6 }); assert.strictEqual(N.est[0].mecanica, 'encender_farol'); N.est.forEach(e => vistas.add(e.mecanica)); }
-  assert(vistas.size >= 4);
+ok('las estaciones usan las 5 mecánicas y la primera es la más sencilla (farol)', () => {
+  const vistas = new Set(); for (let s = 1; s <= 100; s++) { const N = gen(s); assert.strictEqual(N.est[0].mecanica, 'encender_farol'); N.est.forEach(e => vistas.add(e.mecanica)); assert.strictEqual(N.est[15].mecanica, 'antorchas'); }
+  ['encender_farol', 'romper_bloques', 'diana', 'piedras', 'empujar_carreta', 'antorchas'].forEach(m => assert(vistas.has(m), 'falta ' + m));
+});
+ok('las antorchas de la cueva siguen la cuenta y el orden en pantalla es distinto al de la cuenta', () => {
+  let mezclado = 0; for (let s = 1; s <= 100; s++) { const e = gen(s).est[15]; const v = e.ac.secuencia; assert.deepStrictEqual(v.slice().sort((a, b) => a - b), v); assert.strictEqual(v[1] - v[0], 2); if (e.objetos.some((o, i) => o.idx !== i)) mezclado++; }
+  assert(mezclado > 60);
 });
 console.log('\n' + n + ' pruebas OK');

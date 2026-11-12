@@ -7,8 +7,9 @@
 <script src="engine/nivel1/perfiles.js"></script>
 <script src="engine/nivel1/ruta.js"></script>
 <script src="engine/nivel1/acertijos.js"></script>
-<script src="engine/nivel1/gen-bosque.js"></script>
+<script src="engine/nivel1/gen-nivel.js"></script>
 <script src="engine/nivel1/motor.js"></script>
+<script src="engine/nivel1/elementos.js"></script>
 <script>
 const q=new URLSearchParams(location.search);
 function arrancar(){document.getElementById('ini').remove();Nivel1.iniciar({heroe:q.get('heroe')||'sakura',semilla:q.get('semilla')?+q.get('semilla'):undefined,dispositivo:q.get('movil')?'movil':'pc',onSalir:()=>location.reload()});}
