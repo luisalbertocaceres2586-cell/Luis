@@ -60,8 +60,8 @@
   function cargarNivel1() {
     if (window.Nivel1) return Promise.resolve();
     if (cargaN1) return cargaN1;
-    const lista = ['ruta', 'acertijos', 'gen-bosque', 'motor'];
-    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=1'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
+    const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos'];
+    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=4'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
     return cargaN1;
   }
   function nivel2Anterior(p) {

@@ -27,7 +27,7 @@
   // ---------- catálogo de actos ----------
   // min: minutos de juego típicos [mínimo, máximo] · modo: cómo se juega · otorga/pierde: banderas que cambia
   const ACTOS = {
-    bosque:  { nombre: 'Bosque de Bambú',        modo: 'horizontal',     dir: 1,  min: [4, 6], preguntas: 6, riesgo: 1, pista: 'Camino suave entre bambúes. Ideal para entrar en calor.', otorga: [] },
+    bosque:  { listo: true, nombre: 'Bosque de Bambú',        modo: 'horizontal',     dir: 1,  min: [4, 6], preguntas: 6, riesgo: 1, pista: 'Camino suave entre bambúes. Ideal para entrar en calor.', otorga: [] },
     cueva:   { nombre: 'Cueva de las Luciérnagas', modo: 'oscuro',        dir: 1,  min: [5, 7], preguntas: 7, riesgo: 3, pista: 'Oscura y peligrosa: solo ves lo que alumbra tu antorcha.', otorga: ['antorcha'] },
     dojo:    { nombre: 'Dojo de las Pruebas',    modo: 'acertijos',      dir: 1,  min: [4, 6], preguntas: 7, riesgo: 2, pista: 'Salas con trampas y mecanismos que hay que mover y romper.', otorga: ['llave_dojo'] },
     jardin:  { nombre: 'Jardín de los Zorros',   modo: 'memoria',        dir: 1,  min: [3, 5], preguntas: 6, riesgo: 1, pista: 'Tranquilo y misterioso. Los zorros de piedra guardan un secreto.', otorga: ['bendicion_zorro'] },
@@ -51,6 +51,7 @@
     { id: 7, fijo: 'jefe' }
   ];
 
+  const config = { soloListos: false };   // el motor lo activa: solo se ofrecen actos que ya existen
   function tiene(plan, bandera) { return plan.banderas.indexOf(bandera) >= 0; }
   function dar(plan, b) { if (!tiene(plan, b)) plan.banderas.push(b); }
   function quitar(plan, b) { plan.banderas = plan.banderas.filter(x => x !== b); }
@@ -84,6 +85,7 @@
     if (e.fijo) return [opcion(plan, e.fijo, plan.etapa)];
     const rng = crearRng(plan.semilla, 'etapa/' + plan.etapa + '/' + plan.jugados.join(','));
     let libres = e.pool.filter(a => plan.jugados.indexOf(a) < 0);
+    if (config.soloListos) libres = libres.filter(a => ACTOS[a].listo);
     // consecuencias: sin el secreto del dojo/jardín no aparece el Portal Azul
     if (plan.etapa === 6 && !(tiene(plan, 'llave_dojo') || tiene(plan, 'bendicion_zorro'))) libres = libres.filter(a => a !== 'secreto');
     let mezcla = rng.shuffle(libres);
@@ -142,5 +144,5 @@
     return plan;
   }
 
-  return { crearRng, nuevaSemilla, ACTOS, ETAPAS, nuevoPlan, ofrecer, elegir, terminarActo, jefeSegun, duracionEstimada, simular, tiene };
+  return { config, crearRng, nuevaSemilla, ACTOS, ETAPAS, nuevoPlan, ofrecer, elegir, terminarActo, jefeSegun, duracionEstimada, simular, tiene };
 });
