@@ -1,0 +1,33 @@
+INSTRUCCIONES GENERALES (válidas para TODAS las hojas — léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES de 8 piezas para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL (de perfil, como un juego de scroll horizontal); los elementos de escenario (árboles, puertas, carteles) se ven de frente. Sin vista cenital.
+
+FONDO TRANSPARENTE REAL (OBLIGATORIO, LO MÁS IMPORTANTE): entrega un PNG con CANAL ALFA, es decir, transparente de verdad. PROHIBIDO: fondo blanco, fondo gris, fondo negro, cuadros grises y blancos que simulan transparencia, degradados, texturas de fondo, suelo, sombras proyectadas, reflejos o resplandores difusos que se salgan de las piezas. Los brillos (luz de una antorcha, cristales, llamas) deben quedar DENTRO de la silueta de la pieza, con borde nítido. Si no puedes entregar transparencia real, dímelo en lugar de dibujar cuadros.
+
+TAMAÑO Y ORDEN: usa la máxima resolución disponible. El formato exacto de la hoja se indica en cada hoja (cuadrícula de 8 celdas del mismo tamaño). Una sola pieza por celda, centrada, con al menos 30 px de espacio transparente alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista. No recortes ninguna pieza. Mantén la misma escala relativa entre las piezas de la hoja (un árbol es más grande que una valla).
+
+CALIDAD Y ESTILO: arte digital de altísima calidad, nivel estudio de animación profesional y juego móvil premium: pintura detallada hecha a mano, texturas ricas (madera, piedra, tela, metal, musgo, cristal), colores saturados y vivos, CONTORNO oscuro azul marino #1A1230 limpio y nítido de 2 a 3 px, luz principal desde arriba a la izquierda con luz de borde suave y sombras de forma coherentes. Los personajes son chibi-anime (cabeza grande, cuerpo compacto). Todas las piezas deben parecer del mismo juego. No imites ninguna marca ni personaje conocido.
+
+PALETA (úsala como guía): bosque: verdes #2F9E44 #8FD14F #1F6B3A, musgo #5FAE3A, bambú #A6D13F, madera #8B5A2B #C77C2E, tierra #5A321C, piedra gris azulada #6B7390, rojo bermellón #D8321F, dorado #FFC93C, rosa sakura #FF8FB8. Cueva: roca #2B2F45 #4A4F6B, cristal cian #35D0F0, azul #3A8DFF, hongos turquesa #2FE3C0 y lima #B5F23D. Fuego y luz: naranja #FF8A1F, amarillo #FFD54A. Acentos: carmesí #C81E3C, azul marino #1A1230.
+
+SIN TEXTO: ninguna letra, número, palabra, símbolo escrito, marca de agua, línea de cuadrícula ni etiqueta. Si hace falta un emblema, dibuja un diseño abstracto (círculos, espirales, líneas), nunca letras.
+
+ORIENTACIÓN: los personajes, criaturas y objetos direccionales miran a la DERECHA, salvo que la pieza diga otra cosa.
+
+
+FORMATO DE ESTA HOJA: imagen HORIZONTAL de 1536 × 1024 px con una cuadrícula de 4 columnas × 2 filas (8 celdas verticales de unos 384 × 512 px). Fila 1 = piezas 1 a 4; fila 2 = piezas 5 a 8.
+
+HOJA 10 — ENEMIGOS NUEVOS
+Esta hoja son ENEMIGOS NUEVOS, de cuerpo completo, mirando a la DERECHA. Estilo chibi-anime (cabeza grande), amenazantes pero simpáticos para niños de 8 a 10 años (sin sangre, sin gore). Cada criatura ocupa entre el 75 % y el 90 % del alto de su celda, con los pies o la base en la misma línea inferior.
+
+LAS 8 PIEZAS, EN ORDEN:
+1. Ninja arquero. Ninja enemigo arquero, de pie con las piernas separadas y un arco largo tensado hacia la derecha con una flecha lista, traje gris carbón con bufanda y vendas rojas, capucha, ojos rojos brillantes.
+2. Ninja lancero. Ninja enemigo con una lanza larga sostenida con ambas manos en posición de ataque hacia la derecha, traje verde muy oscuro con bandas carmesí, capucha y máscara, ojos rojos brillantes.
+3. Samurái fantasma. Samurái espectral azulado semitransparente con armadura antigua rota y casco con cuernos, una katana en la mano, ojos cian brillantes y la parte inferior del cuerpo deshaciéndose en humo azul. El borde superior debe ser nítido; el humo, dentro de la silueta.
+4. Serpiente de cueva. Serpiente verde azulada #2FA89A enroscada en forma de S lista para atacar, mirando a la derecha, con ojos amarillos, vientre claro y escamas con brillo; expresión feroz pero caricaturesca.
+5. Escarabajo de cristal. Escarabajo gigante con el caparazón hecho de cristal cian #35D0F0 con facetas y brillo interno, dos cuernos pequeños, seis patas oscuras, mirando a la derecha.
+6. Kappa. Kappa (criatura acuática del folclor japonés) verde, con caparazón en la espalda, un plato con agua en la cabeza, pico amarillo y expresión traviesa, en postura de ataque con los brazos hacia adelante, mirando a la derecha.
+7. Zorro de fuego. Zorro kitsune de fuego con tres colas terminadas en llamas naranjas y azules, pelaje naranja y crema, ojos dorados, en postura de salto hacia la derecha. Las llamas quedan dentro de la silueta con borde nítido.
+8. Rana gigante. Rana verde gigante agachada lista para saltar hacia la derecha, ojos saltones, piel con manchas oscuras y vientre claro, patas traseras grandes; expresión simpática y torpe.
+
+RECUERDA: fondo TRANSPARENTE REAL (PNG con canal alfa), exactamente 8 piezas separadas, ninguna con texto, letras ni números, brillos solo dentro de la silueta, contorno azul marino #1A1230 en todas.

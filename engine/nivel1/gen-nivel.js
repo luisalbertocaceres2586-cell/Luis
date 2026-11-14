@@ -167,7 +167,7 @@
       mecAnt = mec;
       const mecAc = mec === 'empujar_carreta' ? 'encender_farol' : mec;
       const ac = Ac.crear({ rng: rng.derivar('est' + i), tabla: params.tabla || 2, mecanica: mecAc, maestria });
-      ac.mecanica = mec; if (mec === 'empujar_carreta') ac.enunciado = ac.enunciado.replace('Enciende el farol de', 'Empuja la carreta hasta la plataforma de');
+      ac.mecanica = mec; if (mec === 'empujar_carreta') ac.enunciado = ac.enunciado.replace(/Enciende el farol con (la respuesta|el número que sigue):/, 'Empuja la carreta al número correcto:');
       const e = { i: N.est.length, zona, mecanica: mec, ac, x0: x, objetos: [], resuelta: false, errores: 0, puertaX: null, ancho: 0 };
       if (mec === 'piedras') {
         const W = 1220; suelo(x, x + 280); hueco(x + 280, x + W - 150); suelo(x + W - 150, x + W);
@@ -190,7 +190,7 @@
     function estacionAntorchas() {  // cueva: enciende las antorchas en orden de la cuenta
       const i = nEst++; const t = params.tabla || 2, s = rng.int(1, 6);
       const vals = [0, 1, 2, 3].map(k => t * (s + k)); const W = 1300; suelo(x, x + W);
-      const ac = { mecanica: 'antorchas', tipo: 'salto', hecho: t + 'x' + (s + 3), enunciado: 'Enciende las antorchas en orden: de ' + t + ' en ' + t, objetos: vals.map(v => ({ valor: v, correcto: true })), secuencia: vals };
+      const ac = { mecanica: 'antorchas', tipo: 'salto', hecho: t + 'x' + (s + 3), enunciado: 'Enciende las antorchas del número más pequeño al más grande (se cuenta de ' + t + ' en ' + t + ')', objetos: vals.map(v => ({ valor: v, correcto: true })), secuencia: vals };
       const orden = rng.shuffle([0, 1, 2, 3]);
       const e = { i: N.est.length, zona, mecanica: 'antorchas', ac, x0: x, objetos: [], resuelta: false, errores: 0, puertaX: x + W - 90, ancho: W, sig: 0 };
       orden.forEach((k, pos) => e.objetos.push({ x: x + 260 + pos * 240, y: G - 210 - (pos % 2) * 50, valor: vals[k], idx: k, estado: 'apagada' }));

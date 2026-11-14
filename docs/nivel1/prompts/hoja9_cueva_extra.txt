@@ -1,0 +1,33 @@
+INSTRUCCIONES GENERALES (válidas para TODAS las hojas — léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES de 8 piezas para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL (de perfil, como un juego de scroll horizontal); los elementos de escenario (árboles, puertas, carteles) se ven de frente. Sin vista cenital.
+
+FONDO TRANSPARENTE REAL (OBLIGATORIO, LO MÁS IMPORTANTE): entrega un PNG con CANAL ALFA, es decir, transparente de verdad. PROHIBIDO: fondo blanco, fondo gris, fondo negro, cuadros grises y blancos que simulan transparencia, degradados, texturas de fondo, suelo, sombras proyectadas, reflejos o resplandores difusos que se salgan de las piezas. Los brillos (luz de una antorcha, cristales, llamas) deben quedar DENTRO de la silueta de la pieza, con borde nítido. Si no puedes entregar transparencia real, dímelo en lugar de dibujar cuadros.
+
+TAMAÑO Y ORDEN: usa la máxima resolución disponible. El formato exacto de la hoja se indica en cada hoja (cuadrícula de 8 celdas del mismo tamaño). Una sola pieza por celda, centrada, con al menos 30 px de espacio transparente alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista. No recortes ninguna pieza. Mantén la misma escala relativa entre las piezas de la hoja (un árbol es más grande que una valla).
+
+CALIDAD Y ESTILO: arte digital de altísima calidad, nivel estudio de animación profesional y juego móvil premium: pintura detallada hecha a mano, texturas ricas (madera, piedra, tela, metal, musgo, cristal), colores saturados y vivos, CONTORNO oscuro azul marino #1A1230 limpio y nítido de 2 a 3 px, luz principal desde arriba a la izquierda con luz de borde suave y sombras de forma coherentes. Los personajes son chibi-anime (cabeza grande, cuerpo compacto). Todas las piezas deben parecer del mismo juego. No imites ninguna marca ni personaje conocido.
+
+PALETA (úsala como guía): bosque: verdes #2F9E44 #8FD14F #1F6B3A, musgo #5FAE3A, bambú #A6D13F, madera #8B5A2B #C77C2E, tierra #5A321C, piedra gris azulada #6B7390, rojo bermellón #D8321F, dorado #FFC93C, rosa sakura #FF8FB8. Cueva: roca #2B2F45 #4A4F6B, cristal cian #35D0F0, azul #3A8DFF, hongos turquesa #2FE3C0 y lima #B5F23D. Fuego y luz: naranja #FF8A1F, amarillo #FFD54A. Acentos: carmesí #C81E3C, azul marino #1A1230.
+
+SIN TEXTO: ninguna letra, número, palabra, símbolo escrito, marca de agua, línea de cuadrícula ni etiqueta. Si hace falta un emblema, dibuja un diseño abstracto (círculos, espirales, líneas), nunca letras.
+
+ORIENTACIÓN: los personajes, criaturas y objetos direccionales miran a la DERECHA, salvo que la pieza diga otra cosa.
+
+
+FORMATO DE ESTA HOJA: imagen HORIZONTAL de 1536 × 1024 px con una cuadrícula de 4 columnas × 2 filas (8 celdas verticales de unos 384 × 512 px). Fila 1 = piezas 1 a 4; fila 2 = piezas 5 a 8.
+
+HOJA 9 — CUEVA: MÁS VARIEDAD
+Esta hoja son PIEZAS DE LA CUEVA para que cada zona oscura se vea distinta. Las piezas que cuelgan del techo (2 y 4) deben tener el borde superior cortado recto. Las demás se apoyan abajo en una base recta o pequeña.
+
+LAS 8 PIEZAS, EN ORDEN:
+1. Columna de roca. Columna de roca formada por una estalactita y una estalagmita unidas en el centro, gris azulado #4A4F6B, con goteo y brillos de humedad en la superficie, y un poco de musgo azul en la base. Alta y estrecha.
+2. Cristales colgantes. Racimo de cristales cian #35D0F0 y azules colgando del techo con las puntas hacia abajo, con una base de roca oscura en la parte superior cortada recta; brillo interno dentro de los cristales, sin halo.
+3. Hongo luminoso alto. Un hongo luminoso alto: sombrero turquesa #2FE3C0 con puntos de luz lima, tallo largo claro, apoyado en una piedra pequeña con musgo; dos hongos pequeños a su lado.
+4. Raíces y lianas colgantes. Raíces gruesas y lianas finas que cuelgan del techo de la cueva, marrón oscuro con hojitas verdes, con gotas de agua brillantes en las puntas; borde superior cortado recto.
+5. Pared de mineral. Panel de pared de roca irregular con vetas de gemas azules y doradas incrustadas, con facetas brillantes; contorno irregular (no rectangular) y vertical.
+6. Arco de ruinas. Arco de piedra antiguo en ruinas con musgo azul y raíces, dos columnas desgastadas y bloques caídos en la base; sin letras ni símbolos. El hueco del arco queda TRANSPARENTE.
+7. Flores bioluminiscentes. Grupo de flores azul eléctrico #3A8DFF con pétalos que parecen brillar, hojas oscuras y 5 esporas luminosas flotando cerca (puntos de luz pequeños dentro de la silueta).
+8. Altar con vela. Pequeño altar de rocas apiladas con una vela encendida de llama cálida pequeña y un cuenco de ofrenda de madera con frutas; cera blanca derretida. Luz de la llama solo dentro de la silueta.
+
+RECUERDA: fondo TRANSPARENTE REAL (PNG con canal alfa), exactamente 8 piezas separadas, ninguna con texto, letras ni números, brillos solo dentro de la silueta, contorno azul marino #1A1230 en todas.

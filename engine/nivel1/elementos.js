@@ -106,7 +106,7 @@
       }
       case 'emb': {
         if (t.estado === 0 && h.x > t.x0 + 140 && h.x < t.x1 - 140) { t.estado = 1; t.ola = 0; cerrar([t.idL, t.idR]); core.emboscadaActiva = true; spawnOla(t); }
-        else if (t.estado === 1) { t.vivos = s.enemigos.filter(q => q.emb === t && q.vivo).length; if (t.vivos === 0) { t.ola++; if (t.ola >= t.olas.length) { t.estado = 2; abrir([t.idL, t.idR]); core.emboscadaActiva = false; s.aviso = { t: 2.5, s: '¡EMBOSCADA SUPERADA!' }; s.items.push({ x: (t.x0 + t.x1) / 2, y: G - 80, tipo: 'onigiri', tomado: false }); } else { spawnOla(t); } } }
+        else if (t.estado === 1) { t.vivos = s.enemigos.filter(q => q.emb === t && q.vivo).length; if (t.vivos === 0) { t.ola++; if (t.ola >= t.olas.length) { t.estado = 2; abrir([t.idL, t.idR]); core.emboscadaActiva = false; s.aviso = { t: 2.5, s: '¡LO LOGRASTE! Se abre la reja' }; s.items.push({ x: (t.x0 + t.x1) / 2, y: G - 80, tipo: 'onigiri', tomado: false }); } else { spawnOla(t); } } }
         break;
       }
       case 'roca': {
@@ -144,7 +144,7 @@
     }
   }
   function spawnOla(t) {
-    const s = S(), n = t.olas[t.ola]; core.texto((t.x0 + t.x1) / 2, G - 220, 'OLA ' + (t.ola + 1) + '/' + t.olas.length, '#ffe27a'); s.shake = .2;
+    const s = S(), n = t.olas[t.ola]; core.texto((t.x0 + t.x1) / 2, G - 220, 'GRUPO ' + (t.ola + 1) + '/' + t.olas.length, '#ffe27a'); s.shake = .2;
     for (let i = 0; i < n; i++) { const izq = i % 2 === 0, x = izq ? t.x0 + 60 : t.x1 - 60, ataca = (i + t.ola) % 2 === 1; s.enemigos.push({ kind: ataca ? 'ninjaAtk' : 'ninja', x, min: t.x0 + 40, max: t.x1 - 40, y: G, vx: (izq ? 1 : -1) * 70, vivo: true, hp: 1, emb: t, t: 0 }); }
   }
 
@@ -225,7 +225,7 @@
     s.N.elem.forEach(t => { if (t.x === undefined || Math.abs(t.x - s.h.x) < 1900) dibujarElem(t, capa); });
   };
   E.luces = function (L) {
-    const s = S(); s.enemigos.forEach(e => { if (e.vivo && e.kind === 'fuego' && Math.abs(e.x - s.h.x) < 900) L.push({ x: e.x, y: e.y, r: 110 }); });
+    const s = S(); s.enemigos.forEach(e => { if (e.vivo && e.kind === 'fuego' && Math.abs(e.x - s.h.x) < 900) L.push({ x: e.x, y: e.y, r: 135 }); });
   };
   E.ojos = function () {
     const s = S(), c = cx(); s.enemigos.forEach(e => {
@@ -237,6 +237,6 @@
   E.hud = function (c, caja) {
     const s = S(); const o = s.enemigos.find(q => q.kind === 'oni' && q.vivo);
     if (core.jefeActivo && o) { caja(W / 2 - 220, H - 60, 440, 32, 10, 'rgba(10,4,30,.7)', '#ff5a3a'); c.fillStyle = '#ff3a3a'; c.fillRect(W / 2 - 214, H - 54, 428 * clamp(o.hp / o.hpMax, 0, 1), 20); c.font = 'bold 14px ui-monospace,monospace'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ONI ROJO', W / 2, H - 44); }
-    const em = s.N.elem.find(t => t.t === 'emb' && t.estado === 1); if (em) { caja(W / 2 - 110, 100, 220, 34, 10, 'rgba(10,4,30,.75)', '#ff9a3a'); c.font = 'bold 15px ui-monospace,monospace'; c.fillStyle = '#ffe27a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('OLA ' + (em.ola + 1) + '/' + em.olas.length + ' · quedan ' + s.enemigos.filter(q => q.emb === em && q.vivo).length, W / 2, 117); }
+    const em = s.N.elem.find(t => t.t === 'emb' && t.estado === 1); if (em) { caja(W / 2 - 110, 100, 220, 34, 10, 'rgba(10,4,30,.75)', '#ff9a3a'); c.font = 'bold 15px ui-monospace,monospace'; c.fillStyle = '#ffe27a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('GRUPO ' + (em.ola + 1) + '/' + em.olas.length + ' · quedan ' + s.enemigos.filter(q => q.emb === em && q.vivo).length, W / 2, 117); }
   };
 })();

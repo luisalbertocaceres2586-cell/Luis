@@ -1,0 +1,33 @@
+INSTRUCCIONES GENERALES (válidas para TODAS las hojas — léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES de 8 piezas para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL (de perfil, como un juego de scroll horizontal); los elementos de escenario (árboles, puertas, carteles) se ven de frente. Sin vista cenital.
+
+FONDO TRANSPARENTE REAL (OBLIGATORIO, LO MÁS IMPORTANTE): entrega un PNG con CANAL ALFA, es decir, transparente de verdad. PROHIBIDO: fondo blanco, fondo gris, fondo negro, cuadros grises y blancos que simulan transparencia, degradados, texturas de fondo, suelo, sombras proyectadas, reflejos o resplandores difusos que se salgan de las piezas. Los brillos (luz de una antorcha, cristales, llamas) deben quedar DENTRO de la silueta de la pieza, con borde nítido. Si no puedes entregar transparencia real, dímelo en lugar de dibujar cuadros.
+
+TAMAÑO Y ORDEN: usa la máxima resolución disponible. El formato exacto de la hoja se indica en cada hoja (cuadrícula de 8 celdas del mismo tamaño). Una sola pieza por celda, centrada, con al menos 30 px de espacio transparente alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista. No recortes ninguna pieza. Mantén la misma escala relativa entre las piezas de la hoja (un árbol es más grande que una valla).
+
+CALIDAD Y ESTILO: arte digital de altísima calidad, nivel estudio de animación profesional y juego móvil premium: pintura detallada hecha a mano, texturas ricas (madera, piedra, tela, metal, musgo, cristal), colores saturados y vivos, CONTORNO oscuro azul marino #1A1230 limpio y nítido de 2 a 3 px, luz principal desde arriba a la izquierda con luz de borde suave y sombras de forma coherentes. Los personajes son chibi-anime (cabeza grande, cuerpo compacto). Todas las piezas deben parecer del mismo juego. No imites ninguna marca ni personaje conocido.
+
+PALETA (úsala como guía): bosque: verdes #2F9E44 #8FD14F #1F6B3A, musgo #5FAE3A, bambú #A6D13F, madera #8B5A2B #C77C2E, tierra #5A321C, piedra gris azulada #6B7390, rojo bermellón #D8321F, dorado #FFC93C, rosa sakura #FF8FB8. Cueva: roca #2B2F45 #4A4F6B, cristal cian #35D0F0, azul #3A8DFF, hongos turquesa #2FE3C0 y lima #B5F23D. Fuego y luz: naranja #FF8A1F, amarillo #FFD54A. Acentos: carmesí #C81E3C, azul marino #1A1230.
+
+SIN TEXTO: ninguna letra, número, palabra, símbolo escrito, marca de agua, línea de cuadrícula ni etiqueta. Si hace falta un emblema, dibuja un diseño abstracto (círculos, espirales, líneas), nunca letras.
+
+ORIENTACIÓN: los personajes, criaturas y objetos direccionales miran a la DERECHA, salvo que la pieza diga otra cosa.
+
+
+FORMATO DE ESTA HOJA: imagen HORIZONTAL de 1536 × 1024 px con una cuadrícula de 4 columnas × 2 filas (8 celdas verticales de unos 384 × 512 px). Fila 1 = piezas 1 a 4; fila 2 = piezas 5 a 8.
+
+HOJA 7 — DECORADO DEL BOSQUE (VARIEDAD)
+Esta hoja son PIEZAS DE DECORADO del bosque para que los paisajes no se repitan. Cada pieza se ve de frente, con la base cortada recta o apoyada en una base pequeña (para pegarla al suelo). Ocupan entre el 70 % y el 90 % del alto de su celda, salvo las pequeñas (valla, cartel, rocas), que ocupan alrededor del 55 %.
+
+LAS 8 PIEZAS, EN ORDEN:
+1. Cerezo en flor. Árbol de cerezo japonés en flor, completo: tronco oscuro retorcido con nudos, copa grande y redondeada cubierta de flores rosa sakura #FF8FB8 con algunas flores más claras, y 6 o 7 pétalos cayendo cerca de la copa (dentro de la silueta, sin halo). Base del tronco con unas pocas raíces y hierba corta.
+2. Pino bonsái grande. Pino japonés grande y retorcido, estilo bonsái: tronco grueso con nudos y corteza detallada, tres "nubes" de agujas verde oscuro #1F6B3A con luz en la parte superior, apoyado en una base pequeña de tierra con tres piedras.
+3. Grupo de rocas con musgo. Grupo de 3 o 4 rocas grandes gris azulado #6B7390 apiladas de forma natural, con musgo verde #5FAE3A en la parte superior y florecitas blancas y amarillas. Base irregular pero plana abajo.
+4. Valla de madera. Tramo de valla de madera de 5 postes con dos travesaños atados con cuerda de cáñamo, madera desgastada con vetas, un poco de musgo en la base. Vista de frente, extremos cortados rectos para poder repetirla.
+5. Fuente de bambú. Fuente japonesa shishi-odoshi: caño de bambú verde inclinado apoyado en un soporte de madera, un chorro de agua cayendo a una pequeña pila de piedra con agua azul clara y gotas brillantes. El agua y las gotas quedan dentro de la silueta.
+6. Farolitos colgantes. Tres farolitos de papel (rojo #D8321F, crema y rojo) colgando a distintas alturas de una cuerda corta con dos ganchos de metal arriba, encendidos con luz cálida suave dentro del papel. Sin letras ni símbolos en el papel.
+7. Cartel de flecha. Poste de madera con una tabla en forma de flecha que apunta a la DERECHA, madera con vetas y cuerda, una enredadera verde enrollada en el poste, base clavada en un pequeño montículo de tierra. SIN ningún texto ni símbolo en la tabla.
+8. Helechos con luciérnagas. Matorral denso de helechos verdes y flores azules pequeñas, con 6 luciérnagas brillantes amarillo verdoso #B5F23D flotando cerca (puntos de luz pequeños dentro de la silueta, sin halo grande). Base recta abajo.
+
+RECUERDA: fondo TRANSPARENTE REAL (PNG con canal alfa), exactamente 8 piezas separadas, ninguna con texto, letras ni números, brillos solo dentro de la silueta, contorno azul marino #1A1230 en todas.

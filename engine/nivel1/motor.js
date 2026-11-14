@@ -252,7 +252,7 @@
     S.mezcla += (alC - S.mezcla) * Math.min(1, dt * 3); S.osc = S.mezcla;
     if (S.zonaVista === 'bosque' && h.x > cuevaX + 100) { S.zonaVista = 'cueva'; S.aviso = { t: 3.5, s: 'CUEVA DE LAS LUCIÉRNAGAS' }; S.luz = 250; }
     if (S.osc > .3) S.luz = Math.max(130, S.luz - 1.4 * dt);
-    if (Math.abs(h.x - N.meta.x) < 80 && h.y >= G - 4) { if (S.est.every(e => e.resuelta)) terminar(); else if (!(S.avisoMeta > 0)) { S.aviso = { t: 2.5, s: 'FALTAN ACERTIJOS POR RESOLVER' }; S.avisoMeta = 3; } }
+    if (Math.abs(h.x - N.meta.x) < 80 && h.y >= G - 4) { if (S.est.every(e => e.resuelta)) terminar(); else if (!(S.avisoMeta > 0)) { S.aviso = { t: 2.5, s: 'TE FALTAN PREGUNTAS POR RESOLVER' }; S.avisoMeta = 3; } }
     if (S.avisoMeta > 0) S.avisoMeta -= dt;
 
     const obj = clamp(h.x - 430 + h.dir * 70, 0, N.ancho - W); S.cam += (obj - S.cam) * Math.min(1, dt * 5);
@@ -273,16 +273,17 @@
   // ============ acertijos en el mundo ============
   const objetivos = e => e.mecanica === 'empujar_carreta' ? [] : e.objetos.filter(o => (o.estado === 'listo' || o.estado === 'apagada') && o.valor !== undefined);
   function pista(e) {
-    const m = /^(\d+)x(\d+)$/.exec(e.ac.hecho); if (!m) return 'Piensa en grupos iguales.'; const t = +m[1], b = +m[2];
-    if (e.mecanica === 'antorchas') return 'Empieza por la más pequeña y suma ' + t + ' cada vez.';
-    if (e.ac.tipo === 'salto' || e.mecanica === 'piedras') return 'Suma ' + t + ' al último número de la cuenta.';
-    if (e.ac.tipo === 'factor') return 'Cuenta de ' + t + ' en ' + t + ' hasta llegar a ' + (t * b) + '.';
-    return b + ' veces ' + t + ' = ' + Array(b).fill(t).join(' + ');
+    const r = /^(\d+)x(\d+)$/.exec(e.ac.hecho); if (!r) return 'Piensa en grupos iguales.'; const t = +r[1], b = +r[2];
+    if (e.mecanica === 'antorchas') return 'Empieza por el número más pequeño y suma ' + t + ' cada vez.';
+    if (e.ac.secuencia && e.ac.secuencia.length === 2) { const u = e.ac.secuencia[1]; return 'Suma ' + t + ' al último número: ' + u + ' + ' + t + ' = ?'; }
+    if (e.ac.tipo === 'factor') return 'Cuenta de ' + t + ' en ' + t + ' hasta llegar a ' + (t * b) + '. ¿Cuántas veces sumaste?';
+    if (e.ac.tipo === 'mitad') return '¿Qué número sumado con él mismo da ' + (t * b) + '?';
+    return t + ' × ' + b + ' es sumar ' + t + ' un total de ' + b + ' veces: ' + Array(b).fill(t).join(' + ');
   }
   function resolver(e, ok, x, y) {
     if (e.resuelta) return; S.maestria.registrar(e.ac.hecho, ok);
     if (ok) {
-      e.resuelta = true; S.aciertos++; if (e.errores === 0) S.limpios++; chispas(x, y, 30, '#7dff9a'); texto(x, y - 50, '¡CORRECTO!', '#7dff9a'); S.aviso = { t: 1.6, s: '¡BIEN! +1 acertijo' };
+      e.resuelta = true; S.aciertos++; if (e.errores === 0) S.limpios++; chispas(x, y, 30, '#7dff9a'); texto(x, y - 50, '¡CORRECTO!', '#7dff9a'); S.aviso = { t: 1.6, s: '¡MUY BIEN!' };
       if (e.puertaX !== null) texto(e.puertaX, G - 160, 'SE ABRE EL PASO', '#ffe27a'); S.items.push({ x, y: y - 20, tipo: 'pergamino', tomado: false });
     } else { e.errores++; S.errores++; texto(x, y - 40, '¡CASI!', '#ff8a8a'); e.pistaVisible = true; if (S.osc > .3) S.luz = Math.max(130, S.luz - 28); }
   }
@@ -332,23 +333,23 @@
 
   // ============ tutoriales (la primera vez que aparece cada cosa) ============
   const TUTOS = [
-    { id: 'mover', txt: 'Muévete', teclas: ['←', '→'], ok: () => S.movido > 160, cuando: () => S.t > .8 },
-    { id: 'saltar', txt: 'Salta (mantén para saltar más alto)', teclas: ['ESPACIO'], ok: () => S.saltos > 1, cuando: () => S.movido > 200 },
-    { id: 'tajo', txt: 'Golpea con el tajo', teclas: ['C'], ok: () => S.tajos > 0, cuando: () => S.enemigos.some(e => e.vivo && e.kind !== 'oni' && e.x > S.h.x && e.x - S.h.x < 520 && Math.abs(e.y - S.h.y) < 250) },
-    { id: 'apuntar', txt: 'Mantén F para apuntar · ← → eligen la respuesta · suelta F para lanzar el shuriken', teclas: ['F'], ok: () => S.tiros > 0, cuando: () => S.estSel && objetivos(S.estSel).length && Math.abs(S.estSel.x0 + 260 - S.h.x) < 480 },
-    { id: 'apuntar2', txt: 'También puedes saltar y golpear la respuesta con el tajo', teclas: ['C'], ok: () => S.tajos > 2 || S.estSel === null, cuando: () => S.tutoVisto.apuntar && S.estSel && S.estSel.errores > 0 },
+    { id: 'mover', txt: 'Camina', teclas: ['←', '→'], ok: () => S.movido > 160, cuando: () => S.t > .8 },
+    { id: 'saltar', txt: 'Salta. Si mantienes la tecla, saltas más alto', teclas: ['ESPACIO'], ok: () => S.saltos > 1, cuando: () => S.movido > 200 },
+    { id: 'tajo', txt: 'Pega con tu espada', teclas: ['C'], ok: () => S.tajos > 0, cuando: () => S.enemigos.some(e => e.vivo && e.kind !== 'oni' && e.x > S.h.x && e.x - S.h.x < 520 && Math.abs(e.y - S.h.y) < 250) },
+    { id: 'apuntar', txt: 'Para lanzar el shuriken: mantén F, elige la respuesta con ← → y suelta F', teclas: ['F'], ok: () => S.tiros > 0, cuando: () => S.estSel && objetivos(S.estSel).length && Math.abs(S.estSel.x0 + 260 - S.h.x) < 480 },
+    { id: 'apuntar2', txt: 'También puedes saltar y golpear la respuesta con tu espada', teclas: ['C'], ok: () => S.tajos > 2 || S.estSel === null, cuando: () => S.tutoVisto.apuntar && S.estSel && S.estSel.errores > 0 },
     { id: 'tambor', txt: '¡Salta sobre el tambor para rebotar muy alto!', teclas: ['ESPACIO'], ok: () => S.rebotes > 0, cuando: () => S.N.tambores.some(t => Math.abs(t.x - S.h.x) < 380 && t.x > S.h.x - 60) },
-    { id: 'carreta', txt: 'Camina contra la carreta para empujarla', teclas: ['→'], ok: () => core.cartaEmpujada, cuando: () => S.N.elem.some(e => e.t === 'carreta' && Math.abs(e.x - S.h.x) < 420) },
-    { id: 'palanca', txt: 'Golpea la palanca con el tajo', teclas: ['C'], ok: () => S.N.elem.some(e => e.t === 'palanca' && e.on), cuando: () => S.N.elem.some(e => e.t === 'palanca' && !e.on && Math.abs(e.x - S.h.x) < 300) },
+    { id: 'carreta', txt: 'Camina hacia la carreta para empujarla', teclas: ['→'], ok: () => core.cartaEmpujada, cuando: () => S.N.elem.some(e => e.t === 'carreta' && Math.abs(e.x - S.h.x) < 420) },
+    { id: 'palanca', txt: 'Golpea la palanca con tu espada', teclas: ['C'], ok: () => S.N.elem.some(e => e.t === 'palanca' && e.on), cuando: () => S.N.elem.some(e => e.t === 'palanca' && !e.on && Math.abs(e.x - S.h.x) < 300) },
     { id: 'viento', txt: 'Mantén ESPACIO dentro del viento para subir', teclas: ['ESPACIO'], ok: () => core.vientoUsado, cuando: () => S.N.elem.some(e => e.t === 'viento' && Math.abs(e.x + e.w / 2 - S.h.x) < 300) },
-    { id: 'emb', txt: '¡Emboscada! Derrota a todos los ninjas para abrir la reja', teclas: ['C', 'F'], ok: () => false, cuando: () => core.emboscadaActiva },
-    { id: 'roca', txt: '¡CORRE! Salta los kunai y no te detengas', teclas: ['→', 'ESPACIO'], ok: () => false, cuando: () => core.rocaActiva },
-    { id: 'ritmo', txt: 'Espera el momento justo para pasar', teclas: ['⏱'], ok: () => false, cuando: () => S.N.elem.some(e => (e.t === 'kunaiR' || e.t === 'sierra') && Math.abs(e.x - S.h.x) < 420 && e.x > S.h.x - 100) },
-    { id: 'oscuro', txt: 'En la cueva solo ves lo que alumbra tu antorcha. Los errores la apagan', teclas: ['🔥'], ok: () => false, cuando: () => S.osc > .5 },
-    { id: 'antorchas', txt: 'Enciende las antorchas en orden, de menor a mayor (golpea con C o apunta con F)', teclas: ['C', 'F'], ok: () => false, cuando: () => S.estSel && S.estSel.mecanica === 'antorchas' && S.h.x > S.estSel.x0 - 100 },
-    { id: 'jefe', txt: 'Esquiva sus embestidas y golpéalo con C, con F o saltándole encima', teclas: ['C', 'F'], ok: () => false, cuando: () => core.jefeActivo },
-    { id: 'sellos', txt: 'Rompe la pared de sellos con el tajo: ¡hay un tesoro detrás!', teclas: ['C'], ok: () => S.N.muros.some(m => m.rompible && m.roto), cuando: () => S.N.muros.some(m => m.rompible && !m.roto && m.x > S.h.x && m.x - S.h.x < 380) },
-    { id: 'tela', txt: 'Las telarañas te frenan: córtalas con el tajo', teclas: ['C'], ok: () => false, cuando: () => S.N.elem.some(e => e.t === 'tela' && !e.roto && Math.abs(e.x - S.h.x) < 300 && e.x > S.h.x - 40) }
+    { id: 'emb', txt: '¡Cuidado! Vence a todos los ninjas para abrir la reja', teclas: ['C', 'F'], ok: () => false, cuando: () => core.emboscadaActiva },
+    { id: 'roca', txt: '¡Corre! Salta las dagas y no te detengas', teclas: ['→', 'ESPACIO'], ok: () => false, cuando: () => core.rocaActiva },
+    { id: 'ritmo', txt: 'Espera y pasa cuando no haya peligro', teclas: ['⏱'], ok: () => false, cuando: () => S.N.elem.some(e => (e.t === 'kunaiR' || e.t === 'sierra') && Math.abs(e.x - S.h.x) < 420 && e.x > S.h.x - 100) },
+    { id: 'oscuro', txt: 'En la cueva está oscuro. Tu antorcha alumbra. Si te equivocas, la luz se hace más chica', teclas: ['🔥'], ok: () => false, cuando: () => S.osc > .5 },
+    { id: 'antorchas', txt: 'Enciende las antorchas del número más pequeño al más grande', teclas: ['C', 'F'], ok: () => false, cuando: () => S.estSel && S.estSel.mecanica === 'antorchas' && S.h.x > S.estSel.x0 - 100 },
+    { id: 'jefe', txt: 'Esquiva sus embestidas. Golpéalo con C, con F o saltándole encima', teclas: ['C', 'F'], ok: () => false, cuando: () => core.jefeActivo },
+    { id: 'sellos', txt: 'Rompe la pared de sellos con tu espada: ¡hay un tesoro detrás!', teclas: ['C'], ok: () => S.N.muros.some(m => m.rompible && m.roto), cuando: () => S.N.muros.some(m => m.rompible && !m.roto && m.x > S.h.x && m.x - S.h.x < 380) },
+    { id: 'tela', txt: 'La telaraña te frena. Córtala con tu espada', teclas: ['C'], ok: () => false, cuando: () => S.N.elem.some(e => e.t === 'tela' && !e.roto && Math.abs(e.x - S.h.x) < 300 && e.x > S.h.x - 40) }
   ];
   function tutoriales(dt) {
     if (S.tip) { S.tipT += dt; const t = S.tip; if (S.tipT > 1.5 && (t.ok() || S.tipT > 14)) { S.tutoVisto[t.id] = 1; S.tip = null; } return; }
@@ -360,7 +361,7 @@
   const mm = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   function pantallaFinal() {
     if (!S || !root) return; const ops = S.plan.opciones || [];
-    const d = panel('<h2>¡NIVEL 1 COMPLETADO!</h2><p>Atravesaste el Bosque de Bambú y la Cueva de las Luciérnagas.</p><div class="n1Stats"><div><b>' + S.aciertos + '/' + S.est.length + '</b>acertijos</div><div><b>' + S.limpios + '</b>a la primera</div><div><b>' + S.errores + '</b>errores</div><div><b>' + S.pergaminos + '</b>pergaminos</div><div><b>' + mm(S.tiempo) + '</b>tiempo</div></div>' + (ops.length ? '<p>¿Qué camino eliges? Lo que decidas cambia el resto del viaje.</p><div class="n1Opc" id="n1Ops"></div>' : '<p style="color:#ffc93c">El camino continúa… los siguientes actos se están construyendo.</p><div class="n1Fila" id="n1Fin"></div>'));
+    const d = panel('<h2>¡NIVEL 1 COMPLETADO!</h2><p>Atravesaste el Bosque de Bambú y la Cueva de las Luciérnagas.</p><div class="n1Stats"><div><b>' + S.aciertos + '/' + S.est.length + '</b>preguntas</div><div><b>' + S.limpios + '</b>a la primera</div><div><b>' + S.errores + '</b>errores</div><div><b>' + S.pergaminos + '</b>pergaminos</div><div><b>' + mm(S.tiempo) + '</b>tiempo</div></div>' + (ops.length ? '<p>¿Qué camino eliges? Lo que decidas cambia el resto del viaje.</p><div class="n1Opc" id="n1Ops"></div>' : '<p style="color:#ffc93c">El camino continúa… los siguientes actos se están construyendo.</p><div class="n1Fila" id="n1Fin"></div>'));
     if (!ops.length) { botonesFin(d.querySelector('#n1Fin')); return; }
     const cont = d.querySelector('#n1Ops');
     ops.forEach((o, i) => { const b = document.createElement('button'); b.className = 'n1Op'; b.setAttribute('data-acto', o.acto); const est = '★'.repeat(o.riesgo) + '☆'.repeat(Math.max(0, 4 - o.riesgo)), rec = o.recompensa.length ? o.recompensa.map(r => BANDERAS[r] || r).join(', ') : 'ninguna'; b.innerHTML = '<h3>' + (i + 1) + '. ' + o.nombre + '</h3>' + o.pista + '<br><br>Riesgo: ' + est + '<br>Recompensa: ' + rec; b.addEventListener('click', () => elegirCamino(o.acto, d)); cont.appendChild(b); });
@@ -501,7 +502,7 @@
   function mira() {
     const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(0, 0, W, H);
     a.lst.forEach((q, i) => { const xx = q.x - S.cam; cx.strokeStyle = i === a.sel ? '#ffe27a' : 'rgba(255,255,255,.4)'; cx.lineWidth = i === a.sel ? 4 : 2; cx.beginPath(); cx.arc(xx, q.y, 56 + (i === a.sel ? Math.sin(a.t * 10) * 4 : 0), 0, 7); cx.stroke(); if (i === a.sel) { cx.setLineDash([10, 8]); cx.beginPath(); cx.moveTo(h.x - S.cam + h.dir * 30, h.y - 58); cx.lineTo(xx, q.y); cx.stroke(); cx.setLineDash([]); } });
-    etiqueta('← → elige · suelta F para lanzar', W / 2, H - 70, 18, '#ffe27a');
+    etiqueta('Elige con ← →  ·  suelta F para lanzar', W / 2, H - 70, 18, '#ffe27a');
   }
   function caja(x, y, w, h, r, fill, stroke) { cx.beginPath(); cx.roundRect ? cx.roundRect(x, y, w, h, r) : cx.rect(x, y, w, h); cx.fillStyle = fill; cx.fill(); if (stroke) { cx.lineWidth = 2; cx.strokeStyle = stroke; cx.stroke(); } }
   core.caja = caja;
@@ -510,16 +511,16 @@
     const h = S.h;
     for (let i = 0; i < S.vidaMax; i++) { cx.fillStyle = i < h.vida ? '#ff4d6d' : 'rgba(255,255,255,.18)'; cx.font = '30px sans-serif'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('♥', 20 + i * 36, 14); }
     caja(20, 58, 120, 32, 8, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.font = 'bold 16px ui-monospace,monospace'; cx.fillStyle = '#ffe27a'; cx.textAlign = 'left'; cx.fillText('📜 ' + S.pergaminos, 32, 65);
-    const res = S.est.filter(e => e.resuelta).length; caja(W - 220, 14, 200, 38, 10, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.textAlign = 'center'; cx.fillStyle = '#fff'; cx.font = 'bold 15px ui-monospace,monospace'; cx.fillText('ACERTIJOS ' + res + '/' + S.est.length, W - 120, 26);
+    const res = S.est.filter(e => e.resuelta).length; caja(W - 220, 14, 200, 38, 10, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.textAlign = 'center'; cx.fillStyle = '#fff'; cx.font = 'bold 15px ui-monospace,monospace'; cx.fillText('PREGUNTAS ' + res + '/' + S.est.length, W - 120, 26);
     if (S.osc > .3) { caja(W - 220, 58, 200, 26, 8, 'rgba(10,4,30,.55)', 'rgba(255,150,40,.6)'); cx.fillStyle = '#ff9a3a'; cx.fillRect(W - 214, 64, 188 * clamp((S.luz - 100) / 160, 0, 1), 14); cx.font = '12px sans-serif'; cx.fillStyle = '#fff'; cx.fillText('🔥 LUZ', W - 170, 72); }
     const px = 20 + (W - 40) * clamp(h.x / S.N.ancho, 0, 1); cx.fillStyle = 'rgba(255,255,255,.2)'; cx.fillRect(20, H - 16, W - 40, 5); cx.fillStyle = '#ffc93c'; cx.fillRect(20, H - 16, px - 20, 5);
     S.est.forEach(e => { cx.fillStyle = e.resuelta ? '#7dff9a' : '#fff'; cx.fillRect(20 + (W - 40) * (e.x0 + e.ancho / 2) / S.N.ancho - 2, H - 20, 4, 13); }); cx.fillStyle = '#c84'; cx.fillRect(20 + (W - 40) * S.N.cueva.x / S.N.ancho - 2, H - 22, 4, 17); cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(px, H - 13, 8, 0, 7); cx.fill();
     N1elem.hud(cx, caja);
     const e = S.estSel;
     if (e) {
-      const t = e.ac.enunciado; cx.font = 'bold 24px ui-monospace,monospace'; const tw = Math.min(W - 80, cx.measureText(t).width + 60);
+      const t = e.ac.enunciado; let fs = 26; cx.font = 'bold ' + fs + 'px ui-monospace,monospace'; while (cx.measureText(t).width > W - 160 && fs > 15) { fs--; cx.font = 'bold ' + fs + 'px ui-monospace,monospace'; } const tw = Math.min(W - 60, cx.measureText(t).width + 60);
       caja(W / 2 - tw / 2, 14, tw, e.pistaVisible ? 88 : 54, 14, 'rgba(18,8,51,.88)', '#ffc93c'); cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, W / 2, 41);
-      if (e.pistaVisible) { cx.font = '15px ui-monospace,monospace'; cx.fillStyle = '#ffe27a'; cx.fillText('Pista: ' + pista(e), W / 2, 78); }
+      if (e.pistaVisible) { cx.font = '16px ui-monospace,monospace'; cx.fillStyle = '#ffe27a'; cx.fillText('💡 Pista: ' + pista(e), W / 2, 78); }
     }
     if (S.aviso && S.aviso.t > 0) { cx.globalAlpha = clamp(S.aviso.t, 0, 1); cx.font = 'bold 30px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; const tw = cx.measureText(S.aviso.s).width + 70; caja(W / 2 - tw / 2, 150, tw, 62, 14, 'rgba(18,8,51,.85)', '#ffc93c'); cx.fillStyle = '#ffe27a'; cx.fillText(S.aviso.s, W / 2, 182); cx.globalAlpha = 1; }
     if (S.tip && !S.apunta) {
