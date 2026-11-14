@@ -100,3 +100,18 @@ Respuesta a las pruebas con estudiantes: el nivel se pasaba en menos de un minut
 **Qué se probó**: 22 pruebas automáticas (400 semillas válidas, todos los enemigos y retos presentes en cada nivel) y un robot jugador que completó 8 de 8 niveles de punta a punta, incluidos la emboscada y el jefe, y la ruta desde el menú real.
 
 **Pendiente**: medir duración real con estudiantes, probar controles táctiles en un teléfono, afinar dificultad, y construir los actos siguientes.
+
+
+---
+
+## 8. Aligerar el `index.html` (hecho)
+
+`tools/aligerar_index.py` sacó las 381 imágenes que estaban incrustadas como texto dentro de `index.html` y las guardó como archivos en `assets/embebidas/` (nombre = huella del contenido, sin duplicados). La función `_img()` ahora acepta una ruta de archivo además de base64.
+
+| | Antes | Ahora |
+|---|---|---|
+| Tamaño de `index.html` | 9.3 MB | 0.47 MB |
+| Tiempo hasta que la página es interactiva (equipo de pruebas) | 13.4 s | 0.7 s |
+| Tiempo total de carga (equipo de pruebas) | 15.1 s | 7.6 s |
+
+Verificado: las 374 imágenes extraídas son válidas, todas las rutas existen, los 21 portales, el marco del HUD y las tarjetas de héroe cargan, y no hay errores en la consola. **No se pudo comprobar** el arranque de los niveles 2 a 10 con capturas (el navegador de pruebas se cierra al iniciarlos, también con el archivo original), así que conviene jugar unos segundos de cada nivel. Si algo se ve mal, el cambio está en un solo commit y se puede revertir sin perder lo demás.
