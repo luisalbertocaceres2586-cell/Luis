@@ -21,6 +21,7 @@
   function matar(e, via) {
     const s = S(); e.vivo = false; core.chispas(e.x, e.y - 40, 14, '#bbb'); core.texto(e.x, e.y - 100, '¡Hi-yah!', '#fff'); s.shake = .1;
     if (via === 'pisa') { s.h.vy = -650; s.h.cortado = true; }
+    if (core.alGolpear) core.alGolpear(via, e);   // tajo aéreo: rebote
     if (Math.random() < .55) s.items.push({ x: e.x, y: Math.min(e.y - 40, G - 40), tipo: 'pergamino', tomado: false });
     if (e.emb) e.emb.vivos--;
   }
@@ -73,7 +74,7 @@
     else if (e.estado === 'cansado') { if (e.t <= 0) { e.estado = 'camina'; e.t = 2 + Math.random(); } }
     e.x = clamp(e.x, el.x0 + 80, el.x1 - 80); e.caja = rect(e.x - 60, e.y - 170, 120, 170);
     const via = golpeado(e, hb, { caja: e.caja, pisable: true });
-    if (via && e.inv <= 0) { e.hp -= via === 'tajo' ? 1 : 1; e.inv = .55; core.chispas(e.x, e.y - 100, 18, '#ffd54a'); core.texto(e.x, e.y - 190, '-1', '#ffd54a'); s.shake = .15; if (via === 'pisa') { h.vy = -700; } e.x += (e.estado === 'cansado' ? 0 : 0); if (e.hp <= 0) { terminarJefe(e, el); return; } }
+    if (via && e.inv <= 0) { e.hp -= via === 'tajo' ? 1 : 1; e.inv = .55; core.chispas(e.x, e.y - 100, 18, '#ffd54a'); core.texto(e.x, e.y - 190, '-1', '#ffd54a'); s.shake = .15; if (via === 'pisa') { h.vy = -700; } if (core.alGolpear) core.alGolpear(via, e); e.x += (e.estado === 'cansado' ? 0 : 0); if (e.hp <= 0) { terminarJefe(e, el); return; } }
     if (h.inv <= 0 && cruza(hb, e.caja) && !via) core.danio('oni', dx > 0 ? 1 : -1, e.estado === 'carga' ? 2 : 1);
   }
   function terminarJefe(e, el) {

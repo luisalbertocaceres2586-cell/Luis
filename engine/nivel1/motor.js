@@ -76,12 +76,13 @@
       cam: 0, t: 0, tiempo: 0, vidaMax: 5, seguro: { x: N.inicio.x, y: G }, resp: { x: N.inicio.x, y: G },
       shur: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
       pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
-      alto: 100 / (M.idle[0].h || 200), luz: 240, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0
+      alto: 100 / (M.idle[0].h || 200), luz: 240, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0, eligiendo: false, hab: null
     };
     N.plat.forEach(p => { p.X = p.x; p.Y = p.y; p.dX = 0; p.dY = 0; });
     for (let i = 0; i < 26; i++) S.hojas.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: Math.random() * 6, s: 5 + Math.random() * 6 });
     oc = document.createElement('canvas'); oc.width = W; oc.height = H; ox = oc.getContext('2d');
     if (S.movil) crearTactil();
+    if (window.N1hab) N1hab.iniciar(S, o);
     window.addEventListener('keydown', onKey, true); window.addEventListener('keyup', onKeyUp, true); window.addEventListener('resize', ajustar);
     cv.addEventListener('pointerdown', onPointer);
     ajustar(); last = performance.now(); acc = 0; raf = requestAnimationFrame(bucle);
@@ -129,19 +130,22 @@
   }
 
   // ============ entrada ============
-  const CTRL = ['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyA', 'KeyD', 'KeyW', 'KeyF', 'KeyC', 'KeyJ', 'KeyK', 'KeyZ', 'KeyX'];
+  const CTRL = ['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyA', 'KeyD', 'KeyW', 'KeyF', 'KeyC', 'KeyJ', 'KeyK', 'KeyZ', 'KeyX', 'ShiftLeft', 'ShiftRight', 'KeyV', 'KeyL', 'KeyG', 'KeyE'];
   const izq = () => keys.ArrowLeft || keys.KeyA, der = () => keys.ArrowRight || keys.KeyD, salto = () => keys.Space || keys.ArrowUp || keys.KeyW;
   const esF = c => c === 'KeyF' || c === 'KeyK' || c === 'KeyX';
   function pulsar(code) {
     if (!S) return;
     if (code === 'Space' || code === 'ArrowUp' || code === 'KeyW') S.h.buffer = .12;
-    if (esF(code) && !S.fin && !S.pausa) empezarApuntar();
+    if (window.N1hab && !S.eligiendo) N1hab.pulsar(code);   // dash, gancho
+    if (esF(code) && !S.fin && !S.pausa && !S.eligiendo) empezarApuntar();
     if (S.apunta && (code === 'ArrowLeft' || code === 'KeyA')) cambiarObjetivo(-1);
     if (S.apunta && (code === 'ArrowRight' || code === 'KeyD')) cambiarObjetivo(1);
   }
-  function soltar(code) { if (S && esF(code)) lanzar(); }
+  function soltar(code) { if (!S) return; if (window.N1hab) N1hab.soltar(code); if (esF(code)) lanzar(); }
+  core.pulsar = pulsar; core.soltar = soltar;
   function onKey(e) {
     if (!S) return;
+    if (S.eligiendo) { e.preventDefault(); e.stopImmediatePropagation(); if (window.N1hab) N1hab.tecla(e); return; }
     if (CTRL.indexOf(e.code) >= 0) e.preventDefault();
     if (e.code === 'Escape' || e.code === 'KeyP') { if (S.apunta) { S.apunta = null; } else if (!S.fin) S.pausa = !S.pausa; return; }
     if (S.pausa && e.code === 'KeyQ') { cerrar(); return; }
@@ -149,7 +153,7 @@
   }
   function onKeyUp(e) { if (!S) return; if (keys[e.code]) soltar(e.code); keys[e.code] = 0; if (CTRL.indexOf(e.code) >= 0) { e.preventDefault(); e.stopImmediatePropagation(); } }
   function onPointer(e) {   // toque o clic sobre un objetivo: lo elige y lanza
-    if (!S || S.fin || S.pausa) return; const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width + S.cam, py = (e.clientY - r.top) * H / r.height;
+    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width + S.cam, py = (e.clientY - r.top) * H / r.height;
     const est = S.estSel; if (!est) return; const lst = objetivos(est);
     let mejor = null, d = 70; lst.forEach(o => { const dd = Math.hypot(o.x - px, o.y - py); if (dd < d) { d = dd; mejor = o; } }); if (mejor) disparar(mejor, est);
   }
@@ -158,13 +162,15 @@
   const texto = (x, y, s, col) => S.textos.push({ x, y, s, col: col || '#fff', t: 1.1 });
   const chispas = (x, y, n, col) => { for (let i = 0; i < n; i++) S.part.push({ x, y, vx: (Math.random() - .5) * 300, vy: -Math.random() * 300 - 40, t: .5 + Math.random() * .4, col: col || '#ffd54a', r: 2 + Math.random() * 3 }); };
   function danio(razon, kx, cuanto) {
-    const h = S.h; if (h.inv > 0 || h.muerto > 0) return; cuanto = cuanto || 1;
+    const h = S.h; if (h.inv > 0 || h.muerto > 0) return; if (window.N1hab && N1hab.invulnerable()) return; cuanto = cuanto || 1;
+    if (window.N1hab) N1hab.alDanio();
     h.vida -= cuanto; h.inv = 1.4; h.aturdido = .28; h.vy = -420; h.vx = (kx || -h.dir) * 260; h.suelo = false; S.shake = .25; S.flash = .2; S.apunta = null;
     texto(h.x, h.y - 100, '-' + cuanto + ' ♥', '#ff6b6b'); chispas(h.x, h.y - 50, 10, '#ff6b6b'); if (h.vida <= 0) h.muerto = 1.2;
   }
   function reaparecer() {
     const h = S.h; if (h.vida <= 0) { h.vida = 3; S.aviso = { t: 2.5, s: 'VUELVES AL ÚLTIMO PUNTO DE CONTROL' }; h.x = S.resp.x; } else h.x = S.seguro.x;
     h.y = G - 400; h.vy = 0; h.vx = 0; h.inv = 1.6; h.muerto = 0; h.suelo = false; S.cam = clamp(h.x - 440, 0, S.N.ancho - W); S.apunta = null;
+    if (window.N1hab) N1hab.alReaparecer();
     N1elem.alReaparecer();
   }
   Object.assign(core, { texto, chispas, danio });
@@ -185,7 +191,7 @@
   function bucle(now) {
     raf = requestAnimationFrame(bucle); if (!S) return;
     acc += Math.min(0.1, (now - last) / 1000); last = now;
-    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin) paso(DT * (S.apunta ? .3 : 1)); acc -= DT; }
+    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1)); acc -= DT; }
     dibujar();
   }
   const muroSolido = m => !(m.abierta || m.roto);
@@ -202,14 +208,16 @@
     if (h.pisando && h.pisando.tipo === 'plat' && h.suelo) { h.x += h.pisando.p.dX; h.y = platY(h.pisando.p); }
 
     const dirIn = S.apunta ? 0 : (der() ? 1 : 0) - (izq() ? 1 : 0);
+    const hab = window.N1hab ? N1hab.antes(dt, dirIn) : { skipMove: false, skipGrav: false, tope: 0 };   // dash, pared, doble salto, planeo, gancho
     if (h.aturdido <= 0) {
-      const tope = h.lento > 0 ? 120 : (h.empuja ? 150 : 340), a = h.suelo ? 3400 : 2300;
-      if (dirIn) { h.vx += clamp(dirIn * tope - h.vx, -a * dt, a * dt); h.dir = dirIn; } else h.vx += clamp(-h.vx, -3000 * dt, 3000 * dt) * (h.suelo ? 1 : .4);
+      const tope = hab.tope || (h.lento > 0 ? 120 : (h.empuja ? 150 : 340)), a = h.suelo ? 3400 : 2300;
+      if (hab.skipMove) { /* la habilidad manda sobre la velocidad horizontal */ } else if (dirIn) { h.vx += clamp(dirIn * tope - h.vx, -a * dt, a * dt); h.dir = dirIn; } else h.vx += clamp(-h.vx, -3000 * dt, 3000 * dt) * (h.suelo ? 1 : .4);
       if (h.buffer > 0 && (h.suelo || h.coyote > 0) && !S.apunta) { h.vy = -900; h.suelo = false; h.coyote = 0; h.buffer = 0; h.cortado = false; S.saltos++; chispas(h.x, h.y, 4, '#c8b48a'); }
       if (!salto() && h.vy < -330 && !h.cortado) { h.vy *= .55; h.cortado = true; }
-      if ((keys.KeyC || keys.KeyJ || keys.KeyZ) && h.atkCd <= 0 && !S.apunta) { h.atk = .28; h.atkCd = .38; h.tajoUsado = false; S.tajos++; }
+      if ((keys.KeyC || keys.KeyJ || keys.KeyZ) && h.atkCd <= 0 && !S.apunta) { h.atk = .28; h.atkCd = .38; h.tajoUsado = false; S.tajos++; if (window.N1hab) N1hab.alTajo(); }
     }
-    h.empuja = false; h.vy = Math.min(1250, h.vy + 2300 * dt);
+    h.empuja = false; if (!hab.skipGrav) h.vy = Math.min(1250, h.vy + 2300 * dt);
+    if (window.N1hab) N1hab.despuesGravedad(dt);
 
     h.x += h.vx * dt; h.x = clamp(h.x, 20, N.ancho - 20); if (Math.abs(h.vx) > 40) S.movido += Math.abs(h.vx) * dt;
     resolverHorizontal();
@@ -235,7 +243,8 @@
 
     const hb = rect(h.x - h.w / 2 + 4, h.y - h.h, h.w - 8, h.h - 4); S.hb = hb;
     N.haz.forEach(z => { if (cruza(hb, rect(z.x + 6, z.y + 8, z.w - 12, z.h))) danio('kunai', h.x < z.x + z.w / 2 ? -1 : 1); });
-    S.tajo = h.atk > .06 ? rect(h.dir > 0 ? h.x - 10 : h.x - 120, h.y - 150, 130, 160) : null; if (S.tajo) S.tajo.usado = !!h.tajoUsado;
+    S.tajo = h.atk > .06 ? (window.N1hab ? N1hab.rectTajo(h, rect(h.dir > 0 ? h.x - 10 : h.x - 120, h.y - 150, 130, 160)) : rect(h.dir > 0 ? h.x - 10 : h.x - 120, h.y - 150, 130, 160)) : null; if (S.tajo) S.tajo.usado = !!h.tajoUsado;
+    if (window.N1hab) N1hab.despuesTajo();
 
     S.shur.forEach(s => {
       s.t -= dt; s.a += dt * 20;
@@ -261,11 +270,12 @@
     S.hojas.forEach(l => { l.x -= l.v * dt; l.y += l.v * .5 * dt; l.r += dt; if (l.x < -10 || l.y > H + 10) { l.x = W + 10; l.y = Math.random() * H * .6; } });
     S.estSel = null; S.est.forEach(e => { if (!e.resuelta && h.x > e.x0 - 260 && h.x < e.x0 + e.ancho + 40) S.estSel = e; });
     tutoriales(dt);
+    if (window.N1hab) N1hab.revisar();   // ¿toca elegir una habilidad nueva?
   }
 
   function resolverHorizontal() {
     const h = S.h, N = S.N, hb = rect(h.x - h.w / 2, h.y - h.h, h.w, h.h - 2);
-    S.est.forEach(e => { if (e.puertaX !== null && !e.resuelta) { const px = e.puertaX; if (h.x + h.w / 2 > px - 12 && h.x - h.w / 2 < px + 12 && h.y > G - 300) { h.x = h.x < px ? px - 12 - h.w / 2 : px + 12 + h.w / 2; h.vx = 0; } } });
+    S.est.forEach(e => { if (e.puertaX !== null && !e.resuelta) { const px = e.puertaX; if (h.x + h.w / 2 > px - 12 && h.x - h.w / 2 < px + 12 && h.y > G - 480) { h.x = h.x < px ? px - 12 - h.w / 2 : px + 12 + h.w / 2; h.vx = 0; } } });
     N.muros.forEach(m => { if (!muroSolido(m)) return; if (cruza(hb, m) && h.y > m.y + 8) { h.x = (h.x < m.x + m.w / 2) ? m.x - h.w / 2 : m.x + m.w + h.w / 2; h.vx = 0; } });
     N1elem.empujes(h, hb);
   }
@@ -352,7 +362,7 @@
   ];
   function tutoriales(dt) {
     if (S.tip) { S.tipT += dt; const t = S.tip; if (S.tipT > 1.5 && (t.ok() || S.tipT > 14)) { S.tutoVisto[t.id] = 1; S.tip = null; } return; }
-    for (const t of TUTOS) { if (S.tutoVisto[t.id]) continue; let ok = false; try { ok = t.cuando(); } catch (e) {} if (ok) { S.tip = t; S.tipT = 0; break; } }
+    for (const t of window.N1hab ? TUTOS.concat(N1hab.TUTOS) : TUTOS) { if (S.tutoVisto[t.id]) continue; let ok = false; try { ok = t.cuando(); } catch (e) {} if (ok) { S.tip = t; S.tipT = 0; break; } }
   }
 
   // ============ pantallas de fin y decisión ============
@@ -433,12 +443,12 @@
     });
     S.N.tambores.forEach(t => { if (t.x < S.cam - 100 || t.x > S.cam + W + 100) return; const sq = t.rebote > 0 ? 1 - Math.sin(t.rebote * 10) * .12 : 1; cx.save(); cx.translate(t.x - S.cam, t.y + 4); cx.scale(1 / sq, sq); porAncho(t.hongo ? img.hongo : img.taiko, 0, 0, t.hongo ? 120 : 130); cx.restore(); });
     S.N.haz.forEach(z => { if (z.x + z.w < S.cam - 20 || z.x > S.cam + W + 20) return; const k = img.kunai; if (k) { const hh = k.height * (z.w + 30) / k.width; sprite(k, z.x - S.cam - 15, z.y + z.h + 6 - hh, z.w + 30, hh); } });
-    S.N.muros.forEach(m => { if (m.x + m.w < S.cam - 40 || m.x > S.cam + W + 40 || m.roto) return; N1elem.dibujarMuro(m); });
+    S.N.muros.forEach(m => { if (m.x + m.w < S.cam - 40 || m.x > S.cam + W + 40 || m.roto) return; if (m.tipo === 'escalada' && window.N1hab) N1hab.dibujarPared(m); else N1elem.dibujarMuro(m); });
   }
   function estacionesDibujo() {
     S.est.forEach(e => {
       if (e.x0 > S.cam + W + 100 || e.x0 + e.ancho < S.cam - 100) return;
-      if (e.puertaX !== null) { const alto = 300, px = e.puertaX - S.cam, k = e.resuelta ? (e.abre = Math.min(1, (e.abre || 0) + .03)) : 0; for (let i = -1; i <= 1; i++) { const im = img.bambuDeco; if (im) { cx.save(); cx.beginPath(); cx.rect(px - 40, G - alto, 80, alto); cx.clip(); sprite(im, px - 18 + i * 22, G - alto + k * (alto + 20), 54, alto + 20); cx.restore(); } } }
+      if (e.puertaX !== null) { const alto = 480, px = e.puertaX - S.cam, k = e.resuelta ? (e.abre = Math.min(1, (e.abre || 0) + .03)) : 0; for (let i = -1; i <= 1; i++) { const im = img.bambuDeco; if (im) { cx.save(); cx.beginPath(); cx.rect(px - 40, G - alto, 80, alto); cx.clip(); sprite(im, px - 18 + i * 22, G - alto + k * (alto + 20), 54, alto + 20); cx.restore(); } } }
       if (e.mecanica === 'empujar_carreta') e.pads.forEach(p => { const px = p.x - S.cam; cx.fillStyle = p.estado === 'bien' ? '#3ac46a' : 'rgba(255,230,150,.9)'; cx.fillRect(px - 62, G - 6, 124, 10); cx.fillStyle = '#6b4a1c'; cx.fillRect(px - 62, G + 4, 124, 6); etiqueta(String(p.valor), px, G - 40, 26, '#fff'); cx.strokeStyle = 'rgba(255,255,255,.5)'; cx.setLineDash([6, 6]); cx.strokeRect(px - 62, G - 112, 124, 106); cx.setLineDash([]); });
       e.objetos.forEach(o => {
         if (e.mecanica === 'encender_farol') {
@@ -453,18 +463,19 @@
     });
   }
   function dibujarHeroe() {
+    if (window.N1hab) N1hab.estelas();
     const h = S.h, M = S.M; let set = 'idle', fps = 8, idx = 0;
     if (h.muerto > 0) set = 'death'; else if (h.aturdido > 0) set = 'hurt'; else if (h.atk > 0) set = 'atk'; else if (!h.suelo) set = 'jump'; else if (Math.abs(h.vx) > 40) { set = 'run'; fps = 26; }
     const arr = M[set] || M.idle;
     if (set === 'atk') idx = Math.min(arr.length - 1, Math.floor((1 - h.atk / .28) * arr.length)); else if (set === 'jump') idx = h.vy < -300 ? 0 : h.vy < -60 ? 1 : h.vy < 260 ? Math.min(2, arr.length - 1) : arr.length - 1;
     else if (set === 'hurt' || set === 'death') idx = Math.min(arr.length - 1, Math.floor(S.t * 12) % arr.length); else { h.anim += (1 / 60) * fps; idx = Math.floor(h.anim) % arr.length; }
     const f = arr[Math.min(idx, arr.length - 1)], im = img['h:' + set + ':' + Math.min(idx, arr.length - 1)] || img['h:idle:0']; if (!im || !f) return;
-    const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s; if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
+    const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s; if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh }; if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
     cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30, 7, 0, 0, 7); cx.fill();
     cx.save(); cx.translate(h.x - S.cam, h.y); if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
     if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14, -112, 52, 52 * img.antorchaAnim.height / fw); }
     cx.restore();
-    if (h.atk > 0) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
+    if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
   }
   function luces() {
     const L = [], h = S.h, fl = 1 + Math.sin(S.t * 13) * .04 + Math.sin(S.t * 31) * .03;
@@ -485,9 +496,9 @@
     if (!S || !cx) return;
     const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); cx.clearRect(-20, -20, W + 40, H + 40);
     if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla);
-    decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras');
+    decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = i.tipo === 'onigiri' ? img.onigiri : img.pergamino, w = i.tipo === 'onigiri' ? 46 : 52; if (im) sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); });
-    N1elem.dibujar('enemigos'); dibujarHeroe(); N1elem.dibujar('frente');
+    N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.shur.forEach(s => { const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
     decorado('frente');
     S.part.forEach(p => { cx.globalAlpha = clamp(p.t * 2, 0, 1); cx.fillStyle = p.col; cx.fillRect(p.x - S.cam - p.r / 2, p.y - p.r / 2, p.r, p.r); }); cx.globalAlpha = 1;
@@ -515,6 +526,7 @@
     const px = 20 + (W - 40) * clamp(h.x / S.N.ancho, 0, 1); cx.fillStyle = 'rgba(255,255,255,.2)'; cx.fillRect(20, H - 16, W - 40, 5); cx.fillStyle = '#ffc93c'; cx.fillRect(20, H - 16, px - 20, 5);
     S.est.forEach(e => { cx.fillStyle = e.resuelta ? '#7dff9a' : '#fff'; cx.fillRect(20 + (W - 40) * (e.x0 + e.ancho / 2) / S.N.ancho - 2, H - 20, 4, 13); }); cx.fillStyle = '#c84'; cx.fillRect(20 + (W - 40) * S.N.cueva.x / S.N.ancho - 2, H - 22, 4, 17); cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(px, H - 13, 8, 0, 7); cx.fill();
     N1elem.hud(cx, caja);
+    if (window.N1hab) N1hab.hud(cx, caja);
     const e = S.estSel;
     if (e) {
       const t = e.ac.enunciado; cx.font = 'bold 24px ui-monospace,monospace'; const tw = Math.min(W - 80, cx.measureText(t).width + 60);

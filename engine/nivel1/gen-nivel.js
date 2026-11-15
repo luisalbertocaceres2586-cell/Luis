@@ -8,7 +8,7 @@
   const G = 560;
 
   // segundos que tarda, de media, un estudiante en cada cosa (para estimar la duración)
-  const COSTO = { llano: 6, patrulla: 16, puente: 8, barranco: 12, estacas: 9, escalera: 12, taikos: 16, moviles: 18, fragil: 12, carreta: 26, palanca: 20, emboscada: 32, roca: 24, kunaiR: 15, sierras: 16, viento: 14, ruptura: 12,
+  const COSTO = { llano: 6, patrulla: 16, puente: 8, barranco: 12, estacas: 9, escalera: 12, taikos: 16, moviles: 18, fragil: 12, carreta: 26, palanca: 20, emboscada: 32, roca: 24, kunaiR: 15, sierras: 16, viento: 14, ruptura: 12, chimenea: 12,
     pasillo: 18, estalactitas: 14, hongos: 14, telaranas: 14, arana: 16, fuegos: 18, estacion: 42, jefe: 60, final: 50 };
 
   function generar(params, maestria) {
@@ -78,17 +78,26 @@
         if (zona === 'bosque') perg(mx + 40, G - 330);
         x += a + 560; especial('carreta', x - 1160, x);
       },
+      chimenea() {  // dos paredes de bambú que flotan: por debajo se pasa caminando; arriba hay un tesoro (agarre de pared, o gancho / doble salto)
+        const w = 760, px = x + 250, ancho = 56, sep = 230, y0 = G - 170 - 330, id = 'ch' + N.muros.length;
+        suelo(x, x + w); decorar(x, x + w); arco(x + 60, x + 200, G - 30, 3); arco(x + 640, x + 720, G - 30, 2);
+        N.muros.push({ x: px, y: y0, w: ancho, h: 330, tipo: 'escalada', lado: 'izq', par: id, zona }, { x: px + ancho + sep, y: y0, w: ancho, h: 330, tipo: 'escalada', lado: 'der', par: id, zona });
+        plat(px + ancho + 10, y0 + 70, sep - 20, zona === 'bosque' ? 'bambu' : 'roca');
+        for (let i = 0; i < 6; i++) perg(px + ancho + 36 + i * (sep - 72) / 5, y0 + 10);
+        onigiri(px + ancho + sep / 2, y0 - 20);
+        x += w; especial('chimenea', x - w, x);
+      },
       palanca() {  // una palanca en alto abre la reja
         suelo(x, x + 1000); decorar(x, x + 400);
         const id = 'p' + N.elem.length; plat(x + 180, G - 160, 160, zona === 'bosque' ? 'bambu' : 'roca');
         elem({ t: 'palanca', x: x + 260, y: G - 160, id, on: false });
-        N.muros.push({ x: x + 700, y: G - 300, w: 36, h: 300, tipo: 'reja', id, abierta: false, zona });
+        N.muros.push({ x: x + 700, y: G - 520, w: 36, h: 520, tipo: 'reja', id, abierta: false, zona });
         x += 1000; especial('palanca', x - 1000, x);
       },
       emboscada() {  // se cierra la arena y salen oleadas de ninjas
         const w = 1100, k = N.elem.length; suelo(x, x + w); const olas = [2 + (dif > 2 ? 1 : 0), 3, dif > 1 ? 4 : 3];
         elem({ t: 'emb', x0: x + 80, x1: x + w - 80, estado: 0, olas, ola: 0, idL: 'eL' + k, idR: 'eR' + k });
-        N.muros.push({ x: x + 60, y: G - 300, w: 30, h: 300, tipo: 'reja', id: 'eL' + k, abierta: true, zona }, { x: x + w - 90, y: G - 300, w: 30, h: 300, tipo: 'reja', id: 'eR' + k, abierta: true, zona });
+        N.muros.push({ x: x + 60, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'eL' + k, abierta: true, zona }, { x: x + w - 90, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'eR' + k, abierta: true, zona });
         onigiri(x + w / 2, G - 120); x += w; especial('emboscada', x - w, x);
       },
       roca() {  // roca gigante persecución
@@ -148,13 +157,13 @@
         N.deco.push({ x: x + 100, tipo: 'cristal', capa: 'atras', zona }); arco(x + 150, x + w - 100, G - 50, 6); x += w;
       }
     };
-    const SEGUROS = { bosque: ['llano', 'patrulla', 'puente', 'barranco', 'estacas', 'escalera', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'roca', 'kunaiR', 'sierras', 'viento', 'ruptura'], cueva: ['pasillo', 'estalactitas', 'hongos', 'telaranas', 'arana', 'fuegos', 'barranco', 'estacas', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'kunaiR', 'sierras', 'ruptura', 'puente'] };
+    const SEGUROS = { bosque: ['llano', 'patrulla', 'puente', 'barranco', 'estacas', 'escalera', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'roca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'], cueva: ['pasillo', 'estalactitas', 'hongos', 'telaranas', 'arana', 'fuegos', 'barranco', 'estacas', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'kunaiR', 'sierras', 'ruptura', 'puente', 'chimenea'] };
     const FACIL = ['llano', 'puente', 'patrulla', 'escalera', 'pasillo'];
-    const LIMITE = { roca: 2, emboscada: 3, carreta: 2, palanca: 2, viento: 2, ruptura: 2, taikos: 3, sierras: 3, kunaiR: 3, moviles: 3, fragil: 3, hongos: 2, telaranas: 2, estalactitas: 2 };
+    const LIMITE = { chimenea: 2, roca: 2, emboscada: 3, carreta: 2, palanca: 2, viento: 2, ruptura: 2, taikos: 3, sierras: 3, kunaiR: 3, moviles: 3, fragil: 3, hongos: 2, telaranas: 2, estalactitas: 2 };
     const usados = {};
     // cada zona incluye SIEMPRE todos estos retos y enemigos (el resto se sortea)
     const MUST = {
-      bosque: ['patrulla', 'patrulla', 'patrulla', 'emboscada', 'roca', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'kunaiR', 'sierras', 'viento', 'ruptura'],
+      bosque: ['patrulla', 'patrulla', 'patrulla', 'emboscada', 'roca', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'],
       cueva: ['pasillo', 'pasillo', 'estalactitas', 'telaranas', 'fuegos', 'hongos', 'arana', 'emboscada', 'carreta', 'palanca', 'kunaiR', 'sierras', 'moviles', 'fragil', 'taikos']
     };
 
@@ -226,7 +235,7 @@
     zonaNueva('bosque', 8, 3);
     // jefe del bosque: arena con el Oni rojo
     suelo(x, x + 300); N.ckp.push({ x: x + 150, activo: false, zona }); x += 300;
-    { const w = 1400; suelo(x, x + w); N.muros.push({ x: x + 40, y: G - 320, w: 30, h: 320, tipo: 'reja', id: 'jL', abierta: true, zona, auto: true }, { x: x + w - 70, y: G - 320, w: 30, h: 320, tipo: 'reja', id: 'jR', abierta: true, zona, auto: true });
+    { const w = 1400; suelo(x, x + w); N.muros.push({ x: x + 40, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'jL', abierta: true, zona, auto: true }, { x: x + w - 70, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'jR', abierta: true, zona, auto: true });
       elem({ t: 'jefe', x0: x + 70, x1: x + w - 70, estado: 0, id: 'jefe' }); N.enem.push({ kind: 'oni', x: x + w - 400, min: x + 100, max: x + w - 100, y: G, vivo: true, hp: 8, hpMax: 8, vx: 0, boss: true, estado: 'quieto', t: 0 }); x += w; N.costo += COSTO.jefe; }
     suelo(x, x + 400); N.zonas.push({ tipo: 'bosque', x0: 0, x1: x }); x += 400;
     // entrada a la cueva
@@ -259,7 +268,12 @@
     });
     for (let i = 1; i < N.suelo.length; i++) if (N.suelo[i].x0 < N.suelo[i - 1].x1) f.push('suelos solapados');
     if (N.est.length !== 16) f.push('faltan estaciones: ' + N.est.length);
-    N.muros.forEach(m => { if (m.h > 320) f.push('muro alto'); });
+    // las rejas se abren al resolver su reto y se hacen altas a propósito (con doble salto, planeo o gancho no se pueden saltar);
+    // las paredes de chimenea flotan: por debajo se camina, así que no deben bajar de G-150
+    N.muros.forEach(m => {
+      if (m.tipo === 'escalada') { if (m.y + m.h > G - 150) f.push('chimenea bloquea el paso'); }
+      else if (m.tipo !== 'reja' && m.h > 320) f.push('muro alto');
+    });
     return f;
   }
   return { generar, validar, G, COSTO };
