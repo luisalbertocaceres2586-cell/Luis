@@ -224,7 +224,8 @@
         }
         if (e === nEstaciones - 1) while (must.length) { const m = must.shift(); usados[nombre + m] = (usados[nombre + m] || 0) + 1; MOD[m](); N.costo += COSTO[m] || 10; }   // lo que no salió por sorteo se añade antes del final
         if (nombre === 'cueva' && e === nEstaciones - 1) estacionAntorchas(); else estacion();
-        if (e % 2 === 1 && e < nEstaciones - 1) { suelo(x, x + 220); N.ckp.push({ x: x + 110, activo: false, zona }); x += 220; }
+        // bosque: un punto de control cada dos acertijos; cueva (oscura y más difícil): tras CADA acertijo, y comida en la mitad de esos tramos
+        if ((nombre === 'cueva' ? true : e % 2 === 1) && e < nEstaciones - 1) { suelo(x, x + 220); N.ckp.push({ x: x + 110, activo: false, zona }); if (nombre === 'cueva' && e % 2 === 0) onigiri(x + 40, G - 60); x += 220; }
       }
       return z0;
     }

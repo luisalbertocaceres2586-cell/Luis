@@ -1,5 +1,5 @@
 import {open} from './lib.mjs';
-const {browser,page,logs}=await open('http://localhost:8123/nivel1.html?auto=1&semilla=3&heroe=sakura',{wait:1500});
+const {browser,page,logs}=await open('http://localhost:8123/nivel1.html?auto=1&semilla=3&heroe=sakura&director=0',{wait:1500});
 const r=await page.evaluate(async ()=>{
   const S=Nivel1._estado(),N=S.N,h=S.h,out={};
   const key=(t,c)=>window.dispatchEvent(new KeyboardEvent(t,{code:c,key:c,bubbles:true,cancelable:true}));

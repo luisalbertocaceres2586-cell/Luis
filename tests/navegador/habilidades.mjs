@@ -7,7 +7,7 @@ const R=await page.evaluate(async()=>{
   const G=560, sleep=ms=>new Promise(r=>setTimeout(r,ms)), out={};
   async function nuevo(hab,semilla){
     document.getElementById('ini')&&document.getElementById('ini').remove();
-    await Nivel1.iniciar({heroe:'sakura',semilla:semilla||1,habilidades:hab});
+    await Nivel1.iniciar({heroe:'sakura',semilla:semilla||1,habilidades:hab,director:false});
     const S=Nivel1._estado();
     return {S,K:Nivel1._debug.keys,paso:Nivel1._debug.paso,core:window.N1core,h:S.h};
   }
@@ -76,7 +76,7 @@ const R=await page.evaluate(async()=>{
     out.panel={empezoSin:a0===0,noAbreAntes:antes,abreAlOcho:abre,tarjetas,juegoCongelado:congelado,eligioConNumero:eligio,segundaVez:segundo,eligioConToque:S.hab.orden.length===2&&!S.eligiendo,orden:S.hab.orden.join(',')}; }
 
   // ---------- todas juntas: nada se rompe ----------
-  { document.getElementById('ini')&&document.getElementById('ini').remove(); await Nivel1.iniciar({heroe:'kage',semilla:5,habilidades:['todas']}); const S=Nivel1._estado(); out.todas={habilidades:S.hab.orden.length}; for(let i=0;i<600;i++) Nivel1._debug.paso(1); out.todas.vivo=S.h.vida>0; }
+  { document.getElementById('ini')&&document.getElementById('ini').remove(); await Nivel1.iniciar({heroe:'kage',semilla:5,habilidades:['todas'],director:false}); const S=Nivel1._estado(); out.todas={habilidades:S.hab.orden.length}; for(let i=0;i<600;i++) Nivel1._debug.paso(1); out.todas.vivo=S.h.vida>0; }
   return out;
 });
 

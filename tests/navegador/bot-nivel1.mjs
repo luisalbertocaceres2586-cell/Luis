@@ -5,7 +5,7 @@ const res=await page.evaluate(async (seeds)=>{
   const out=[];
   for(const seed of seeds){
     document.getElementById('ini')&&document.getElementById('ini').remove();
-    await Nivel1.iniciar({heroe:seed%2?'sakura':'kage',semilla:seed});
+    await Nivel1.iniciar({heroe:seed%2?'sakura':'kage',semilla:seed,director:false});
     const S=Nivel1._estado(), K=Nivel1._debug.keys, N=S.N, h=S.h, core=window.N1core, G=560;
     const sueloEn=px=>N.suelo.some(s=>px>=s.x0-4&&px<=s.x1+4);
     const platEn=px=>N.plat.some(p=>px>=p.X&&px<=p.X+p.w&&p.estado!=='caida');
