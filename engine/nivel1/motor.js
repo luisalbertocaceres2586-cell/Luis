@@ -482,18 +482,54 @@
     cx.restore();
     if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
   }
+  /* Luz propia de TODO lo que el estudiante tiene que leer o tocar en un acertijo (faroles, bloques, dianas, antorchas, piedras numeradas,
+   * plataformas de la carreta), esté como esté, para que en la cueva nada quede a oscuras. Solo lo que está en pantalla (o casi). */
+  function lucesAcertijos(L) {
+    const a = S.cam - 220, b = S.cam + W + 220, pon = (x, y, r) => { if (x > a && x < b) L.push({ x, y, r }); };
+    S.est.forEach(e => {
+      if (e.x0 > b || e.x0 + e.ancho < a) return;
+      if (e.mecanica === 'piedras') { S.N.plat.forEach(p => { if (p.tipo === 'piedra_num' && p.estado !== 'caida' && p.X > e.x0 - 60 && p.X < e.x0 + e.ancho + 60) pon(p.X + p.w / 2, platY(p) - 20, 130); }); return; }
+      if (e.mecanica === 'empujar_carreta') { e.pads.forEach(p => pon(p.x, G - 55, 135)); if (e.cart) pon(e.cart.x, G - 60, 140); return; }
+      e.objetos.forEach(o => {
+        if (o.estado === 'roto') return;
+        if (e.mecanica === 'antorchas' && o.estado === 'encendida') pon(o.x, o.y, 210);
+        else if (o.estado === 'encendido') pon(o.x, o.y - 20, 150);
+        else if (e.mecanica === 'diana') pon(o.x, o.y + 12, 155);
+        else if (e.mecanica === 'antorchas') pon(o.x, o.y + 10, 135);
+        else pon(o.x, o.y - 15, 140);
+      });
+    });
+  }
+  /* Los números del acertijo se vuelven a escribir ENCIMA de la oscuridad y de la viñeta (solo en la cueva): así siempre se leen a todo brillo,
+   * estén donde estén en la pantalla. Mismas posiciones y colores que en el dibujo normal. */
+  function etiquetasAcertijos() {
+    const a = S.cam - 60, b = S.cam + W + 60, al = clamp((S.osc - .15) * 3, 0, 1), dib = (t, x, y, tam, col) => { if (x > a && x < b) { cx.globalAlpha = al; etiqueta(String(t), x - S.cam, y, tam, col); } };
+    S.est.forEach(e => {
+      if (e.x0 > b || e.x0 + e.ancho < a) return;
+      if (e.mecanica === 'piedras') { S.N.plat.forEach(p => { if (p.tipo === 'piedra_num' && p.estado !== 'caida' && p.valor !== null && p.valor !== undefined && p.X > e.x0 - 60 && p.X < e.x0 + e.ancho + 60) dib(p.valor, p.X + p.w / 2, platY(p) - 14, 26, p.fija ? '#fff' : '#ffe27a'); }); return; }
+      if (e.mecanica === 'empujar_carreta') { e.pads.forEach(p => dib(p.valor, p.x, G - 40, 26, '#fff')); return; }
+      e.objetos.forEach(o => {
+        if (e.mecanica === 'encender_farol') dib(o.valor, o.x, o.y - 4, 26, '#fff');
+        else if (e.mecanica === 'romper_bloques') { if (o.estado !== 'roto') dib(o.valor, o.x, o.y + Math.sin(S.t * 2 + o.x) * 4, 26, '#fff'); }
+        else if (e.mecanica === 'diana') { if (o.estado !== 'fallada') dib(o.valor, o.x, o.y + 62, 22, '#fff'); }
+        else if (e.mecanica === 'antorchas') dib(o.valor, o.x, o.y + 70, 24, o.estado === 'encendida' ? '#ffe27a' : '#fff');
+      });
+    });
+    cx.globalAlpha = 1;
+  }
   function luces() {
     const L = [], h = S.h, fl = 1 + Math.sin(S.t * 13) * .04 + Math.sin(S.t * 31) * .03;
     L.push({ x: h.x, y: h.y - 70, r: S.luz * fl });
     S.ckp.forEach(c => { if (c.zona === 'cueva' && Math.abs(c.x - h.x) < 900) L.push({ x: c.x, y: G - 100, r: c.activo ? 230 : 90 }); });
     S.N.deco.forEach(d => { if (d.zona === 'cueva' && (d.tipo === 'cristal' || d.tipo === 'hongo') && Math.abs(d.x - h.x) < 800) L.push({ x: d.x, y: G - 50, r: d.tipo === 'cristal' ? 95 : 80 }); });
-    S.est.forEach(e => { if (Math.abs(e.x0 + e.ancho / 2 - h.x) > 1100) return; e.objetos.forEach(o => { if (e.mecanica === 'antorchas' && o.estado === 'encendida') L.push({ x: o.x, y: o.y, r: 210 }); else if (o.estado === 'encendido') L.push({ x: o.x, y: o.y, r: 120 }); }); });
+    lucesAcertijos(L);
     N1elem.luces(L); if (window.N1dir) N1dir.luces(L); S.shur.forEach(s => L.push({ x: s.x, y: s.y, r: 55 })); return L;
   }
   function oscuridad() {
     if (S.osc < .02) return; ox.globalCompositeOperation = 'source-over'; ox.clearRect(0, 0, W, H); ox.fillStyle = 'rgba(3,1,10,' + (.965 * S.osc) + ')'; ox.fillRect(0, 0, W, H); ox.globalCompositeOperation = 'destination-out';
     luces().forEach(l => { const x = l.x - S.cam, y = l.y; if (x < -l.r || x > W + l.r) return; const g = ox.createRadialGradient(x, y, 0, x, y, l.r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.55, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ox.fillStyle = g; ox.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); });
     cx.drawImage(oc, 0, 0);
+    const AL = []; lucesAcertijos(AL); AL.forEach(l => { const x = l.x - S.cam, hg = cx.createRadialGradient(x, l.y, 0, x, l.y, l.r * .55); hg.addColorStop(0, 'rgba(255,214,130,' + .2 * S.osc + ')'); hg.addColorStop(1, 'rgba(255,214,130,0)'); cx.fillStyle = hg; cx.fillRect(x - l.r, l.y - l.r, l.r * 2, l.r * 2); });
     const h = S.h, g = cx.createRadialGradient(h.x - S.cam, h.y - 70, 0, h.x - S.cam, h.y - 70, S.luz); g.addColorStop(0, 'rgba(255,170,60,' + .16 * S.osc + ')'); g.addColorStop(1, 'rgba(255,120,20,0)'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     N1elem.ojos();
   }
@@ -512,6 +548,7 @@
     oscuridad(); if (window.N1dir) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
+    if (S.osc > .15) etiquetasAcertijos();
     if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(0, 0, W, H); }
     if (S.apunta) mira(); cx.restore(); hud();
   }
