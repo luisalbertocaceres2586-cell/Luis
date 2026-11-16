@@ -16,6 +16,11 @@
     ninja: 'enemigos/ninja_sombra', ninjaAtk: 'enemigos/ninja_sombra_ataque', tengu: 'enemigos/tengu_cuervo', murcielago: 'enemigos/murcielago', arana: 'enemigos/arana_colgante',
     fuego: 'enemigos/espiritu_fuego_fatuo', rocaG: 'enemigos/roca_gigante', oni: 'enemigos/oni_rojo_minijefe',
     pergamino: 'items_jefe/pergamino', onigiri: 'items_jefe/onigiri_curacion', taiko: 'items_jefe/tambor_taiko', sello: 'items_jefe/sello_piedra', orbe: 'items_jefe/orbe_energia',
+    cerezo: 'decorado_extra/cerezo_sakura', pino: 'decorado_extra/pino_bonsai', rocasMusgo: 'decorado_extra/rocas_musgo', valla: 'decorado_extra/valla_madera', fuente: 'decorado_extra/fuente_bambu', farolitos: 'decorado_extra/farolitos_cuerda', cartel: 'decorado_extra/cartel_flecha', helechos: 'decorado_extra/helechos_luciernagas',
+    sueloLajas: 'terreno_extra/suelo_bosque_lajas', sueloOtonal: 'terreno_extra/suelo_otonal', tronco: 'terreno_extra/tronco_caido', platFlores: 'terreno_extra/plataforma_flores', losa: 'terreno_extra/losa_runas', loto: 'terreno_extra/hoja_loto', platCristal: 'terreno_extra/plataforma_cristal', hongoPlat: 'terreno_extra/hongo_plataforma',
+    columna: 'cueva_extra/estalagmita_columna', cristalesTecho: 'cueva_extra/cristales_techo', hongoGigante: 'cueva_extra/hongo_gigante', raices: 'cueva_extra/raices_colgantes', paredMineral: 'cueva_extra/pared_mineral', arco: 'cueva_extra/arco_ruinas', floresLuz: 'cueva_extra/flores_luminosas', altar: 'cueva_extra/altar_vela',
+    arquero: 'enemigos_extra/ninja_arquero', lancero: 'enemigos_extra/ninja_lancero', fantasma: 'enemigos_extra/samurai_fantasma', serpiente: 'enemigos_extra/serpiente_cueva', escarabajo: 'enemigos_extra/escarabajo_cristal', kappa: 'enemigos_extra/kappa', zorro: 'enemigos_extra/zorro_fuego', rana: 'enemigos_extra/rana_gigante',
+    sensei: 'objetos_extra/maestro_sensei', tanuki: 'objetos_extra/mercader_tanuki', palancaOff: 'objetos_extra/palanca_apagada', palancaOn: 'objetos_extra/palanca_encendida', frasco: 'objetos_extra/frasco_luz', llave: 'objetos_extra/llave_dorada', campana: 'objetos_extra/campana_templo', corazon: 'objetos_extra/corazon_jade',
     shuriken: 'animados/shuriken_espiritual_8', antorchaAnim: 'animados/antorcha_llama_10',
     montanas: '../environment/levels/nivel1/n1_bg_montanas_lejos', nube: '../environment/levels/nivel1/nubes/nube_01'
   };
@@ -76,7 +81,7 @@
       cam: 0, t: 0, tiempo: 0, vidaMax: 5, seguro: { x: N.inicio.x, y: G }, resp: { x: N.inicio.x, y: G },
       shur: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
       pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
-      alto: 100 / (M.idle[0].h || 200), luz: 240, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0
+      alto: 100 / (M.idle[0].h || 200), flechas: [], luz: 240, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0
     };
     N.plat.forEach(p => { p.X = p.x; p.Y = p.y; p.dX = 0; p.dY = 0; });
     for (let i = 0; i < 26; i++) S.hojas.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: Math.random() * 6, s: 5 + Math.random() * 6 });
@@ -125,17 +130,18 @@
   function crearTactil() {
     const izq = document.createElement('div'), der = document.createElement('div'); izq.className = der.className = 'n1Tac'; izq.style.left = '14px'; der.style.right = '14px';
     const b = (txt, tecla, cont) => { const e = document.createElement('button'); e.textContent = txt; const on = ev => { ev.preventDefault(); if (!keys[tecla]) pulsar(tecla); keys[tecla] = 1; }, off = ev => { ev.preventDefault(); if (keys[tecla]) soltar(tecla); keys[tecla] = 0; }; e.addEventListener('pointerdown', on); ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => e.addEventListener(t, off)); cont.appendChild(e); };
-    b('◀', 'ArrowLeft', izq); b('▶', 'ArrowRight', izq); b('🗡', 'KeyC', der); b('✦', 'KeyF', der); b('⤒', 'Space', der); root.appendChild(izq); root.appendChild(der);
+    b('◀', 'ArrowLeft', izq); b('▶', 'ArrowRight', izq); b('💬', 'KeyE', der); b('🗡', 'KeyC', der); b('✦', 'KeyF', der); b('⤒', 'Space', der); root.appendChild(izq); root.appendChild(der);
   }
 
   // ============ entrada ============
-  const CTRL = ['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyA', 'KeyD', 'KeyW', 'KeyF', 'KeyC', 'KeyJ', 'KeyK', 'KeyZ', 'KeyX'];
+  const CTRL = ['Space', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyA', 'KeyD', 'KeyW', 'KeyF', 'KeyC', 'KeyJ', 'KeyK', 'KeyZ', 'KeyX', 'KeyE'];
   const izq = () => keys.ArrowLeft || keys.KeyA, der = () => keys.ArrowRight || keys.KeyD, salto = () => keys.Space || keys.ArrowUp || keys.KeyW;
   const esF = c => c === 'KeyF' || c === 'KeyK' || c === 'KeyX';
   function pulsar(code) {
     if (!S) return;
     if (code === 'Space' || code === 'ArrowUp' || code === 'KeyW') S.h.buffer = .12;
     if (esF(code) && !S.fin && !S.pausa) empezarApuntar();
+    if (code === 'KeyE' && !S.fin && !S.pausa) N1elem.interactuar();
     if (S.apunta && (code === 'ArrowLeft' || code === 'KeyA')) cambiarObjetivo(-1);
     if (S.apunta && (code === 'ArrowRight' || code === 'KeyD')) cambiarObjetivo(1);
   }
@@ -243,7 +249,15 @@
     });
     S.shur = S.shur.filter(s => s.t > 0 && s.x > S.cam - 120 && s.x < S.cam + W + 120);
 
-    S.items.forEach(i => { if (i.tomado) return; if (cruza(hb, rect(i.x - 28, i.y - 28, 56, 56))) { if (i.tipo === 'onigiri') { if (h.vida >= S.vidaMax) return; h.vida = Math.min(S.vidaMax, h.vida + 1); texto(i.x, i.y - 30, '+1 ♥', '#7dff9a'); } else { S.pergaminos++; texto(i.x, i.y - 30, '+1 📜', '#ffe27a'); } i.tomado = true; chispas(i.x, i.y, 8, '#ffe27a'); } });
+    S.items.forEach(i => {
+      if (i.tomado) return; if (!cruza(hb, rect(i.x - 28, i.y - 28, 56, 56))) return;
+      if (i.tipo === 'onigiri') { if (h.vida >= S.vidaMax) return; h.vida = Math.min(S.vidaMax, h.vida + 1); texto(i.x, i.y - 30, '+1 ♥', '#7dff9a'); }
+      else if (i.tipo === 'frasco') { S.luz = 330; S.aviso = { t: 1.8, s: '¡LUZ RECARGADA!' }; texto(i.x, i.y - 30, '🔥 +LUZ', '#ffd54a'); }
+      else if (i.tipo === 'corazon') { S.vidaMax = Math.min(7, S.vidaMax + 1); h.vida = S.vidaMax; S.aviso = { t: 2.4, s: '¡UN CORAZÓN MÁS!' }; texto(i.x, i.y - 30, '+1 ♥ máx.', '#7dff9a'); chispas(i.x, i.y, 22, '#5eff9a'); }
+      else if (i.tipo === 'llave') { N.muros.forEach(q => { if (q.id === i.id) q.abierta = true; }); S.aviso = { t: 2.2, s: '¡LLAVE! SE ABRE LA REJA' }; texto(i.x, i.y - 30, '🔑', '#ffe27a'); chispas(i.x, i.y, 22, '#ffe27a'); }
+      else { S.pergaminos++; texto(i.x, i.y - 30, '+1 📜', '#ffe27a'); }
+      i.tomado = true; chispas(i.x, i.y, 8, '#ffe27a');
+    });
     S.ckp.forEach(c => { if (!c.activo && Math.abs(h.x - c.x) < 70 && h.y >= G - 4) { c.activo = true; S.resp = { x: c.x, y: G }; S.seguro = { x: c.x, y: G }; h.vida = Math.min(S.vidaMax, h.vida + 2); S.luz = 250; S.aviso = { t: 2.2, s: 'PUNTO DE CONTROL · +2 ♥' }; chispas(c.x, G - 120, 24, '#ffd54a'); } });
 
     N1elem.paso(dt, hb); estaciones();
@@ -349,6 +363,11 @@
     { id: 'antorchas', txt: 'Enciende las antorchas del número más pequeño al más grande', teclas: ['C', 'F'], ok: () => false, cuando: () => S.estSel && S.estSel.mecanica === 'antorchas' && S.h.x > S.estSel.x0 - 100 },
     { id: 'jefe', txt: 'Esquiva sus embestidas. Golpéalo con C, con F o saltándole encima', teclas: ['C', 'F'], ok: () => false, cuando: () => core.jefeActivo },
     { id: 'sellos', txt: 'Rompe la pared de sellos con tu espada: ¡hay un tesoro detrás!', teclas: ['C'], ok: () => S.N.muros.some(m => m.rompible && m.roto), cuando: () => S.N.muros.some(m => m.rompible && !m.roto && m.x > S.h.x && m.x - S.h.x < 380) },
+    { id: 'frasco', txt: 'Recoge los frascos de luz para recargar tu antorcha', teclas: ['🔥'], ok: () => S.items.some(i => i.tipo === 'frasco' && i.tomado), cuando: () => S.osc > .3 && S.items.some(i => i.tipo === 'frasco' && !i.tomado && i.x > S.h.x && i.x - S.h.x < 420) },
+    { id: 'llave', txt: 'Toma la llave dorada para abrir la reja', teclas: ['🔑'], ok: () => S.items.some(i => i.tipo === 'llave' && i.tomado), cuando: () => S.items.some(i => i.tipo === 'llave' && !i.tomado && Math.abs(i.x - S.h.x) < 420) },
+    { id: 'tanuki', txt: 'Junto al mercader pulsa E: 8 pergaminos por 2 corazones', teclas: ['E'], ok: () => S.N.elem.some(e => e.t === 'npc' && e.who === 'tanuki' && e.usos > 0), cuando: () => S.N.elem.some(e => e.t === 'npc' && e.who === 'tanuki' && Math.abs(e.x - S.h.x) < 230) },
+    { id: 'arquero', txt: '¡Cuidado con las flechas! Salta para esquivarlas', teclas: ['ESPACIO'], ok: () => false, cuando: () => S.enemigos.some(e => e.vivo && e.kind === 'arquero' && Math.abs(e.x - S.h.x) < 760) },
+    { id: 'escarabajo', txt: 'El escarabajo tiene caparazón duro: pégale con tu espada, no saltes sobre él', teclas: ['C'], ok: () => false, cuando: () => S.enemigos.some(e => e.vivo && e.kind === 'escarabajo' && Math.abs(e.x - S.h.x) < 560) },
     { id: 'tela', txt: 'La telaraña te frena. Córtala con tu espada', teclas: ['C'], ok: () => false, cuando: () => S.N.elem.some(e => e.t === 'tela' && !e.roto && Math.abs(e.x - S.h.x) < 300 && e.x > S.h.x - 40) }
   ];
   function tutoriales(dt) {
@@ -414,21 +433,34 @@
       cx.save(); cx.beginPath(); cx.rect(s.x0 - S.cam, 0, s.x1 - s.x0, H); cx.clip();
       const gr = cx.createLinearGradient(0, G + th - so - 6, 0, H); if (s.zona === 'cueva') { gr.addColorStop(0, '#2a2a3c'); gr.addColorStop(1, '#0c0c18'); } else { gr.addColorStop(0, '#5a321c'); gr.addColorStop(1, '#1c0f08'); }
       cx.fillStyle = gr; cx.fillRect(s.x0 - S.cam, G - so + th - 4, s.x1 - s.x0, H);
-      for (let x = Math.floor(s.x0 / tw) * tw; x < s.x1; x += tw) cx.drawImage(tile, x - S.cam, G - so, tw + 1, th); cx.restore();
+      for (let x = Math.floor(s.x0 / tw) * tw; x < s.x1; x += tw) {
+        let t2 = tile; if (s.zona !== 'cueva') { const v = (Math.imul(Math.floor(x / (tw * 4)) + S.params.semilla, 2654435761) >>> 0) % 5; t2 = v === 3 ? (img.sueloLajas || tile) : v === 4 ? (img.sueloOtonal || tile) : tile; }
+        const th2 = t2.height * tw / t2.width, so2 = superficie(t2) * th2; cx.drawImage(t2, x - S.cam, G - so2, tw + 1, th2);
+      }
+      cx.restore();
     });
   }
+  const DECO = { bambu: ['bambuDeco', 130], toro: ['toro', 110], kitsune: ['kitsune', 110], estandarte: ['estandarte', 100], cristal: ['cristal', 110], hongo: ['hongo', 100], cerezo: ['cerezo', 330], pino: ['pino', 250], rocas: ['rocasMusgo', 180], valla: ['valla', 210], fuente: ['fuente', 150], farolitos: ['farolitos', 190], cartel: ['cartel', 115], helechos: ['helechos', 200],
+    columna: ['columna', 140], hongoGigante: ['hongoGigante', 150], floresLuz: ['floresLuz', 120], altar: ['altar', 130], arco: ['arco', 270], paredMineral: ['paredMineral', 150], cristalesTecho: ['cristalesTecho', 150], raices: ['raices', 170] };
   function decorado(capa) {
-    const D = { bambu: [img.bambuDeco, 130], toro: [img.toro, 110], kitsune: [img.kitsune, 110], estandarte: [img.estandarte, 100], cristal: [img.cristal, 110], hongo: [img.hongo, 100] };
     S.N.deco.forEach(d => {
-      if (d.capa !== capa || d.x < S.cam - 160 || d.x > S.cam + W + 160) return; const q = D[d.tipo]; if (!q || !q[0]) return; const im = q[0], w = q[1], hh = im.height * w / im.width;
-      cx.globalAlpha = capa === 'frente' && Math.abs(d.x - S.h.x) < 170 ? .35 : 1; if (d.tipo === 'estandarte') sprite(im, d.x - S.cam - w / 2, G - hh - 60, w, hh); else sprite(im, d.x - S.cam - w / 2, G + 4 - hh, w, hh); cx.globalAlpha = 1;
+      if (d.capa !== capa || d.x < S.cam - 300 || d.x > S.cam + W + 300) return; const q = DECO[d.tipo]; if (!q) return; const im = img[q[0]]; if (!im) return; const w = q[1], hh = im.height * w / im.width, x = d.x - S.cam;
+      cx.globalAlpha = capa === 'frente' && Math.abs(d.x - S.h.x) < 170 ? .35 : 1;
+      if (d.techo) sprite(im, x - w / 2, -4, w, hh);
+      else if (d.tipo === 'estandarte') sprite(im, x - w / 2, G - hh - 60, w, hh);
+      else if (d.tipo === 'farolitos') { cx.strokeStyle = 'rgba(70,45,25,.85)'; cx.lineWidth = 3; cx.beginPath(); cx.moveTo(x - w * .38, G - 330); cx.lineTo(x - w * .38, 0); cx.moveTo(x + w * .38, G - 330); cx.lineTo(x + w * .38, 0); cx.stroke(); sprite(im, x - w / 2, G - 332, w, hh); }
+      else sprite(im, x - w / 2, G + 4 - hh, w, hh);
+      cx.globalAlpha = 1;
     });
-    if (capa === 'atras') { S.ckp.forEach(c => porAncho(c.activo ? img.toriiOn : img.toriiOff, c.x - S.cam, G + 6, 230)); porAncho(img.toriiOn, S.N.meta.x - S.cam, G + 6, 300); porAncho(img.boca, S.N.cueva.x + 250 - S.cam, G + 10, 520); }
+    if (capa === 'atras') {
+      S.ckp.forEach(c => { if (c.zona === 'cueva') { const sw = c.activo ? Math.sin(S.t * 3) * .06 : 0; cx.save(); cx.translate(c.x - S.cam, G + 4); cx.rotate(sw); porAncho(img.campana, 0, 0, 175); cx.restore(); } else porAncho(c.activo ? img.toriiOn : img.toriiOff, c.x - S.cam, G + 6, 230); });
+      porAncho(img.toriiOn, S.N.meta.x - S.cam, G + 6, 300); porAncho(img.boca, S.N.cueva.x + 250 - S.cam, G + 10, 520);
+    }
   }
   function plataformas() {
     S.N.plat.forEach(p => {
       if (p.X + p.w < S.cam - 120 || p.X > S.cam + W + 120) return; const top = platY(p); if (p.estado === 'caida' && top > H + 100) return;
-      const im = { puente: img.puente, bambu: img.bambu, roca: img.roca, viga: img.viga, piedra: img.piedra, piedra_num: img.piedra }[p.tipo]; if (!im) return;
+      const im = { puente: img.puente, bambu: img.bambu, roca: img.roca, viga: img.viga, piedra: img.piedra, piedra_num: img.piedra, tronco: img.tronco, flores: img.platFlores, losa: img.losa, loto: img.loto, cristal: img.platCristal, hongoPlat: img.hongoPlat }[p.tipo]; if (!im) return;
       const w = p.tipo === 'piedra_num' ? p.w + 30 : p.w, hh = im.height * w / im.width, so = superficie(im) * hh; let dx = p.X - S.cam - (w - p.w) / 2; if (p.estado === 'cruje') dx += Math.sin(S.t * 70) * 3;
       sprite(im, dx, top - so, w, hh); if (p.tipo === 'piedra_num' && p.valor !== null && p.valor !== undefined) etiqueta(String(p.valor), p.X + p.w / 2 - S.cam, top - 14, 26, p.fija ? '#fff' : '#ffe27a');
     });
@@ -470,9 +502,10 @@
   function luces() {
     const L = [], h = S.h, fl = 1 + Math.sin(S.t * 13) * .04 + Math.sin(S.t * 31) * .03;
     L.push({ x: h.x, y: h.y - 70, r: S.luz * fl });
-    S.ckp.forEach(c => { if (c.zona === 'cueva' && Math.abs(c.x - h.x) < 900) L.push({ x: c.x, y: G - 100, r: c.activo ? 230 : 90 }); });
-    S.N.deco.forEach(d => { if (d.zona === 'cueva' && (d.tipo === 'cristal' || d.tipo === 'hongo') && Math.abs(d.x - h.x) < 800) L.push({ x: d.x, y: G - 50, r: d.tipo === 'cristal' ? 95 : 80 }); });
-    S.est.forEach(e => { if (Math.abs(e.x0 + e.ancho / 2 - h.x) > 1100) return; e.objetos.forEach(o => { if (e.mecanica === 'antorchas' && o.estado === 'encendida') L.push({ x: o.x, y: o.y, r: 210 }); else if (o.estado === 'encendido') L.push({ x: o.x, y: o.y, r: 120 }); }); });
+    S.ckp.forEach(c => { if (c.zona === 'cueva' && Math.abs(c.x - h.x) < 900) L.push({ x: c.x, y: G - 100, r: c.activo ? 290 : 110 }); });
+    const LZ = { cristal: 125, hongo: 105, hongoGigante: 135, floresLuz: 120, altar: 200, cristalesTecho: 135 }; S.N.deco.forEach(d => { if (d.zona === 'cueva' && LZ[d.tipo] && Math.abs(d.x - h.x) < 800) L.push({ x: d.x, y: d.techo ? 110 : d.tipo === 'altar' ? G - 90 : G - 50, r: LZ[d.tipo] }); });
+    S.items.forEach(i => { if (!i.tomado && (i.tipo === 'frasco' || i.tipo === 'llave' || i.tipo === 'corazon') && Math.abs(i.x - h.x) < 800) L.push({ x: i.x, y: i.y, r: 110 }); });
+    S.est.forEach(e => { if (Math.abs(e.x0 + e.ancho / 2 - h.x) > 1100) return; e.objetos.forEach(o => { if (e.mecanica === 'antorchas' && o.estado === 'encendida') L.push({ x: o.x, y: o.y, r: 270 }); else if (o.estado === 'encendido') L.push({ x: o.x, y: o.y, r: 160 }); }); });
     N1elem.luces(L); S.shur.forEach(s => L.push({ x: s.x, y: s.y, r: 55 })); return L;
   }
   function oscuridad() {
@@ -487,7 +520,7 @@
     const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); cx.clearRect(-20, -20, W + 40, H + 40);
     if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla);
     decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras');
-    S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = i.tipo === 'onigiri' ? img.onigiri : img.pergamino, w = i.tipo === 'onigiri' ? 46 : 52; if (im) sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); });
+    S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = { onigiri: img.onigiri, frasco: img.frasco, corazon: img.corazon, llave: img.llave }[i.tipo] || img.pergamino, w = { onigiri: 46, frasco: 46, corazon: 54, llave: 52 }[i.tipo] || 52; if (im) { const brilla = i.tipo === 'corazon' || i.tipo === 'llave'; if (brilla) { cx.save(); cx.shadowColor = '#ffe27a'; cx.shadowBlur = 14; } sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); if (brilla) cx.restore(); } });
     N1elem.dibujar('enemigos'); dibujarHeroe(); N1elem.dibujar('frente');
     S.shur.forEach(s => { const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
     decorado('frente');
@@ -529,6 +562,7 @@
       cx.save(); cx.translate(W / 2, by + 50); cx.scale(pulso, pulso); cx.translate(-W / 2, -by - 50); caja(bx, by, bw, 100, 14, 'rgba(18,8,51,.92)', '#ffc93c');
       let kx = W / 2 - kw / 2 + 4; t.teclas.forEach(k => { kx += tecla(k, kx, by + 10) + 8; });
       cx.font = '16px ui-monospace,monospace'; cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t.txt, W / 2, by + 74); cx.restore();
+      if (img.sensei) { const sw = 84, sh = img.sensei.height * sw / img.sensei.width; sprite(img.sensei, bx - sw + 14, by + 104 - sh, sw, sh); }
     }
     if (S.pausa) { cx.fillStyle = 'rgba(8,3,24,.75)'; cx.fillRect(0, 0, W, H); cx.fillStyle = '#ffc93c'; cx.font = 'bold 44px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('PAUSA', W / 2, H / 2 - 20); cx.font = '18px ui-monospace,monospace'; cx.fillStyle = '#fff'; cx.fillText('ESC para seguir · Q para salir al menú', W / 2, H / 2 + 30); }
   }

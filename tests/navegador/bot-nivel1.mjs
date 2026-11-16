@@ -12,11 +12,13 @@ const res=await page.evaluate(async (seeds)=>{
     let quieto=false; let pasos=0, ult=h.x, ultT=0, stuck=null; const hechos=new Set(); let jefeVisto=false, embVisto=false, rocaVisto=false;
     while(pasos<60*2400 && !S.fin){
       const x=h.x;
+      for(const sp of [...hechos]) if(x<sp.x1) hechos.delete(sp);   // si reaparece antes de un módulo ya saltado, lo vuelve a saltar
       quieto=false; K.ArrowRight=1;K.ArrowLeft=0;K.Space=0;K.KeyC=0;K.KeyF=0;
       // --- módulos especiales: se salta el contenido que requiere habilidad fina ---
       for(const sp of N.especiales){ if(hechos.has(sp)) continue; if(x>sp.x0+30&&x<sp.x1){
         if(sp.tipo==='emboscada') continue;
         hechos.add(sp);
+        if(sp.tipo==='llave'){ N.items.filter(i=>i.tipo==='llave'&&i.x>sp.x0&&i.x<sp.x1).forEach(i=>{i.tomado=true;N.muros.forEach(m=>{if(m.id===i.id)m.abierta=true;});}); }
         if(sp.tipo==='palanca'){ N.elem.filter(t=>t.t==='palanca'&&t.x>sp.x0&&t.x<sp.x1).forEach(t=>{t.on=true;N.muros.forEach(m=>{if(m.id===t.id)m.abierta=true;});}); }
         h.x=sp.x1+25; h.y=G-60; h.vy=0; }}
       // --- emboscada: se derrotan las oleadas ---
@@ -36,11 +38,12 @@ const res=await page.evaluate(async (seeds)=>{
       // --- saltos y ataques ---
       const huecoAd=!sueloEn(x+95)&&!platEn(x+95);
       const haz=N.haz.some(z=>z.x-x<175&&z.x-x>40);
-      const en=S.enemigos.some(e=>e.vivo&&e.kind!=='oni'&&e.kind!=='tengu'&&e.kind!=='murcielago'&&e.kind!=='aranaTecho'&&e.x-x>20&&e.x-x<120);
+      const en=S.enemigos.some(e=>e.vivo&&e.kind!=='oni'&&e.kind!=='tengu'&&e.kind!=='murcielago'&&e.kind!=='aranaTecho'&&e.kind!=='fantasma'&&e.kind!=='fuego'&&e.x-x>20&&e.x-x<125);
       const cart=N.elem.some(t=>t.t==='carreta'&&t.x-x<170&&t.x-x>-30);
       if(h.suelo&&(huecoAd||haz||cart)){K.Space=1;h.buffer=.12;}
       if(!h.suelo&&h.vy<0)K.Space=1;
-      if(en||N.muros.some(m=>m.rompible&&!m.roto&&m.x-x<110&&m.x-x>0))K.KeyC=1;
+      const vol=S.enemigos.some(e=>e.vivo&&['fantasma','fuego','murcielago','aranaTecho'].indexOf(e.kind)>=0&&e.x-x>-40&&e.x-x<135&&e.y>h.y-175&&e.y<h.y+40);
+      if(en||vol||N.muros.some(m=>m.rompible&&!m.roto&&m.x-x<110&&m.x-x>0))K.KeyC=1;
       if(h.suelo&&!sueloEn(x+60)&&!platEn(x+60)){K.Space=1;h.buffer=.12;}
       if(quieto){K.ArrowRight=0;K.Space=0;K.KeyC=0;}
       Nivel1._debug.paso(1); pasos++;

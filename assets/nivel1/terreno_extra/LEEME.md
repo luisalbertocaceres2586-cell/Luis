@@ -13,4 +13,4 @@ Salen de la **hoja 8 — Suelos y plataformas (variedad)**.
 | `plataforma_cristal.png` | Plataforma de cristales | Plataforma de la cueva. |
 | `hongo_plataforma.png` | Hongo gigante plataforma | Plataforma de la cueva. |
 
-Estado: **pendiente de recibir la hoja**.
+Estado: ✅ hoja recibida y recortada. Ya se usa en el Nivel 1.

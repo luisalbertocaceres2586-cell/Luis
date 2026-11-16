@@ -13,4 +13,4 @@ Salen de la **hoja 10 — Enemigos nuevos**.
 | `zorro_fuego.png` | Zorro de fuego | Enemigo veloz. |
 | `rana_gigante.png` | Rana gigante | Enemigo saltarín del bosque. |
 
-Estado: **pendiente de recibir la hoja**.
+Estado: ✅ hoja recibida y recortada. Ya se usa en el Nivel 1.

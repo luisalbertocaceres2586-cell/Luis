@@ -13,4 +13,4 @@ Salen de la **hoja 7 — Decorado del bosque (variedad)**.
 | `cartel_flecha.png` | Cartel de flecha | Indica el camino. |
 | `helechos_luciernagas.png` | Helechos con luciérnagas | Decorado del bosque nocturno. |
 
-Estado: **pendiente de recibir la hoja**.
+Estado: ✅ hoja recibida y recortada. Ya se usa en el Nivel 1.

@@ -13,4 +13,4 @@ Salen de la **hoja 9 — Cueva: más variedad**.
 | `flores_luminosas.png` | Flores bioluminiscentes | Decorado con luz. |
 | `altar_vela.png` | Altar con vela | Decorado de punto de control. |
 
-Estado: **pendiente de recibir la hoja**.
+Estado: ✅ hoja recibida y recortada. Ya se usa en el Nivel 1.

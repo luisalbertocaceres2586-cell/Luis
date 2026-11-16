@@ -13,4 +13,4 @@ Salen de la **hoja 11 — Personajes, objetos y mecanismos**.
 | `campana_templo.png` | Campana de templo | Punto de control. |
 | `corazon_jade.png` | Corazón de jade | Objeto de vida extra. |
 
-Estado: **pendiente de recibir la hoja**.
+Estado: ✅ hoja recibida y recortada. Ya se usa en el Nivel 1.
