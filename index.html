@@ -185,11 +185,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   transition:transform .08s,box-shadow .08s,background .08s,opacity .08s,border-color .08s}
 .mbt.mjump{border-color:rgba(90,255,150,.85);background:radial-gradient(circle at 35% 28%,rgba(170,255,200,.55),rgba(0,70,40,.82) 64%);box-shadow:0 0 12px rgba(0,255,130,.5),inset 0 0 14px rgba(255,255,255,.2),0 5px 12px rgba(0,0,0,.55)}
 .mbt.matk{border-color:rgba(255,90,100,.9);background:radial-gradient(circle at 35% 28%,rgba(255,180,170,.6),rgba(110,0,30,.85) 64%);box-shadow:0 0 12px rgba(255,60,80,.55),inset 0 0 14px rgba(255,255,255,.2),0 5px 12px rgba(0,0,0,.55)}
+.mbt.mpower{border-color:rgba(220,120,255,.9);background:radial-gradient(circle at 35% 28%,rgba(245,200,255,.65),rgba(70,18,120,.88) 64%);box-shadow:0 0 12px rgba(190,90,255,.55),inset 0 0 14px rgba(255,255,255,.2),0 5px 12px rgba(0,0,0,.55)}
 .mbt.down{opacity:1;transform:translate(-50%,-50%) scale(1.13);border-color:#fff;
   background:radial-gradient(circle at 50% 45%,#fff,#8fecff 34%,rgba(0,130,255,.9) 82%);
   box-shadow:0 0 22px #00e5ff,0 0 52px rgba(0,229,255,.85),inset 0 0 20px rgba(255,255,255,.75);text-shadow:0 0 10px #0077ff}
 .mbt.mjump.down{background:radial-gradient(circle at 50% 45%,#fff,#a6ffc6 34%,rgba(0,200,100,.9) 82%);box-shadow:0 0 22px #00ff88,0 0 52px rgba(0,255,136,.85),inset 0 0 20px rgba(255,255,255,.75)}
 .mbt.matk.down{background:radial-gradient(circle at 50% 45%,#fff,#ffb0a8 34%,rgba(255,40,60,.92) 82%);box-shadow:0 0 22px #ff3355,0 0 52px rgba(255,51,85,.85),inset 0 0 20px rgba(255,255,255,.75)}
+.mbt.mpower.down{background:radial-gradient(circle at 50% 45%,#fff,#f2b0ff 34%,rgba(150,40,255,.94) 82%);box-shadow:0 0 22px #d45cff,0 0 52px rgba(180,70,255,.85),inset 0 0 20px rgba(255,255,255,.75)}
 #mctl.edit .mbt{border-style:dashed;border-color:#FFD700;opacity:.95}
 .mbt.drag{opacity:1;transform:translate(-50%,-50%) scale(1.2);border:3px dashed #FFD700;box-shadow:0 0 26px #FFD700,0 0 60px rgba(255,215,0,.7)}
 .mbedit{position:absolute;bottom:8px;pointer-events:all;touch-action:manipulation;z-index:2;
@@ -256,6 +258,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   backdrop-filter:blur(8px);display:none;flex-direction:column;
   align-items:center;justify-content:center;gap:20px}
 #pauseOverlay.on{display:flex}
+#fxVolumeControl{display:flex;align-items:center;gap:10px;margin-top:12px;color:rgba(160,205,255,.8);font:clamp(7px,1.3vw,9px) 'Press Start 2P',monospace}
+#fxMusicVolume{width:min(220px,48vw);accent-color:#00D4FF}
 .pause-title{font-size:clamp(28px,6vw,52px);color:#FFD700;
   text-shadow:0 0 30px rgba(255,215,0,.8),4px 4px 0 rgba(0,0,0,.9);
   animation:pausePulse 1.5s ease-in-out infinite}
@@ -447,6 +451,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <button class="mbt" id="mbR" data-k="R" aria-label="Derecha">▶</button>
   <button class="mbt mjump" id="mbJ" data-k="J" aria-label="Saltar">⬆</button>
   <button class="mbt matk" id="mbA" data-k="A" aria-label="Atacar">⚔️</button>
+  <button class="mbt mpower" id="mbP" data-k="P" aria-label="Poder especial">✨</button>
   <button class="mbedit" id="mbEdit">✥ MOVER</button>
   <button class="mbedit" id="mbReset">↺</button>
 </div>
@@ -465,6 +470,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <button id="btnMutePause" onclick="toggleMute()" style="margin-top:14px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));
     border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:8px 16px;color:#FFF;
     font-family:'Press Start 2P';font-size:clamp(9px,1.6vw,12px);cursor:pointer">🔊 SONIDO: ON</button>
+  <label id="fxVolumeControl" for="fxMusicVolume">🎵 MÚSICA
+    <input id="fxMusicVolume" type="range" min="0" max="0.4" step="0.01" value="0.22"
+      aria-label="Volumen de la música" oninput="if(window.FX&&FX.music)FX.music.setVolume(this.value)">
+  </label>
   <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.4vw,10px);color:rgba(150,200,255,.5);margin-top:8px">ESC = MENÚ PRINCIPAL</div>
 </div>
 <!-- FIRST-TIME TUTORIAL -->
@@ -588,6 +597,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         style="display:block;width:min(88vw,620px);max-height:26vh;height:auto;object-fit:contain;margin:0 auto;
         filter:drop-shadow(0 0 30px rgba(255,150,0,.55)) drop-shadow(0 6px 10px rgba(0,0,0,.7));
         animation:logoFloat 4s ease-in-out infinite;will-change:transform">
+      <h1 id="menuTypewriter" aria-label="Domina las tablas">¡DOMINA LAS TABLAS!</h1>
 
     </div>
     <style>
@@ -595,6 +605,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       0%,100%{transform:translateY(0) scale(1)}
       50%{transform:translateY(-7px) scale(1.015)}
     }
+    #menuTypewriter{min-height:1.6em;margin:0 auto;color:#9cf4ff;font:clamp(7px,1.45vw,11px) 'Press Start 2P',monospace;letter-spacing:1px;
+      text-shadow:0 0 8px #00d4ff,0 0 20px rgba(0,160,255,.8),2px 2px #000}
+    #menuTypewriter::after{content:'▋';color:#ffd700;animation:typeCaret .7s steps(2) infinite}
+    @keyframes typeCaret{50%{opacity:0}}
+    @media(prefers-reduced-motion:reduce){#menuTypewriter::after{animation:none}}
     @keyframes title3d{
   0%{transform:perspective(800px) rotateX(0deg) rotateY(-2deg) scale(1)}
   25%{transform:perspective(800px) rotateX(4deg) rotateY(2deg) scale(1.03)}
@@ -768,6 +783,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         <button class="pbtn sm gh" onclick="showReport()">📊 REPORTE (PROFE)</button>
         <button class="pbtn sm gh" id="btnMuteMenu" onclick="toggleMute()">🔊 SONIDO</button>
       </div>
+      <button class="pbtn sm gh" id="achievementsButton" style="margin-top:6px" onclick="window.NinjaAchievements&&NinjaAchievements.open()">🏅 LOGROS</button>
     </div>
   </div>
 </div>
@@ -3482,6 +3498,7 @@ function onAns(val,btn){
 
   if(ok){
     GS.correct++; GS.streak++; if(GS.streak>GS.maxStreak)GS.maxStreak=GS.streak;
+    if(window.NinjaAchievements)window.NinjaAchievements.record('correct',{streak:GS.streak});
     const lv=curLV();
     const mul=(P.starOn?2:1)*(P.crownOn?2:1)*(AQe&&AQe.elite?1.8:1);
     const comb=GS.streak>2?Math.floor(lv.pts*GS.streak*.3):0;
@@ -8567,6 +8584,10 @@ function levelDone(){
   else stars=0;
   if(stars===2 && pct>=.85 && fastRun && livesLost===0) stars=3;
   saveLevelStars(GS.phase, GS.level, stars);
+  if(window.NinjaAchievements)window.NinjaAchievements.record('level-complete',{
+    stars,damageFree:livesLost===0,phase:GS.phase,
+    campaignComplete:GS.level>=curLevels().length-1
+  });
   saveLB({name:GS.name,score:GS.totalScore,phase:GS.phase,level:lv.n,diff:GS.phase,date:Date.now()});
   updateMiniLB();
   const rank=getRank(GS.totalScore-1);
@@ -8977,7 +8998,7 @@ document.getElementById('btnStart').addEventListener('click',()=>{
   _xpBar=0; _xpTotalLevels=0; _xpRewardAnim=0; _turboTrail=[];
   startLevel(0,'easy');
 });
-document.getElementById('btnLb').addEventListener('click',()=>{uAC();buildLB();showS(1);});
+document.getElementById('btnLb').addEventListener('click',()=>{uAC();buildLB();showS(1);confetti(24);});
 document.getElementById('btnClrLb').addEventListener('click',()=>{if(confirm('¿Borrar ranking?')){localStorage.removeItem(LBK);buildLB();}});
 document.getElementById('btnNext').addEventListener('click',()=>{uAC();startLevel(GS.level+1,GS.phase);});
 document.getElementById('btnRetry').addEventListener('click',()=>{uAC();startLevel(GS.level,GS.phase);});
@@ -9256,6 +9277,16 @@ console.log('★ MATES CON EL PROFE LUIS v10 — listo!');
   startIntroAnimation();
 })();
 
+// Neon typewriter subtitle complements the existing illustrated game logo.
+(function(){
+  const el=document.getElementById('menuTypewriter');
+  if(!el)return;
+  const text=el.textContent;el.textContent='';
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=text;return;}
+  let i=0;
+  const type=()=>{if(i<text.length){el.textContent+=text[i++];setTimeout(type,55);}};
+  setTimeout(type,450);
+})();
 
 // ── DRAW MARIO & PEACH PREVIEW on canvas ──
 (function(){
@@ -9512,14 +9543,14 @@ function drawMiniPeach(canvasId){
     const xm=Math.max(16,sa.l+10),xr=Math.max(16,sa.r+10),ym=Math.max(12,sa.b+10);
     const bl=(dx,dy)=>[(xm+dx)/w,(h-ym-dy)/h],br=(dx,dy)=>[(w-xr-dx)/w,(h-ym-dy)/h];
     return{L:bl(.5*u,.5*u),R:bl(1.75*u,.5*u),B:bl(1.125*u,1.7*u),
-           J:br(.75*u,.75*u),A:br(2.1*u,.5*u),D:br(3.55*u,.5*u),X:br(1.0*u,2.25*u),C:br(2.45*u,1.95*u)};
+           J:br(.75*u,.75*u),A:br(2.1*u,.5*u),D:br(3.55*u,.5*u),X:br(1.0*u,2.25*u),P:br(1.0*u,2.25*u),C:br(2.45*u,1.95*u)};
   }
   window.njLayout=njLayout;
-  const mkDEF=()=>{const l=njLayout();return{L:l.L,R:l.R,J:l.J,A:l.A};};
+  const mkDEF=()=>{const l=njLayout();return{L:l.L,R:l.R,J:l.J,A:l.A,P:l.P};};
   let DEF=mkDEF();
   let pos=JSON.parse(JSON.stringify(DEF)),custom=false;
   try{ const sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){custom=true; for(const k in DEF) if(sv[k]&&sv[k].length===2) pos[k]=sv[k];} }catch(e){}
-  const btns={L:document.getElementById('mbL'),R:document.getElementById('mbR'),J:document.getElementById('mbJ'),A:document.getElementById('mbA')};
+  const btns={L:document.getElementById('mbL'),R:document.getElementById('mbR'),J:document.getElementById('mbJ'),A:document.getElementById('mbA'),P:document.getElementById('mbP')};
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   function place(k){
     const el=btns[k], r=el.offsetWidth/2||40;
@@ -9549,9 +9580,10 @@ function drawMiniPeach(canvasId){
       // y mantener pulsado da salto más alto. El buffer asegura que un toque rápido no se pierda.
       K.ArrowUp=1; if(P&&P.alive!==false) P.jumpBuffer=10;
     }
+    else if(k==='P') K.KeyX=1;
     else if(k==='A') doAttack();
   }
-  function release(k){ if(k==='L') K.ArrowLeft=0; else if(k==='R') K.ArrowRight=0; else if(k==='J') K.ArrowUp=0; }
+  function release(k){ if(k==='L') K.ArrowLeft=0; else if(k==='R') K.ArrowRight=0; else if(k==='J') K.ArrowUp=0; else if(k==='P') K.KeyX=0; }
 
   Object.keys(btns).forEach(k=>{
     const el=btns[k]; let st=null;
@@ -9572,7 +9604,7 @@ function drawMiniPeach(canvasId){
         press(k);
         // Mantener ~0.8 s sin mover el dedo en ⬆ / ⚔️ activa el modo mover.
         // ◀ ▶ se mueven con el botón ✥ MOVER para no interrumpir la caminata.
-        if(k==='J'||k==='A') st.timer=setTimeout(()=>{ if(st&&!st.drag) startDrag(); },HOLD_MS);
+        if(k==='J'||k==='A'||k==='P') st.timer=setTimeout(()=>{ if(st&&!st.drag) startDrag(); },HOLD_MS);
       }
     });
     el.addEventListener('pointermove',e=>{
@@ -9596,7 +9628,7 @@ function drawMiniPeach(canvasId){
     el.addEventListener('pointercancel',end);
     el.addEventListener('lostpointercapture',end);
   });
-  window.addEventListener('blur',()=>{ K.ArrowLeft=0; K.ArrowRight=0; K.ArrowUp=0; });
+  window.addEventListener('blur',()=>{ K.ArrowLeft=0; K.ArrowRight=0; K.ArrowUp=0; K.KeyX=0; });
 })();
 </script>
 <script src="engine/fx-engine.js"></script>
@@ -9615,7 +9647,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/escenario/fondos-tema.js?v=14"></script>
 <script src="engine/ui/seleccion-personajes.js?v=20"></script>
 <script src="engine/nivel1/perfiles.js?v=1"></script>
-<script src="engine/nivel1/perfil-ui.js?v=7"></script>
+<script src="engine/nivel1/perfil-ui.js?v=8"></script>
 <script src="engine/ui/pantalla-movil.js?v=11"></script>
 <script src="engine/ui/hud-nuevo.js?v=13"></script>
 <script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
@@ -9630,5 +9662,6 @@ function drawMiniPeach(canvasId){
 <script src="engine/poderes/pista-reloj.js?v=4"></script>
 <script src="engine/secretos/flores-doradas.js?v=4"></script>
 <script src="engine/secretos/tuberia-secreta.js?v=4"></script>
+<script src="engine/ui/achievements.js?v=1"></script>
 </body>
 </html>
