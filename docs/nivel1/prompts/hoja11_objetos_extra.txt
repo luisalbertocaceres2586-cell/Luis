@@ -1,0 +1,33 @@
+INSTRUCCIONES GENERALES (válidas para TODAS las hojas — léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES de 8 piezas para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL (de perfil, como un juego de scroll horizontal); los elementos de escenario (árboles, puertas, carteles) se ven de frente. Sin vista cenital.
+
+FONDO TRANSPARENTE REAL (OBLIGATORIO, LO MÁS IMPORTANTE): entrega un PNG con CANAL ALFA, es decir, transparente de verdad. PROHIBIDO: fondo blanco, fondo gris, fondo negro, cuadros grises y blancos que simulan transparencia, degradados, texturas de fondo, suelo, sombras proyectadas, reflejos o resplandores difusos que se salgan de las piezas. Los brillos (luz de una antorcha, cristales, llamas) deben quedar DENTRO de la silueta de la pieza, con borde nítido. Si no puedes entregar transparencia real, dímelo en lugar de dibujar cuadros.
+
+TAMAÑO Y ORDEN: usa la máxima resolución disponible. El formato exacto de la hoja se indica en cada hoja (cuadrícula de 8 celdas del mismo tamaño). Una sola pieza por celda, centrada, con al menos 30 px de espacio transparente alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista. No recortes ninguna pieza. Mantén la misma escala relativa entre las piezas de la hoja (un árbol es más grande que una valla).
+
+CALIDAD Y ESTILO: arte digital de altísima calidad, nivel estudio de animación profesional y juego móvil premium: pintura detallada hecha a mano, texturas ricas (madera, piedra, tela, metal, musgo, cristal), colores saturados y vivos, CONTORNO oscuro azul marino #1A1230 limpio y nítido de 2 a 3 px, luz principal desde arriba a la izquierda con luz de borde suave y sombras de forma coherentes. Los personajes son chibi-anime (cabeza grande, cuerpo compacto). Todas las piezas deben parecer del mismo juego. No imites ninguna marca ni personaje conocido.
+
+PALETA (úsala como guía): bosque: verdes #2F9E44 #8FD14F #1F6B3A, musgo #5FAE3A, bambú #A6D13F, madera #8B5A2B #C77C2E, tierra #5A321C, piedra gris azulada #6B7390, rojo bermellón #D8321F, dorado #FFC93C, rosa sakura #FF8FB8. Cueva: roca #2B2F45 #4A4F6B, cristal cian #35D0F0, azul #3A8DFF, hongos turquesa #2FE3C0 y lima #B5F23D. Fuego y luz: naranja #FF8A1F, amarillo #FFD54A. Acentos: carmesí #C81E3C, azul marino #1A1230.
+
+SIN TEXTO: ninguna letra, número, palabra, símbolo escrito, marca de agua, línea de cuadrícula ni etiqueta. Si hace falta un emblema, dibuja un diseño abstracto (círculos, espirales, líneas), nunca letras.
+
+ORIENTACIÓN: los personajes, criaturas y objetos direccionales miran a la DERECHA, salvo que la pieza diga otra cosa.
+
+
+FORMATO DE ESTA HOJA: imagen HORIZONTAL de 1536 × 1024 px con una cuadrícula de 4 columnas × 2 filas (8 celdas verticales de unos 384 × 512 px). Fila 1 = piezas 1 a 4; fila 2 = piezas 5 a 8.
+
+HOJA 11 — PERSONAJES, OBJETOS Y MECANISMOS
+Esta hoja mezcla DOS PERSONAJES AMIGOS (piezas 1 y 2: chibi-anime, de cuerpo completo, mirando a la derecha, que ocupan el 85 % del alto de la celda) y OBJETOS y MECANISMOS (piezas 3 a 8, que ocupan alrededor del 55 % del alto de la celda). Las piezas 3 y 4 son la MISMA palanca en dos estados y deben tener exactamente el mismo diseño y tamaño.
+
+LAS 8 PIEZAS, EN ORDEN:
+1. Maestro Sensei. Anciano maestro ninja amable: barba y cejas blancas largas, kimono azul oscuro con detalles dorados y cinturón rojo, bastón de madera en una mano, sombrero pequeño, sonrisa tranquila, de pie, proporciones chibi.
+2. Mercader tanuki. Tanuki (mapache japonés) mercader amistoso: sombrero de paja, una bolsa grande a la espalda, delantal marrón, panza redonda, sonrisa amplia y una mano levantada saludando, proporciones chibi.
+3. Palanca apagada. Palanca de hierro oscuro y madera sobre una base de piedra, con el mango inclinado hacia ABAJO a la izquierda y el pomo ROJO #D8321F. Vista de frente.
+4. Palanca encendida. LA MISMA palanca de la pieza 3 (mismo diseño, tamaño y base), pero con el mango inclinado hacia ARRIBA a la derecha y el pomo VERDE brillante #4ADE6B.
+5. Frasco de luz. Frasco de vidrio redondo con cuello angosto y tapón de corcho, lleno de un líquido dorado luminoso #FFD54A con pequeñas chispas dentro, con un cordel rojo en el cuello. El brillo queda dentro del vidrio.
+6. Llave dorada. Llave dorada ornamental japonesa: anillo con forma de flor, vástago con detalles grabados, dientes sencillos y una borla roja colgando del anillo; metal con brillo cálido.
+7. Campana de templo. Campana de bronce de templo colgando de un pequeño marco de madera con una cuerda gruesa y un mazo de madera al lado; metal verdoso con reflejos dorados.
+8. Corazón de jade. Corazón de jade verde brillante tallado, con un marco dorado fino y un pequeño destello; superficie pulida con reflejos. Sin halo fuera de la silueta.
+
+RECUERDA: fondo TRANSPARENTE REAL (PNG con canal alfa), exactamente 8 piezas separadas, ninguna con texto, letras ni números, brillos solo dentro de la silueta, contorno azul marino #1A1230 en todas.

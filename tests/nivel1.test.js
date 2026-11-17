@@ -105,6 +105,7 @@ ok('las respuestas son matemáticamente correctas', () => {
     const [, b] = a.hecho.split('x').map(Number);
     if (a.tipo === 'producto' || a.tipo === 'doble') assert.strictEqual(c, 2 * b);
     if (a.tipo === 'factor') assert.strictEqual(c, b);
+    if (a.tipo === 'salto') { assert.strictEqual(c, 2 * b); assert.strictEqual(a.secuencia[1] + 2, c); assert.strictEqual(a.secuencia[1] - a.secuencia[0], 2); assert(a.secuencia[0] >= 2); }
   }
   for (let i = 0; i < 200; i++) {
     const a = Ac.crear({ rng, tabla: 2, mecanica: 'piedras' });
@@ -115,6 +116,10 @@ ok('las respuestas son matemáticamente correctas', () => {
     const a = Ac.crear({ rng, tabla: 2, mecanica: 'balanza' });
     assert.strictEqual(a.balanza.valorPesa * a.balanza.pesasNecesarias, a.balanza.objetivo);
   }
+});
+ok('las preguntas usan palabras simples y siempre dicen qué hacer', () => {
+  const rng = Ruta.crearRng(21, 't');
+  Object.keys(Ac.MECANICAS).forEach(mec => { for (let i = 0; i < 100; i++) { const a = Ac.crear({ rng, tabla: 2, mecanica: mec }); assert(/[A-Za-zÁ-ú]/.test(a.enunciado) && a.enunciado.length < 95, mec + ': ' + a.enunciado); assert(!/hasta la plataforma de|Lanza el shuriken a la diana de|Rompe el bloque con (?!la)/.test(a.enunciado), a.enunciado); if (['encender_farol', 'romper_bloques', 'diana'].indexOf(mec) >= 0) assert(/con la respuesta:|con el número que sigue:/.test(a.enunciado), a.enunciado); } });
 });
 ok('evaluar reconoce la respuesta correcta', () => {
   const rng = Ruta.crearRng(3, 't'); const a = Ac.crear({ rng, tabla: 2, mecanica: 'encender_farol' });
