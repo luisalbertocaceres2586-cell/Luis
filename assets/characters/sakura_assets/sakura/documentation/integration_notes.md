@@ -17,7 +17,7 @@ Dibuja la imagen con el **pivote centro-inferior** sobre la posición de los pie
 La caja de colisión NO debe seguir el tamaño del frame (hay estelas y pétalos que lo ensanchan). Usa una caja fija para el cuerpo y cajas de ataque temporales en los `hit_frames` de `animation_config.json`.
 
 ## Escala
-Los frames tienen entre 374 y 530 px de alto e incluyen espacio transparente. El juego usa una escala de dibujo de 0,155 en el juego principal y ajusta Nivel 1/2 a 110 px de alto; la hitbox sigue siendo independiente de estas medidas.
+Los frames tienen entre 374 y 530 px de alto e incluyen espacio transparente. El juego usa una escala de dibujo de 0,16275 en el juego principal y ajusta Nivel 1/2 a unos 116 px de alto. Al tocar suelo, se compensa el margen transparente del pivote con un desplazamiento solo visual (5 px en el juego principal y 4 px en Nivel 1/2); no modifica la física ni la hitbox.
 
 ## Integración en el juego
 `manifest.js` expone las secuencias y pivotes para `hero-pro.js` y el motor de Nivel 1/2. Las rutas de imagen parten de la raíz del repositorio; no se necesita cargar los JSON mediante `fetch`.

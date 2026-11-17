@@ -559,11 +559,12 @@
     let idx = progress === undefined ? Math.floor((now - st.start) * anim.fps) : Math.floor(Math.max(0, Math.min(.999999, progress)) * count);
     if (anim.loop) idx %= count; else idx = Math.min(count - 1, idx);
     const f = anim.frames[idx]; if (!f) return; const im = img[f.file]; if (!im) return;
-    const s = S.alto * 1.1, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
+    const s = S.alto * 1.155, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
+    const groundOffset = h.suelo ? 4 : 0;
     if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
     if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
     cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30, 7, 0, 0, 7); cx.fill();
-    cx.save(); cx.translate(h.x - S.cam, h.y); if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
+    cx.save(); cx.translate(h.x - S.cam, h.y + groundOffset); if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
     if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14, -112, 52, 52 * img.antorchaAnim.height / fw); }
     cx.restore();
     if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
