@@ -9,7 +9,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
  init(){
   const grid=document.getElementById('cgrid');if(!grid||!grid.parentNode)return;
   const CH={
-    mario:{n:'SAKURA',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#4B174A',c3:'#FFB3DA',sk:'X  ·  TRIPLE ABANICO',desc:'Ágil y precisa. Domina el viento para abrirte camino entre los enemigos.',tag:'VELOCIDAD  ·  TÉCNICA',art:'sakura'},
+    mario:{n:'SAKURA EVE',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#4B174A',c3:'#FFB3DA',sk:'X  ·  TRIPLE ABANICO',desc:'Ágil y precisa. Domina el viento para abrirte camino entre los enemigos.',tag:'VELOCIDAD  ·  TÉCNICA',art:'sakura'},
     peach:{n:'KAGE',rol:'NINJA DE LA SOMBRA',emoji:'🔥',c1:'#FF654F',c2:'#4A1C2A',c3:'#FFC2A8',sk:'X  ·  DISPARO DOBLE',desc:'Fuerte y decidido. Su energía oscura golpea con potencia a los rivales.',tag:'POTENCIA  ·  ENERGÍA',art:'kage'}
   };
   const ORDER=['mario','peach'];
@@ -96,8 +96,8 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
   const cards=document.getElementById('cpCards');
   ORDER.forEach(c=>{const d=CH[c],b=document.createElement('button');b.type='button';b.className='cp-card';b.dataset.c=c;b.setAttribute('role','radio');b.setAttribute('aria-checked','false');b.setAttribute('aria-label',d.n+' · '+d.rol);
     b.style.cssText=`--k1:${d.c1};--k2:${d.c2};--k3:${d.c3}`;
-    const im=new Image();im.alt='';im.draggable=false;im.decoding='async';im.src='assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';if(!b.querySelector('.cp-fallback')){const f=document.createElement('span');f.className='cp-fallback';f.textContent=d.emoji;f.style.cssText='position:absolute;inset:12% 0 20%;display:grid;place-items:center;font-size:clamp(48px,8vw,82px);z-index:0';b.insertBefore(f,b.firstChild);}};
-    b.appendChild(im);const ck=document.createElement('span');ck.className='cp-check';ck.textContent='✓';ck.setAttribute('aria-hidden','true');b.appendChild(ck);
+  const im=new Image();im.alt='';im.draggable=false;im.decoding='async';im.src=c==='mario'?'assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png':'assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';if(!b.querySelector('.cp-fallback')){const f=document.createElement('span');f.className='cp-fallback';f.textContent=d.emoji;f.style.cssText='position:absolute;inset:12% 0 20%;display:grid;place-items:center;font-size:clamp(48px,8vw,82px);z-index:0';b.insertBefore(f,b.firstChild);}};
+  b.appendChild(im);const ck=document.createElement('span');ck.className='cp-check';ck.textContent='✓';ck.setAttribute('aria-hidden','true');b.appendChild(ck);
     const nm=document.createElement('div');nm.className='nm';nm.textContent=d.n;b.appendChild(nm);
     const tag=document.createElement('div');tag.className='tag';tag.textContent=d.tag;b.appendChild(tag);
     b.onclick=()=>window.selChar(c);cards.appendChild(b);});

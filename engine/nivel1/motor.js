@@ -45,12 +45,22 @@
 
   // ============ carga ============
   async function cargar(heroe, progreso) {
-    const hm = heroe === 'kage' ? 'KAGE_MANIFEST' : 'SAKURA_MANIFEST';
-    if (!window[hm]) await cargarScript('assets/characters/' + heroe + '/manifest.js');
+    const sakura = heroe !== 'kage';
+    const hm = sakura ? 'SAKURA_EVE_MANIFEST' : 'KAGE_MANIFEST';
+    const manifestPath = sakura ? 'assets/characters/sakura_assets/sakura/manifest.js' : 'assets/characters/kage/manifest.js';
+    if (!window[hm]) await cargarScript(manifestPath);
     const M = window[hm]; if (!M) throw new Error('No se encontró el manifest de ' + heroe);
+    const base = M.base || 'assets/characters/' + heroe + '/';
     const lista = Object.keys(IMGS).map(k => [k, A + IMGS[k] + '.png']);
-    ['idle', 'run', 'jump', 'atk', 'hurt', 'death'].forEach(set => (M[set] || []).forEach((f, i) => lista.push(['h:' + set + ':' + i, 'assets/characters/' + heroe + '/' + f.file])));
+    if (M.animations) {
+      const files = new Set();
+      Object.keys(M.animations).forEach(name => M.animations[name].frames.forEach(f => files.add(f.file)));
+      files.forEach(file => lista.push([file, base + file]));
+    } else {
+      ['idle', 'run', 'jump', 'atk', 'hurt', 'death'].forEach(set => (M[set] || []).forEach((f, i) => lista.push(['h:' + set + ':' + i, base + f.file])));
+    }
     let n = 0; await Promise.all(lista.map(async ([k, src]) => { img[k] = await cargarImg(src); progreso(++n / lista.length); }));
+    if (M.animations) Object.keys(M.animations).forEach(name => M.animations[name].frames.forEach((f, i) => { img['h:' + name + ':' + i] = img[f.file]; }));
     return M;
   }
 
@@ -76,7 +86,7 @@
     S = {
       heroeId: heroe, nivel2, M, plan, params: op.params, N, maestria, perfil: o.perfil || null, onSalir: o.onSalir || null, onSiguiente: o.onSiguiente || null,
       movil: o.dispositivo === 'movil' || /[?&]movil=1/.test(location.search),
-      h: { x: N.inicio.x, y: G, vx: 0, vy: 0, w: 34, h: 92, dir: 1, suelo: true, coyote: 0, buffer: 0, inv: 0, atk: 0, atkCd: 0, shCd: 0, vida: 5, muerto: 0, aturdido: 0, pisando: null, anim: 0, lento: 0 },
+      h: { x: N.inicio.x, y: G, vx: 0, vy: 0, w: 34, h: 92, dir: 1, suelo: true, coyote: 0, buffer: 0, inv: 0, atk: 0, atkCd: 0, shCd: 0, kunaiT: 0, vida: 5, muerto: 0, aturdido: 0, pisando: null, anim: 0, lento: 0 },
       cam: 0, t: 0, tiempo: 0, vidaMax: 5, seguro: { x: N.inicio.x, y: G }, resp: { x: N.inicio.x, y: G },
       shur: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
       pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: nivel2 ? 'DESIERTO NOCTURNO' : 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
@@ -209,7 +219,7 @@
   function paso(dt) {
     const h = S.h, N = S.N; S.t += dt; S.tiempo += dt;
     if (S.aviso && S.aviso.t > 0) S.aviso.t -= dt;
-    h.inv = Math.max(0, h.inv - dt); h.aturdido = Math.max(0, h.aturdido - dt); h.atkCd = Math.max(0, h.atkCd - dt); h.shCd = Math.max(0, h.shCd - dt); h.atk = Math.max(0, h.atk - dt);
+    h.inv = Math.max(0, h.inv - dt); h.aturdido = Math.max(0, h.aturdido - dt); h.atkCd = Math.max(0, h.atkCd - dt); h.shCd = Math.max(0, h.shCd - dt); h.kunaiT = Math.max(0, h.kunaiT - dt); h.atk = Math.max(0, h.atk - dt);
     h.buffer = Math.max(0, h.buffer - dt); h.coyote = Math.max(0, h.coyote - dt); h.lento = Math.max(0, h.lento - dt); S.shake = Math.max(0, S.shake - dt); S.flash = Math.max(0, S.flash - dt);
     if (h.muerto > 0) { h.muerto -= dt; h.vy += 2300 * dt; h.y += h.vy * dt; if (h.muerto <= 0) reaparecer(); return; }
     if (window.N1dir) N1dir.paso(dt);   // observa al jugador, sortea eventos y fija S.mod
@@ -331,10 +341,10 @@
   function empezarApuntar() {
     const e = S.estSel, h = S.h; const lst = e ? objetivos(e).filter(o => Math.abs(o.x - h.x) < 900) : [];
     if (lst.length) { lst.sort((a, b) => a.x - b.x); let k = 0, d = 1e9; lst.forEach((o, i) => { const dd = Math.abs(o.x - h.x - h.dir * 150); if (dd < d) { d = dd; k = i; } }); S.apunta = { e, sel: k, lst, t: 0 }; }
-    else if (h.shCd <= 0 && h.aturdido <= 0) { h.shCd = .45; S.tiros++; S.shur.push({ x: h.x + h.dir * 30, y: h.y - 58, vx: 760 * h.dir, vy: 0, t: 1.2, a: 0, recto: true }); }
+    else if (h.shCd <= 0 && h.aturdido <= 0) { h.shCd = .45; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 30, y: h.y - 58, vx: 760 * h.dir, vy: 0, t: 1.2, a: 0, recto: true }); }
   }
   const cambiarObjetivo = d => { const a = S.apunta; if (a) a.sel = (a.sel + d + a.lst.length) % a.lst.length; };
-  function disparar(o, e) { const h = S.h; S.tiros++; S.shur.push({ x: h.x + h.dir * 30, y: h.y - 58, vx: 0, vy: 0, t: 1.5, a: 0, obj: o, est: e }); }
+  function disparar(o, e) { const h = S.h; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 30, y: h.y - 58, vx: 0, vy: 0, t: 1.5, a: 0, obj: o, est: e }); }
   function lanzar() { const a = S.apunta; if (!a) return; S.apunta = null; const o = a.lst[a.sel]; if (o && (o.estado === 'listo' || o.estado === 'apagada')) disparar(o, a.e); }
   Object.assign(core, { objetivos, golpearObjetivo, pisarPiedra });
 
@@ -508,9 +518,60 @@
       });
     });
   }
+  function dibujarSakuraEve() {
+    const h = S.h, M = S.M, A = S.hab, now = performance.now() / 1000;
+    const st = h._animState || (h._animState = { name: '', start: S.t, lastGrounded: null, landUntil: 0, wallJumps: 0, wallJumpUntil: 0, gliding: false, glideUntil: 0, kunaiT: 0 });
+    if (st.lastGrounded === false && h.suelo) st.landUntil = S.t + .15;
+    st.lastGrounded = h.suelo;
+    if (A && A.pared && A.pared.usos > st.wallJumps) { st.wallJumps = A.pared.usos; st.wallJumpUntil = S.t + 2 / 12; }
+
+    let name = 'idle', progress;
+    if (S.fin) name = 'win';
+    else if (h.muerto > 0) { name = 'death'; progress = 1 - h.muerto / 1.2; }
+    else if (h.aturdido > 0) { name = 'hurt'; progress = 1 - h.aturdido / .28; }
+    else if (h.tajoAbajo && h.atk > 0) { name = 'special'; progress = 1 - h.atk / .28; }
+    else if (h.atk > 0) { name = 'melee'; progress = 1 - h.atk / .28; }
+    else if (h.kunaiT > 0) { name = 'kunai'; progress = 1 - h.kunaiT / .34; }
+    else if (A && A.dash && A.dash.t > 0) {
+      const elapsed = .16 - A.dash.t;
+      if (elapsed < .11) { name = 'slide'; progress = elapsed / .11; }
+      else name = 'dash';
+    } else if (S.t < st.wallJumpUntil) name = 'wall_jump';
+    else if (A && A.pared && A.pared.cling) {
+      if ((keys.ArrowUp || keys.KeyW) && h.vy < 0) name = 'wall_climb';
+      else if (h.vy > 35) name = 'wall_slide';
+      else name = 'wall_grab';
+    } else if (!h.suelo) {
+      if (A && A.planeando) {
+        if (!st.gliding) { st.gliding = true; st.glideUntil = S.t + .3; }
+        name = S.t < st.glideUntil ? 'glide_start' : 'glide';
+      } else {
+        st.gliding = false;
+        name = A && A.gancho && A.gancho.on ? 'glide' : (h.vy > 650 ? 'fall' : (h.vy < 0 ? 'jump_rise' : 'jump_fall'));
+      }
+    } else if (S.t < st.landUntil) { st.gliding = false; name = 'land'; }
+    else if (Math.abs(h.vx) > 40) { st.gliding = false; name = Math.abs(h.vx) < 200 ? 'walk' : 'run'; }
+    else { st.gliding = false; name = 'idle'; }
+
+    const anim = M.animations[name]; if (!anim || !anim.frames.length) return;
+    if (st.name !== name) { st.name = name; st.start = now; }
+    const count = anim.frames.length;
+    let idx = progress === undefined ? Math.floor((now - st.start) * anim.fps) : Math.floor(Math.max(0, Math.min(.999999, progress)) * count);
+    if (anim.loop) idx %= count; else idx = Math.min(count - 1, idx);
+    const f = anim.frames[idx]; if (!f) return; const im = img[f.file]; if (!im) return;
+    const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
+    if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
+    if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
+    cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30, 7, 0, 0, 7); cx.fill();
+    cx.save(); cx.translate(h.x - S.cam, h.y); if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
+    if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14, -112, 52, 52 * img.antorchaAnim.height / fw); }
+    cx.restore();
+    if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
+  }
   function dibujarHeroe() {
     if (window.N1hab) N1hab.estelas();
     const h = S.h, M = S.M; let set = 'idle', fps = 8, idx = 0;
+    if (S.heroeId === 'sakura' && M.animations) { dibujarSakuraEve(); return; }
     if (h.muerto > 0) set = 'death'; else if (h.aturdido > 0) set = 'hurt'; else if (h.atk > 0) set = 'atk'; else if (!h.suelo) set = 'jump'; else if (Math.abs(h.vx) > 40) { set = 'run'; fps = 26; }
     const arr = M[set] || M.idle;
     if (set === 'atk') idx = Math.min(arr.length - 1, Math.floor((1 - h.atk / .28) * arr.length)); else if (set === 'jump') idx = h.vy < -300 ? 0 : h.vy < -60 ? 1 : h.vy < 260 ? Math.min(2, arr.length - 1) : arr.length - 1;

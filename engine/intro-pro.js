@@ -24,7 +24,8 @@ const IM={logo:dom('#cineLogo')||dom('#introTitle'),panel:dom('#cineBeat3 img'),
 (function(){const d=S0.querySelector('div[style*="background-image"]');
   const m=d&&/url\(["']?([^"')]+)["']?\)/.exec(d.style.backgroundImage);IM.bg=m?img(m[1]):null;})();
 IM.villain=img('assets/characters/villain/portrait.png');
-const SK=((window.SAKURA_MANIFEST&&SAKURA_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/sakura/'+f.file),ax:f.ax,ay:f.ay}));
+const SKM=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST;
+const SK=((SKM&&SKM.run)||[]).map(f=>({img:img((SKM.base||'assets/characters/sakura/')+f.file),ax:f.ax,ay:f.ay}));
 const KG=((window.KAGE_MANIFEST&&KAGE_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/kage/'+f.file),ax:f.ax,ay:f.ay}));
 const PAN=[null,null,null,null];
 function tryPanel(n){return new Promise(res=>{const a=img('assets/ui/intro/panel_'+n+'.jpg');
@@ -305,7 +306,7 @@ function drawStory(){
     else if(ok(IM.heroR)){const ar=IM.heroR.naturalWidth/IM.heroR.naturalHeight;cx.save();cx.globalAlpha=fade;cx.shadowColor='rgba(120,80,255,.8)';cx.shadowBlur=26;cx.drawImage(IM.heroR,xR-hh*ar/2,gyH-hh,hh*ar,hh);cx.restore();}
     if(run&&Math.random()<dt*28){sparks(xL-30,gyH-6,1);}
     const pa=ss(15.0,15.5,t)*(1-ss(17.7,18.1,t)),py=gyH-hh-VH*.03;
-    plate('SAKURA','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
+    plate('SAKURA EVE','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
     plate('KAGE','LA SOMBRA',VW*.66,py,'rgba(130,100,255,1)',ss(15.4,15.9,t)*(1-ss(17.7,18.1,t)),(1-ss(15.4,16.0,t))*140);
     if(t>=18.2&&t<19.8&&ok(IM.slash)){const sc=.3+eo((t-18.2)/.5)*.9,al=1-ss(18.9,19.7,t);const ar=IM.slash.naturalHeight/IM.slash.naturalWidth,w=VW*.6*sc;
       const sw=Math.max(8,w|0),shh=Math.max(8,(w*ar)|0);slashC.width=sw;slashC.height=shh;const sx=slashC.getContext('2d');
