@@ -36,7 +36,114 @@
 .pf-pie{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:12px}
 .pf-code{width:100%;min-height:64px;background:#0d0620;color:#9ff;border:1px solid #6b4bd1;border-radius:8px;font-size:9px;padding:8px;font-family:ui-monospace,monospace}
 #pfChip{display:inline-flex;align-items:center;gap:8px;margin:0 auto 10px;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid #FFC93C;border-radius:20px;padding:6px 12px;color:#FFE27A;font-family:'Press Start 2P',monospace;font-size:clamp(7px,1.3vw,9px)}
-#pfChip:hover{background:rgba(255,201,60,.22)}`;
+#pfChip:hover{background:rgba(255,201,60,.22)}
+/* ── PERFIL NINJA / REDISEÑO PREMIUM ───────────────────────────── */
+#pfOverlay{
+  --pf-ink:#090d1d;--pf-panel:#111a32;--pf-line:rgba(180,198,255,.16);
+  --pf-gold:#f6c768;--pf-muted:#aab7d3;
+  padding:clamp(12px,2.8vw,34px);
+  background:
+    radial-gradient(ellipse at 14% 18%,rgba(221,65,150,.18),transparent 34%),
+    radial-gradient(ellipse at 86% 16%,rgba(56,139,255,.2),transparent 36%),
+    radial-gradient(ellipse at 50% 100%,rgba(130,72,220,.2),transparent 48%),
+    linear-gradient(145deg,#080d1c 0%,#10152c 48%,#090d1d 100%);
+  font-family:Inter,system-ui,sans-serif;
+}
+#pfOverlay:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 88%)}
+#pfOverlay:after{content:"";position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 34%,rgba(0,0,0,.48) 100%)}
+#pfOverlay *{box-sizing:border-box}
+#pfOverlay .pf-card{
+  position:relative;z-index:1;width:min(1000px,96vw);max-height:94vh;overflow:auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.8vw,20px);
+  padding:clamp(18px,2.8vw,34px);border:1px solid rgba(210,222,255,.2);border-radius:26px;
+  background:linear-gradient(145deg,rgba(21,30,56,.96),rgba(8,14,30,.97));
+  box-shadow:0 32px 100px rgba(0,0,0,.62),0 0 0 5px rgba(255,255,255,.025),inset 0 1px rgba(255,255,255,.12);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)
+}
+#pfOverlay .pf-card:before{content:"";position:absolute;left:8%;right:8%;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,#ff79b8 22%,#f6c768 50%,#62cfff 78%,transparent);opacity:.9}
+#pfOverlay .pf-card h2{grid-column:1/-1;margin:0;text-align:center;
+  font:900 clamp(21px,3vw,32px)/1.1 Inter,system-ui,sans-serif;letter-spacing:.09em;
+  color:#fff;text-shadow:0 4px 24px rgba(246,199,104,.2)}
+#pfOverlay .pf-sub{grid-column:1/-1;margin:-7px 0 2px;text-align:center;
+  color:#aebbd8;font:500 clamp(11px,1.35vw,14px)/1.6 Inter,system-ui,sans-serif}
+#pfOverlay .pf-campo{margin:0;min-width:0}
+#pfOverlay .pf-campo label{display:flex;align-items:center;gap:9px;margin:0 0 10px;
+  color:#f5cc75;font:800 10px/1.4 Inter,system-ui,sans-serif;letter-spacing:.16em}
+#pfOverlay .pf-campo label:before{content:"";width:22px;height:1px;background:currentColor;opacity:.7}
+#pfOverlay .pf-name{grid-column:1/-1}
+#pfOverlay .pf-campo input{height:54px;padding:0 18px;border:1px solid rgba(168,190,245,.26);
+  border-radius:13px;background:rgba(4,9,22,.82);color:#fff;
+  font:700 15px Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  box-shadow:inset 0 2px 12px rgba(0,0,0,.22);transition:border-color .2s,box-shadow .2s}
+#pfOverlay .pf-campo input::placeholder{color:#6e7c9c}
+#pfOverlay .pf-campo input:focus{border-color:#f6c768;box-shadow:0 0 0 3px rgba(246,199,104,.12),0 0 24px rgba(246,199,104,.1);outline:none}
+#pfOverlay .pf-avatars{grid-column:1/-1}
+#pfOverlay .pf-opc{gap:clamp(10px,1.5vw,16px)}
+#pfOverlay .pf-avatars .pf-opc{grid-template-columns:repeat(2,minmax(0,1fr))}
+#pfOverlay .pf-op{
+  position:relative;min-width:0;overflow:hidden;padding:0;border:1px solid rgba(174,193,238,.2);
+  border-radius:18px;background:linear-gradient(150deg,rgba(31,43,72,.94),rgba(12,20,40,.98));
+  color:#f5f7ff;font:800 11px/1.5 Inter,system-ui,sans-serif;letter-spacing:.09em;
+  box-shadow:0 12px 26px rgba(0,0,0,.24);transition:transform .22s,border-color .22s,box-shadow .22s,background .22s
+}
+#pfOverlay .pf-op:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.42);background:linear-gradient(150deg,rgba(42,55,89,.98),rgba(13,22,44,.98))}
+#pfOverlay .pf-op.on{border:2px solid var(--c,#f6c768);background:linear-gradient(150deg,rgba(56,34,70,.96),rgba(17,22,43,.98));
+  box-shadow:0 0 0 3px rgba(255,255,255,.045),0 0 28px color-mix(in srgb,var(--c,#f6c768) 34%,transparent),0 18px 34px rgba(0,0,0,.38)}
+#pfOverlay .pf-avatars .pf-op{min-height:260px;display:flex;flex-direction:column;justify-content:flex-end;padding:0 12px 15px}
+#pfOverlay .pf-avatars .pf-op:before{content:"";position:absolute;inset:0 0 42px;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 62%,color-mix(in srgb,var(--c,#f6c768) 24%,transparent),transparent 66%),
+  linear-gradient(180deg,rgba(255,255,255,.035),transparent 65%,rgba(3,7,18,.45))}
+#pfOverlay .pf-avatars .pf-op:after{content:"";position:absolute;inset:9px 9px 48px;border:1px solid rgba(255,255,255,.12);border-radius:12px;pointer-events:none}
+#pfOverlay .pf-avatars .pf-op img{position:relative;z-index:1;width:100%;height:215px;max-height:none;margin:0 0 10px;
+  object-fit:contain;object-position:center bottom;border:0;border-radius:0;
+  filter:drop-shadow(0 12px 12px rgba(0,0,0,.42));}
+#pfOverlay .pf-avatars .pf-op.on:after{border-color:color-mix(in srgb,var(--c,#f6c768) 65%,white)}
+#pfOverlay .pf-avatars .pf-op.on:before{background:radial-gradient(ellipse at 50% 62%,color-mix(in srgb,var(--c,#f6c768) 38%,transparent),transparent 68%)}
+#pfOverlay .pf-avatars .pf-op{font-size:12px}
+#pfOverlay .pf-devices{grid-column:1/-1}
+#pfOverlay .pf-devices .pf-opc{grid-template-columns:repeat(2,minmax(0,1fr))}
+#pfOverlay .pf-devices .pf-op{min-height:104px;padding:15px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+#pfOverlay .pf-devices .ico{font-size:30px;line-height:1.2;filter:drop-shadow(0 5px 9px rgba(0,0,0,.3))}
+#pfOverlay .pf-devices .pf-op br{display:none}
+#pfOverlay .pf-err{grid-column:1/-1;min-height:0;margin:0;color:#ff9caa;font:600 12px Inter,system-ui,sans-serif}
+#pfOverlay .pf-pie{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 0;padding-top:15px;border-top:1px solid rgba(190,205,245,.12)}
+#pfOverlay .pf-btn{min-height:46px;padding:0 20px;border:1px solid rgba(255,224,156,.72);border-radius:12px;
+  background:linear-gradient(180deg,#ffe39a,#f2b93e);color:#241b16;
+  font:900 11px Inter,system-ui,sans-serif;letter-spacing:.08em;
+  box-shadow:0 5px 0 #9a6a20,0 10px 24px rgba(242,185,62,.16);transition:transform .18s,filter .18s}
+#pfOverlay .pf-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
+#pfOverlay .pf-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #9a6a20}
+#pfOverlay .pf-btn.sec{border:1px solid rgba(177,192,229,.18);background:rgba(130,148,190,.12);color:#dce5fa;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+#pfOverlay .pf-btn.sec:hover{background:rgba(150,170,220,.2)}
+#pfOverlay .pf-lista{grid-column:1/-1}
+#pfOverlay .pf-fila{border:1px solid var(--pf-line);border-radius:14px;background:rgba(255,255,255,.045);padding:11px}
+#pfOverlay .pf-info{font:800 11px/1.5 Inter,system-ui,sans-serif}
+#pfOverlay .pf-info small{font:500 10px/1.5 Inter,system-ui,sans-serif;color:#9eaccb}
+#pfOverlay .pf-code{font:12px ui-monospace,monospace}
+#pfOverlay #pfChip{font:800 10px Inter,system-ui,sans-serif}
+@media(max-width:680px){
+ #pfOverlay{align-items:flex-start;padding:10px}
+ #pfOverlay .pf-card{width:100%;max-height:none;min-height:min-content;grid-template-columns:1fr;padding:18px 14px;border-radius:20px;gap:13px}
+ #pfOverlay .pf-card h2,#pfOverlay .pf-sub,#pfOverlay .pf-name,#pfOverlay .pf-avatars,#pfOverlay .pf-devices,#pfOverlay .pf-err,#pfOverlay .pf-pie,#pfOverlay .pf-lista{grid-column:1}
+ #pfOverlay .pf-avatars .pf-op{min-height:205px;padding:0 8px 12px}
+ #pfOverlay .pf-avatars .pf-op img{height:165px}
+ #pfOverlay .pf-devices .pf-op{min-height:92px;padding:10px 6px;font-size:9px}
+ #pfOverlay .pf-devices .ico{font-size:25px}
+ #pfOverlay .pf-pie{align-items:stretch}
+ #pfOverlay .pf-pie>.pf-btn{flex:1}
+ #pfOverlay .pf-fila{flex-wrap:wrap}
+}
+@media(max-width:380px){
+ #pfOverlay .pf-avatars .pf-op{min-height:175px;font-size:9px}
+ #pfOverlay .pf-avatars .pf-op img{height:135px}
+ #pfOverlay .pf-btn{padding:0 12px;font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){#pfOverlay *,#pfOverlay *:before,#pfOverlay *:after{transition:none!important;animation:none!important}}
+`;
 
   function el(tag, attrs, kids) {
     const e = document.createElement(tag);
@@ -114,13 +221,13 @@
     card.appendChild(el('p', { class: 'pf-sub', text: 'Tu nombre y tu avatar se guardan para que no pierdas tu avance.' }));
     const inp = el('input', { type: 'text', maxlength: '14', placeholder: 'ESCRIBE TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
     inp.addEventListener('input', () => { borrador.nombre = inp.value; });
-    card.appendChild(el('div', { class: 'pf-campo' }, [el('label', { text: '1 · TU NOMBRE' }), inp]));
+    card.appendChild(el('div', { class: 'pf-campo pf-name' }, [el('label', { text: '1 · TU NOMBRE' }), inp]));
     const av = el('div', { class: 'pf-opc' });
     Object.keys(AV).forEach(k => av.appendChild(el('button', { class: 'pf-op' + (borrador.avatar === k ? ' on' : ''), style: '--c:' + AV[k].color, onclick: () => { borrador.avatar = k; render(); } }, [el('img', { src: imgAvatar(k), alt: '' }), AV[k].nombre])));
-    card.appendChild(el('div', { class: 'pf-campo' }, [el('label', { text: '2 · ELIGE TU NINJA' }), av]));
+    card.appendChild(el('div', { class: 'pf-campo pf-avatars' }, [el('label', { text: '2 · ELIGE TU NINJA' }), av]));
     const dv = el('div', { class: 'pf-opc' });
     [['pc', '💻', 'COMPUTADOR', 'Teclado: flechas / WASD'], ['movil', '📱', 'TELÉFONO O TABLET', 'Controles táctiles en pantalla']].forEach(d => dv.appendChild(el('button', { class: 'pf-op' + (borrador.dispositivo === d[0] ? ' on' : ''), onclick: () => { borrador.dispositivo = d[0]; render(); } }, [el('span', { class: 'ico', text: d[1] }), d[2], el('br'), d[3]])));
-    card.appendChild(el('div', { class: 'pf-campo' }, [el('label', { text: '3 · ¿DESDE DÓNDE JUEGAS?' }), dv]));
+    card.appendChild(el('div', { class: 'pf-campo pf-devices' }, [el('label', { text: '3 · ¿DESDE DÓNDE JUEGAS?' }), dv]));
     const err = el('div', { class: 'pf-err' });
     card.appendChild(err);
     card.appendChild(el('div', { class: 'pf-pie' }, [
