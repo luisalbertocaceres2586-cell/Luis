@@ -61,18 +61,19 @@
     if (window.Nivel1) return Promise.resolve();
     if (cargaN1) return cargaN1;
     const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos', 'habilidades', 'director'];
-    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=7'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
+    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=8'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
     return cargaN1;
   }
-  function nivel2Anterior(p) {
-    Perfiles.actualizar(p.id, q => { q.progreso = { fase: 'easy', nivel: 1, puntos: q.progreso.puntos }; });
-    try { GS.phase = 'easy'; GS.level = 1; GS.totalScore = Perfiles.obtener(p.id).progreso.puntos; startLevel(1, 'easy'); } catch (e) { const b = document.getElementById('btnStart'); if (b) b.click(); }
+  function nivel2Nuevo(p) {
+    if (!p) return;
+    const q = new URLSearchParams({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: p.id });
+    location.href = 'nivel2.html?' + q.toString();
   }
   function jugarNivel1(p) {
     aplicar(p); listo = true; cerrar();
     cargarNivel1().then(() => {
       const fresco = Perfiles.obtener(p.id);
-      Nivel1.iniciar({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: fresco, onSalir: () => actualizarChip(), onSiguiente: () => nivel2Anterior(Perfiles.obtener(p.id)) });
+      Nivel1.iniciar({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: fresco, onSalir: () => actualizarChip(), onSiguiente: () => nivel2Nuevo(Perfiles.obtener(p.id)) });
     }).catch(e => { alert('No se pudo abrir el Nivel 1: ' + e.message); });
   }
   function jugarNuevo(p) { jugarNivel1(p); }

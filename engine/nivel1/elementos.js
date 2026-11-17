@@ -34,7 +34,7 @@
       case 'ninja': case 'arana': e.x += e.vx * dt; if (e.x < e.min || e.x > e.max) e.vx = -e.vx; e.dir = e.vx > 0 ? 1 : -1; e.caja = rect(e.x - 26, e.y - 84, 52, 84); break;
       case 'ninjaAtk': {
         e.t = (e.t || 0) + dt; e.dir = e.dir || 1;
-        if (e.fase === 'carga') { e.x += e.dir * 520 * dt; e.f -= dt; if (e.f <= 0) { e.fase = 'cd'; e.f = 1.6; } }
+        if (e.fase === 'carga') { e.x += e.dir * (e.chargeSpeed || 520) * dt; e.f -= dt; if (e.f <= 0) { e.fase = 'cd'; e.f = 1.6; } }
         else if (e.fase === 'aviso') { e.f -= dt; if (e.f <= 0) { e.fase = 'carga'; e.f = .5; } }
         else if (e.fase === 'cd') { e.f -= dt; if (e.f <= 0) e.fase = null; }
         else { e.x += e.vx * dt; if (e.x < e.min || e.x > e.max) e.vx = -e.vx; e.dir = e.vx > 0 ? 1 : -1; if (Math.abs(dx) < 330 && Math.abs(h.y - e.y) < 120 && h.y >= G - 10) { e.fase = 'aviso'; e.f = .45; e.dir = dx > 0 ? 1 : -1; } }

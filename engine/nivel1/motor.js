@@ -57,25 +57,29 @@
   // ============ arranque ============
   async function iniciar(o) {
     o = o || {}; cerrar(true);
+    const nivel2 = !!o.nivel2;
     const heroe = o.heroe === 'kage' ? 'kage' : 'sakura';
     crearPantalla();
-    const barra = root.querySelector('#n1Barra'), msg = root.querySelector('#n1Msg'); msg.textContent = 'Preparando el bosque…';
+    const barra = root.querySelector('#n1Barra'), msg = root.querySelector('#n1Msg'); msg.textContent = nivel2 ? 'Preparando el Desierto Nocturno…' : 'Preparando el bosque…';
     let M; try { M = await cargar(heroe, p => { barra.style.width = Math.round(p * 100) + '%'; }); } catch (e) { msg.textContent = 'No se pudo cargar: ' + e.message; return; }
     root.querySelector('#n1Carga').remove();
     Ruta.config.soloListos = true;
     const plan = o.plan || Ruta.nuevoPlan(o.semilla);
     if (!plan.jugados.length) Ruta.elegir(plan, 'bosque');
-    const op = plan.opciones.find(x => x.acto === 'bosque') || plan.ultimo;
+    const op = nivel2
+      ? { params: { semilla: o.semilla || plan.semilla, dificultad: 3, preguntas: 16, tablas: [4, 5, 6], tema: 'desierto-noche', enemySpeed: 1.35, variante: 'A' } }
+      : plan.opciones.find(x => x.acto === 'bosque') || plan.ultimo;
     const maestria = Acertijos.crearMaestria(o.perfil && o.perfil.maestria ? o.perfil.maestria : {});
     const N = GenNivel.generar(Object.assign({}, op.params, { preguntas: 16 }), maestria);
+    if (nivel2) N.enem.forEach(e => { if (e.vx) e.vx *= op.params.enemySpeed; if (e.kind === 'ninjaAtk') e.chargeSpeed = 620; });
     const visto = Object.assign({}, o.perfil && o.perfil.tutoriales);
     S = {
-      heroeId: heroe, M, plan, params: op.params, N, maestria, perfil: o.perfil || null, onSalir: o.onSalir || null, onSiguiente: o.onSiguiente || null,
+      heroeId: heroe, nivel2, M, plan, params: op.params, N, maestria, perfil: o.perfil || null, onSalir: o.onSalir || null, onSiguiente: o.onSiguiente || null,
       movil: o.dispositivo === 'movil' || /[?&]movil=1/.test(location.search),
       h: { x: N.inicio.x, y: G, vx: 0, vy: 0, w: 34, h: 92, dir: 1, suelo: true, coyote: 0, buffer: 0, inv: 0, atk: 0, atkCd: 0, shCd: 0, vida: 5, muerto: 0, aturdido: 0, pisando: null, anim: 0, lento: 0 },
       cam: 0, t: 0, tiempo: 0, vidaMax: 5, seguro: { x: N.inicio.x, y: G }, resp: { x: N.inicio.x, y: G },
       shur: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
-      pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
+      pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: nivel2 ? 'DESIERTO NOCTURNO' : 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
       alto: 100 / (M.idle[0].h || 200), luz: 240, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0, eligiendo: false, hab: null,
       mod: { g: 1, gc: 1, jv: 1, ag: 1, fr: 1, vv: 0, noche: 0 }, dir: null   // mod: gravedad, tope de caída, salto, agarre/fricción del suelo, viento y noche (los mueve el director)
     };
@@ -83,8 +87,8 @@
     for (let i = 0; i < 26; i++) S.hojas.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: Math.random() * 6, s: 5 + Math.random() * 6 });
     oc = document.createElement('canvas'); oc.width = W; oc.height = H; ox = oc.getContext('2d');
     if (S.movil) crearTactil();
-    if (window.N1hab) N1hab.iniciar(S, o);
-    if (window.N1dir) N1dir.iniciar(S, o);
+    if (window.N1hab) N1hab.iniciar(S, nivel2 ? Object.assign({}, o, { habilidades: ['dash', 'doble', 'planeo', 'pared', 'tajoAereo', 'gancho'] }) : o);
+    if (window.N1dir && !nivel2) N1dir.iniciar(S, o);
     window.addEventListener('keydown', onKey, true); window.addEventListener('keyup', onKeyUp, true); window.addEventListener('resize', ajustar);
     cv.addEventListener('pointerdown', onPointer);
     ajustar(); last = performance.now(); acc = 0; raf = requestAnimationFrame(bucle);
@@ -262,9 +266,9 @@
 
     N1elem.paso(dt, hb); estaciones();
 
-    const cuevaX = N.cueva.x + 120, alC = clamp((h.x - cuevaX) / 360, 0, 1);
+    const cuevaX = N.cueva.x + 120, alC = S.nivel2 ? 0 : clamp((h.x - cuevaX) / 360, 0, 1);
     S.mezcla += (alC - S.mezcla) * Math.min(1, dt * 3); S.osc = Math.max(S.mezcla, S.mod.noche);
-    if (S.zonaVista === 'bosque' && h.x > cuevaX + 100) { S.zonaVista = 'cueva'; S.aviso = { t: 3.5, s: 'CUEVA DE LAS LUCIÉRNAGAS' }; S.luz = 250; }
+    if (!S.nivel2 && S.zonaVista === 'bosque' && h.x > cuevaX + 100) { S.zonaVista = 'cueva'; S.aviso = { t: 3.5, s: 'CUEVA DE LAS LUCIÉRNAGAS' }; S.luz = 250; }
     if (S.osc > .3) S.luz = Math.max(130, S.luz - 1.4 * dt);
     if (Math.abs(h.x - N.meta.x) < 80 && h.y >= G - 4) { if (S.est.every(e => e.resuelta)) terminar(); else if (!(S.avisoMeta > 0)) { S.aviso = { t: 2.5, s: 'FALTAN ACERTIJOS POR RESOLVER' }; S.avisoMeta = 3; } }
     if (S.avisoMeta > 0) S.avisoMeta -= dt;
@@ -336,9 +340,11 @@
 
   function terminar() {
     if (S.fin) return; S.fin = { t: 0 }; const seg = Math.round(S.tiempo);
-    Ruta.terminarActo(S.plan, {});
+    if (!S.nivel2) Ruta.terminarActo(S.plan, {});
     if (S.perfil && window.Perfiles) Perfiles.actualizar(S.perfil.id, p => {
-      p.maestria = S.maestria.estado; p.tutoriales = S.tutoVisto; p.nivel1 = p.nivel1 || {}; p.nivel1.plan = S.plan; p.nivel1.semilla = S.plan.semilla; p.nivel1.intentos = (p.nivel1.intentos || 0) + 1; p.nivel1.completados = (p.nivel1.completados || 0) + 1;
+      p.maestria = S.maestria.estado; p.tutoriales = S.tutoVisto;
+      const progresoNivel = S.nivel2 ? (p.nivel2 = p.nivel2 || {}) : (p.nivel1 = p.nivel1 || {});
+      progresoNivel.plan = S.plan; progresoNivel.semilla = S.plan.semilla; progresoNivel.intentos = (progresoNivel.intentos || 0) + 1; progresoNivel.completados = (progresoNivel.completados || 0) + 1;
       p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; p.estadisticas.minutos += Math.round(seg / 6) / 10;
       p.progreso = p.progreso || { fase: 'easy', nivel: 0, puntos: 0 }; p.progreso.puntos += S.pergaminos * 10 + S.aciertos * 50;
     });
@@ -374,15 +380,17 @@
   const panel = html => { const d = document.createElement('div'); d.className = 'n1Panel'; d.innerHTML = '<div class="n1Card">' + html + '</div>'; root.appendChild(d); return d; };
   const mm = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   function pantallaFinal() {
-    if (!S || !root) return; const ops = S.plan.opciones || [];
-    const d = panel('<h2>¡NIVEL 1 COMPLETADO!</h2><p>Atravesaste el Bosque de Bambú y la Cueva de las Luciérnagas.</p><div class="n1Stats"><div><b>' + S.aciertos + '/' + S.est.length + '</b>acertijos</div><div><b>' + S.limpios + '</b>a la primera</div><div><b>' + S.errores + '</b>errores</div><div><b>' + S.pergaminos + '</b>pergaminos</div>' + (window.N1dir && S.dir && S.dir.contados ? '<div><b>' + N1dir.contados() + '</b>eventos</div>' : '') + '<div><b>' + mm(S.tiempo) + '</b>tiempo</div></div>' + (ops.length ? '<p>¿Qué camino eliges? Lo que decidas cambia el resto del viaje.</p><div class="n1Opc" id="n1Ops"></div>' : '<p style="color:#ffc93c">El camino continúa… los siguientes actos se están construyendo.</p><div class="n1Fila" id="n1Fin"></div>'));
+    if (!S || !root) return; const ops = S.nivel2 || S.onSiguiente ? [] : S.plan.opciones || [];
+    const titulo = S.nivel2 ? '¡NIVEL 2 COMPLETADO!' : '¡NIVEL 1 COMPLETADO!';
+    const descripcion = S.nivel2 ? 'Superaste el Desierto Nocturno y dominaste las tablas ×4, ×5 y ×6.' : 'Atravesaste el Bosque de Bambú y la Cueva de las Luciérnagas.';
+    const d = panel('<h2>' + titulo + '</h2><p>' + descripcion + '</p><div class="n1Stats"><div><b>' + S.aciertos + '/' + S.est.length + '</b>acertijos</div><div><b>' + S.limpios + '</b>a la primera</div><div><b>' + S.errores + '</b>errores</div><div><b>' + S.pergaminos + '</b>pergaminos</div>' + (window.N1dir && S.dir && S.dir.contados ? '<div><b>' + N1dir.contados() + '</b>eventos</div>' : '') + '<div><b>' + mm(S.tiempo) + '</b>tiempo</div></div>' + (ops.length ? '<p>¿Qué camino eliges? Lo que decidas cambia el resto del viaje.</p><div class="n1Opc" id="n1Ops"></div>' : '<p style="color:#ffc93c">' + (S.onSiguiente ? 'El viaje continúa hacia el Desierto Nocturno.' : '¡Buen trabajo, ninja!') + '</p><div class="n1Fila" id="n1Fin"></div>'));
     if (!ops.length) { botonesFin(d.querySelector('#n1Fin')); return; }
     const cont = d.querySelector('#n1Ops');
     ops.forEach((o, i) => { const b = document.createElement('button'); b.className = 'n1Op'; b.setAttribute('data-acto', o.acto); const est = '★'.repeat(o.riesgo) + '☆'.repeat(Math.max(0, 4 - o.riesgo)), rec = o.recompensa.length ? o.recompensa.map(r => BANDERAS[r] || r).join(', ') : 'ninguna'; b.innerHTML = '<h3>' + (i + 1) + '. ' + o.nombre + '</h3>' + o.pista + '<br><br>Riesgo: ' + est + '<br>Recompensa: ' + rec; b.addEventListener('click', () => elegirCamino(o.acto, d)); cont.appendChild(b); });
   }
   function botonesFin(fila) {
-    fila.innerHTML = '<button class="n1Btn" id="n1Otra">↻ JUGAR OTRO NIVEL 1</button>' + (S.onSiguiente ? '<button class="n1Btn" id="n1Sig">▶ SEGUIR AL NIVEL 2 (juego anterior)</button>' : '') + '<button class="n1Btn sec" id="n1Menu">VOLVER AL MENÚ</button>';
-    fila.querySelector('#n1Otra').onclick = () => { const o2 = { heroe: S.heroeId, dispositivo: S.movil ? 'movil' : 'pc', perfil: S.perfil && window.Perfiles ? Perfiles.obtener(S.perfil.id) : null, onSalir: S.onSalir, onSiguiente: S.onSiguiente }; iniciar(o2); };
+    fila.innerHTML = '<button class="n1Btn" id="n1Otra">↻ ' + (S.nivel2 ? 'REPETIR NIVEL 2' : 'JUGAR OTRO NIVEL 1') + '</button>' + (S.onSiguiente ? '<button class="n1Btn" id="n1Sig">▶ CONTINUAR AL NIVEL 2</button>' : '') + '<button class="n1Btn sec" id="n1Menu">VOLVER AL MENÚ</button>';
+    fila.querySelector('#n1Otra').onclick = () => { const o2 = { heroe: S.heroeId, dispositivo: S.movil ? 'movil' : 'pc', perfil: S.perfil && window.Perfiles ? Perfiles.obtener(S.perfil.id) : null, onSalir: S.onSalir, onSiguiente: S.onSiguiente, nivel2: S.nivel2 }; iniciar(o2); };
     const bs = fila.querySelector('#n1Sig'); if (bs) bs.onclick = () => { const f = S.onSiguiente; cerrar(true); f(); };
     fila.querySelector('#n1Menu').onclick = () => cerrar();
   }
@@ -397,6 +405,28 @@
   function etiqueta(s, x, y, tam, col) { cx.font = 'bold ' + tam + 'px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineWidth = 5; cx.strokeStyle = 'rgba(20,8,40,.92)'; cx.strokeText(s, x, y); cx.fillStyle = col || '#fff'; cx.fillText(s, x, y); }
   Object.assign(core, { sprite, porAncho, etiqueta });
 
+  function fondoDesiertoNoche(alpha) {
+    cx.globalAlpha = alpha;
+    const sky = cx.createLinearGradient(0, 0, 0, G + 40);
+    sky.addColorStop(0, '#070b28'); sky.addColorStop(.58, '#17143b'); sky.addColorStop(1, '#4b2940');
+    cx.fillStyle = sky; cx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 50; i++) {
+      const x = ((i * 197 - S.cam * .04) % (W + 80) + W + 80) % (W + 80) - 40;
+      const y = 22 + (i * 83 % 280), r = .7 + (i % 3) * .45;
+      cx.globalAlpha = alpha * (.45 + .45 * Math.sin(S.t * 2 + i));
+      cx.fillStyle = '#d9e8ff'; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill();
+    }
+    cx.globalAlpha = alpha; cx.fillStyle = 'rgba(255,215,145,.88)'; cx.beginPath(); cx.arc(W * .79, H * .17, 30, 0, 7); cx.fill();
+    cx.fillStyle = 'rgba(255,215,145,.12)'; cx.beginPath(); cx.arc(W * .79, H * .17, 54, 0, 7); cx.fill();
+    for (let layer = 0; layer < 3; layer++) {
+      const base = G - 24 + layer * 24, amp = 38 + layer * 28, speed = .05 + layer * .06;
+      cx.fillStyle = ['rgba(44,34,72,.72)','rgba(78,48,70,.85)','rgba(122,70,62,.92)'][layer];
+      cx.beginPath(); cx.moveTo(0, H); cx.lineTo(0, base);
+      for (let x = 0; x <= W + 20; x += 20) cx.lineTo(x, base - Math.sin((x + S.cam * speed) * .006 + layer) * amp);
+      cx.lineTo(W, H); cx.closePath(); cx.fill();
+    }
+    cx.globalAlpha = 1;
+  }
   function fondoBosque(alpha) {
     cx.globalAlpha = alpha; const c = SKY[S.params.variante] || SKY.A, g = cx.createLinearGradient(0, 0, 0, G + 40);
     g.addColorStop(0, c[0]); g.addColorStop(.55, c[1]); g.addColorStop(1, c[2]); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
@@ -424,6 +454,17 @@
     N.gaps.forEach(g => { if (g.x1 < S.cam || g.x0 > S.cam + W) return; const ab = cx.createLinearGradient(0, G, 0, H); ab.addColorStop(0, 'rgba(40,20,70,0)'); ab.addColorStop(.35, 'rgba(30,12,52,.85)'); ab.addColorStop(1, '#0a0418'); cx.fillStyle = ab; cx.fillRect(g.x0 - S.cam, G - 40, g.x1 - g.x0, H); });
     N.suelo.forEach(s => {
       if (s.x1 < S.cam - 20 || s.x0 > S.cam + W + 20) return;
+      if (S.nivel2) {
+        cx.save(); cx.beginPath(); cx.rect(s.x0 - S.cam, G, s.x1 - s.x0, H - G); cx.clip();
+        const arena = cx.createLinearGradient(0, G, 0, H); arena.addColorStop(0, '#bd855d'); arena.addColorStop(.12, '#7b5149'); arena.addColorStop(1, '#241a35');
+        cx.fillStyle = arena; cx.fillRect(s.x0 - S.cam, G, s.x1 - s.x0, H - G);
+        cx.fillStyle = 'rgba(255,215,145,.7)'; cx.fillRect(s.x0 - S.cam, G, s.x1 - s.x0, 3);
+        for (let x = Math.floor(s.x0 / 170) * 170; x < s.x1; x += 170) {
+          const px = x - S.cam + 24, py = G + 24 + ((Math.floor(x / 170) * 31) % 70);
+          cx.fillStyle = 'rgba(255,220,165,.16)'; cx.fillRect(px, py, 22, 2);
+        }
+        cx.restore(); return;
+      }
       const tile = s.zona === 'cueva' ? img.sueloCueva : img.suelo; if (!tile) return; const tw = 440, th = tile.height * tw / tile.width, so = superficie(tile) * th;
       cx.save(); cx.beginPath(); cx.rect(s.x0 - S.cam, 0, s.x1 - s.x0, H); cx.clip();
       const gr = cx.createLinearGradient(0, G + th - so - 6, 0, H); if (s.zona === 'cueva') { gr.addColorStop(0, '#2a2a3c'); gr.addColorStop(1, '#0c0c18'); } else { gr.addColorStop(0, '#5a321c'); gr.addColorStop(1, '#1c0f08'); }
@@ -536,16 +577,17 @@
   function dibujar() {
     if (!S || !cx) return;
     const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); cx.clearRect(-20, -20, W + 40, H + 40);
-    if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla);
-    if (window.N1dir) N1dir.fondo();
-    decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
+    if (S.nivel2) fondoDesiertoNoche(1);
+    else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
+    if (window.N1dir && !S.nivel2) N1dir.fondo();
+    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = i.tipo === 'onigiri' ? img.onigiri : img.pergamino, w = i.tipo === 'onigiri' ? 46 : 52; if (im) sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.shur.forEach(s => { const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
-    decorado('frente'); if (window.N1dir) N1dir.mundo();
+    if (!S.nivel2) decorado('frente'); if (window.N1dir && !S.nivel2) N1dir.mundo();
     S.part.forEach(p => { cx.globalAlpha = clamp(p.t * 2, 0, 1); cx.fillStyle = p.col; cx.fillRect(p.x - S.cam - p.r / 2, p.y - p.r / 2, p.r, p.r); }); cx.globalAlpha = 1;
-    if (S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
-    oscuridad(); if (window.N1dir) N1dir.encima();
+    if (!S.nivel2 && S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
+    oscuridad(); if (window.N1dir && !S.nivel2) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
     if (S.osc > .15) etiquetasAcertijos();
