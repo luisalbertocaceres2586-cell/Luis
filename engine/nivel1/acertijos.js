@@ -44,11 +44,12 @@
   // ---------- tipos de pregunta (todas refuerzan la tabla y matemáticas básicas) ----------
   // Cada una devuelve { respuesta, texto, hecho, concepto, distractores(rng) }
   const TIPOS = {
-    producto: (t, b) => ({ respuesta: t * b, texto: t + ' × ' + b, concepto: 'multiplicar', hecho: t + 'x' + b }),
+    producto: (t, b) => ({ respuesta: t * b, texto: t + ' × ' + b + ' = ?', concepto: 'multiplicar', hecho: t + 'x' + b }),
     factor:   (t, b) => ({ respuesta: b, texto: t + ' × ? = ' + (t * b), concepto: 'factor que falta', hecho: t + 'x' + b }),
-    doble:    (t, b) => ({ respuesta: t * b, texto: b + ' veces ' + t, concepto: 'sumar repetido', hecho: t + 'x' + b }),
-    mitad:    (t, b) => ({ respuesta: b, texto: 'la mitad de ' + (t * b) + (t === 2 ? '' : ' entre ' + t / 2), concepto: 'dividir', hecho: t + 'x' + b }),
-    salto:    (t, b) => ({ respuesta: t * b, texto: 'cuenta de ' + t + ' en ' + t + ': ' + [1, 2, 3].map(k => t * Math.max(1, b - 3 + k)).filter((_, i) => b - 3 + i + 1 >= 1).slice(0, 2).join(', ') + ', ?', concepto: 'secuencia', hecho: t + 'x' + b })
+    doble:    (t, b) => ({ respuesta: t * b, texto: b + ' veces ' + t + ' = ?', concepto: 'sumar repetido', hecho: t + 'x' + b }),
+    mitad:    (t, b) => ({ respuesta: b, texto: t === 2 ? 'La mitad de ' + (t * b) + ' = ?' : (t * b) + ' ÷ ' + t + ' = ?', concepto: 'dividir', hecho: t + 'x' + b }),
+    // cuenta de t en t: se muestran dos números y hay que decir el que sigue (siempre hay dos números a la vista)
+    salto:    (t, b) => { const bb = Math.max(3, b); return { respuesta: t * bb, secuencia: [t * (bb - 2), t * (bb - 1)], texto: 'Sigue la cuenta de ' + t + ' en ' + t + ': ' + t * (bb - 2) + ', ' + t * (bb - 1) + ', ?', concepto: 'secuencia', hecho: t + 'x' + bb }; }
   };
 
   function distractores(rng, correcta, n, tabla) {
@@ -62,14 +63,14 @@
 
   // ---------- mecánicas: cómo se responde dentro del mundo ----------
   const MECANICAS = {
-    romper_bloques:  { verbo: 'Rompe el bloque con', objetos: 4, tipos: ['producto', 'doble', 'factor'],           penal: 'los demás bloques explotan' },
-    empujar_carreta: { verbo: 'Empuja la carreta hasta la plataforma de', objetos: 3, tipos: ['producto', 'doble'], penal: 'la carreta se atasca' },
-    encender_farol:  { verbo: 'Enciende el farol de', objetos: 4, tipos: ['producto', 'factor', 'salto'],          penal: 'el farol se apaga y la luz se encoge' },
-    diana:           { verbo: 'Lanza el shuriken a la diana de', objetos: 4, tipos: ['producto', 'factor', 'mitad'],  penal: 'el shuriken rebota' },
-    piedras:         { verbo: 'Salta a la piedra que sigue la cuenta:', objetos: 3, tipos: ['salto'],               penal: 'la piedra se desmorona' },
-    dial:            { verbo: 'Gira las ruedas hasta formar', objetos: 1, tipos: ['producto', 'doble', 'factor'],   penal: 'la cerradura se bloquea un instante' },
-    balanza:         { verbo: 'Arrastra pesas hasta equilibrar', objetos: 1, tipos: ['factor'],                    penal: 'la balanza se inclina' },
-    luciernagas:     { verbo: 'Cuenta los grupos de luciérnagas y toca', objetos: 4, tipos: ['producto', 'doble'],   penal: 'las luciérnagas huyen' }
+    romper_bloques:  { verbo: 'Rompe el sello con la respuesta:', objetos: 4, tipos: ['producto', 'doble', 'factor'],           penal: 'los demás bloques explotan' },
+    empujar_carreta: { verbo: 'Empuja la carreta al número correcto:', objetos: 3, tipos: ['producto', 'doble'], penal: 'la carreta se atasca' },
+    encender_farol:  { verbo: 'Enciende el farol con la respuesta:', objetos: 4, tipos: ['producto', 'factor', 'salto'],          penal: 'el farol se apaga y la luz se encoge' },
+    diana:           { verbo: 'Dispara a la diana con la respuesta:', objetos: 4, tipos: ['producto', 'factor', 'mitad'],  penal: 'el shuriken rebota' },
+    piedras:         { verbo: 'Salta a la piedra con el número que sigue:', objetos: 3, tipos: ['salto'],               penal: 'la piedra se desmorona' },
+    dial:            { verbo: 'Gira las ruedas hasta formar el número', objetos: 1, tipos: ['producto', 'doble', 'factor'],   penal: 'la cerradura se bloquea un instante' },
+    balanza:         { verbo: 'Pon pesas hasta llegar a', objetos: 1, tipos: ['factor'],                    penal: 'la balanza se inclina' },
+    luciernagas:     { verbo: 'Cuenta las luciérnagas y toca', objetos: 4, tipos: ['producto', 'doble'],   penal: 'las luciérnagas huyen' }
   };
 
   /** Crea un acertijo listo para que el motor lo coloque en el mundo. */
@@ -82,19 +83,19 @@
     const b = parseInt(hecho.split('x')[1], 10);
     const tipo = rng.pick(m.tipos);
     const q = TIPOS[tipo](tabla, b);
-    const out = { mecanica: mec, tipo: tipo, hecho: q.hecho, concepto: q.concepto, enunciado: m.verbo + ' ' + q.texto, penalizacion: m.penal, objetos: [] };
+    const out = { mecanica: mec, tipo: tipo, hecho: q.hecho, concepto: q.concepto, enunciado: m.verbo + ' ' + q.texto, penalizacion: m.penal, objetos: [] }; if (q.secuencia) { out.secuencia = q.secuencia; if (tipo === 'salto') out.enunciado = m.verbo.replace('con la respuesta:', 'con el número que sigue:') + ' ' + q.secuencia.join(', ') + ', ?  (cuenta de ' + tabla + ' en ' + tabla + ')'; }
 
     if (mec === 'dial') {
       out.objetos = [{ valor: q.respuesta, correcto: true, digitos: String(q.respuesta).length }];
     } else if (mec === 'balanza') {
       out.balanza = { valorPesa: tabla, objetivo: tabla * b, pesasNecesarias: b };
       out.objetos = [{ valor: b, correcto: true }];
-      out.enunciado = m.verbo + ' ' + (tabla * b) + ' (cada pesa vale ' + tabla + ')';
+      out.enunciado = m.verbo + ' ' + (tabla * b) + '. Cada pesa vale ' + tabla + '. ¿Cuántas pesas necesitas?';
     } else if (mec === 'luciernagas') {
       out.grupos = { cuantos: b, tamano: tabla };      // b grupos de `tabla` luciérnagas
       const ds = distractores(rng, q.respuesta, m.objetos - 1, tabla);
       out.objetos = rng.shuffle([{ valor: q.respuesta, correcto: true }].concat(ds.map(v => ({ valor: v, correcto: false }))));
-      out.enunciado = m.verbo + ' el total';
+      out.enunciado = m.verbo + ' cuántas hay en total';
     } else if (mec === 'piedras') {
       // piedras con la cuenta: dos ya puestas y la que sigue entre varias
       const start = Math.max(1, b - 2);
@@ -103,7 +104,7 @@
       const ds = distractores(rng, sig, m.objetos - 1, tabla);
       out.objetos = rng.shuffle([{ valor: sig, correcto: true }].concat(ds.map(v => ({ valor: v, correcto: false }))));
       out.hecho = tabla + 'x' + (start + 2);
-      out.enunciado = m.verbo + ' ' + out.secuencia.join(', ') + ', ?';
+      out.enunciado = m.verbo + ' ' + out.secuencia.join(', ') + ', ?  (se cuenta de ' + tabla + ' en ' + tabla + ')';
     } else {
       const ds = distractores(rng, q.respuesta, m.objetos - 1, tabla);
       out.objetos = rng.shuffle([{ valor: q.respuesta, correcto: true }].concat(ds.map(v => ({ valor: v, correcto: false }))));

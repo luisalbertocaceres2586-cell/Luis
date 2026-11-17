@@ -330,6 +330,206 @@
    "ruta": "assets/nivel1/decorado/bambu_roca.png",
    "w": 330,
    "h": 485
+  },
+  "cerezo_sakura": {
+   "ruta": "assets/nivel1/decorado_extra/cerezo_sakura.png",
+   "w": 413,
+   "h": 471
+  },
+  "pino_bonsai": {
+   "ruta": "assets/nivel1/decorado_extra/pino_bonsai.png",
+   "w": 373,
+   "h": 430
+  },
+  "rocas_musgo": {
+   "ruta": "assets/nivel1/decorado_extra/rocas_musgo.png",
+   "w": 329,
+   "h": 282
+  },
+  "valla_madera": {
+   "ruta": "assets/nivel1/decorado_extra/valla_madera.png",
+   "w": 390,
+   "h": 254
+  },
+  "fuente_bambu": {
+   "ruta": "assets/nivel1/decorado_extra/fuente_bambu.png",
+   "w": 363,
+   "h": 405
+  },
+  "farolitos_cuerda": {
+   "ruta": "assets/nivel1/decorado_extra/farolitos_cuerda.png",
+   "w": 354,
+   "h": 290
+  },
+  "cartel_flecha": {
+   "ruta": "assets/nivel1/decorado_extra/cartel_flecha.png",
+   "w": 283,
+   "h": 446
+  },
+  "helechos_luciernagas": {
+   "ruta": "assets/nivel1/decorado_extra/helechos_luciernagas.png",
+   "w": 376,
+   "h": 356
+  },
+  "suelo_bosque_lajas": {
+   "ruta": "assets/nivel1/terreno_extra/suelo_bosque_lajas.png",
+   "w": 479,
+   "h": 189
+  },
+  "suelo_otonal": {
+   "ruta": "assets/nivel1/terreno_extra/suelo_otonal.png",
+   "w": 479,
+   "h": 187
+  },
+  "tronco_caido": {
+   "ruta": "assets/nivel1/terreno_extra/tronco_caido.png",
+   "w": 468,
+   "h": 174
+  },
+  "plataforma_flores": {
+   "ruta": "assets/nivel1/terreno_extra/plataforma_flores.png",
+   "w": 477,
+   "h": 284
+  },
+  "losa_runas": {
+   "ruta": "assets/nivel1/terreno_extra/losa_runas.png",
+   "w": 475,
+   "h": 220
+  },
+  "hoja_loto": {
+   "ruta": "assets/nivel1/terreno_extra/hoja_loto.png",
+   "w": 483,
+   "h": 195
+  },
+  "plataforma_cristal": {
+   "ruta": "assets/nivel1/terreno_extra/plataforma_cristal.png",
+   "w": 469,
+   "h": 290
+  },
+  "hongo_plataforma": {
+   "ruta": "assets/nivel1/terreno_extra/hongo_plataforma.png",
+   "w": 470,
+   "h": 285
+  },
+  "estalagmita_columna": {
+   "ruta": "assets/nivel1/cueva_extra/estalagmita_columna.png",
+   "w": 270,
+   "h": 567
+  },
+  "cristales_techo": {
+   "ruta": "assets/nivel1/cueva_extra/cristales_techo.png",
+   "w": 225,
+   "h": 371
+  },
+  "hongo_gigante": {
+   "ruta": "assets/nivel1/cueva_extra/hongo_gigante.png",
+   "w": 294,
+   "h": 441
+  },
+  "raices_colgantes": {
+   "ruta": "assets/nivel1/cueva_extra/raices_colgantes.png",
+   "w": 237,
+   "h": 521
+  },
+  "pared_mineral": {
+   "ruta": "assets/nivel1/cueva_extra/pared_mineral.png",
+   "w": 269,
+   "h": 475
+  },
+  "arco_ruinas": {
+   "ruta": "assets/nivel1/cueva_extra/arco_ruinas.png",
+   "w": 355,
+   "h": 458
+  },
+  "flores_luminosas": {
+   "ruta": "assets/nivel1/cueva_extra/flores_luminosas.png",
+   "w": 270,
+   "h": 400
+  },
+  "altar_vela": {
+   "ruta": "assets/nivel1/cueva_extra/altar_vela.png",
+   "w": 283,
+   "h": 442
+  },
+  "ninja_arquero": {
+   "ruta": "assets/nivel1/enemigos_extra/ninja_arquero.png",
+   "w": 394,
+   "h": 403
+  },
+  "ninja_lancero": {
+   "ruta": "assets/nivel1/enemigos_extra/ninja_lancero.png",
+   "w": 427,
+   "h": 381
+  },
+  "samurai_fantasma": {
+   "ruta": "assets/nivel1/enemigos_extra/samurai_fantasma.png",
+   "w": 372,
+   "h": 453
+  },
+  "serpiente_cueva": {
+   "ruta": "assets/nivel1/enemigos_extra/serpiente_cueva.png",
+   "w": 357,
+   "h": 396
+  },
+  "escarabajo_cristal": {
+   "ruta": "assets/nivel1/enemigos_extra/escarabajo_cristal.png",
+   "w": 355,
+   "h": 306
+  },
+  "kappa": {
+   "ruta": "assets/nivel1/enemigos_extra/kappa.png",
+   "w": 367,
+   "h": 357
+  },
+  "zorro_fuego": {
+   "ruta": "assets/nivel1/enemigos_extra/zorro_fuego.png",
+   "w": 387,
+   "h": 409
+  },
+  "rana_gigante": {
+   "ruta": "assets/nivel1/enemigos_extra/rana_gigante.png",
+   "w": 370,
+   "h": 293
+  },
+  "maestro_sensei": {
+   "ruta": "assets/nivel1/objetos_extra/maestro_sensei.png",
+   "w": 329,
+   "h": 501
+  },
+  "mercader_tanuki": {
+   "ruta": "assets/nivel1/objetos_extra/mercader_tanuki.png",
+   "w": 380,
+   "h": 450
+  },
+  "palanca_apagada": {
+   "ruta": "assets/nivel1/objetos_extra/palanca_apagada.png",
+   "w": 286,
+   "h": 264
+  },
+  "palanca_encendida": {
+   "ruta": "assets/nivel1/objetos_extra/palanca_encendida.png",
+   "w": 306,
+   "h": 378
+  },
+  "frasco_luz": {
+   "ruta": "assets/nivel1/objetos_extra/frasco_luz.png",
+   "w": 316,
+   "h": 400
+  },
+  "llave_dorada": {
+   "ruta": "assets/nivel1/objetos_extra/llave_dorada.png",
+   "w": 282,
+   "h": 412
+  },
+  "campana_templo": {
+   "ruta": "assets/nivel1/objetos_extra/campana_templo.png",
+   "w": 400,
+   "h": 364
+  },
+  "corazon_jade": {
+   "ruta": "assets/nivel1/objetos_extra/corazon_jade.png",
+   "w": 311,
+   "h": 277
   }
  },
  "animaciones": {

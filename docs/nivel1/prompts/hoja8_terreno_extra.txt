@@ -1,0 +1,33 @@
+INSTRUCCIONES GENERALES (válidas para TODAS las hojas — léelas completas antes de dibujar)
+
+QUÉ ES: una HOJA DE SPRITES de 8 piezas para un videojuego 2D de plataformas de NINJAS en un Japón feudal fantástico. Vista LATERAL (de perfil, como un juego de scroll horizontal); los elementos de escenario (árboles, puertas, carteles) se ven de frente. Sin vista cenital.
+
+FONDO TRANSPARENTE REAL (OBLIGATORIO, LO MÁS IMPORTANTE): entrega un PNG con CANAL ALFA, es decir, transparente de verdad. PROHIBIDO: fondo blanco, fondo gris, fondo negro, cuadros grises y blancos que simulan transparencia, degradados, texturas de fondo, suelo, sombras proyectadas, reflejos o resplandores difusos que se salgan de las piezas. Los brillos (luz de una antorcha, cristales, llamas) deben quedar DENTRO de la silueta de la pieza, con borde nítido. Si no puedes entregar transparencia real, dímelo en lugar de dibujar cuadros.
+
+TAMAÑO Y ORDEN: usa la máxima resolución disponible. El formato exacto de la hoja se indica en cada hoja (cuadrícula de 8 celdas del mismo tamaño). Una sola pieza por celda, centrada, con al menos 30 px de espacio transparente alrededor; ninguna pieza toca o se mezcla con otra ni con el borde de la imagen. Las piezas van numeradas de izquierda a derecha y de arriba abajo, en el mismo orden de la lista. No recortes ninguna pieza. Mantén la misma escala relativa entre las piezas de la hoja (un árbol es más grande que una valla).
+
+CALIDAD Y ESTILO: arte digital de altísima calidad, nivel estudio de animación profesional y juego móvil premium: pintura detallada hecha a mano, texturas ricas (madera, piedra, tela, metal, musgo, cristal), colores saturados y vivos, CONTORNO oscuro azul marino #1A1230 limpio y nítido de 2 a 3 px, luz principal desde arriba a la izquierda con luz de borde suave y sombras de forma coherentes. Los personajes son chibi-anime (cabeza grande, cuerpo compacto). Todas las piezas deben parecer del mismo juego. No imites ninguna marca ni personaje conocido.
+
+PALETA (úsala como guía): bosque: verdes #2F9E44 #8FD14F #1F6B3A, musgo #5FAE3A, bambú #A6D13F, madera #8B5A2B #C77C2E, tierra #5A321C, piedra gris azulada #6B7390, rojo bermellón #D8321F, dorado #FFC93C, rosa sakura #FF8FB8. Cueva: roca #2B2F45 #4A4F6B, cristal cian #35D0F0, azul #3A8DFF, hongos turquesa #2FE3C0 y lima #B5F23D. Fuego y luz: naranja #FF8A1F, amarillo #FFD54A. Acentos: carmesí #C81E3C, azul marino #1A1230.
+
+SIN TEXTO: ninguna letra, número, palabra, símbolo escrito, marca de agua, línea de cuadrícula ni etiqueta. Si hace falta un emblema, dibuja un diseño abstracto (círculos, espirales, líneas), nunca letras.
+
+ORIENTACIÓN: los personajes, criaturas y objetos direccionales miran a la DERECHA, salvo que la pieza diga otra cosa.
+
+
+FORMATO DE ESTA HOJA: imagen VERTICAL de 1024 × 1536 px con una cuadrícula de 2 columnas × 4 filas (8 celdas horizontales de unos 512 × 384 px). Fila 1 = piezas 1 y 2; fila 2 = 3 y 4; fila 3 = 5 y 6; fila 4 = 7 y 8.
+
+HOJA 8 — SUELOS Y PLATAFORMAS (VARIEDAD)
+Esta hoja son SUELOS Y PLATAFORMAS vistos de lado, cada uno una franja horizontal ancha que llena casi todo el ancho de su celda. La superficie de arriba (donde se camina) debe ser clara y casi plana. Los suelos 1, 2 y 7 deben tener los extremos izquierdo y derecho cortados rectos y sin elementos grandes pegados al borde, para repetirlos en mosaico.
+
+LAS 8 PIEZAS, EN ORDEN:
+1. Suelo con camino de lajas. Franja de suelo de bosque vista de lado: arriba, hierba verde brillante a los lados y un camino de lajas de piedra planas y claras en la superficie; debajo, tierra marrón rojiza #5A321C con piedras y capas, corte frontal profundo (60 % del alto de la celda). Extremos rectos, repetible.
+2. Suelo otoñal. Franja de suelo con hojas caídas rojas, naranjas y doradas sobre hierba seca amarillenta, tierra rojiza debajo con raíces y piedras; corte frontal profundo. Extremos rectos, repetible.
+3. Tronco caído. Tronco grueso caído en horizontal, corteza marrón con grietas, cubierto de musgo verde y con 3 o 4 hongos pequeños y marrones en la parte superior; extremos con el corte de los anillos visible. Superficie superior bien definida.
+4. Plataforma de madera con flores. Plataforma flotante de tablones de madera clara atados con cuerda roja, con pequeñas macetas de flores rosas y blancas en los dos extremos y una enredadera colgando por debajo. Superficie central despejada.
+5. Losa de piedra con runas. Losa de piedra gris azulada rectangular y gruesa, flotante, con símbolos geométricos simples grabados (círculos, espirales y líneas; NO letras), bordes con musgo y raíces finas colgando por debajo.
+6. Hoja de loto gigante. Hoja de loto gigante y redonda vista de lado como plataforma, verde con nervaduras claras, con una flor de loto rosa en un extremo y una pequeña rana verde simpática sentada en el otro; un poco de agua azul debajo de la hoja (dentro de la silueta).
+7. Plataforma de cristales. Plataforma de roca oscura #2B2F45 con cristales cian #35D0F0 y azules brotando de la superficie y colgando debajo, con un brillo interno suave dentro de cada cristal. Superficie de caminar plana y rugosa.
+8. Hongo gigante plataforma. Hongo gigante visto de lado: sombrero ancho y plano turquesa #2FE3C0 con puntos luminosos lima #B5F23D y tallo corto y grueso color crema, con pequeños hongos y hierba en la base. La parte superior del sombrero es una superficie ancha y casi plana.
+
+RECUERDA: fondo TRANSPARENTE REAL (PNG con canal alfa), exactamente 8 piezas separadas, ninguna con texto, letras ni números, brillos solo dentro de la silueta, contorno azul marino #1A1230 en todas.

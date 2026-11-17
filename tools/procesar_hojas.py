@@ -52,7 +52,7 @@ def split_pieces(arr, expected, mode):
     from scipy.spatial import cKDTree
     mask = arr[..., 3] > 12
     H, W = mask.shape
-    cols, rows = (5, 2) if mode == 'tall' else (2, 5)
+    cols, rows = {'tall': (5, 2), 'wide': (2, 5), 'tall8': (4, 2), 'wide8': (2, 4)}[mode]
     lab, n = ndi.label(ndi.binary_dilation(mask, iterations=2))
     big, small = [], []
     for i, sl in enumerate(ndi.find_objects(lab), 1):
@@ -130,6 +130,17 @@ SHEETS = [
     ('hoja6_items_jefe', 'items_jefe', 'tall',
      ['pergamino', 'cofre_cerrado', 'cofre_abierto', 'onigiri_curacion', 'tambor_taiko', 'sello_piedra',
       'dragon_papel', 'oni_guardian_reposo', 'oni_guardian_ataque', 'orbe_energia']),
+    # ---- hojas EXTRA (8 piezas por hoja) ----
+    ('hoja7_decorado_extra', 'decorado_extra', 'tall8',
+     ['cerezo_sakura', 'pino_bonsai', 'rocas_musgo', 'valla_madera', 'fuente_bambu', 'farolitos_cuerda', 'cartel_flecha', 'helechos_luciernagas']),
+    ('hoja8_terreno_extra', 'terreno_extra', 'wide8',
+     ['suelo_bosque_lajas', 'suelo_otonal', 'tronco_caido', 'plataforma_flores', 'losa_runas', 'hoja_loto', 'plataforma_cristal', 'hongo_plataforma']),
+    ('hoja9_cueva_extra', 'cueva_extra', 'tall8',
+     ['estalagmita_columna', 'cristales_techo', 'hongo_gigante', 'raices_colgantes', 'pared_mineral', 'arco_ruinas', 'flores_luminosas', 'altar_vela']),
+    ('hoja10_enemigos_extra', 'enemigos_extra', 'tall8',
+     ['ninja_arquero', 'ninja_lancero', 'samurai_fantasma', 'serpiente_cueva', 'escarabajo_cristal', 'kappa', 'zorro_fuego', 'rana_gigante']),
+    ('hoja11_objetos_extra', 'objetos_extra', 'tall8',
+     ['maestro_sensei', 'mercader_tanuki', 'palanca_apagada', 'palanca_encendida', 'frasco_luz', 'llave_dorada', 'campana_templo', 'corazon_jade']),
 ]
 
 GIFS = [
@@ -166,14 +177,15 @@ def bbox_union(frs):
 
 
 def main(src):
-    manifest = {'version': 1, 'piezas': {}, 'animaciones': {}}
+    mf = os.path.join(OUT, 'manifest.json')
+    manifest = json.load(open(mf, encoding='utf-8')) if os.path.exists(mf) else {'version': 1, 'piezas': {}, 'animaciones': {}}
     for fname, folder, mode, names in SHEETS:
         cand = [os.path.join(src, f) for f in os.listdir(src) if f.startswith(fname)]
         if not cand:
             print('falta', fname); continue
         arr = load_rgba(cand[0])
         print(fname, arr.shape)
-        for nm, p in zip(names, split_pieces(arr, 10, mode)):
+        for nm, p in zip(names, split_pieces(arr, len(names), mode)):
             path = f'{folder}/{nm}.png'
             save_png(p, os.path.join(OUT, path))
             manifest['piezas'][nm] = {'ruta': f'assets/nivel1/{path}', 'w': int(p.shape[1]), 'h': int(p.shape[0])}

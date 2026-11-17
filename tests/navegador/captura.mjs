@@ -1,0 +1,10 @@
+import {open} from './lib.mjs';
+const [,, nombre, js, esperaMs] = process.argv;
+const {browser,page}=await open('http://localhost:8123/nivel1.html?auto=1&semilla=3&heroe=kage',{wait:1500});
+await page.evaluate((js)=>{const S=Nivel1._estado(),N=S.N,h=S.h;S.tutoVisto={};S.aviso=null;S.t=30;
+ const tp=(x)=>{h.x=x;h.y=560;h.vy=0;h.vx=0;S.cam=Math.max(0,x-430);S.mezcla=x>N.cueva.x+480?1:Math.max(0,(x-N.cueva.x-120)/360);};
+ const el=(t)=>N.elem.find(q=>q.t===t);
+ eval(js);Nivel1._debug.paso(2);},js);
+await new Promise(r=>setTimeout(r,+esperaMs||1200));
+await page.screenshot({path:`/tmp/w/v_${nombre}.png`}).then(()=>console.log('ok',nombre)).catch(()=>console.log('fail',nombre));
+await browser.close();
