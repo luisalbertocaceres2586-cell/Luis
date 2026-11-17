@@ -371,7 +371,7 @@ function runLoader(){
       i.addEventListener('load',finish,{once:true});i.addEventListener('error',finish,{once:true});setTimeout(finish,7000);});};
   if(document.readyState!=='complete')add(new Promise(r=>addEventListener('load',r,{once:true})));
   if(document.fonts&&document.fonts.load)add(document.fonts.load('700 14px Inter').catch(()=>{}));
-  const sel=/[?&]sel=(\\d)/.exec(Q),profile=sel&&sel[1]||'3';
+  const sel=/[?&]sel=(\d)/.exec(Q),profile=sel&&sel[1]||'3';
   ['assets/ui/select/sakura_'+profile+'.png','assets/ui/select/kage_'+profile+'.png',
    'assets/embebidas/abe821c0f3.png','assets/embebidas/ae59e332e9.jpg','assets/embebidas/ab8b337fd0.jpg']
    .forEach(src=>add(new Promise(resolve=>{const im=new Image();im.onload=im.onerror=resolve;im.src=src;setTimeout(resolve,7000);})));
