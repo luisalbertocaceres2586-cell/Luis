@@ -13,6 +13,8 @@
 
   function generar(params, maestria) {
     const rng = Ruta.crearRng(params.semilla, 'nivel1');
+    const tablas = Array.isArray(params.tablas) && params.tablas.length ? params.tablas : [params.tabla || 2];
+    const tablaPara = i => tablas[i % tablas.length] || params.tabla || 2;
     const N = { suelo: [], plat: [], muros: [], haz: [], enem: [], items: [], deco: [], est: [], ckp: [], tambores: [], elem: [], gaps: [], zonas: [], especiales: [], costo: 0 };
     let x = 0, ult = null, zona = 'bosque', dif = 1;
 
@@ -172,10 +174,11 @@
     let mecAnt = null, nEst = 0;
     function estacion(mecOpc) {
       const i = nEst++;
+      const tabla = tablaPara(N.est.length);
       const mec = mecOpc || (i === 0 ? 'encender_farol' : rng.pick(MECS.filter(m => m !== mecAnt && (zona === 'bosque' || m !== 'empujar_carreta' || true))));
       mecAnt = mec;
       const mecAc = mec === 'empujar_carreta' ? 'encender_farol' : mec;
-      const ac = Ac.crear({ rng: rng.derivar('est' + i), tabla: params.tabla || 2, mecanica: mecAc, maestria });
+      const ac = Ac.crear({ rng: rng.derivar('est' + i), tabla, mecanica: mecAc, maestria });
       ac.mecanica = mec; if (mec === 'empujar_carreta') ac.enunciado = ac.enunciado.replace('Enciende el farol de', 'Empuja la carreta hasta la plataforma de');
       const e = { i: N.est.length, zona, mecanica: mec, ac, x0: x, objetos: [], resuelta: false, errores: 0, puertaX: null, ancho: 0 };
       if (mec === 'piedras') {
@@ -197,7 +200,7 @@
       N.est.push(e); N.costo += COSTO.estacion; return e;
     }
     function estacionAntorchas() {  // cueva: enciende las antorchas en orden de la cuenta
-      const i = nEst++; const t = params.tabla || 2, s = rng.int(1, 6);
+      const i = nEst++, t = tablaPara(N.est.length), s = rng.int(1, 6);
       const vals = [0, 1, 2, 3].map(k => t * (s + k)); const W = 1300; suelo(x, x + W);
       const ac = { mecanica: 'antorchas', tipo: 'salto', hecho: t + 'x' + (s + 3), enunciado: 'Enciende las antorchas en orden: de ' + t + ' en ' + t, objetos: vals.map(v => ({ valor: v, correcto: true })), secuencia: vals };
       const orden = rng.shuffle([0, 1, 2, 3]);
