@@ -59,6 +59,14 @@ const style=document.createElement('style'); style.id='ninjaIntroLayerCss'; styl
 @media(max-height:620px) and (orientation:landscape){#S0 #cpick .cp-main{grid-template-columns:minmax(180px,.75fr) minmax(340px,1.25fr)!important}#S0 #niHeroStage{min-height:220px}#S0 #cpick .cp-card{--ch:clamp(130px,34vh,190px)!important}}
 @media(prefers-reduced-motion:reduce){#ninjaIntroLayers *{animation:none!important}#S0 #niHeroStage img{animation:none!important}#S0 #cpPlay #btnStart{animation:none!important}}
 `;document.head.appendChild(style);
+const artStyle=document.createElement('style');artStyle.id='ninjaIntroAssetLayers';artStyle.textContent=`
+.ni-moon{background:url('assets/ui/intro/layers/moon.svg') center/contain no-repeat!important}
+.ni-mountains{background:url('assets/ui/intro/layers/mountains.svg') center bottom/100% 100% no-repeat!important;clip-path:none!important}
+.ni-pagoda{background:url('assets/ui/intro/layers/pagoda.svg') center bottom/contain no-repeat!important}
+.ni-pagoda svg{display:none!important}
+.ni-torii{background:url('assets/ui/intro/layers/torii.svg') center/contain no-repeat!important;clip-path:none!important}
+.ni-petals{background:url('assets/ui/intro/layers/petals.svg') center/300px 250px repeat!important}
+`;document.head.appendChild(artStyle);
 function mountStage(){
  const pick=document.getElementById('cpick'),main=pick&&pick.querySelector('.cp-main'),cards=pick&&pick.querySelector('.cp-cards'),panel=pick&&pick.querySelector('.cp-panel');
  if(!main||!cards||!panel||document.getElementById('niHeroStage'))return false;
