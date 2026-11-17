@@ -66,9 +66,10 @@ heroes.forEach(h=>{
   const M=window[h.man],X=NJX[h.kind];if(!M||!X)return;
   if(M.animations)installSakura(h,M,X);else installLegacy(h,M,X);
 });
-function drawFr(d,fr,bx,by,effH,name){
+function drawFr(d,fr,bx,by,effH,name,onGround){
   const S=(effH*1.30)/d.X.refH*d.Kg(name),w=fr.img.naturalWidth*S,h=fr.img.naturalHeight*S;
-  CX.drawImage(fr.img,bx+P.w/2-fr.ax*S,by+P.h-fr.ay*S,w,h);
+  const groundOffset=onGround?5:0;
+  CX.drawImage(fr.img,bx+P.w/2-fr.ax*S,by+P.h+groundOffset-fr.ay*S,w,h);
 }
 function selectFrame(d,name,progress,now){
   const anim=d.animations[name];if(!anim||!anim.frames.length)return null;
@@ -113,7 +114,7 @@ window._drawNinjaX=function(kind,bx,by,onGround,dxRun){
       const effH=name.indexOf('crouch')===0||name==='crawl'||name==='slide'?(P._preCrouchH||P._baseH||46):P.h;
       const smooth=CX.imageSmoothingEnabled,quality=CX.imageSmoothingQuality;
       CX.imageSmoothingEnabled=true;CX.imageSmoothingQuality='high';
-      drawFr(d,fr,bx,by,effH,name);
+      drawFr(d,fr,bx,by,effH,name,onGround);
       CX.imageSmoothingEnabled=smooth;CX.imageSmoothingQuality=quality;
       return true;
     }

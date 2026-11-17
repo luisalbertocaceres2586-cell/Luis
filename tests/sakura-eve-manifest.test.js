@@ -14,7 +14,7 @@ const config = JSON.parse(fs.readFileSync(path.join(folder, 'animations', 'anima
 const sourceManifest = JSON.parse(fs.readFileSync(path.join(folder, 'manifest.json'), 'utf8'));
 
 assert.strictEqual(M.character, 'Sakura Eve');
-assert.strictEqual(M.scale, 0.155);
+assert.strictEqual(M.scale, 0.16275);
 assert.deepStrictEqual(Object.keys(M.animations).sort(), Object.keys(config.animations).sort());
 
 const files = new Set();
