@@ -58,6 +58,89 @@ html.ipActive #tutorialModal{display:none!important}
 #ipReplay{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;background:rgba(12,20,43,.82);border:1px solid rgba(255,194,71,.55);color:#ffe0a0;font:800 11px Inter,ui-sans-serif,sans-serif;padding:10px 14px;border-radius:999px;cursor:pointer;letter-spacing:.06em;backdrop-filter:blur(12px)}
 @media(max-width:600px){#ipLoad{width:calc(100vw - 34px);padding:18px 16px 14px;bottom:max(6vh,calc(env(safe-area-inset-bottom) + 22px))}#ipBrand{font-size:9px}#ipTip{font-size:11px}#ipRun{width:64px;height:64px;margin-left:-32px}#ipTap{bottom:max(8vh,calc(env(safe-area-inset-bottom) + 34px));padding:0 16px}}
 @media(prefers-reduced-motion:reduce){#ipTap.on{animation:none}#S0.ipIn{animation:none}#ipFill{transition:none}}
+/* ── LOADING EXPERIENCE / NINJA CINEMATIC ── */
+#ipRoot{background:#050817;isolation:isolate}
+#ipRoot:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 42%,rgba(40,116,190,.18),transparent 42%),
+ radial-gradient(ellipse at 15% 78%,rgba(225,63,143,.17),transparent 35%),
+ linear-gradient(180deg,rgba(3,7,20,.28),transparent 32%,rgba(3,7,20,.32) 60%,rgba(3,7,20,.88));
+}
+#ipRoot:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.18;
+ background-image:linear-gradient(rgba(153,190,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(153,190,255,.08) 1px,transparent 1px);
+ background-size:54px 54px;mask-image:linear-gradient(transparent,#000 18%,#000 75%,transparent)}
+#ipCv{z-index:0;filter:saturate(1.12) contrast(1.06)}
+#ipLoad{left:50%;bottom:max(5.5vh,calc(env(safe-area-inset-bottom) + 24px));width:min( min(760px,92vw),760px);
+ padding:clamp(19px,2.6vw,30px) clamp(18px,3vw,34px) clamp(16px,2.2vw,24px);
+ border:1px solid rgba(143,193,255,.28);border-radius:25px;
+ background:linear-gradient(135deg,rgba(9,18,43,.92),rgba(10,13,34,.88) 48%,rgba(22,12,39,.92));
+ box-shadow:0 30px 100px rgba(0,0,0,.62),0 0 55px rgba(29,153,226,.13),inset 0 1px rgba(255,255,255,.14);
+ backdrop-filter:blur(24px) saturate(1.3);-webkit-backdrop-filter:blur(24px) saturate(1.3);
+ overflow:hidden;text-align:left;transition:opacity .65s,transform .65s,filter .65s}
+#ipLoad:before{content:"";position:absolute;left:8%;right:8%;top:0;height:2px;
+ background:linear-gradient(90deg,transparent,#ed6bb8 18%,#54dfff 50%,#ffce70 82%,transparent);
+ filter:drop-shadow(0 0 8px #56dfff)}
+#ipLoad:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+ background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.055) 48%,transparent 70%);
+ transform:translateX(-110%);animation:ipPanelSweep 7s ease-in-out infinite}
+#ipBrand{display:flex;align-items:center;gap:10px;margin:0 0 20px;color:#8feaff;
+ font:900 10px/1.3 Inter,system-ui,sans-serif;letter-spacing:.22em}
+#ipBrand:before{content:"";width:9px;height:9px;border-radius:3px;transform:rotate(45deg);
+ background:linear-gradient(135deg,#fff1b7,#ffb84d);box-shadow:0 0 14px #ffb84d}
+#ipBrand:after{content:"SISTEMA ACTIVO";margin-left:auto;padding:5px 9px;border-radius:30px;
+ border:1px solid rgba(93,231,206,.24);background:rgba(35,205,169,.08);color:#7de8ca;
+ font:800 8px Inter,system-ui,sans-serif;letter-spacing:.13em}
+#ipPct{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 16px;
+ color:#f5f8ff;font:900 clamp(14px,2vw,19px)/1.2 Inter,system-ui,sans-serif;letter-spacing:.04em;text-shadow:0 2px 20px rgba(58,188,255,.2)}
+#ipStatus{display:block;max-width:75%;font-size:clamp(13px,1.8vw,17px);letter-spacing:.1em}
+#ipNum{display:block;color:#fff;font:900 clamp(27px,4vw,43px)/.95 Inter,system-ui,sans-serif;
+ letter-spacing:-.055em;font-variant-numeric:tabular-nums;
+ background:linear-gradient(180deg,#fff,#83eaff 80%);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 0 15px rgba(57,207,255,.35))}
+#ipBar{height:13px;padding:2px;border:1px solid rgba(132,192,244,.3);border-radius:30px;
+ background:rgba(2,7,20,.9);box-shadow:inset 0 2px 8px rgba(0,0,0,.7),0 0 0 4px rgba(255,255,255,.025);
+ overflow:visible}
+#ipFill{position:relative;height:100%;border-radius:30px;
+ background:linear-gradient(90deg,#8b5cf6 0%,#438cff 38%,#39d8e9 72%,#ffe08a 100%);
+ box-shadow:0 0 12px rgba(58,204,255,.65),0 0 28px rgba(58,150,255,.32);transition:width .18s cubic-bezier(.2,.8,.2,1)}
+#ipFill:after{content:"";position:absolute;right:0;top:-3px;width:30px;height:calc(100% + 6px);border-radius:50%;
+ background:#fff;box-shadow:0 0 9px 3px #8ff5ff,0 0 25px 8px rgba(68,208,255,.75)}
+#ipRun{bottom:-13px;width:66px;height:66px;margin-left:-33px;filter:drop-shadow(0 0 12px rgba(65,219,255,.8))}
+#ipTip{position:relative;min-height:0;margin:19px 0 0;padding:0 0 0 15px;color:#c2cee5;
+ font:600 clamp(10px,1.2vw,12px)/1.6 Inter,system-ui,sans-serif;letter-spacing:.025em}
+#ipTip:before{content:"";position:absolute;left:0;top:4px;width:5px;height:5px;border-radius:50%;
+ background:#ffcb70;box-shadow:0 0 10px #ffcb70}
+#ipLoadMeta{display:flex;justify-content:space-between;gap:12px;margin-top:16px;padding-top:12px;
+ border-top:1px solid rgba(159,190,238,.13);color:#7284a8;font:800 8px Inter,system-ui,sans-serif;letter-spacing:.16em}
+#ipLoadMeta span:last-child{color:#91cde8}
+#ipTap{z-index:5;bottom:max(4vh,calc(env(safe-area-inset-bottom) + 20px));font-size:clamp(12px,1.8vw,17px);
+ padding:14px 22px;width:max-content;max-width:92vw;left:50%;right:auto;transform:translateX(-50%);
+ border:1px solid rgba(255,211,117,.42);border-radius:99px;background:rgba(7,12,30,.72);
+ backdrop-filter:blur(12px);box-shadow:0 0 35px rgba(255,178,72,.16)}
+#ipSkip{z-index:8}
+@keyframes ipPanelSweep{0%,58%{transform:translateX(-110%)}82%,100%{transform:translateX(110%)}}
+@keyframes ipLoadFloat{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-5px)}}
+@media(min-width:900px){#ipLoad{animation:ipLoadFloat 7s ease-in-out infinite}}
+@media(max-width:600px){
+ #ipLoad{width:calc(100vw - 28px);bottom:max(3vh,calc(env(safe-area-inset-bottom) + 14px));padding:19px 17px 15px;border-radius:20px}
+ #ipBrand{font-size:8px;letter-spacing:.15em;margin-bottom:17px}
+ #ipBrand:after{font-size:7px;padding:4px 7px}
+ #ipPct{margin-bottom:14px}
+ #ipStatus{font-size:12px}
+ #ipNum{font-size:31px}
+ #ipBar{height:11px}
+ #ipRun{width:56px;height:56px;margin-left:-28px;bottom:-12px}
+ #ipTip{margin-top:17px;font-size:10px}
+ #ipLoadMeta{font-size:7px;letter-spacing:.1em;margin-top:13px}
+}
+@media(max-height:520px) and (orientation:landscape){
+ #ipLoad{bottom:12px;padding:12px 18px;width:min(620px,80vw)}
+ #ipBrand{margin-bottom:8px}
+ #ipPct{margin-bottom:8px}
+ #ipTip{margin-top:10px}
+ #ipLoadMeta{margin-top:8px;padding-top:7px}
+ #ipRun{width:48px;height:48px;bottom:-10px}
+}
+@media(prefers-reduced-motion:reduce){#ipLoad:after{animation:none}#ipLoad{animation:none}}
 `;}
 
 /* ---------- audio (sintetizado, pasa por el bus con reverb del motor FX si está activo) ---------- */
@@ -116,7 +199,7 @@ const STR=['7×8','6×9=54','9×9','12×4','8×7=56','×','5×5','3×4=12','÷',
 let grain=null,vig=null;
 const TIPS=['MANTÉN ↑ MÁS TIEMPO PARA SALTAR MÁS ALTO','SHIFT O V = DASH. ¡TE VUELVE INVULNERABLE UN INSTANTE!','PUEDES SALTAR DE NUEVO EN EL AIRE CON ↑','RESPONDE BIEN SEGUIDO Y ACTIVA COMBOS DE PUNTOS','F8 APAGA LOS EFECTOS SI TU COMPUTADOR VA LENTO'];
 
-function resize(){DPR=Math.min(window.devicePixelRatio||1,1.25);VW=innerWidth;VH=innerHeight;cv.width=VW*DPR|0;cv.height=VH*DPR|0;cx.setTransform(DPR,0,0,DPR,0,0);vig=null;}
+function resize(){DPR=Math.min(window.devicePixelRatio||1,1.75);VW=innerWidth;VH=innerHeight;cv.width=VW*DPR|0;cv.height=VH*DPR|0;cx.setTransform(DPR,0,0,DPR,0,0);vig=null;}
 function glyph(s,col,size){const k=s+col+size;if(glyphs[k])return glyphs[k];const c=document.createElement('canvas'),x=c.getContext('2d');
   x.font=size+'px "Press Start 2P",monospace';const w=Math.ceil(x.measureText(s).width)+30;c.width=w;c.height=size+30;
   x.font=size+'px "Press Start 2P",monospace';x.textBaseline='middle';x.fillStyle=col;x.shadowColor=col;x.shadowBlur=14;x.fillText(s,15,c.height/2);return glyphs[k]=c;}
@@ -404,7 +487,8 @@ function loop(ts){
   shake=Math.max(0,shake-dt*1.8);flash=Math.max(0,flash-dt*2.6);glitchK=Math.max(0,glitchK-dt*5);
   if(phase==='load'){
     const el=T0s();loadShown+=(Math.min(real,el/minLoad)-loadShown)*Math.min(1,dt*4);
-    const pct=Math.min(100,Math.round(loadShown*100));document.getElementById('ipPct').textContent=(pct>=100?'¡TODO LISTO!':'PREPARANDO EL JUEGO')+'  ·  '+pct+'%';
+    const pct=Math.min(100,Math.round(loadShown*100));document.getElementById('ipStatus').textContent=pct>=100?'¡TODO LISTO!':'PREPARANDO EL JUEGO';
+    document.getElementById('ipNum').textContent=pct+'%';
     document.getElementById('ipFill').style.width=pct+'%';
     const run=document.getElementById('ipRun');run.style.left=pct+'%';
     const rx=run.getContext('2d');rx.clearRect(0,0,96,96);const fr=skFrame(el,16);if(fr&&ok(fr.img)){const s=84/200;rx.drawImage(fr.img,48-fr.ax*s,90-fr.ay*s,fr.img.naturalWidth*s,fr.img.naturalHeight*s);}
@@ -435,10 +519,12 @@ function build(opts){
   document.documentElement.classList.add('ipActive');
   root=mk('div','ipRoot',document.body);cv=mk('canvas','ipCv',root);cx=cv.getContext('2d');
   mk('div','ipBarT',root,'ipBar');mk('div','ipBarB',root,'ipBar');mk('div','ipCap',root);
-  const ld=mk('div','ipLoad',root);mk('div','ipBrand',ld).textContent='COLBOLÍVAR  ·  AVENTURA MATEMÁTICA';
-  mk('div','ipPct',ld).textContent='PREPARANDO EL JUEGO  ·  0%';
+  const ld=mk('div','ipLoad',root);mk('div','ipBrand',ld).textContent='NINJA ACADEMY  ·  AVENTURA MATEMÁTICA';
+  const pctBox=mk('div','ipPct',ld);mk('span','ipStatus',pctBox).textContent='PREPARANDO EL JUEGO';mk('strong','ipNum',pctBox).textContent='0%';
   const bar=mk('div','ipBar2',ld);bar.id='ipBar';mk('i','ipFill',bar);const rc=mk('canvas','ipRun',bar);rc.width=rc.height=96;
-  mk('div','ipTip',ld).textContent='Preparando personajes, escenarios y desafíos…';mk('div','ipTap',root);
+  mk('div','ipTip',ld).textContent='Sincronizando personajes, escenarios y desafíos…';
+  const meta=mk('div','ipLoadMeta',ld);mk('span',null,meta).textContent='INICIALIZANDO EXPERIENCIA';mk('span',null,meta).textContent='RECURSOS DEL JUEGO';
+  mk('div','ipTap',root);
   const sk=mk('button','ipSkip',root);sk.textContent='SALTAR ⏭';sk.addEventListener('click',e=>{e.stopPropagation();if(phase==='story')startWipe(true);});
   mk('div','ipRing',root);
   resize();addEventListener('resize',()=>{if(!dead)resize();});
