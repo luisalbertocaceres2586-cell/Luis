@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   if (typeof Perfiles === 'undefined') return;
-  const AV = { sakura: { char: 'mario', nombre: 'SAKURA', color: '#FF2E92' }, kage: { char: 'peach', nombre: 'KAGE', color: '#FF3B44' } };
+  const AV = { sakura: { char: 'mario', nombre: 'SAKURA EVE', color: '#FF2E92' }, kage: { char: 'peach', nombre: 'KAGE', color: '#FF3B44' } };
   let listo = false, vista = 'auto', borrador = { nombre: '', avatar: 'sakura', dispositivo: null };
 
   const css = `

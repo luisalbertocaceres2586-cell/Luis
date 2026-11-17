@@ -9,7 +9,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
  init(){
   const grid=document.getElementById('cgrid');if(!grid||!grid.parentNode)return;
   const CH={
-    mario:{n:'SAKURA',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#7A0A4A',c3:'#FFB3DA',sk:'✨ X · Triple abanico',art:'sakura'},
+    mario:{n:'SAKURA EVE',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#7A0A4A',c3:'#FFB3DA',sk:'✨ X · Triple abanico',art:'sakura'},
     peach:{n:'KAGE',rol:'NINJA DE LA SOMBRA',emoji:'🔥',c1:'#FF3B44',c2:'#5A0006',c3:'#FFC2C5',sk:'✨ X · Disparo doble',art:'kage'}
   };
   const ORDER=['mario','peach'];
@@ -60,7 +60,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
   const cards=document.getElementById('cpCards');
   ORDER.forEach(c=>{const d=CH[c],b=document.createElement('button');b.type='button';b.className='cp-card';b.dataset.c=c;b.setAttribute('aria-label',d.n);
     b.style.cssText=`--k1:${d.c1};--k2:${d.c2};--k3:${d.c3}`;
-    const im=new Image();im.alt='';im.draggable=false;im.src='assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';b.insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px">'+d.emoji+'</div>');};
+    const im=new Image();im.alt='';im.draggable=false;im.src=c==='mario'?'assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png':'assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';b.insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px">'+d.emoji+'</div>');};
     b.appendChild(im);const nm=document.createElement('div');nm.className='nm';nm.textContent=d.n;b.appendChild(nm);
     b.onclick=()=>window.selChar(c);cards.appendChild(b);});
   // botones de jugar (los mueve a la columna derecha conservando sus eventos)

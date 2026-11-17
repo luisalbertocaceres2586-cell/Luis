@@ -545,7 +545,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <!-- Beat 4: heroes streak across -->
   <div id="cineBeat4" style="position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;overflow:hidden">
-    <img src="assets/embebidas/94db1b0e8f.png" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%) scaleX(-1);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
+    <img src="assets/characters/sakura_assets/sakura/frames/run/sakura_run_01.png" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
     <img src="assets/embebidas/e63205ea51.png" alt="" style="position:absolute;top:46%;right:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(120,80,255,.7));animation:cineHeroRunR 1.3s cubic-bezier(.3,.7,.4,1) .12s forwards">
     <img id="cineSlash" src="assets/embebidas/0e6e3fa33d.png" alt="" style="position:absolute;top:50%;left:50%;width:70vw;max-width:560px;height:auto;transform:translate(-50%,-50%) scale(.3) rotate(-8deg);opacity:0;filter:drop-shadow(0 0 30px rgba(140,220,255,.9))">
   </div>
@@ -756,7 +756,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
           <div class="hcardGlow"></div>
           <span class="petal p1">🌸</span><span class="petal p2">🌸</span><span class="petal p3">🌸</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/embebidas/ae59e332e9.jpg" alt="Sakura" class="hcardArtBig">
+          <img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png" alt="Sakura Eve" class="hcardArtBig">
           <div class="hcardKeys"><span>F</span> Disparo &nbsp; <span>X</span> Triple &nbsp; <span>C</span> Tajo</div>
         </div>
         <div class="hcard" data-c="peach" onclick="selChar('peach')" style="--hc1:#FF3B44;--hc2:#5A0006;--hc3:#FFC2C5">
@@ -1938,6 +1938,7 @@ function initP(){
   P={ x:90, y:0, w:36, h:46, vx:0, vy:0,
       onGround:false, jumpHeld:0, jumping:false,
       facing:1, iframes:0, alive:true, anim:0,
+      _kunaiT:0, _specialT:0,
       spd:SPD,
       _baseSpd:SPD,
       jumpForce: iP ? JUMP_PEACH : JUMP_MARIO,   // Mario jumps higher than Peach
@@ -3711,6 +3712,7 @@ function doAttack(spread=false, pitch=0){
   if(spread){
     if(_spreadCooldown>0)return;
     _spreadCooldown=35;
+    P._specialT=36;P._kunaiT=0;
     const px=P.x+P.w/2,py=P.y+P.h/2;
     let nearest=null,nearD=9999;
     enemies.forEach(e=>{if(!e.alive||e.beingQ)return;const d=Math.hypot((e.x+e.w/2)-px,(e.y+e.h/2)-py);if(d<145&&d<nearD){nearD=d;nearest=e;}});
@@ -3724,6 +3726,7 @@ function doAttack(spread=false, pitch=0){
   }
   if(_attackCooldown>0)return;
   _attackCooldown=18;
+  P._kunaiT=24;P._specialT=0;
   const px=P.x+P.w/2, py=P.y+P.h/2;
   const RANGE=145;
   let nearest=null,nearD=9999;
@@ -4560,6 +4563,8 @@ function update(dt){
   _attackCooldown=Math.max(0,_attackCooldown-1);
   _spreadCooldown=Math.max(0,_spreadCooldown-1);
   P._meleeT=Math.max(0,(P._meleeT||0)-1);
+  P._kunaiT=Math.max(0,(P._kunaiT||0)-1);
+  P._specialT=Math.max(0,(P._specialT||0)-1);
   if(deathAnims.length) deathAnims.forEach(d=>d.t+=dt);
   deathAnims=deathAnims.filter(d=>d.t<44);
   // Spike-trap damage (Area 1) — touching one hurts like any other hazard.
@@ -8992,7 +8997,7 @@ let _char='mario';
 function selChar(c){_char=c;document.querySelectorAll('.hcard').forEach(b=>b.classList.remove('on'));document.querySelector(`[data-c="${c}"]`).classList.add('on');uAC();SFX.coin();}
 document.getElementById('btnStart').addEventListener('click',()=>{
   uAC();
-  GS.name=(_char==='peach'?'KAGE':'SAKURA')+'-'+Math.floor(100+Math.random()*900);
+  GS.name=(_char==='peach'?'KAGE':'SAKURA EVE')+'-'+Math.floor(100+Math.random()*900);
   GS.char=_char;GS.phase='easy';GS.totalScore=0;GS.level=0;
   _lifeMilestone=0;
   _xpBar=0; _xpTotalLevels=0; _xpRewardAnim=0; _turboTrail=[];
@@ -9634,6 +9639,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/fx-engine.js"></script>
 <script src="engine/mobile-fix.js"></script>
 <script src="assets/characters/sakura/manifest.js"></script>
+<script src="assets/characters/sakura_assets/sakura/manifest.js"></script>
 <script src="assets/characters/kage/manifest.js"></script>
 <script src="engine/hero-pro.js"></script>
 <script src="assets/characters/villain/manifest.js"></script>

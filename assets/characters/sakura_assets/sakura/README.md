@@ -1,4 +1,4 @@
-# Sakura — personaje principal
+# Sakura Eve — personaje principal
 
 Kunoichi de cabello rosa/violeta con banda frontal, bufanda, katana a la espalda y bolsa de kunais.
 Todos los sprites miran a la **derecha** (para la izquierda, voltear horizontalmente en el motor).
