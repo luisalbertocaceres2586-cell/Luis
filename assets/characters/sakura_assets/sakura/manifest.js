@@ -71,7 +71,7 @@
   root.SAKURA_EVE_MANIFEST = {
     character: 'Sakura Eve',
     base: BASE,
-    scale: 0.14,
+    scale: 0.155,
     kmul: { idle: 1, walk: 1, run: 1, sprint: 1, jump: 1, crouch: 1, atk: 1, hurt: 1 },
     animations,
     hitFrames,

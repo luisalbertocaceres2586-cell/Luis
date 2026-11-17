@@ -34,6 +34,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
   #cpick .cp-card:hover{opacity:1;filter:none;transform:translateY(-4px) scale(1);border-color:rgba(22,200,232,.65)}
   #cpick .cp-card.on{opacity:1;filter:none;transform:translateY(-5px) scale(1.025);border:2px solid var(--k3);box-shadow:0 0 0 4px rgba(255,255,255,.06),0 16px 38px color-mix(in srgb,var(--k1) 35%,transparent),0 20px 42px rgba(0,0,0,.4)}
   #cpick .cp-card img{position:absolute;left:50%;top:2%;transform:translateX(-50%);height:82%;width:94%;object-fit:contain;object-position:50% 100%;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.45));z-index:0}
+  #cpick .cp-card img.sakuraArt{top:-6%;height:90%;width:100%}
   #cpick .cp-card.on img{animation:cpFloat 3.4s ease-in-out infinite}
   @keyframes cpFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
   #cpick .cp-card .nm{position:relative;z-index:3;padding:15px 8px 8px;text-align:center;font:900 clamp(12px,1.7vw,16px)/1.2 Inter,ui-sans-serif,sans-serif;letter-spacing:.1em;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
@@ -96,7 +97,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
   const cards=document.getElementById('cpCards');
   ORDER.forEach(c=>{const d=CH[c],b=document.createElement('button');b.type='button';b.className='cp-card';b.dataset.c=c;b.setAttribute('role','radio');b.setAttribute('aria-checked','false');b.setAttribute('aria-label',d.n+' · '+d.rol);
     b.style.cssText=`--k1:${d.c1};--k2:${d.c2};--k3:${d.c3}`;
-  const im=new Image();im.alt='';im.draggable=false;im.decoding='async';im.src=c==='mario'?'assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png':'assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';if(!b.querySelector('.cp-fallback')){const f=document.createElement('span');f.className='cp-fallback';f.textContent=d.emoji;f.style.cssText='position:absolute;inset:12% 0 20%;display:grid;place-items:center;font-size:clamp(48px,8vw,82px);z-index:0';b.insertBefore(f,b.firstChild);}};
+  const im=new Image();im.alt='';im.draggable=false;im.decoding='async';if(c==='mario')im.className='sakuraArt';im.src=c==='mario'?'assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png':'assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';if(!b.querySelector('.cp-fallback')){const f=document.createElement('span');f.className='cp-fallback';f.textContent=d.emoji;f.style.cssText='position:absolute;inset:12% 0 20%;display:grid;place-items:center;font-size:clamp(48px,8vw,82px);z-index:0';b.insertBefore(f,b.firstChild);}};
   b.appendChild(im);const ck=document.createElement('span');ck.className='cp-check';ck.textContent='✓';ck.setAttribute('aria-hidden','true');b.appendChild(ck);
     const nm=document.createElement('div');nm.className='nm';nm.textContent=d.n;b.appendChild(nm);
     const tag=document.createElement('div');tag.className='tag';tag.textContent=d.tag;b.appendChild(tag);

@@ -559,7 +559,7 @@
     let idx = progress === undefined ? Math.floor((now - st.start) * anim.fps) : Math.floor(Math.max(0, Math.min(.999999, progress)) * count);
     if (anim.loop) idx %= count; else idx = Math.min(count - 1, idx);
     const f = anim.frames[idx]; if (!f) return; const im = img[f.file]; if (!im) return;
-    const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
+    const s = S.alto * 1.1, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
     if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
     if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
     cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30, 7, 0, 0, 7); cx.fill();
