@@ -136,14 +136,27 @@
       if (l === Math.round(clamp(S.ly, 0, 2))) { heroe(cam); jefeDib(cam); }
     }
 
+    // sprites reales del héroe (assets/characters); si no cargan, se dibuja la versión simple
+    const SP = kage ? { run: 15, hurt: 6, idle: 6 } : { run: 14, jump: 4, hurt: 5, sprint: 5, idle: 6 }, IMG = {};
+    const carpeta = 'assets/characters/' + (kage ? 'kage' : 'sakura') + '/';
+    Object.keys(SP).forEach(a => { IMG[a] = []; for (let i = 0; i < SP[a]; i++) { const im = new Image(); im.src = carpeta + a + '_' + String(i).padStart(2, '0') + '.png'; IMG[a].push(im); } });
+    function dibujarSprite() {
+      let a = S.inv > 1.1 ? 'hurt' : S.z > 6 && IMG.jump ? 'jump' : S.boost > 0 && IMG.sprint ? 'sprint' : 'run';
+      const fr = IMG[a], i = a === 'jump' ? clamp(Math.floor((S.vz > 200 ? 0 : S.vz > 0 ? 1 : S.vz > -250 ? 2 : 3)), 0, fr.length - 1) : Math.floor(S.t * (S.v / 28)) % fr.length, im = fr[i];
+      if (!im || !im.complete || !im.naturalWidth) return false;
+      const h = 118, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
+    }
+
     function heroe(cam) {
       const x = X_H, y = laneY(S.d, S.ly) - S.z, ang = Math.atan(-(hY(S.d + 6) - hY(S.d - 6)) / 12) * -1;
       if (S.inv > 0 && Math.floor(S.t * 14) % 2) return;
       S.part.forEach(p => { cx.globalAlpha = p.t; cx.fillStyle = '#ffe2a8'; cx.fillRect(p.x - cam, laneY(p.x, p.l) - p.z, 4, 3); }); cx.globalAlpha = 1;
-      cx.save(); cx.translate(x, y); cx.rotate(ang * .8); cx.fillStyle = '#3a2547'; cx.beginPath(); cx.ellipse(0, 4, 38, 7, 0, 0, 7); cx.fill();
+      cx.save(); cx.translate(x, y); cx.rotate(ang * .8); cx.fillStyle = '#7a4a8c'; cx.beginPath(); cx.ellipse(0, 4, 40, 8, 0, 0, 7); cx.fill(); cx.fillStyle = '#ffd35a'; cx.fillRect(-40, 2, 80, 3);
+      if (!dibujarSprite()) {
       cx.fillStyle = colH; cx.fillRect(-9, -40, 18, 30); cx.fillStyle = '#f2d1ad'; cx.beginPath(); cx.arc(0, -48, 10, 0, 7); cx.fill(); cx.fillStyle = '#222'; cx.fillRect(-10, -52, 20, 6);
       cx.fillStyle = '#fff'; cx.fillRect(2, -50, 4, 3);
       cx.strokeStyle = colH; cx.lineWidth = 5; cx.beginPath(); cx.moveTo(-9, -48); cx.quadraticCurveTo(-34, -44 + Math.sin(S.t * 18) * 6, -52, -38 + Math.sin(S.t * 14) * 8); cx.stroke();
+      }
       if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(-44 - i * 20, -10 + i * 6); cx.lineTo(-90 - i * 20, -10 + i * 6); cx.stroke(); } }
       cx.restore();
     }
