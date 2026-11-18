@@ -1,0 +1,122 @@
+[
+ {
+  "file": "hoja1_movimiento_A_f01.png",
+  "cell": [
+   0,
+   0
+  ],
+  "bbox": [
+   58,
+   11,
+   352,
+   481
+  ],
+  "w": 294,
+  "h": 470
+ },
+ {
+  "file": "hoja1_movimiento_A_f02.png",
+  "cell": [
+   0,
+   1
+  ],
+  "bbox": [
+   434,
+   11,
+   737,
+   481
+  ],
+  "w": 303,
+  "h": 470
+ },
+ {
+  "file": "hoja1_movimiento_A_f03.png",
+  "cell": [
+   0,
+   2
+  ],
+  "bbox": [
+   820,
+   20,
+   1124,
+   479
+  ],
+  "w": 304,
+  "h": 459
+ },
+ {
+  "file": "hoja1_movimiento_A_f04.png",
+  "cell": [
+   0,
+   3
+  ],
+  "bbox": [
+   1200,
+   20,
+   1508,
+   474
+  ],
+  "w": 308,
+  "h": 454
+ },
+ {
+  "file": "hoja1_movimiento_A_f05.png",
+  "cell": [
+   1,
+   0
+  ],
+  "bbox": [
+   13,
+   540,
+   376,
+   973
+  ],
+  "w": 363,
+  "h": 433
+ },
+ {
+  "file": "hoja1_movimiento_A_f06.png",
+  "cell": [
+   1,
+   1
+  ],
+  "bbox": [
+   402,
+   539,
+   760,
+   974
+  ],
+  "w": 358,
+  "h": 435
+ },
+ {
+  "file": "hoja1_movimiento_A_f07.png",
+  "cell": [
+   1,
+   2
+  ],
+  "bbox": [
+   783,
+   539,
+   1145,
+   975
+  ],
+  "w": 362,
+  "h": 436
+ },
+ {
+  "file": "hoja1_movimiento_A_f08.png",
+  "cell": [
+   1,
+   3
+  ],
+  "bbox": [
+   1167,
+   535,
+   1526,
+   917
+  ],
+  "w": 359,
+  "h": 382
+ }
+]
