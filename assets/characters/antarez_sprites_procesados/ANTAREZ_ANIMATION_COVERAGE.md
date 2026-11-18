@@ -1,6 +1,6 @@
 # ANTAREZ_ANIMATION_COVERAGE
 
-Estado real: los frames están **recortados y listos**, pero todavía **0 frames integrados en el juego**. No se ha ejecutado ninguna prueba en el motor.
+Estado actual: **integrados en el juego los 116 frames de personaje** (hojas 1-6, 8, 9 y 13) mediante `assets/characters/antarez/manifest.js` (generado por `tools/generar_manifest_antarez.py`). Verificado con `node tests/sakura-uso-frames.test.js`. Pendiente: hojas 7, 10 y 11 (iconos y efectos sueltos, 148 piezas).
 
 | Hoja | Carpeta | Frames recortados | Frames integrados | Acción prevista |
 |---|---|---|---|---|
