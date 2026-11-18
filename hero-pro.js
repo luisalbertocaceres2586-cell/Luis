@@ -45,7 +45,8 @@ function installSakura(h,M,X){
   const KM=M.kmul||{};
   const K=()=>M.scale*X.refH/(46*1.30);
   const Kg=name=>K()*(KM[name]||1);
-  const d={on:false,animations,Kg,X,M,groundOffset:(M.groundOffset===undefined?5:M.groundOffset),state:'',stateStart:0,lastGrounded:null,landUntil:0,crouching:false,crouchUntil:0};
+  const d={on:false,animations,Kg,X,M,groundOffset:(M.groundOffset===undefined?5:M.groundOffset),state:'',stateStart:0,lastGrounded:null,landUntil:0,crouching:false,crouchUntil:0,
+    used:new Set(),phase:0,wall:0,glideOn:false,glideLeft:84,maxFall:0,peakUp:1,prevVy:0,wallJumpUntil:0,foldUntil:0,landStart:0,landDur:.16,airStart:0,djAt:0,djSeen:false,wasGlide:false,glideAt:0};
   act[h.kind]=d;
   const images=Array.from(cache.values());let left=images.length,failed=false;
   function activate(){
@@ -113,17 +114,90 @@ function drawFr(d,fr,bx,by,effH,name,onGround){
   const groundOffset=onGround?d.groundOffset:0;
   CX.drawImage(fr.img,bx+P.w/2-fr.ax*S,by+P.h+groundOffset-fr.ay*S,w,h);
 }
-function selectFrame(d,name,progress,now){
+function selectFrame(d,name,progress,now,forceIdx){
   const anim=d.animations[name];if(!anim||!anim.frames.length)return null;
   if(d.state!==name){d.state=name;d.stateStart=now;}
   const count=anim.frames.length;
-  let index=progress===undefined?Math.floor((now-d.stateStart)*anim.fps):Math.floor(Math.max(0,Math.min(.999999,progress))*count);
-  if(anim.loop)index%=count;else index=Math.min(count-1,index);
-  return anim.frames[index];
+  let index;
+  if(forceIdx!==undefined)index=Math.max(0,Math.min(count-1,forceIdx));
+  else{
+    index=progress===undefined?Math.floor((now-d.stateStart)*anim.fps):Math.floor(Math.max(0,Math.min(.999999,progress))*count);
+    if(anim.loop)index%=count;else index=Math.min(count-1,index);
+  }
+  const fr=anim.frames[index];
+  if(fr&&d.used)d.used.add(fr.file);
+  return fr;
 }
-function sakuraState(d,onGround,now){
-  if(d.lastGrounded===false&&onGround)d.landUntil=now+.15;
+/* ── Movimiento fluido (Sakura): usa TODOS los fotogramas de las 10 hojas ──
+   · caminar/correr: el fotograma avanza según la distancia recorrida (los pies no patinan)
+   · salto: preparación (1-2) → subida por velocidad (3-6) → caída (7-9) → caída libre (planeo 9-10)
+   · doble salto → mantener salto = planeo con capa (planeo 1-3, 4-8) y al soltar pliega la capa (9-10)
+   · pared: agarrarse (1-3), resbalar (4-5), trepar (6-8), salto de pared (9-10)
+   Se desactivan las mecánicas con ?paredes=0 y ?planeo=0 (los fotogramas siguen usándose). */
+const WALK_PX=5.2,RUN_PX=6.5,GLIDE_MAX=84,WALL_SLIDE=2.3,WALLJUMP_T=.22;
+const noWall=/[?&]paredes=0/.test(location.search),noGlide=/[?&]planeo=0/.test(location.search);
+const clamp01=v=>v<0?0:v>1?1:v;
+function wallSide(dir){
+  if(!dir||P.crouching||typeof platforms==='undefined')return 0;
+  const x=dir>0?P.x+P.w:P.x,sky=(typeof _skyZone!=='undefined')&&_skyZone;
+  for(let i=0;i<platforms.length;i++){
+    const pl=platforms[i];
+    if(pl.isSkyPortal||(pl.isSkyZone&&!sky))continue;
+    if(P.y+P.h<=pl.y+10||P.y>=pl.y+pl.h-4)continue;       // pies por encima del borde o cabeza por debajo
+    const gap=dir>0?pl.x-x:x-(pl.x+pl.w);
+    if(gap>=-1&&gap<=3)return dir;
+  }
+  return 0;
+}
+function fluidPre(d){
+  const dir=(K.ArrowRight||K.KeyD)?1:(K.ArrowLeft||K.KeyA)?-1:0;
+  const jP=!!(K.ArrowUp||K[' ']||K.Space||K.KeyW),edge=jP&&!d._jp;d._jp=jP;
+  if(P.onGround){d.glideLeft=GLIDE_MAX;d.glideOn=false;d.wall=0;return;}
+  const w=noWall?0:wallSide(dir);d.wall=w;
+  if(w){
+    d.glideOn=false;
+    if(edge){                                              // salto de pared
+      P.vy=(P.jumpForce||-12)*.92;P.vx=-w*(P.spd||4)*1.2;P.facing=-w;
+      P.jumping=true;P.jumpHeld=6;P._air=0;P.coyote=0;P.jumpBuffer=0;P._jWas=true;
+      d.wallJumpUntil=performance.now()/1000+WALLJUMP_T;d.wall=0;
+      try{if(typeof SFX!=='undefined'&&SFX.jump)SFX.jump();spawnPfx(P.x-camX+(w>0?P.w:0),P.y+P.h*.6,'#FFAADD',5);}catch(e){}
+    }else if(P.vy>WALL_SLIDE)P.vy=WALL_SLIDE;               // resbala despacio por la pared
+    return;
+  }
+  if(!noGlide&&P._dj&&jP&&P.vy>1&&d.glideLeft>0&&!P.crouching){d.glideOn=true;d.glideLeft-=1;if(P.vy>2.2)P.vy=2.2;}
+  else d.glideOn=false;
+}
+function airState(d,now){
+  const vy=P.vy,t=now-d.airStart;
+  if(vy<d.prevVy-3)d.peakUp=Math.max(1,-vy);               // impulso nuevo hacia arriba (rebote, resorte)
+  if(-vy>d.peakUp)d.peakUp=-vy;
+  d.prevVy=vy;
+  if(now<d.wallJumpUntil)return ['wall_jump',1-(d.wallJumpUntil-now)/WALLJUMP_T];
+  if(d.wall){d.wasGlide=false;return [vy>1.2?'wall_slide':vy<-1.5?'wall_climb':'wall_grab'];}
+  const gl=!!d.glideOn||(P.lowGrav&&vy>0);
+  if(gl&&!d.wasGlide)d.glideAt=now;
+  if(!gl&&d.wasGlide)d.foldUntil=now+.24;
+  d.wasGlide=gl;
+  if(gl)return now-d.glideAt<.25?['glide_start',(now-d.glideAt)/.25]:['glide'];
+  if(now<d.foldUntil)return ['fall'];                      // pliega la capa (planeo 9-10)
+  if(P._dj&&!d.djSeen){d.djSeen=true;d.djAt=now;d.peakUp=Math.max(1,-vy);}
+  if(!P._dj)d.djSeen=false;
+  if(vy<-3&&!d.djAt&&t<.1)return ['jump',undefined,t<.05?0:1];   // preparación/impulso (salto 1-2)
+  if(vy<.5&&d.peakUp>4)return ['jump',undefined,2+Math.min(3,Math.floor(clamp01(1-(-vy)/d.peakUp)*4))]; // subida 3-6
+  if(vy>12)return ['fall'];                                // caída libre (planeo 9-10)
+  return ['jump',undefined,6+Math.min(2,Math.floor(clamp01(vy/7)*3))];                              // caída 7-9
+}
+function sakuraState(d,onGround,now,dx){
+  const fl=!!(d.M&&d.M.fluid);
+  if(d.lastGrounded===false&&onGround){
+    const hard=d.maxFall>11;
+    if(fl&&Math.abs(P.vx)>3.5&&!hard)d.landUntil=0;      // corriendo: sigue sin frenar
+    else{d.landDur=fl?(hard?.26:.16):.15;d.landStart=now;d.landUntil=now+d.landDur;}
+    d.maxFall=0;d.djAt=0;d.wasGlide=false;d.foldUntil=0;
+  }
+  if(d.lastGrounded!==false&&!onGround){d.airStart=now;d.peakUp=Math.max(1,-P.vy);d.prevVy=P.vy;d.maxFall=0;d.djAt=0;d.djSeen=!!P._dj;}
   d.lastGrounded=onGround;
+  if(!onGround)d.maxFall=Math.max(d.maxFall||0,P.vy);else d.wall=0;
   if(typeof GS!=='undefined'&&GS.doneFired)return ['win'];
   if(typeof GS!=='undefined'&&GS.dying)return ['death'];
   if(P.iframes>60)return ['hurt'];
@@ -144,11 +218,20 @@ function sakuraState(d,onGround,now){
   }
   d.crouching=false;
   if(!onGround){
+    if(fl)return airState(d,now);
     if(P.lowGrav&&P.vy>0)return ['glide'];
     return [P.vy<0?'jump_rise':'jump_fall'];
   }
-  if(now<d.landUntil)return ['land'];
-  if(Math.abs(P.vx)>.5)return [Math.abs(P.vx)<3.5?'walk':'run'];
+  if(now<d.landUntil)return fl?['land',(now-d.landStart)/d.landDur]:['land'];
+  if(Math.abs(P.vx)>.5){
+    const run=Math.abs(P.vx)>=3.5,nm=run?'run':'walk';
+    if(fl){
+      const n=d.animations[nm].frames.length;
+      d.phase=((d.phase||0)+Math.min(Math.max(dx||0,.8),14)/(n*(run?RUN_PX:WALK_PX)))%1;
+      return [nm,d.phase];
+    }
+    return [nm];
+  }
   return ['idle'];
 }
 window._drawNinjaX=function(kind,bx,by,onGround,dxRun){
@@ -161,7 +244,7 @@ window._drawNinjaX=function(kind,bx,by,onGround,dxRun){
       d._xw=x;
     }
     const now=performance.now()/1000;
-    const [name,progress]=sakuraState(d,onGround,now),fr=selectFrame(d,name,progress,now);
+    const [name,progress,idx]=sakuraState(d,onGround,now,dxRun),fr=selectFrame(d,name,progress,now,idx);
     if(fr&&fr.img.complete&&fr.img.naturalWidth){
       const effH=name.indexOf('crouch')===0||name==='crawl'||name==='slide'?(P._preCrouchH||P._baseH||46):P.h;
       const smooth=CX.imageSmoothingEnabled,quality=CX.imageSmoothingQuality;
@@ -173,4 +256,24 @@ window._drawNinjaX=function(kind,bx,by,onGround,dxRun){
   }
   return _prev.apply(this,arguments);
 };
+/* Mecánicas de Sakura (pared y planeo): se aplican justo antes de cada actualización del juego */
+const _upd=window.update;
+if(typeof _upd==='function'){
+  window.update=function(){
+    const d=act.pink;
+    if(d&&d.on&&d.M&&d.M.fluid&&typeof P!=='undefined'&&P&&P.alive&&typeof GS!=='undefined'&&GS.running&&!GS.dying&&GS.char!=='peach'&&!(typeof AQ!=='undefined'&&AQ)){
+      try{fluidPre(d);}catch(e){}
+    }
+    return _upd.apply(this,arguments);
+  };
+}
+/* Comprobación en consola: SAKURA_USO() → cuántos de los 100 fotogramas se han dibujado ya */
+window.SAKURA_USO=function(){
+  const d=act.pink;if(!d)return null;
+  const all=new Set();Object.keys(d.animations).forEach(n=>d.animations[n].frames.forEach(f=>all.add(f.file)));
+  const miss=[...all].filter(f=>!d.used.has(f));
+  console.log('[Sakura] fotogramas usados: '+d.used.size+' / '+all.size+(miss.length?'\nFaltan: '+miss.join(', '):' ✔ todos'));
+  return {usados:d.used.size,total:all.size,faltan:miss};
+};
+window.__HERO_PRO_TEST={act,sakuraState,selectFrame,airState,fluidPre,wallSide};
 })();
