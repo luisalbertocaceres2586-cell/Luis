@@ -48,8 +48,8 @@
       while (S.gen < S.d + 3000) {
         const g0 = S.gen, jefe = S.fase === 'jefe', n = jefe ? RI(1, 2) : RI(3, 5);
         for (let i = 0; i < n; i++) {
-          const x = g0 + 250 + i * RI(260, 380), tipo = ['cac', 'esc', 'roca'][RI(0, 2)];
-          S.obs.push({ x, l: RI(0, 2), tipo, h: tipo === 'cac' ? 56 : tipo === 'roca' ? 40 : 28 });
+          const x = g0 + 250 + i * RI(260, 380), tipo = ['cac', 'esc', 'roca', 'ser'][RI(0, S.respondidas >= 2 ? 3 : 2)];
+          S.obs.push({ x, l: RI(0, 2), tipo, h: tipo === 'cac' ? 56 : tipo === 'roca' ? 40 : tipo === 'ser' ? 24 : 28 });
           if (Math.random() < .7) for (let k = 0; k < 3; k++) S.gotas.push({ x: x - 120 + k * 36, l: RI(0, 2), y: 60 + Math.sin(k) * 20, ok: false });
         }
         const q = pregunta(S.fallos); S.gates.push({ x: g0 + 2000, q, res: false, lane: -1, ok: false });
@@ -65,7 +65,7 @@
         S.msg = { t: 1.3, s: S.racha >= 3 ? '¡RACHA ×' + S.racha + '!' : '¡CORRECTO! ' + g.q.txt.replace('?', g.q.ans) };
         if (S.jefe) { S.jefe.hp--; S.jefe.gap = Math.min(S.jefe.gap + 55, 340); S.shake = .5; if (S.jefe.hp <= 0) return terminar(true); }
       } else {
-        S.err++; S.racha = 0; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; daño('¡Era ' + g.q.ans + '!');
+        S.err++; S.racha = 0; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; daño('¡Era ' + g.q.key.replace('x', ' × ') + ' = ' + g.q.key.split('x').reduce((a, b) => a * b) + '!');
         if (S.jefe) S.jefe.gap = Math.max(S.jefe.gap - 40, 150);
       }
       if (!S.jefe && S.respondidas >= 8 && S.fase === 'ruta') {
@@ -82,10 +82,13 @@
     function actualizar(dt) {
       S.t += dt; const k = S.inputs;
       if (S.msg.t > 0) S.msg.t -= dt; S.inv = Math.max(0, S.inv - dt); S.boost = Math.max(0, S.boost - dt); S.flash = Math.max(0, S.flash - dt); S.shake = Math.max(0, S.shake - dt);
+      S.torm = Math.max(0, (S.torm || 0) - dt); S.proxT = (S.proxT === undefined ? 16 : S.proxT) - dt;
+      if (S.proxT <= 0 && !S.jefe) { S.torm = 5; S.proxT = R(22, 32); S.msg = { t: 2, s: '¡TORMENTA DE ARENA! Memoriza los carriles' }; beep(200, .5, 'sawtooth'); }
+      S.obs.forEach(ob => { const dx = ob.x - S.d; if (ob.tipo === 'ser' && dx > 0 && dx < 700) { ob.cd = (ob.cd || 0) - dt; if (ob.cd <= 0) { ob.l = clamp(ob.l + (Math.random() < .5 ? -1 : 1), 0, 2); ob.cd = .8; } } });
       S.ly += (S.lane - S.ly) * Math.min(1, dt * 10);
       if (k.salto && S.z === 0) { S.vz = 560; k.salto = false; beep(420, .08, 'triangle'); }
       S.vz -= GR * dt; S.z = Math.max(0, S.z + S.vz * dt); if (S.z === 0 && S.vz < 0) S.vz = 0;
-      const objetivo = S.boost > 0 ? 560 : 360, pend = (hY(S.d + 6) - hY(S.d - 6)) / 12;
+      const objetivo = (S.boost > 0 ? 560 : 360) + Math.min(S.respondidas, 8) * 12, pend = (hY(S.d + 6) - hY(S.d - 6)) / 12;
       S.v += (objetivo - S.v) * dt * 1.2 + pend * 520 * dt; S.v = clamp(S.v, 240, 640);
       S.d += S.v * dt;
       generar();
@@ -117,6 +120,8 @@
       for (let l = 0; l < 3; l++) { cx.fillStyle = cols[l]; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W + 12; x += 12) cx.lineTo(x, laneY(cam + x, l) - CARR / 2); cx.lineTo(W + 12, H); cx.fill();
         cx.strokeStyle = 'rgba(255,230,170,.35)'; cx.lineWidth = 2; cx.beginPath(); for (let x = 0; x <= W + 12; x += 12) { const y = laneY(cam + x, l) - CARR / 2; x ? cx.lineTo(x, y) : cx.moveTo(x, y); } cx.stroke();
         dibujarLane(l, cam); }
+      if (S.torm > 0) { const k = clamp(Math.min(S.torm, 5 - S.torm) * 2, 0, 1), g = cx.createLinearGradient(X_H + 110, 0, W, 0); g.addColorStop(0, 'rgba(214,160,100,0)'); g.addColorStop(.45, 'rgba(214,160,100,' + .93 * k + ')'); g.addColorStop(1, 'rgba(214,160,100,' + k + ')'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+        cx.strokeStyle = 'rgba(255,230,190,' + .5 * k + ')'; cx.lineWidth = 2; for (let i = 0; i < 26; i++) { const y = R(0, H), x = R(0, W); cx.beginPath(); cx.moveTo(x, y); cx.lineTo(x - R(40, 120), y + R(-6, 6)); cx.stroke(); } }
       cx.restore(); hud();
     }
 
@@ -130,6 +135,7 @@
       S.obs.forEach(ob => { if (ob.l !== l) return; const x = sx(ob.x), y = sy(ob.x, 0); if (x < -60 || x > W + 60) return;
         if (ob.tipo === 'cac') { cx.fillStyle = '#2f9e5f'; cx.fillRect(x - 8, y - 56, 16, 56); cx.fillRect(x - 22, y - 38, 14, 8); cx.fillRect(x - 22, y - 46, 8, 16); cx.fillRect(x + 8, y - 30, 14, 8); cx.fillRect(x + 14, y - 40, 8, 16); }
         else if (ob.tipo === 'roca') { cx.fillStyle = '#6d5a73'; cx.beginPath(); cx.moveTo(x - 30, y); cx.lineTo(x - 18, y - 40); cx.lineTo(x + 14, y - 34); cx.lineTo(x + 30, y); cx.fill(); }
+        else if (ob.tipo === 'ser') { cx.strokeStyle = '#c9d94a'; cx.lineWidth = 8; cx.lineCap = 'round'; cx.beginPath(); for (let i = 0; i < 9; i++) { const px = x - 32 + i * 8, py = y - 10 + Math.sin(S.t * 9 + i * .9) * 6; i ? cx.lineTo(px, py) : cx.moveTo(px, py); } cx.stroke(); cx.fillStyle = '#e8f07a'; cx.beginPath(); cx.arc(x + 36, y - 10 + Math.sin(S.t * 9 + 7.2) * 6, 7, 0, 7); cx.fill(); }
         else { const w = Math.sin(S.t * 14 + ob.x) * 3; cx.fillStyle = '#d9473f'; cx.beginPath(); cx.ellipse(x, y - 12, 20, 11, 0, 0, 7); cx.fill(); cx.strokeStyle = '#d9473f'; cx.lineWidth = 4; cx.beginPath(); cx.moveTo(x + 14, y - 14); cx.quadraticCurveTo(x + 36, y - 30 + w, x + 22, y - 36); cx.stroke(); cx.fillRect(x - 28, y - 14 + w, 10, 4); } });
       S.gotas.forEach(g => { if (g.l !== l || g.ok) return; const x = sx(g.x), y = sy(g.x, g.y); if (x < -20 || x > W + 20) return; cx.fillStyle = '#6fd6ff'; cx.beginPath(); cx.moveTo(x, y - 12); cx.quadraticCurveTo(x + 9, y, x, y + 8); cx.quadraticCurveTo(x - 9, y, x, y - 12); cx.fill(); });
       if (l === clamp(Math.round(S.ly), 0, 2) || (l === 2 && false)) {}
@@ -179,15 +185,16 @@
       const g = S.gates.find(g => !g.res && g.x - S.d < 1900);
       if (g) { cx.fillStyle = '#000000aa'; cx.fillRect(W / 2 - 130, 12, 260, 52); cx.strokeStyle = '#ffe27a'; cx.strokeRect(W / 2 - 130, 12, 260, 52); cx.fillStyle = '#ffe27a'; cx.font = 'bold 30px ui-monospace,monospace'; cx.textAlign = 'center'; cx.fillText(g.q.txt, W / 2, 49); }
       if (S.msg.t > 0) { cx.fillStyle = '#fff'; cx.font = 'bold 24px ui-monospace,monospace'; cx.textAlign = 'center'; cx.shadowColor = '#000'; cx.shadowBlur = 8; cx.fillText(S.msg.s, W / 2, 130); cx.shadowBlur = 0; }
+      if (S.pausa) { cx.fillStyle = '#000000aa'; cx.fillRect(0, 0, W, H); cx.fillStyle = '#ffe27a'; cx.font = 'bold 44px ui-monospace,monospace'; cx.textAlign = 'center'; cx.fillText('PAUSA', W / 2, H / 2); cx.font = '18px ui-monospace,monospace'; cx.fillStyle = '#fff'; cx.fillText('P o toca II para continuar', W / 2, H / 2 + 36); }
       if (S.flash > 0) { cx.fillStyle = 'rgba(111,214,255,' + S.flash + ')'; cx.fillRect(0, 0, W, H); }
       if (S.inv > 1.2) { cx.fillStyle = 'rgba(255,0,0,.25)'; cx.fillRect(0, 0, W, H); }
     }
 
     function terminar(gano) {
       if (S.est !== 'play') return; S.est = gano ? 'gano' : 'perdio'; beep(gano ? 988 : 120, .6, gano ? 'sine' : 'sawtooth');
-      if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel2 = p.nivel2 || {}; p.nivel2.fallos = S.fallos; p.nivel2.intentos = (p.nivel2.intentos || 0) + 1; if (gano) p.nivel2.completados = (p.nivel2.completados || 0) + 1; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aci; p.estadisticas.errores += S.err; p.estadisticas.minutos += Math.round(S.t / 6) / 10; }); } catch (e) {} }
+      if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel2 = p.nivel2 || {}; p.nivel2.fallos = S.fallos; p.nivel2.mejor = Math.max(p.nivel2.mejor || 0, S.punt); p.nivel2.intentos = (p.nivel2.intentos || 0) + 1; if (gano) p.nivel2.completados = (p.nivel2.completados || 0) + 1; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aci; p.estadisticas.errores += S.err; p.estadisticas.minutos += Math.round(S.t / 6) / 10; }); } catch (e) {} }
       const p = document.createElement('div'); p.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000000b0;color:#fff;text-align:center;padding:20px';
-      p.innerHTML = '<h1 style="margin:0;color:' + (gano ? '#ffe27a' : '#ff6b6b') + '">' + (gano ? '¡DERROTASTE AL ESCORPIÓN!' : 'EL DESIERTO TE VENCIÓ') + '</h1><div>Aciertos ' + S.aci + ' · Errores ' + S.err + ' · Puntos ' + S.punt + '</div>' +
+      p.innerHTML = '<h1 style="margin:0;color:' + (gano ? '#ffe27a' : '#ff6b6b') + '">' + (gano ? '¡DERROTASTE AL ESCORPIÓN!' : 'EL DESIERTO TE VENCIÓ') + '</h1><div>Aciertos ' + S.aci + ' · Errores ' + S.err + ' · Puntos ' + S.punt + ' · Récord ' + Math.max(S.punt, (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.mejor) || 0) + '</div>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button id="r2">↻ REPETIR</button><button id="s2">VOLVER AL MENÚ</button></div>';
       p.querySelectorAll('button').forEach(b => b.style.cssText = 'font:inherit;font-weight:bold;padding:12px 18px;border:0;border-radius:8px;background:#ffc93c;cursor:pointer');
       root.appendChild(p); p.querySelector('#r2').onclick = () => { p.remove(); const f = S.fallos; nuevo(); S.fallos = f; ult = 0; };
@@ -195,7 +202,7 @@
     }
 
     function salir() { cancelAnimationFrame(raf); removeEventListener('keydown', kd); root.remove(); (o.onSalir || (() => { location.href = 'index.html'; }))(); }
-    const kd = e => { if (!S || S.est !== 'play') return; const c = e.code;
+    const kd = e => { if (!S || S.est !== 'play') return; const c = e.code; if (c === 'KeyP' || c === 'Escape') { S.pausa = !S.pausa; return; } if (S.pausa) return;
       if (c === 'ArrowUp' || c === 'KeyW') S.lane = Math.max(0, S.lane - 1); else if (c === 'ArrowDown' || c === 'KeyS') S.lane = Math.min(2, S.lane + 1);
       else if (c === 'Space' || c === 'KeyJ' || c === 'ArrowRight') S.inputs.salto = true; if (['Space', 'ArrowUp', 'ArrowDown'].includes(c)) e.preventDefault(); };
     addEventListener('keydown', kd);
@@ -203,8 +210,10 @@
     const botones = [['▲', 'left:14px;bottom:96px', () => S && (S.lane = Math.max(0, S.lane - 1))], ['▼', 'left:14px;bottom:20px', () => S && (S.lane = Math.min(2, S.lane + 1))], ['SALTAR', 'right:14px;bottom:20px;width:130px', () => S && (S.inputs.salto = true)]];
     botones.forEach(([t, pos, fn]) => { const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'position:absolute;' + pos + ';width:70px;height:70px;border-radius:50%;border:2px solid #ffe27a;background:#ffffff22;color:#fff;font:bold 18px ui-monospace,monospace;touch-action:none'; b.addEventListener('pointerdown', e => { e.preventDefault(); fn(); }); root.appendChild(b); });
     const sb = document.createElement('button'); sb.textContent = '✕'; sb.style.cssText = 'position:absolute;right:10px;top:10px;opacity:.5;border:0;border-radius:6px;padding:4px 8px'; sb.onclick = salir; root.appendChild(sb);
+    const pb = document.createElement('button'); pb.textContent = 'II'; pb.style.cssText = 'position:absolute;right:50px;top:10px;opacity:.5;border:0;border-radius:6px;padding:4px 8px'; pb.onclick = () => { if (S && S.est === 'play') S.pausa = !S.pausa; }; root.appendChild(pb);
+    let sy0 = 0; cv.addEventListener('pointerdown', e => { sy0 = e.clientY; }); cv.addEventListener('pointerup', e => { if (!S || S.est !== 'play' || S.pausa) return; const dy = e.clientY - sy0; if (dy < -30) S.lane = Math.max(0, S.lane - 1); else if (dy > 30) S.lane = Math.min(2, S.lane + 1); else S.inputs.salto = true; });
 
-    function bucle(ts) { const dt = Math.min(.033, ((ts - (ult || ts)) / 1000) || 0); ult = ts; if (S.est === 'play') actualizar(dt); dibujar(); raf = requestAnimationFrame(bucle); }
+    function bucle(ts) { const dt = Math.min(.033, ((ts - (ult || ts)) / 1000) || 0); ult = ts; if (S.est === 'play' && !S.pausa) actualizar(dt); dibujar(); raf = requestAnimationFrame(bucle); }
     nuevo(); raf = requestAnimationFrame(bucle);
   }
   window.Nivel2 = { iniciar, _pregunta: pregunta };
