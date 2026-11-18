@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Galería · Arte del Nivel 2</title>
+<style>
+body{margin:0;background:#14122b;color:#fff;font-family:system-ui,sans-serif;padding:16px}
+h1{color:#ffe27a;margin:0 0 4px}p{color:#bdb8e0;margin:0 0 14px}
+h2{margin:22px 0 8px;color:#6fd6ff;text-transform:capitalize}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.c{background:repeating-conic-gradient(#2a2748 0 25%,#221f3d 0 50%) 0 0/20px 20px;border-radius:10px;padding:8px;text-align:center;font-size:11px}
+.c img{max-width:100%;max-height:120px;object-fit:contain;display:block;margin:0 auto 6px}
+.c small{color:#9d97c9;display:block}
+</style></head><body>
+<h1>🏜️ Arte del Nivel 2 · Surf de Dunas</h1>
+<p>Generado desde <code>manifest.js</code>. Cada tarjeta muestra el id (úsalo con <code>NIVEL2_ARTE[id]</code>) y cuántos cuadros tiene. Descripciones completas en <code>assets/CATALOGO.md</code>.</p>
+<div id="app"></div>
+<script src="manifest.js"></script>
+<script>
+var por={};Object.keys(NIVEL2_ARTE).forEach(function(k){var a=NIVEL2_ARTE[k];(por[a.carpeta]=por[a.carpeta]||[]).push(k)});
+var app=document.getElementById('app');
+Object.keys(por).sort().forEach(function(c){
+  var h=document.createElement('h2');h.textContent=c+' ('+por[c].length+')';app.appendChild(h);
+  var g=document.createElement('div');g.className='g';app.appendChild(g);
+  por[c].sort().forEach(function(k){var a=NIVEL2_ARTE[k],d=document.createElement('div');d.className='c';
+    var i=new Image();i.src=a.frames[0].f;d.appendChild(i);
+    d.insertAdjacentHTML('beforeend','<b>'+k+'</b><small>'+a.frames[0].w+'×'+a.frames[0].h+(a.frames.length>1?' · '+a.frames.length+' cuadros':'')+'</small>');
+    if(a.frames.length>1){var n=0;setInterval(function(){n=(n+1)%a.frames.length;i.src=a.frames[n].f},180)}
+    g.appendChild(d)})});
+</script></body></html>

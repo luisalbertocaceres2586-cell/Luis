@@ -2695,5 +2695,1408 @@
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
   "usado_en": "manifest.json"
+ },
+ {
+  "ruta": "assets/nivel2/obstaculos/cactus_saguaro.png",
+  "grupo": "Nivel 2 · obstáculos",
+  "nombre": "Cactus saguaro",
+  "descripcion": "Cactus verde alto de dos brazos con espinas crema, sobre un montículo de arena.",
+  "uso": "Obstáculo alto (hay que saltarlo o cambiar de carril).",
+  "etiquetas": [
+   "obstáculo",
+   "cactus",
+   "desierto"
+  ],
+  "tamano_px": [
+   183,
+   260
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/obstaculos/cactus_barril.png",
+  "grupo": "Nivel 2 · obstáculos",
+  "nombre": "Cactus barril con flor",
+  "descripcion": "Cactus redondo y bajo con una flor rosada en la cima.",
+  "uso": "Obstáculo bajo, variante visual del cactus.",
+  "etiquetas": [
+   "obstáculo",
+   "cactus",
+   "flor"
+  ],
+  "tamano_px": [
+   202,
+   209
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/obstaculos/roca_grande.png",
+  "grupo": "Nivel 2 · obstáculos",
+  "nombre": "Roca grande",
+  "descripcion": "Roca violeta de caras planas con arena y pasto seco en la base.",
+  "uso": "Obstáculo medio-alto del carril.",
+  "etiquetas": [
+   "obstáculo",
+   "roca",
+   "violeta"
+  ],
+  "tamano_px": [
+   279,
+   199
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/obstaculos/rocas_pequenas.png",
+  "grupo": "Nivel 2 · obstáculos",
+  "nombre": "Rocas pequeñas",
+  "descripcion": "Grupo de tres piedras violetas con pasto seco.",
+  "uso": "Obstáculo bajo.",
+  "etiquetas": [
+   "obstáculo",
+   "roca"
+  ],
+  "tamano_px": [
+   244,
+   131
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/obstaculos/rueda_carreta.png",
+  "grupo": "Nivel 2 · obstáculos",
+  "nombre": "Rueda de carreta rota",
+  "descripcion": "Rueda de madera con aro de hierro, medio enterrada en la arena.",
+  "uso": "Obstáculo decorativo/medio; ambientación de caravana.",
+  "etiquetas": [
+   "obstáculo",
+   "madera",
+   "caravana"
+  ],
+  "tamano_px": [
+   280,
+   198
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/escorpion_walk_*.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Escorpión rojo (caminar)",
+  "descripcion": "Escorpión rojo carmesí con cola en alto y pinzas abiertas; ciclo de 4 cuadros.",
+  "uso": "Enemigo pequeño del carril (se salta).",
+  "etiquetas": [
+   "enemigo",
+   "escorpión",
+   "animación"
+  ],
+  "tamano_px": [
+   232,
+   202
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 4
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/escorpion_golpe.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Escorpión golpeando",
+  "descripcion": "Pose de picadura con marca de impacto amarilla.",
+  "uso": "Reacción cuando choca con el héroe o aviso de ataque.",
+  "etiquetas": [
+   "enemigo",
+   "escorpión"
+  ],
+  "tamano_px": [
+   221,
+   210
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/serpiente_slither_*.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Serpiente (deslizarse)",
+  "descripcion": "Serpiente verde lima con rombos y lengua roja; ciclo de 4 cuadros en forma de S.",
+  "uso": "Enemigo que cambia de carril.",
+  "etiquetas": [
+   "enemigo",
+   "serpiente",
+   "animación"
+  ],
+  "tamano_px": [
+   277,
+   106
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 4
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/serpiente_alerta.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Serpiente enroscada",
+  "descripcion": "Serpiente en espiral con la cabeza erguida y lengua afuera.",
+  "uso": "Pose de aviso antes de cambiar de carril.",
+  "etiquetas": [
+   "enemigo",
+   "serpiente"
+  ],
+  "tamano_px": [
+   227,
+   203
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/buitre_vuelo_*.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Buitre ladrón (vuelo)",
+  "descripcion": "Buitre de plumas moradas oscuras, cuello rosado y pico dorado; 3 cuadros de aleteo.",
+  "uso": "Evento del buitre ladrón que sobrevuela.",
+  "etiquetas": [
+   "enemigo",
+   "buitre",
+   "animación"
+  ],
+  "tamano_px": [
+   280,
+   241
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 3
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/buitre_picada.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Buitre en picada",
+  "descripcion": "Buitre con alas atrás y garras al frente, lanzándose hacia abajo.",
+  "uso": "Ataque en picada sobre un carril.",
+  "etiquetas": [
+   "enemigo",
+   "buitre"
+  ],
+  "tamano_px": [
+   254,
+   190
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/enemigos/buitre_huida.png",
+  "grupo": "Nivel 2 · enemigos",
+  "nombre": "Buitre huyendo con la bolsa",
+  "descripcion": "Buitre con una bolsita dorada con gema azul entre las garras.",
+  "uso": "Final del evento: se escapa con lo robado.",
+  "etiquetas": [
+   "enemigo",
+   "buitre",
+   "bolsa"
+  ],
+  "tamano_px": [
+   250,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/jefes/jefe_escorpion_*.png",
+  "grupo": "Nivel 2 · jefes",
+  "nombre": "Escorpión Colosal",
+  "descripcion": "Escorpión gigante carmesí con aguijón dorado; poses: idle, aviso (brillo rojo), ataque (cola clavada), golpe (mareado) y derrota (bandera blanca).",
+  "uso": "Jefe perseguidor del final del recorrido.",
+  "etiquetas": [
+   "jefe",
+   "escorpión"
+  ],
+  "tamano_px": [
+   301,
+   179
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 5
+ },
+ {
+  "ruta": "assets/nivel2/jefes/jefe_gusano_*.png",
+  "grupo": "Nivel 2 · jefes",
+  "nombre": "Gusano de arena gigante",
+  "descripcion": "Gusano violeta con vientre arena y boca circular con dientes redondeados; poses: idle, aviso (asomando), ataque, golpe y derrota (inflado y mareado).",
+  "uso": "Jefe que emerge por un carril.",
+  "etiquetas": [
+   "jefe",
+   "gusano"
+  ],
+  "tamano_px": [
+   305,
+   216
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 5
+ },
+ {
+  "ruta": "assets/nivel2/jefes/jefe_esfinge_*.png",
+  "grupo": "Nivel 2 · jefes",
+  "nombre": "Esfinge guardiana",
+  "descripcion": "Esfinge de arenisca con tocado dorado y azul y ojos cian; poses: idle, aviso (runas flotando), ataque (rayo con anillos), golpe (grietas) y derrota (pila de rocas).",
+  "uso": "Jefe de adivinanzas con rayo por el carril.",
+  "etiquetas": [
+   "jefe",
+   "esfinge"
+  ],
+  "tamano_px": [
+   348,
+   220
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 5
+ },
+ {
+  "ruta": "assets/nivel2/jefes/jefe_faraon_*.png",
+  "grupo": "Nivel 2 · jefes",
+  "nombre": "Faraón momia",
+  "descripcion": "Momia con máscara dorada y azul, ojos cian, cayado y mayal; poses: idle, aviso (vendas flotando), ataque (látigo de venda), golpe y derrota (montón de vendas).",
+  "uso": "Jefe que lanza vendas por el carril.",
+  "etiquetas": [
+   "jefe",
+   "momia"
+  ],
+  "tamano_px": [
+   353,
+   239
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js",
+  "cuadros": 5
+ },
+ {
+  "ruta": "assets/nivel2/companero/zorro_idle.png",
+  "grupo": "Nivel 2 · compañero",
+  "nombre": "Zorro fénec (reposo)",
+  "descripcion": "Zorro fénec naranja de orejas enormes con pañuelo cian, sentado.",
+  "uso": "Compañero del héroe; pantalla de inicio.",
+  "etiquetas": [
+   "compañero",
+   "zorro"
+  ],
+  "tamano_px": [
+   218,
+   213
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/companero/zorro_run_*.png",
+  "grupo": "Nivel 2 · compañero",
+  "nombre": "Zorro fénec (correr)",
+  "descripcion": "Ciclo de carrera de 3 cuadros hacia la derecha.",
+  "uso": "Compañero que corre junto al héroe.",
+  "etiquetas": [
+   "compañero",
+   "zorro",
+   "animación"
+  ],
+  "tamano_px": [
+   263,
+   192
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar",
+  "cuadros": 3
+ },
+ {
+  "ruta": "assets/nivel2/companero/zorro_alerta.png",
+  "grupo": "Nivel 2 · compañero",
+  "nombre": "Zorro fénec alerta",
+  "descripcion": "Erguido sobre las patas traseras con signo de exclamación dorado.",
+  "uso": "Aviso de peligro cercano.",
+  "etiquetas": [
+   "compañero",
+   "zorro",
+   "aviso"
+  ],
+  "tamano_px": [
+   234,
+   237
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/companero/zorro_celebra.png",
+  "grupo": "Nivel 2 · compañero",
+  "nombre": "Zorro fénec celebrando",
+  "descripcion": "Salta con los brazos arriba y ojos cerrados de alegría.",
+  "uso": "Reacción a un acierto o a la victoria.",
+  "etiquetas": [
+   "compañero",
+   "zorro",
+   "celebración"
+  ],
+  "tamano_px": [
+   259,
+   233
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/alfombra_sakura_planeo_*.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Sakura en alfombra (planeo)",
+  "descripcion": "Sakura agachada sobre una alfombra mágica violeta con flecos dorados; 2 cuadros.",
+  "uso": "Zona de cielo (alfombra voladora).",
+  "etiquetas": [
+   "héroe",
+   "sakura",
+   "alfombra",
+   "animación"
+  ],
+  "tamano_px": [
+   289,
+   219
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar",
+  "cuadros": 2
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/alfombra_sakura_sube.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Sakura en alfombra (subiendo)",
+  "descripcion": "Alfombra inclinada hacia arriba.",
+  "uso": "Subir de carril en la zona de cielo.",
+  "etiquetas": [
+   "héroe",
+   "sakura",
+   "alfombra"
+  ],
+  "tamano_px": [
+   274,
+   222
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/alfombra_sakura_baja.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Sakura en alfombra (bajando)",
+  "descripcion": "Alfombra inclinada hacia abajo.",
+  "uso": "Bajar de carril en la zona de cielo.",
+  "etiquetas": [
+   "héroe",
+   "sakura",
+   "alfombra"
+  ],
+  "tamano_px": [
+   278,
+   220
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/alfombra_kage_planeo_*.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Kage en alfombra (planeo)",
+  "descripcion": "Kage sobre una alfombra azul con flecos dorados; 2 cuadros.",
+  "uso": "Zona de cielo (alfombra voladora).",
+  "etiquetas": [
+   "héroe",
+   "kage",
+   "alfombra",
+   "animación"
+  ],
+  "tamano_px": [
+   276,
+   213
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar",
+  "cuadros": 2
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/alfombra_kage_sube.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Kage en alfombra (subiendo)",
+  "descripcion": "Alfombra azul inclinada hacia arriba.",
+  "uso": "Subir de carril en la zona de cielo.",
+  "etiquetas": [
+   "héroe",
+   "kage",
+   "alfombra"
+  ],
+  "tamano_px": [
+   267,
+   214
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/alfombra_kage_baja.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Kage en alfombra (bajando)",
+  "descripcion": "Alfombra azul inclinada hacia abajo.",
+  "uso": "Bajar de carril en la zona de cielo.",
+  "etiquetas": [
+   "héroe",
+   "kage",
+   "alfombra"
+  ],
+  "tamano_px": [
+   271,
+   210
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/vagoneta_sakura_rueda_*.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Sakura en vagoneta (rodar)",
+  "descripcion": "Vagoneta minera de madera con chispas en las ruedas; 2 cuadros.",
+  "uso": "Zona del cañón minero.",
+  "etiquetas": [
+   "héroe",
+   "sakura",
+   "vagoneta",
+   "animación"
+  ],
+  "tamano_px": [
+   238,
+   222
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar",
+  "cuadros": 2
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/vagoneta_sakura_salto.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Sakura en vagoneta (salto)",
+  "descripcion": "Vagoneta en el aire con Sakura agarrada.",
+  "uso": "Salto en la zona del cañón minero.",
+  "etiquetas": [
+   "héroe",
+   "sakura",
+   "vagoneta"
+  ],
+  "tamano_px": [
+   235,
+   245
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/vagoneta_kage_rueda_*.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Kage en vagoneta (rodar)",
+  "descripcion": "Vagoneta minera con Kage y chispas; 2 cuadros.",
+  "uso": "Zona del cañón minero.",
+  "etiquetas": [
+   "héroe",
+   "kage",
+   "vagoneta",
+   "animación"
+  ],
+  "tamano_px": [
+   238,
+   258
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar",
+  "cuadros": 2
+ },
+ {
+  "ruta": "assets/nivel2/vehiculos/vagoneta_kage_salto.png",
+  "grupo": "Nivel 2 · vehículos",
+  "nombre": "Kage en vagoneta (salto)",
+  "descripcion": "Vagoneta en el aire con Kage.",
+  "uso": "Salto en la zona del cañón minero.",
+  "etiquetas": [
+   "héroe",
+   "kage",
+   "vagoneta"
+  ],
+  "tamano_px": [
+   235,
+   207
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/poderes/poder_escarabajo.png",
+  "grupo": "Nivel 2 · poderes",
+  "nombre": "Escarabajo escudo",
+  "descripcion": "Escarabajo egipcio dorado con alas abiertas y gema cian.",
+  "uso": "Poder: absorbe un golpe.",
+  "etiquetas": [
+   "poder",
+   "escudo",
+   "ícono"
+  ],
+  "tamano_px": [
+   305,
+   243
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/poderes/poder_reloj.png",
+  "grupo": "Nivel 2 · poderes",
+  "nombre": "Reloj de arena",
+  "descripcion": "Reloj de arena con marco dorado y arena cayendo.",
+  "uso": "Poder: ralentiza el tiempo.",
+  "etiquetas": [
+   "poder",
+   "tiempo",
+   "ícono"
+  ],
+  "tamano_px": [
+   181,
+   251
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/poderes/poder_iman.png",
+  "grupo": "Nivel 2 · poderes",
+  "nombre": "Imán de gotas",
+  "descripcion": "Imán de herradura rojo con tres gotas cian atraídas.",
+  "uso": "Poder: atrae las gotas de agua.",
+  "etiquetas": [
+   "poder",
+   "imán",
+   "ícono"
+  ],
+  "tamano_px": [
+   231,
+   250
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/poderes/poder_comodin.png",
+  "grupo": "Nivel 2 · poderes",
+  "nombre": "Comodín 50/50",
+  "descripcion": "Medallón dorado partido en dos mitades, sin números.",
+  "uso": "Poder: elimina una respuesta incorrecta.",
+  "etiquetas": [
+   "poder",
+   "comodín",
+   "ícono"
+  ],
+  "tamano_px": [
+   254,
+   251
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/objetos/gota_agua.png",
+  "grupo": "Nivel 2 · objetos",
+  "nombre": "Gota de agua",
+  "descripcion": "Gota cian brillante con contorno oscuro.",
+  "uso": "Coleccionable (impulso y puntos).",
+  "etiquetas": [
+   "coleccionable",
+   "agua"
+  ],
+  "tamano_px": [
+   169,
+   245
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/objetos/corazon_desierto.png",
+  "grupo": "Nivel 2 · objetos",
+  "nombre": "Corazón del desierto",
+  "descripcion": "Corazón rojo facetado con gema dorada al centro.",
+  "uso": "Vidas en el HUD o recompensa de vida.",
+  "etiquetas": [
+   "vida",
+   "hud",
+   "corazón"
+  ],
+  "tamano_px": [
+   272,
+   231
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/objetos/cofre_cerrado.png",
+  "grupo": "Nivel 2 · objetos",
+  "nombre": "Cofre cerrado",
+  "descripcion": "Cofre de madera con bandas doradas y gema cian.",
+  "uso": "Premio misterioso.",
+  "etiquetas": [
+   "cofre",
+   "premio"
+  ],
+  "tamano_px": [
+   270,
+   218
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/objetos/cofre_entreabierto.png",
+  "grupo": "Nivel 2 · objetos",
+  "nombre": "Cofre entreabierto",
+  "descripcion": "Cofre con la tapa a medias y una moneda saltando.",
+  "uso": "Animación de apertura.",
+  "etiquetas": [
+   "cofre",
+   "premio"
+  ],
+  "tamano_px": [
+   248,
+   233
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/objetos/cofre_abierto.png",
+  "grupo": "Nivel 2 · objetos",
+  "nombre": "Cofre abierto",
+  "descripcion": "Cofre con monedas, gemas y una estrella dorada.",
+  "uso": "Pantalla de recompensa.",
+  "etiquetas": [
+   "cofre",
+   "premio"
+  ],
+  "tamano_px": [
+   272,
+   262
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/objetos/trofeo_escorpion.png",
+  "grupo": "Nivel 2 · objetos",
+  "nombre": "Trofeo del escorpión",
+  "descripcion": "Copa dorada con asas en forma de pinzas de escorpión y gema cian.",
+  "uso": "Premio por vencer al jefe.",
+  "etiquetas": [
+   "trofeo",
+   "jefe",
+   "premio"
+  ],
+  "tamano_px": [
+   289,
+   280
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/tablas/tabla_clasica.png",
+  "grupo": "Nivel 2 · tablas de surf",
+  "nombre": "Tabla clásica",
+  "descripcion": "Tabla de madera con vetas y correa de cuero.",
+  "uso": "Skin inicial del héroe.",
+  "etiquetas": [
+   "tabla",
+   "skin"
+  ],
+  "tamano_px": [
+   294,
+   218
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/tablas/tabla_faraon.png",
+  "grupo": "Nivel 2 · tablas de surf",
+  "nombre": "Tabla del faraón",
+  "descripcion": "Tabla dorada con ojo egipcio y franjas azules.",
+  "uso": "Skin desbloqueable.",
+  "etiquetas": [
+   "tabla",
+   "skin"
+  ],
+  "tamano_px": [
+   289,
+   213
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/tablas/tabla_neon.png",
+  "grupo": "Nivel 2 · tablas de surf",
+  "nombre": "Tabla azul neón",
+  "descripcion": "Tabla azul con líneas cian brillantes.",
+  "uso": "Skin desbloqueable.",
+  "etiquetas": [
+   "tabla",
+   "skin"
+  ],
+  "tamano_px": [
+   286,
+   211
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/tablas/tabla_dragon.png",
+  "grupo": "Nivel 2 · tablas de surf",
+  "nombre": "Tabla dragón rojo",
+  "descripcion": "Tabla roja con un dragón dorado.",
+  "uso": "Skin desbloqueable.",
+  "etiquetas": [
+   "tabla",
+   "skin"
+  ],
+  "tamano_px": [
+   288,
+   208
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/tablas/tabla_cristal.png",
+  "grupo": "Nivel 2 · tablas de surf",
+  "nombre": "Tabla de cristal",
+  "descripcion": "Tabla translúcida de hielo con facetas.",
+  "uso": "Skin desbloqueable.",
+  "etiquetas": [
+   "tabla",
+   "skin"
+  ],
+  "tamano_px": [
+   280,
+   201
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/tablas/tabla_cactus.png",
+  "grupo": "Nivel 2 · tablas de surf",
+  "nombre": "Tabla cactus",
+  "descripcion": "Tabla verde con espinas y una flor rosada.",
+  "uso": "Skin desbloqueable.",
+  "etiquetas": [
+   "tabla",
+   "skin"
+  ],
+  "tamano_px": [
+   285,
+   207
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/compuertas/compuerta_neutral.png",
+  "grupo": "Nivel 2 · compuertas",
+  "nombre": "Compuerta neutral",
+  "descripcion": "Arco de piedra con bordes dorados y panel crema vacío (el número se escribe por código).",
+  "uso": "Compuerta de respuesta aún sin cruzar.",
+  "etiquetas": [
+   "compuerta",
+   "respuesta"
+  ],
+  "tamano_px": [
+   271,
+   286
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/compuertas/compuerta_correcta.png",
+  "grupo": "Nivel 2 · compuertas",
+  "nombre": "Compuerta correcta",
+  "descripcion": "Arco con panel verde y marca de visto.",
+  "uso": "Resultado de acierto.",
+  "etiquetas": [
+   "compuerta",
+   "acierto"
+  ],
+  "tamano_px": [
+   270,
+   286
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/compuertas/compuerta_incorrecta.png",
+  "grupo": "Nivel 2 · compuertas",
+  "nombre": "Compuerta incorrecta",
+  "descripcion": "Arco con panel rojo y cruz.",
+  "uso": "Resultado de error.",
+  "etiquetas": [
+   "compuerta",
+   "error"
+  ],
+  "tamano_px": [
+   270,
+   286
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/compuertas/compuerta_usada.png",
+  "grupo": "Nivel 2 · compuertas",
+  "nombre": "Compuerta usada",
+  "descripcion": "Arco apagado en gris violeta.",
+  "uso": "Compuertas no elegidas ya resueltas.",
+  "etiquetas": [
+   "compuerta"
+  ],
+  "tamano_px": [
+   269,
+   286
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "engine/nivel2/surf.js"
+ },
+ {
+  "ruta": "assets/nivel2/extras/isla_hierba.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Isla flotante de pasto",
+  "descripcion": "Isla de tierra con pasto y piedritas.",
+  "uso": "Plataforma flotante.",
+  "etiquetas": [
+   "plataforma",
+   "isla"
+  ],
+  "tamano_px": [
+   269,
+   206
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/isla_desierto.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Isla flotante de desierto",
+  "descripcion": "Isla de arena con un cactus.",
+  "uso": "Plataforma flotante de tema desierto.",
+  "etiquetas": [
+   "plataforma",
+   "isla",
+   "desierto"
+  ],
+  "tamano_px": [
+   265,
+   218
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/isla_hielo.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Isla flotante de hielo",
+  "descripcion": "Isla de hielo con carámbanos.",
+  "uso": "Plataforma flotante de tema hielo.",
+  "etiquetas": [
+   "plataforma",
+   "isla",
+   "hielo"
+  ],
+  "tamano_px": [
+   268,
+   168
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/isla_lava.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Isla flotante de lava",
+  "descripcion": "Isla de roca oscura con grietas de lava.",
+  "uso": "Plataforma flotante de tema lava.",
+  "etiquetas": [
+   "plataforma",
+   "isla",
+   "lava"
+  ],
+  "tamano_px": [
+   267,
+   165
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/isla_cristal.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Isla flotante de cristal",
+  "descripcion": "Isla morada con cristales violetas.",
+  "uso": "Plataforma flotante de tema cristal.",
+  "etiquetas": [
+   "plataforma",
+   "isla",
+   "cristal"
+  ],
+  "tamano_px": [
+   266,
+   221
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/puente_colgante.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Puente colgante",
+  "descripcion": "Puente de tablas y cuerdas.",
+  "uso": "Pasarela.",
+  "etiquetas": [
+   "puente",
+   "madera"
+  ],
+  "tamano_px": [
+   288,
+   161
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/puente_piedra.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Puente de piedra",
+  "descripcion": "Arco de piedra con musgo.",
+  "uso": "Pasarela.",
+  "etiquetas": [
+   "puente",
+   "piedra"
+  ],
+  "tamano_px": [
+   303,
+   168
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/escalera_madera.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Escalera de madera",
+  "descripcion": "Escalera vertical con clavos metálicos.",
+  "uso": "Trepar.",
+  "etiquetas": [
+   "escalera"
+  ],
+  "tamano_px": [
+   140,
+   230
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/enredadera.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Enredadera",
+  "descripcion": "Rama con hojas verdes colgante.",
+  "uso": "Agarre o decoración.",
+  "etiquetas": [
+   "enredadera",
+   "selva"
+  ],
+  "tamano_px": [
+   282,
+   205
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/vagoneta_oro.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Vagoneta con oro",
+  "descripcion": "Vagoneta minera llena de pepitas doradas.",
+  "uso": "Decoración del cañón o premio.",
+  "etiquetas": [
+   "vagoneta",
+   "oro"
+  ],
+  "tamano_px": [
+   229,
+   202
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/cristales_azules.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Cristales azules",
+  "descripcion": "Racimo de cristales cian con rocas y hojas.",
+  "uso": "Decoración.",
+  "etiquetas": [
+   "cristal",
+   "decoración"
+  ],
+  "tamano_px": [
+   218,
+   260
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/bandera_checkpoint.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Bandera de punto de control",
+  "descripcion": "Bandera roja con aro dorado en el suelo.",
+  "uso": "Checkpoint.",
+  "etiquetas": [
+   "checkpoint",
+   "bandera"
+  ],
+  "tamano_px": [
+   268,
+   253
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/portal_piedra.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Portal de piedra",
+  "descripcion": "Arco de piedra con un vórtice azul y cristales.",
+  "uso": "Cambio de zona.",
+  "etiquetas": [
+   "portal"
+  ],
+  "tamano_px": [
+   276,
+   246
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/teletransporte.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Teletransportador",
+  "descripcion": "Plataforma con columna de luz azul y anillos.",
+  "uso": "Cambio de zona.",
+  "etiquetas": [
+   "portal",
+   "luz"
+  ],
+  "tamano_px": [
+   253,
+   256
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/trampolin.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Trampolín",
+  "descripcion": "Resorte con plataforma amarilla y negra y flecha arriba.",
+  "uso": "Rampa que impulsa el salto.",
+  "etiquetas": [
+   "trampolín",
+   "salto"
+  ],
+  "tamano_px": [
+   201,
+   230
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/cinta_transportadora.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Cinta transportadora",
+  "descripcion": "Cinta con flechas amarillas.",
+  "uso": "Empuja al héroe.",
+  "etiquetas": [
+   "cinta"
+  ],
+  "tamano_px": [
+   288,
+   170
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/pinchos.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Pinchos",
+  "descripcion": "Cuatro pinchos metálicos sobre una base de madera.",
+  "uso": "Obstáculo bajo.",
+  "etiquetas": [
+   "trampa",
+   "pinchos"
+  ],
+  "tamano_px": [
+   281,
+   194
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/sierra.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Sierra circular",
+  "descripcion": "Sierra con centro rojo sobre base metálica.",
+  "uso": "Obstáculo peligroso.",
+  "etiquetas": [
+   "trampa",
+   "sierra"
+  ],
+  "tamano_px": [
+   261,
+   220
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/canon.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Cañón",
+  "descripcion": "Cañón negro con mecha encendida.",
+  "uso": "Dispara proyectiles.",
+  "etiquetas": [
+   "trampa",
+   "cañón"
+  ],
+  "tamano_px": [
+   271,
+   209
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/bandera_meta.png",
+  "grupo": "Nivel 2 · extras generales",
+  "nombre": "Bandera de meta",
+  "descripcion": "Bandera de cuadros blanca y negra.",
+  "uso": "Final del recorrido.",
+  "etiquetas": [
+   "meta",
+   "bandera"
+  ],
+  "tamano_px": [
+   242,
+   241
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/pergamino.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Pergamino",
+  "descripcion": "Pergamino con cuerda y borla rojas.",
+  "uso": "Objeto coleccionable.",
+  "etiquetas": [
+   "ninja",
+   "pergamino"
+  ],
+  "tamano_px": [
+   255,
+   297
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/cofre_oscuro_cerrado.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Cofre oscuro cerrado",
+  "descripcion": "Cofre de madera oscura con remaches dorados y gema roja.",
+  "uso": "Premio.",
+  "etiquetas": [
+   "cofre",
+   "ninja"
+  ],
+  "tamano_px": [
+   265,
+   236
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/cofre_oscuro_abierto.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Cofre oscuro abierto",
+  "descripcion": "Cofre con monedas y gemas.",
+  "uso": "Premio abierto.",
+  "etiquetas": [
+   "cofre",
+   "ninja"
+  ],
+  "tamano_px": [
+   251,
+   307
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/onigiri.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Onigiri sonriente",
+  "descripcion": "Triángulo de arroz con alga y carita feliz.",
+  "uso": "Recuperar energía.",
+  "etiquetas": [
+   "comida",
+   "ninja"
+  ],
+  "tamano_px": [
+   262,
+   237
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/tambor_taiko.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Tambor taiko",
+  "descripcion": "Tambor rojo con cuerdas doradas y baquetas.",
+  "uso": "Decoración o ritmo.",
+  "etiquetas": [
+   "tambor",
+   "ninja"
+  ],
+  "tamano_px": [
+   268,
+   335
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/piedra_agrietada.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Piedra agrietada",
+  "descripcion": "Bloque de piedra con grietas y musgo.",
+  "uso": "Obstáculo rompible.",
+  "etiquetas": [
+   "piedra",
+   "obstáculo"
+  ],
+  "tamano_px": [
+   276,
+   308
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/dragon_origami.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Dragón de origami",
+  "descripcion": "Dragón rojo y dorado estilo papel plegado.",
+  "uso": "Enemigo o decoración.",
+  "etiquetas": [
+   "dragón",
+   "origami"
+  ],
+  "tamano_px": [
+   305,
+   327
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/oni_garrote_guardia.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Oni con garrote (guardia)",
+  "descripcion": "Ogro azul con cuernos dorados y garrote con púas, en guardia.",
+  "uso": "Enemigo fuerte.",
+  "etiquetas": [
+   "oni",
+   "enemigo"
+  ],
+  "tamano_px": [
+   276,
+   406
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/oni_garrote_ataque.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Oni con garrote (ataque)",
+  "descripcion": "El mismo oni alzando el garrote para golpear.",
+  "uso": "Pose de ataque del oni.",
+  "etiquetas": [
+   "oni",
+   "enemigo"
+  ],
+  "tamano_px": [
+   297,
+   424
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
+ },
+ {
+  "ruta": "assets/nivel2/extras/bola_fuego.png",
+  "grupo": "Nivel 2 · extras ninja",
+  "nombre": "Bola de fuego",
+  "descripcion": "Remolino de fuego naranja y amarillo.",
+  "uso": "Proyectil o efecto.",
+  "etiquetas": [
+   "fuego",
+   "efecto"
+  ],
+  "tamano_px": [
+   244,
+   260
+  ],
+  "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
+  "usado_en": "pendiente de integrar"
  }
 ]
