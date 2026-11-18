@@ -134,6 +134,11 @@ META = {
  'bola_fuego': (G+'extras ninja', 'Bola de fuego', 'Remolino de fuego naranja y amarillo.', 'Proyectil o efecto.', ['fuego', 'efecto']),
 }
 
+# ids que el juego ya usa (se actualiza en cada parte de la integración)
+USADO = {'cactus_saguaro', 'cactus_barril', 'roca_grande', 'rocas_pequenas', 'rueda_carreta', 'escorpion_walk', 'serpiente_slither',
+         'serpiente_alerta', 'buitre_vuelo', 'buitre_picada', 'buitre_huida', 'gota_agua', 'corazon_desierto',
+         'compuerta_neutral', 'compuerta_correcta', 'compuerta_incorrecta', 'compuerta_usada'}
+
 def quitar_fondo(a, modo):
     """a: RGBA uint8. Devuelve RGBA con el fondo en alfa 0 (solo componentes conectados al borde)."""
     rgb = a[..., :3].astype(int)
@@ -279,7 +284,7 @@ def main():
         g, nombre, desc, uso, tags = META[base]
         e = {'ruta': f'assets/nivel2/{carp}/{fr[0][0]}.png' if len(fr) == 1 else f'assets/nivel2/{carp}/{base}_*.png',
              'grupo': g, 'nombre': nombre, 'descripcion': desc, 'uso': uso, 'etiquetas': tags,
-             'tamano_px': list(fr[0][1]), 'origen': ORIGEN, 'usado_en': 'engine/nivel2/surf.js' if g.split('· ')[1] in ('obstáculos', 'enemigos', 'compuertas', 'jefes', 'objetos') else 'pendiente de integrar'}
+             'tamano_px': list(fr[0][1]), 'origen': ORIGEN, 'usado_en': 'engine/nivel2/surf.js' if base in USADO else 'pendiente de integrar'}
         if len(fr) > 1: e['cuadros'] = len(fr)
         cat.append(e); filas.setdefault(g, []).append(e)
     json.dump(cat, open(cat_path, 'w'), ensure_ascii=False, indent=1)

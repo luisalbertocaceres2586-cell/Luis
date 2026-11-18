@@ -39,17 +39,45 @@
 
     const beep = (f, d, tipo) => { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const os = ac.createOscillator(), g = ac.createGain(); os.type = tipo || 'square'; os.frequency.value = f; g.gain.value = .05; os.connect(g); g.connect(ac.destination); os.start(); g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + d); os.stop(ac.currentTime + d); } catch (e) {} };
 
+    // arte del Nivel 2 (assets/nivel2/manifest.js): si falta o no ha cargado, se dibuja la versión simple
+    const ARTE = window.NIVEL2_ARTE || {}, CACHE = {};
+    function img(id, i) { const a = ARTE[id]; if (!a) return null; i = Math.abs(Math.floor(i || 0)) % a.frames.length; const k = id + i; if (!CACHE[k]) { CACHE[k] = new Image(); CACHE[k].src = 'assets/nivel2/' + a.frames[i].f; } const m = CACHE[k]; return m.complete && m.naturalWidth ? m : null; }
+    // dibuja el sprite con la base centrada en (x,y) a la altura 'alto'; voltear = espejo horizontal
+    function spr(id, i, x, y, alto, voltear, alfa) { const m = img(id, i); if (!m) return false; const w = m.naturalWidth * alto / m.naturalHeight; cx.save(); cx.translate(x, y); if (voltear) cx.scale(-1, 1); if (alfa != null) cx.globalAlpha = alfa; cx.drawImage(m, -w / 2, -alto, w, alto); cx.restore(); return true; }
+    function obsSprite(ob, x, y) {
+      if (ob.tipo === 'cac') return spr(ob.v ? 'cactus_barril' : 'cactus_saguaro', 0, x, y + 6, ob.alto);
+      if (ob.tipo === 'roca') return spr(ob.v ? 'rocas_pequenas' : 'roca_grande', 0, x, y + 6, ob.alto);
+      if (ob.tipo === 'rueda') return spr('rueda_carreta', 0, x, y + 6, ob.alto);
+      if (ob.tipo === 'esc') return spr('escorpion_walk', S.t * 10 + ob.x, x, y + 4, ob.alto, true);
+      if (ob.tipo === 'ser') return ob.cd > 0 && ob.cd < .3 ? spr('serpiente_alerta', 0, x, y + 4, ob.alto * 1.6, true) : spr('serpiente_slither', S.t * 9 + ob.x, x, y + 4, ob.alto, true);
+      return false;
+    }
+    // números de las compuertas: se dibujan al final para que el arco de adelante no tape al de atrás
+    function etiquetasCompuertas(cam) {
+      S.gates.forEach(g => { const x = g.x - cam; if (x < -60 || x > W + 60) return;
+        for (let l = 0; l < 3; l++) {
+          const y = laneY(g.x, l) - 62, mia = g.res && g.lane === l, col = !g.res ? '#ffd35a' : (mia ? (g.ok ? '#53e08a' : '#ff5a5a') : '#6b5a7a');
+          cx.fillStyle = 'rgba(20,10,40,.82)'; cx.strokeStyle = col; cx.lineWidth = 3; cx.beginPath(); cx.roundRect ? cx.roundRect(x - 30, y - 16, 60, 32, 16) : cx.rect(x - 30, y - 16, 60, 32); cx.fill(); cx.stroke();
+          cx.fillStyle = g.res && !mia ? '#9d97c9' : '#fff'; cx.font = 'bold 22px ui-monospace,monospace'; cx.textAlign = 'center'; cx.fillText(g.q.ops[l], x, y + 8);
+        } });
+    }
+    function dibujarBuitre() {
+      const b = S.buitre; if (!b) return;
+      const id = b.est === 'picada' ? 'buitre_picada' : b.est === 'huida' ? 'buitre_huida' : 'buitre_vuelo';
+      spr(id, S.t * 9, b.bx, b.by + 40, 84, b.est !== 'huida');
+    }
+
     function nuevo() {
       S = { est: 'play', t: 0, d: 0, v: 300, lane: 1, ly: 1, z: 0, vz: 0, vidas: 3, punt: 0, racha: 0, aci: 0, err: 0, inv: 0, boost: 0, flash: 0, shake: 0,
-        obs: [], gates: [], gotas: [], gen: 900, fallos: Object.assign({}, fallosPrev), fase: 'ruta', respondidas: 0, jefe: null, msg: { t: 3, s: 'SURF DE DUNAS · ¡cruza la compuerta correcta!' }, part: [], inputs: {} };
+        obs: [], gates: [], gotas: [], gen: 900, fallos: Object.assign({}, fallosPrev), fase: 'ruta', respondidas: 0, buitre: null, proxB: 22, jefe: null, msg: { t: 3, s: 'SURF DE DUNAS · ¡cruza la compuerta correcta!' }, part: [], inputs: {} };
     }
 
     function generar() {
       while (S.gen < S.d + 3000) {
         const g0 = S.gen, jefe = S.fase === 'jefe', n = jefe ? RI(1, 2) : RI(3, 5);
         for (let i = 0; i < n; i++) {
-          const x = g0 + 250 + i * RI(260, 380), tipo = ['cac', 'esc', 'roca', 'ser'][RI(0, S.respondidas >= 2 ? 3 : 2)];
-          S.obs.push({ x, l: RI(0, 2), tipo, h: tipo === 'cac' ? 56 : tipo === 'roca' ? 40 : tipo === 'ser' ? 24 : 28 });
+          const x = g0 + 250 + i * RI(260, 380), tipo = ['cac', 'esc', 'roca', 'ser', 'rueda'][RI(0, S.respondidas >= 2 ? 4 : 2)], v = RI(0, 1);
+          S.obs.push({ x, l: RI(0, 2), tipo, v, h: ({ cac: v ? 44 : 68, roca: v ? 30 : 52, rueda: 46, ser: 26, esc: 30 })[tipo], alto: ({ cac: v ? 68 : 112, roca: v ? 46 : 80, rueda: 74, ser: 34, esc: 58 })[tipo] });
           if (Math.random() < .7) for (let k = 0; k < 3; k++) S.gotas.push({ x: x - 120 + k * 36, l: RI(0, 2), y: 60 + Math.sin(k) * 20, ok: false });
         }
         const q = pregunta(S.fallos); S.gates.push({ x: g0 + 2000, q, res: false, lane: -1, ok: false });
@@ -84,7 +112,16 @@
       if (S.msg.t > 0) S.msg.t -= dt; S.inv = Math.max(0, S.inv - dt); S.boost = Math.max(0, S.boost - dt); S.flash = Math.max(0, S.flash - dt); S.shake = Math.max(0, S.shake - dt);
       S.torm = Math.max(0, (S.torm || 0) - dt); S.proxT = (S.proxT === undefined ? 16 : S.proxT) - dt;
       if (S.proxT <= 0 && !S.jefe) { S.torm = 5; S.proxT = R(22, 32); S.msg = { t: 2, s: '¡TORMENTA DE ARENA! Memoriza los carriles' }; beep(200, .5, 'sawtooth'); }
-      S.obs.forEach(ob => { const dx = ob.x - S.d; if (ob.tipo === 'ser' && dx > 0 && dx < 700) { ob.cd = (ob.cd || 0) - dt; if (ob.cd <= 0) { ob.l = clamp(ob.l + (Math.random() < .5 ? -1 : 1), 0, 2); ob.cd = .8; } } });
+      S.proxB -= dt;
+      if (!S.buitre && S.proxB <= 0 && !S.jefe && !(S.torm > 0)) { S.buitre = { est: 'vuelo', bx: W + 70, by: 120, t: 0, lane: 1 }; S.proxB = R(26, 38); S.msg = { t: 1.8, s: '¡BUITRE LADRÓN! Cambia de carril' }; }
+      if (S.buitre) { const b = S.buitre; b.t += dt;
+        if (b.est === 'vuelo') { b.bx -= 250 * dt; if (b.bx < X_H + 330) { b.est = 'aviso'; b.t = 0; b.lane = clamp(Math.round(S.ly), 0, 2); beep(330, .25, 'triangle'); } }
+        else if (b.est === 'aviso') { b.bx -= 60 * dt; if (b.t > .9) { b.est = 'picada'; b.t = 0; b.x0 = b.bx; b.y0 = b.by; } }
+        else if (b.est === 'picada') { const k = Math.min(1, b.t / .45); b.bx = b.x0 + (X_H + 40 - b.x0) * k; b.by = b.y0 + (laneY(S.d, b.lane) - 80 - b.y0) * k;
+          if (k >= 1) { const golpe = clamp(Math.round(S.ly), 0, 2) === b.lane && S.z < 60; b.est = golpe ? 'huida' : 'sale'; b.t = 0; if (golpe) { S.punt = Math.max(0, S.punt - 80); daño('¡Te robó 80 puntos!'); } } }
+        else { b.bx += (b.est === 'huida' ? 300 : -260) * dt; b.by -= 140 * dt; if (b.bx < -120 || b.bx > W + 120 || b.by < -80) S.buitre = null; } }
+      S.obs.forEach(ob => { const dx = ob.x - S.d; if (ob.tipo === 'esc' && dx > -100 && dx < 900) ob.x -= 80 * dt;
+        if (ob.tipo === 'ser' && dx > 0 && dx < 700) { ob.cd = (ob.cd || 0) - dt; if (ob.cd <= 0) { ob.l = clamp(ob.l + (Math.random() < .5 ? -1 : 1), 0, 2); ob.cd = .8; } } });
       S.ly += (S.lane - S.ly) * Math.min(1, dt * 10);
       if (k.salto && S.z === 0) { S.vz = 560; k.salto = false; beep(420, .08, 'triangle'); }
       S.vz -= GR * dt; S.z = Math.max(0, S.z + S.vz * dt); if (S.z === 0 && S.vz < 0) S.vz = 0;
@@ -120,6 +157,8 @@
       for (let l = 0; l < 3; l++) { cx.fillStyle = cols[l]; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W + 12; x += 12) cx.lineTo(x, laneY(cam + x, l) - CARR / 2); cx.lineTo(W + 12, H); cx.fill();
         cx.strokeStyle = 'rgba(255,230,170,.35)'; cx.lineWidth = 2; cx.beginPath(); for (let x = 0; x <= W + 12; x += 12) { const y = laneY(cam + x, l) - CARR / 2; x ? cx.lineTo(x, y) : cx.moveTo(x, y); } cx.stroke();
         dibujarLane(l, cam); }
+      etiquetasCompuertas(cam);
+      dibujarBuitre();
       if (S.torm > 0) { const k = clamp(Math.min(S.torm, 5 - S.torm) * 2, 0, 1), g = cx.createLinearGradient(X_H + 110, 0, W, 0); g.addColorStop(0, 'rgba(214,160,100,0)'); g.addColorStop(.45, 'rgba(214,160,100,' + .93 * k + ')'); g.addColorStop(1, 'rgba(214,160,100,' + k + ')'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
         cx.strokeStyle = 'rgba(255,230,190,' + .5 * k + ')'; cx.lineWidth = 2; for (let i = 0; i < 26; i++) { const y = R(0, H), x = R(0, W); cx.beginPath(); cx.moveTo(x, y); cx.lineTo(x - R(40, 120), y + R(-6, 6)); cx.stroke(); } }
       cx.restore(); hud();
@@ -127,17 +166,22 @@
 
     function dibujarLane(l, cam) {
       const sx = x => x - cam, sy = (x, z) => laneY(x, l) - (z || 0);
-      if (S.jefe && S.jefe.atq && S.jefe.atq.l === l) { cx.fillStyle = 'rgba(255,40,40,' + (.25 + .2 * Math.sin(S.t * 30)) + ')'; cx.fillRect(X_H - 50, sy(S.d, 0) - 24, 120, 40); }
-      S.gates.forEach(g => { const x = sx(g.x); if (x < -80 || x > W + 80) return; const y = sy(g.x, 0), col = !g.res ? '#ffd35a' : (g.lane === l ? (g.ok ? '#53e08a' : '#ff5a5a') : '#6b5a7a');
+      if ((S.jefe && S.jefe.atq && S.jefe.atq.l === l) || (S.buitre && (S.buitre.est === 'aviso' || S.buitre.est === 'picada') && S.buitre.lane === l)) { cx.fillStyle = 'rgba(255,40,40,' + (.25 + .2 * Math.sin(S.t * 30)) + ')'; cx.fillRect(X_H - 50, sy(S.d, 0) - 24, 120, 40); }
+      S.gates.forEach(g => { const x = sx(g.x); if (x < -80 || x > W + 80) return; const y = sy(g.x, 0), alto = 100, mia = g.res && g.lane === l;
+        const id = !g.res ? 'compuerta_neutral' : (mia ? (g.ok ? 'compuerta_correcta' : 'compuerta_incorrecta') : 'compuerta_usada');
+        if (spr(id, 0, x, y + 4, alto)) return;
+        const col = !g.res ? '#ffd35a' : (g.lane === l ? (g.ok ? '#53e08a' : '#ff5a5a') : '#6b5a7a');
         cx.strokeStyle = col; cx.lineWidth = 5; cx.beginPath(); cx.moveTo(x - 26, y); cx.lineTo(x - 26, y - 78); cx.moveTo(x + 26, y); cx.lineTo(x + 26, y - 78); cx.stroke();
         cx.fillStyle = col; cx.globalAlpha = .28; cx.fillRect(x - 24, y - 76, 48, 76); cx.globalAlpha = 1;
         cx.fillStyle = '#fff'; cx.font = 'bold 22px ui-monospace,monospace'; cx.textAlign = 'center'; cx.fillText(g.q.ops[l], x, y - 38); });
       S.obs.forEach(ob => { if (ob.l !== l) return; const x = sx(ob.x), y = sy(ob.x, 0); if (x < -60 || x > W + 60) return;
+        if (obsSprite(ob, x, y)) return;
         if (ob.tipo === 'cac') { cx.fillStyle = '#2f9e5f'; cx.fillRect(x - 8, y - 56, 16, 56); cx.fillRect(x - 22, y - 38, 14, 8); cx.fillRect(x - 22, y - 46, 8, 16); cx.fillRect(x + 8, y - 30, 14, 8); cx.fillRect(x + 14, y - 40, 8, 16); }
         else if (ob.tipo === 'roca') { cx.fillStyle = '#6d5a73'; cx.beginPath(); cx.moveTo(x - 30, y); cx.lineTo(x - 18, y - 40); cx.lineTo(x + 14, y - 34); cx.lineTo(x + 30, y); cx.fill(); }
         else if (ob.tipo === 'ser') { cx.strokeStyle = '#c9d94a'; cx.lineWidth = 8; cx.lineCap = 'round'; cx.beginPath(); for (let i = 0; i < 9; i++) { const px = x - 32 + i * 8, py = y - 10 + Math.sin(S.t * 9 + i * .9) * 6; i ? cx.lineTo(px, py) : cx.moveTo(px, py); } cx.stroke(); cx.fillStyle = '#e8f07a'; cx.beginPath(); cx.arc(x + 36, y - 10 + Math.sin(S.t * 9 + 7.2) * 6, 7, 0, 7); cx.fill(); }
         else { const w = Math.sin(S.t * 14 + ob.x) * 3; cx.fillStyle = '#d9473f'; cx.beginPath(); cx.ellipse(x, y - 12, 20, 11, 0, 0, 7); cx.fill(); cx.strokeStyle = '#d9473f'; cx.lineWidth = 4; cx.beginPath(); cx.moveTo(x + 14, y - 14); cx.quadraticCurveTo(x + 36, y - 30 + w, x + 22, y - 36); cx.stroke(); cx.fillRect(x - 28, y - 14 + w, 10, 4); } });
-      S.gotas.forEach(g => { if (g.l !== l || g.ok) return; const x = sx(g.x), y = sy(g.x, g.y); if (x < -20 || x > W + 20) return; cx.fillStyle = '#6fd6ff'; cx.beginPath(); cx.moveTo(x, y - 12); cx.quadraticCurveTo(x + 9, y, x, y + 8); cx.quadraticCurveTo(x - 9, y, x, y - 12); cx.fill(); });
+      S.gotas.forEach(g => { if (g.l !== l || g.ok) return; const x = sx(g.x), y = sy(g.x, g.y); if (x < -20 || x > W + 20) return;
+        if (spr('gota_agua', 0, x, y + 12 + Math.sin(S.t * 4 + g.x) * 3, 28)) return; cx.fillStyle = '#6fd6ff'; cx.beginPath(); cx.moveTo(x, y - 12); cx.quadraticCurveTo(x + 9, y, x, y + 8); cx.quadraticCurveTo(x - 9, y, x, y - 12); cx.fill(); });
       if (l === clamp(Math.round(S.ly), 0, 2) || (l === 2 && false)) {}
       if (l === Math.round(clamp(S.ly, 0, 2))) { heroe(cam); jefeDib(cam); }
     }
@@ -178,7 +222,7 @@
 
     function hud() {
       cx.textAlign = 'left'; cx.font = 'bold 20px ui-monospace,monospace';
-      for (let i = 0; i < 3; i++) { cx.fillStyle = i < S.vidas ? '#ff4d6d' : '#4a3a5a'; cx.fillText('♥', 16 + i * 26, 34); }
+      for (let i = 0; i < 3; i++) { if (!spr('corazon_desierto', 0, 30 + i * 34, 46, 32, false, i < S.vidas ? 1 : .25)) { cx.fillStyle = i < S.vidas ? '#ff4d6d' : '#4a3a5a'; cx.fillText('♥', 16 + i * 26, 34); } }
       cx.fillStyle = '#ffe27a'; cx.fillText('★ ' + S.punt, 16, 62); cx.fillStyle = '#6fd6ff'; cx.fillText('⚡ ' + Math.round(S.v / 6) + ' km/h', 16, 88);
       const pr = S.jefe ? S.jefe.hp / S.jefe.max : clamp(S.respondidas / 8, 0, 1); cx.fillStyle = '#00000088'; cx.fillRect(W - 236, 16, 220, 16); cx.fillStyle = S.jefe ? '#ff4d4d' : '#ffe27a'; cx.fillRect(W - 236, 16, 220 * pr, 16);
       cx.fillStyle = '#fff'; cx.font = '12px ui-monospace,monospace'; cx.textAlign = 'right'; cx.fillText(S.jefe ? 'ESCORPIÓN COLOSAL' : 'RECORRIDO ' + S.respondidas + '/8', W - 16, 46);

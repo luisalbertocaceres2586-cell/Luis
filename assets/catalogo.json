@@ -2819,7 +2819,7 @@
    210
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js"
+  "usado_en": "pendiente de integrar"
  },
  {
   "ruta": "assets/nivel2/enemigos/serpiente_slither_*.png",
@@ -2926,7 +2926,7 @@
    179
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js",
+  "usado_en": "pendiente de integrar",
   "cuadros": 5
  },
  {
@@ -2944,7 +2944,7 @@
    216
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js",
+  "usado_en": "pendiente de integrar",
   "cuadros": 5
  },
  {
@@ -2962,7 +2962,7 @@
    220
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js",
+  "usado_en": "pendiente de integrar",
   "cuadros": 5
  },
  {
@@ -2980,7 +2980,7 @@
    239
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js",
+  "usado_en": "pendiente de integrar",
   "cuadros": 5
  },
  {
@@ -3365,7 +3365,7 @@
    218
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js"
+  "usado_en": "pendiente de integrar"
  },
  {
   "ruta": "assets/nivel2/objetos/cofre_entreabierto.png",
@@ -3382,7 +3382,7 @@
    233
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js"
+  "usado_en": "pendiente de integrar"
  },
  {
   "ruta": "assets/nivel2/objetos/cofre_abierto.png",
@@ -3399,7 +3399,7 @@
    262
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js"
+  "usado_en": "pendiente de integrar"
  },
  {
   "ruta": "assets/nivel2/objetos/trofeo_escorpion.png",
@@ -3417,7 +3417,7 @@
    280
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "engine/nivel2/surf.js"
+  "usado_en": "pendiente de integrar"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_clasica.png",

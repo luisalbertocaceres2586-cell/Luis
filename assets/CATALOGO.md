@@ -32,6 +32,7 @@ Todas las imágenes del juego, organizadas y descritas para encontrarlas y reuti
 
 
 
+
 <!-- NIVEL2:INICIO -->
 ## 🏜️ Nivel 2 — Surf de Dunas (`nivel2/`)
 
