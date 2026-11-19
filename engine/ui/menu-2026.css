@@ -120,3 +120,28 @@
 #pfOverlay .pf-btn{font:900 13px/1 Inter,system-ui,sans-serif!important;letter-spacing:.14em;border-radius:99px!important;padding:14px 24px!important;box-shadow:0 8px 22px rgba(255,150,30,.28)!important}
 #pfOverlay .pf-btn.sec{box-shadow:none!important;border:1px solid rgba(190,210,255,.25)}
 #pfOverlay .pf-err{font:600 12px Inter,system-ui,sans-serif!important}
+
+/* ---------- "¿Quién juega?": tarjeta angosta, filas limpias, nada se sale ---------- */
+#pfOverlay .pf-card.pf-card-s{width:min(580px,94vw);display:flex;flex-direction:column;gap:14px;overflow-x:hidden}
+#pfOverlay .pf-card-s .pf-sub{margin:-6px 0 0}
+#pfOverlay .pf-card-s .pf-lista{display:flex;flex-direction:column;gap:10px;max-height:46vh;overflow-y:auto;padding:2px}
+#pfOverlay .pf-card-s .pf-fila{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 12px;border:1px solid rgba(180,200,245,.16);border-radius:16px;background:rgba(255,255,255,.045)}
+#pfOverlay .pf-card-s .pf-fila img{width:52px;height:52px;border-radius:12px;border:2px solid var(--c,#f6c768);object-fit:cover;object-position:top}
+#pfOverlay .pf-card-s .pf-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+#pfOverlay .pf-card-s .pf-info b{font:900 15px/1.2 Inter,system-ui,sans-serif;letter-spacing:.08em;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pfOverlay .pf-card-s .pf-info small{font:600 12px/1.3 Inter,system-ui,sans-serif;color:#9fb0d2}
+#pfOverlay .pf-card-s .pf-acc{display:flex;align-items:center;gap:6px}
+#pfOverlay .pf-card-s .pf-acc .pf-btn{min-height:40px;padding:0 16px;font-size:11px;white-space:nowrap;border-radius:99px!important;box-shadow:0 6px 16px rgba(255,150,30,.25)!important}
+#pfOverlay .pf-ic{width:36px;height:36px;flex:none;border-radius:50%;border:1px solid rgba(190,210,255,.22);background:rgba(10,16,40,.55);color:#dbe6ff;font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .2s,border-color .2s}
+#pfOverlay .pf-ic:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.4)}
+#pfOverlay .pf-card-s .pf-pie{display:flex;flex-direction:column;align-items:stretch;gap:10px;border-top:1px solid rgba(190,205,245,.12);padding-top:14px}
+#pfOverlay .pf-card-s .pf-pie>.pf-btn{width:100%;border-radius:99px!important;min-height:48px}
+#pfOverlay .pf-mas{display:flex;justify-content:center;gap:22px}
+#pfOverlay .pf-link{background:none;border:0;color:#9fb0d2;font:700 12px Inter,system-ui,sans-serif;letter-spacing:.1em;cursor:pointer;padding:6px}
+#pfOverlay .pf-link:hover{color:#fff;text-decoration:underline}
+@media(max-width:420px){
+  #pfOverlay .pf-card-s .pf-fila{grid-template-columns:44px minmax(0,1fr);}
+  #pfOverlay .pf-card-s .pf-fila img{width:44px;height:44px}
+  #pfOverlay .pf-card-s .pf-acc{grid-column:1/-1;justify-content:flex-end}
+  #pfOverlay .pf-card-s .pf-acc .pf-btn{flex:1}
+}

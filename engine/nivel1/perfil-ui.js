@@ -199,28 +199,35 @@
   }
 
   function vistaLista(card) {
+    card.classList.add('pf-card-s');
     const ps = Perfiles.listar();
     card.appendChild(el('h2', { text: '¿QUIÉN JUEGA?' }));
-    card.appendChild(el('p', { class: 'pf-sub', text: 'Elige tu jugador para seguir tu partida, o crea uno nuevo.' }));
+    card.appendChild(el('p', { class: 'pf-sub', text: 'Elige tu jugador para seguir tu partida.' }));
     const lista = el('div', { class: 'pf-lista' });
     ps.forEach(p => {
       const tiene = p.progreso && (p.progreso.puntos > 0 || p.progreso.nivel > 0);
+      const reiniciar = () => { if (confirm('¿Empezar de nuevo desde el nivel 1? Se conserva tu nombre pero se borra tu avance.')) { Perfiles.actualizar(p.id, q => { q.progreso = { fase: 'easy', nivel: 0, puntos: 0 }; q.nivel1 = { intentos: 0, semilla: null, plan: null, estado: null, completados: 0 }; }); jugarNuevo(Perfiles.obtener(p.id)); } };
+      const borrar = () => { if (confirm('¿Borrar a ' + p.nombre + ' y todo su avance?')) { Perfiles.borrar(p.id); render(); } };
+      const acc = el('div', { class: 'pf-acc' }, [
+        tiene ? el('button', { class: 'pf-btn', text: '▶ CONTINUAR', onclick: () => continuar(p) }) : el('button', { class: 'pf-btn', text: '▶ JUGAR', onclick: () => jugarNuevo(p) })
+      ]);
+      if (tiene) acc.appendChild(el('button', { class: 'pf-ic', text: '↺', title: 'Empezar de nuevo desde el nivel 1', 'aria-label': 'Empezar de nuevo', onclick: reiniciar }));
+      acc.appendChild(el('button', { class: 'pf-ic', text: '🗑', title: 'Borrar jugador', 'aria-label': 'Borrar jugador', onclick: borrar }));
       lista.appendChild(el('div', { class: 'pf-fila', style: '--c:' + AV[p.avatar].color }, [
         el('img', { src: imgAvatar(p.avatar), alt: '' }),
-        el('div', { class: 'pf-info' }, [p.nombre.toUpperCase(), el('small', { text: (tiene ? 'Nivel ' + (p.progreso.nivel + 1) + ' · ' + p.progreso.puntos.toLocaleString() + ' pts' : 'Partida nueva') })]),
-        tiene ? el('button', { class: 'pf-btn', text: '▶ CONTINUAR', onclick: () => continuar(p) }) : el('button', { class: 'pf-btn', text: '▶ JUGAR', onclick: () => jugarNuevo(p) }),
-        tiene ? el('button', { class: 'pf-btn sec mini', text: 'NUEVA', title: 'Empezar desde el nivel 1 con este jugador', onclick: () => { if (confirm('¿Empezar de nuevo desde el nivel 1? Se conserva tu nombre pero se borra tu avance.')) { Perfiles.actualizar(p.id, q => { q.progreso = { fase: 'easy', nivel: 0, puntos: 0 }; q.nivel1 = { intentos: 0, semilla: null, plan: null, estado: null, completados: 0 }; }); jugarNuevo(Perfiles.obtener(p.id)); } } }) : '',
-        el('button', { class: 'pf-btn sec mini', text: '🗑', title: 'Borrar jugador', onclick: () => { if (confirm('¿Borrar a ' + p.nombre + ' y todo su avance?')) { Perfiles.borrar(p.id); render(); } } })
+        el('div', { class: 'pf-info' }, [el('b', { text: p.nombre.toUpperCase() }), el('small', { text: tiene ? 'Nivel ' + (p.progreso.nivel + 1) + ' · ' + p.progreso.puntos.toLocaleString() + ' pts' : 'Partida nueva' })]),
+        acc
       ]));
     });
     card.appendChild(lista);
     card.appendChild(el('div', { class: 'pf-pie' }, [
       el('button', { class: 'pf-btn', text: '＋ JUGADOR NUEVO', onclick: () => { vista = 'crear'; render(); } }),
-      el('span', {}, [el('button', { class: 'pf-btn sec mini', text: '📤 EXPORTAR', onclick: () => { vista = 'exportar'; render(); } }), ' ', el('button', { class: 'pf-btn sec mini', text: '📥 IMPORTAR', onclick: () => { vista = 'importar'; render(); } })])
+      el('span', { class: 'pf-mas' }, [el('button', { class: 'pf-link', text: 'Exportar', onclick: () => { vista = 'exportar'; render(); } }), el('button', { class: 'pf-link', text: 'Importar', onclick: () => { vista = 'importar'; render(); } })])
     ]));
   }
 
   function vistaCrear(card) {
+    card.classList.add('pf-card-s');
     // Solo se pide el nombre: el ninja es el que se eligió en el menú y el dispositivo se detecta solo.
     borrador.avatar = heroeActual();
     borrador.dispositivo = dispo();
