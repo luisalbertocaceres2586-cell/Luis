@@ -62,14 +62,26 @@
   }
   core.superficie = superficie;
 
+  // Antarez usa el mismo formato de animaciones que Sakura, pero con algunos nombres distintos. Se hace una copia (sin tocar el manifiesto
+  // original, que también usa el juego principal) con los nombres que espera dibujarSakuraEve().
+  function adaptarAntarez(M0) {
+    const an = Object.assign({}, M0.animations), alias = { jump_rise: 'jump_up', fall: 'fall_fast', glide_start: 'glide', crawl: 'crouch', slide: 'slide', wall_jump: 'wall_jump' };
+    Object.keys(alias).forEach(k => { if (!an[k] && an[alias[k]]) an[k] = an[alias[k]]; });
+    const tam = { jump_rise: 'jump_up', jump_fall: 'jump_fall' };   // por si falta alguna secuencia: nunca dejar al héroe invisible
+    Object.keys(tam).forEach(k => { if (!an[k]) an[k] = an[tam[k]] || an.idle; });
+    return Object.assign({}, M0, { animations: an, idle: an.idle.frames });
+  }
+
   // ============ carga ============
   async function cargar(heroe, progreso) {
     const sakura = heroe !== 'kage';
-    const hm = sakura ? 'SAKURA_EVE_MANIFEST' : 'KAGE_MANIFEST';
-    const manifestPath = sakura ? 'assets/characters/sakura_assets/sakura/manifest.js' : 'assets/characters/kage/manifest.js';
+    // 'kage' es el id guardado en los perfiles; el personaje que se dibuja ahora es Antarez (assets/characters/antarez/)
+    const hm = sakura ? 'SAKURA_EVE_MANIFEST' : 'ANTAREZ_MANIFEST';
+    const manifestPath = sakura ? 'assets/characters/sakura_assets/sakura/manifest.js' : 'assets/characters/antarez/manifest.js?v=an2';
     if (!window[hm]) await cargarScript(manifestPath);
-    const M = window[hm]; if (!M) throw new Error('No se encontró el manifest de ' + heroe);
-    const base = M.base || 'assets/characters/' + heroe + '/';
+    let M = window[hm]; if (!M) throw new Error('No se encontró el manifest de ' + heroe);
+    if (!sakura) M = adaptarAntarez(M);
+    const base = M.base || 'assets/characters/' + (sakura ? heroe : 'antarez') + '/';
     const lista = Object.keys(IMGS).map(k => [k, A + IMGS[k] + '.png']);
     if (M.animations) {
       const files = new Set();
@@ -601,7 +613,7 @@
     else if (Math.abs(h.vx) > 40) { st.gliding = false; name = Math.abs(h.vx) < 200 ? 'walk' : 'run'; }
     else { st.gliding = false; name = 'idle'; }
 
-    const anim = M.animations[name]; if (!anim || !anim.frames.length) return;
+    const anim = M.animations[name] || M.animations.idle; if (!anim || !anim.frames.length) return;
     if (st.name !== name) { st.name = name; st.start = now; }
     const count = anim.frames.length;
     let idx = progress === undefined ? Math.floor((now - st.start) * anim.fps) : Math.floor(Math.max(0, Math.min(.999999, progress)) * count);
@@ -620,7 +632,7 @@
   function dibujarHeroe() {
     if (window.N1hab) N1hab.estelas();
     const h = S.h, M = S.M; let set = 'idle', fps = 8, idx = 0;
-    if (S.heroeId === 'sakura' && M.animations) { dibujarSakuraEve(); return; }
+    if (M.animations && (S.heroeId === 'sakura' || S.heroeId === 'kage')) { dibujarSakuraEve(); return; }
     if (h.muerto > 0) set = 'death'; else if (h.aturdido > 0) set = 'hurt'; else if (h.atk > 0) set = 'atk'; else if (!h.suelo) set = 'jump'; else if (Math.abs(h.vx) > 40) { set = 'run'; fps = 26; }
     const arr = M[set] || M.idle;
     if (set === 'atk') idx = Math.min(arr.length - 1, Math.floor((1 - h.atk / .28) * arr.length)); else if (set === 'jump') idx = h.vy < -300 ? 0 : h.vy < -60 ? 1 : h.vy < 260 ? Math.min(2, arr.length - 1) : arr.length - 1;
