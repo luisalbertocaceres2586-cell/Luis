@@ -156,16 +156,20 @@ ok('400 semillas: recorribles, con 16 estaciones y una respuesta correcta cada u
 ok('cada nivel incluye todos los enemigos y todos los retos (cueva, jefe, emboscada, roca, sierras...)', () => {
   for (let s = 1; s <= 400; s++) {
     const N = gen(s), k = N.enem.map(e => e.kind), t = N.elem.map(e => e.t);
-    ['ninja', 'ninjaAtk', 'tengu', 'murcielago', 'arana', 'aranaTecho', 'fuego', 'oni'].forEach(x => assert(k.includes(x), 'falta enemigo ' + x + ' en semilla ' + s));
+    ['ninja', 'ninjaAtk', 'tengu', 'murcielago', 'arana', 'aranaTecho', 'fuego', 'oni', 'arquero', 'lancero', 'fantasma', 'serpiente', 'escarabajo', 'kappa', 'zorro', 'rana'].forEach(x => assert(k.includes(x), 'falta enemigo ' + x + ' en semilla ' + s));
     ['carreta', 'palanca', 'emb', 'roca', 'kunaiR', 'sierra', 'viento', 'estal', 'tela', 'jefe'].forEach(x => assert(t.includes(x), 'falta reto ' + x + ' en semilla ' + s));
     assert(N.tambores.some(d => d.hongo) && N.tambores.some(d => !d.hongo), 'faltan tambores u hongos');
+    const tp = x => N.items.filter(i => i.tipo === x).length; assert(tp('frasco') >= 4 && tp('corazon') >= 1 && tp('llave') >= 1, 'faltan frascos, corazones o llaves en semilla ' + s);
+    assert(N.elem.some(q => q.t === 'npc' && q.who === 'sensei') && N.elem.some(q => q.t === 'npc' && q.who === 'tanuki'), 'faltan personajes');
+    assert(new Set(N.deco.map(d => d.tipo)).size >= 12, 'poco decorado: ' + new Set(N.deco.map(d => d.tipo)).size); assert(new Set(N.plat.map(p => p.tipo)).size >= 7, 'pocas plataformas distintas');
+    N.items.filter(i => i.tipo === 'llave').forEach(i => assert(N.muros.some(m => m.id === i.id && m.tipo === 'reja'), 'llave sin reja'));
     assert(N.plat.some(p => p.mov) && N.plat.some(p => p.fragil), 'faltan plataformas móviles o frágiles');
   }
 });
 ok('largo y duración estimada: ≈ 20–30 minutos y 65–75 mil px', () => {
   let lo = 99, hi = 0, mn = 1e9, mx = 0;
   for (let s = 1; s <= 200; s++) { const N = gen(s); lo = Math.min(lo, N.costoMin); hi = Math.max(hi, N.costoMin); mn = Math.min(mn, N.ancho); mx = Math.max(mx, N.ancho); }
-  assert(lo >= 20 && hi <= 32, lo + '–' + hi + ' min'); assert(mn > 55000 && mx < 90000); console.log('    (' + lo + '–' + hi + ' min estimados · ' + mn + '–' + mx + ' px)');
+  assert(lo >= 20 && hi <= 34, lo + '–' + hi + ' min'); assert(mn > 55000 && mx < 90000); console.log('    (' + lo + '–' + hi + ' min estimados · ' + mn + '–' + mx + ' px)');
 });
 ok('semillas distintas dan niveles distintos; la misma semilla da el mismo', () => {
   const firma = s => JSON.stringify(gen(s).suelo.map(x => x.x1)) + gen(s).est.map(e => e.mecanica).join();

@@ -1,0 +1,23 @@
+PROMPT GENERAL · NUEVA SAKURA (válido para TODAS las hojas — léelo completo antes de dibujar)
+
+PERSONAJE (debe ser IDÉNTICA en todas las hojas): Sakura, ninja chibi-anime de un videojuego 2D de plataformas. Proporciones chibi: cabeza grande (≈ 40 % de su altura), cuerpo compacto y ágil. Cabello negro brillante, voluminoso, recogido en una coleta alta y larga cuyas puntas se degradan a magenta; una flor rosa de 5 pétalos (centro amarillo) sujeta el cabello sobre la sien derecha. Ojos grandes y expresivos magenta/rosa con reflejos blancos. Máscara negra que cubre nariz y boca, con costura fina magenta. Piel clara cálida. Armadura ninja negra, brillante y segmentada (peto, hombreras, brazales, rodilleras, botas) con líneas luminosas magenta y detalles de metal gris plata para que se lea bien sobre fondos oscuros. Bufanda magenta larga de dos puntas que ondea siempre con retraso respecto al cuerpo, y un cinturón (obi) magenta. Arma: una katana de hoja con brillo de energía rosa, enfundada en la espalda cuando no la usa; shuriken grande de acero con filo plateado y centro magenta.
+
+LEGIBILIDAD: contorno exterior azul marino #1A1230 limpio de 2 a 3 px y una fina luz de borde rosa claro #FFB3E6 en los bordes que miran arriba a la izquierda, para que la silueta se separe de fondos oscuros (cueva) y claros (bosque). Luz principal desde arriba a la izquierda.
+
+PALETA: armadura #14101C y #2A2236; magenta #E8238F y #FF3DB8; rosa claro #FFB3E6; plata #B8BFD0; piel #F2C9A8; flor #FF7AC8 con centro #FFD54A; bufanda degradado #D81B8A → #FF5FC8; energía de la espada #FF6AD5; contorno #1A1230.
+
+ESTILO: arte digital de altísima calidad, pintado a mano, nivel estudio de animación y juego móvil premium, coherente con un mundo de bosque de bambú, templos y cuevas con cristales. Siluetas claras, poses expresivas y ágiles. Nada de caricatura plana. No imites ninguna marca ni personaje conocido.
+
+FONDO TRANSPARENTE REAL (OBLIGATORIO): entrega un PNG con canal alfa, transparente de verdad. PROHIBIDO fondo blanco, gris o negro, cuadros que simulan transparencia, degradados, suelo, sombras proyectadas, brillos o humo difuso que se salgan de la silueta. Si no puedes entregar transparencia real, avísame en lugar de dibujar cuadros.
+
+FORMATO (CRÍTICO PARA QUE SE ANIME BIEN): imagen horizontal de 1536 × 1024 px (máxima resolución disponible en esa proporción), cuadrícula invisible de 5 columnas × 2 filas = 10 celdas del mismo tamaño (≈ 307 × 512 px), numeradas de izquierda a derecha y de arriba abajo. UN fotograma por celda.
+· ESCALA IDÉNTICA en los 10 fotogramas: en pie, Sakura mide unos 330 px de alto (≈ 65 % de la celda). Deja aire a los lados para brazos, espada, cabello y bufanda. Nunca cambies el tamaño del personaje entre fotogramas.
+· LÍNEA BASE: en los fotogramas con los pies en el suelo, las suelas tocan siempre la misma línea horizontal, a 440 px desde el borde superior de la celda (≈ 86 % del alto). El centro del cuerpo (la cadera) queda en el centro horizontal de la celda. En los fotogramas aéreos, conserva la misma escala y mantén el centro del cuerpo cerca del centro de la celda.
+· Deja al menos 25 px libres a cada lado dentro de la celda; ningún fotograma toca el borde ni a otro fotograma. No recortes ninguna parte.
+· Todos los fotogramas miran a la DERECHA, de perfil (como un juego de scroll lateral).
+· Los fotogramas de una misma animación deben ser una secuencia fluida: cada uno es el paso natural entre el anterior y el siguiente (anticipación, acción, continuación, recuperación; cabello y bufanda con retraso). No repitas el mismo dibujo.
+· NO dibujes en estas hojas las estelas de velocidad, arcos de corte, polvo ni destellos de impacto (van en las hojas de efectos). Solo el personaje, con el brillo suave de su espada dentro de la silueta.
+
+SIN TEXTO: ninguna letra, número, palabra, símbolo escrito, marca de agua, línea de cuadrícula ni etiqueta.
+
+REFERENCIAS: adjunta la HOJA MODELO de Sakura (hoja 0) y, si ya existen, las hojas anteriores. Copia exactamente su diseño, colores y proporciones.
