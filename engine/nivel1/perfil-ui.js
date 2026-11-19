@@ -153,8 +153,13 @@
   }
   function imgAvatar(av) { const i = document.querySelector('.hcard[data-c="' + AV[av].char + '"] img'); return i ? i.src : ''; }
   function esTactil() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
+  // El dispositivo ya no se elige: se detecta solo cada vez que se juega (un mismo jugador puede abrir desde PC y desde el celular).
+  function dispo() { return window.NinjaDevice ? NinjaDevice.tipo() : (esTactil() ? 'movil' : 'pc'); }
+  function heroeActual() { try { return _char === 'peach' ? 'kage' : 'sakura'; } catch (e) { return 'sakura'; } }
 
   function aplicar(p) {
+    p.dispositivo = dispo();
+    try { Perfiles.actualizar(p.id, q => { q.dispositivo = p.dispositivo; }); } catch (e) {}
     window.NINJA_DEVICE = p.dispositivo;
     document.documentElement.setAttribute('data-dispositivo', p.dispositivo);
     try { selChar(AV[p.avatar].char); } catch (e) {}
@@ -173,7 +178,7 @@
   }
   function nivel2Nuevo(p) {
     if (!p) return;
-    const q = new URLSearchParams({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: p.id });
+    const q = new URLSearchParams({ heroe: p.avatar, dispositivo: dispo(), perfil: p.id });
     location.href = 'nivel2.html?' + q.toString();
   }
   function jugarNivel1(p) {
@@ -202,7 +207,7 @@
       const tiene = p.progreso && (p.progreso.puntos > 0 || p.progreso.nivel > 0);
       lista.appendChild(el('div', { class: 'pf-fila', style: '--c:' + AV[p.avatar].color }, [
         el('img', { src: imgAvatar(p.avatar), alt: '' }),
-        el('div', { class: 'pf-info' }, [p.nombre.toUpperCase(), el('small', { text: (p.dispositivo === 'movil' ? '📱 Teléfono' : '💻 Computador') + ' · ' + (tiene ? 'Nivel ' + (p.progreso.nivel + 1) + ' · ' + p.progreso.puntos.toLocaleString() + ' pts' : 'Partida nueva') })]),
+        el('div', { class: 'pf-info' }, [p.nombre.toUpperCase(), el('small', { text: (tiene ? 'Nivel ' + (p.progreso.nivel + 1) + ' · ' + p.progreso.puntos.toLocaleString() + ' pts' : 'Partida nueva') })]),
         tiene ? el('button', { class: 'pf-btn', text: '▶ CONTINUAR', onclick: () => continuar(p) }) : el('button', { class: 'pf-btn', text: '▶ JUGAR', onclick: () => jugarNuevo(p) }),
         tiene ? el('button', { class: 'pf-btn sec mini', text: 'NUEVA', title: 'Empezar desde el nivel 1 con este jugador', onclick: () => { if (confirm('¿Empezar de nuevo desde el nivel 1? Se conserva tu nombre pero se borra tu avance.')) { Perfiles.actualizar(p.id, q => { q.progreso = { fase: 'easy', nivel: 0, puntos: 0 }; q.nivel1 = { intentos: 0, semilla: null, plan: null, estado: null, completados: 0 }; }); jugarNuevo(Perfiles.obtener(p.id)); } } }) : '',
         el('button', { class: 'pf-btn sec mini', text: '🗑', title: 'Borrar jugador', onclick: () => { if (confirm('¿Borrar a ' + p.nombre + ' y todo su avance?')) { Perfiles.borrar(p.id); render(); } } })
@@ -216,27 +221,25 @@
   }
 
   function vistaCrear(card) {
-    if (borrador.dispositivo === null) borrador.dispositivo = esTactil() ? 'movil' : 'pc';
-    card.appendChild(el('h2', { text: 'JUGADOR NUEVO' }));
-    card.appendChild(el('p', { class: 'pf-sub', text: 'Tu nombre y tu avatar se guardan para que no pierdas tu avance.' }));
-    const inp = el('input', { type: 'text', maxlength: '14', placeholder: 'ESCRIBE TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
+    // Solo se pide el nombre: el ninja es el que se eligió en el menú y el dispositivo se detecta solo.
+    borrador.avatar = heroeActual();
+    borrador.dispositivo = dispo();
+    card.appendChild(el('h2', { text: '¿CÓMO TE LLAMAS?' }));
+    card.appendChild(el('p', { class: 'pf-sub', text: 'Con tu nombre guardamos tu avance. Jugarás con ' + AV[borrador.avatar].nombre + '.' }));
+    const inp = el('input', { type: 'text', maxlength: '14', placeholder: 'TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
     inp.addEventListener('input', () => { borrador.nombre = inp.value; });
-    card.appendChild(el('div', { class: 'pf-campo pf-name' }, [el('label', { text: '1 · TU NOMBRE' }), inp]));
-    const av = el('div', { class: 'pf-opc' });
-    Object.keys(AV).forEach(k => av.appendChild(el('button', { class: 'pf-op' + (borrador.avatar === k ? ' on' : ''), style: '--c:' + AV[k].color, onclick: () => { borrador.avatar = k; render(); } }, [el('img', { src: imgAvatar(k), alt: '' }), AV[k].nombre])));
-    card.appendChild(el('div', { class: 'pf-campo pf-avatars' }, [el('label', { text: '2 · ELIGE TU NINJA' }), av]));
-    const dv = el('div', { class: 'pf-opc' });
-    [['pc', '💻', 'COMPUTADOR', 'Teclado: flechas / WASD'], ['movil', '📱', 'TELÉFONO O TABLET', 'Controles táctiles en pantalla']].forEach(d => dv.appendChild(el('button', { class: 'pf-op' + (borrador.dispositivo === d[0] ? ' on' : ''), onclick: () => { borrador.dispositivo = d[0]; render(); } }, [el('span', { class: 'ico', text: d[1] }), d[2], el('br'), d[3]])));
-    card.appendChild(el('div', { class: 'pf-campo pf-devices' }, [el('label', { text: '3 · ¿DESDE DÓNDE JUEGAS?' }), dv]));
+    card.appendChild(el('div', { class: 'pf-campo pf-name' }, [inp]));
     const err = el('div', { class: 'pf-err' });
     card.appendChild(err);
+    const crear = () => {
+      const r = Perfiles.crear({ nombre: borrador.nombre, avatar: borrador.avatar, dispositivo: borrador.dispositivo });
+      if (!r.ok) { err.textContent = r.error; return; }
+      borrador = { nombre: '', avatar: 'sakura', dispositivo: null }; jugarNuevo(r.perfil);
+    };
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') crear(); });
     card.appendChild(el('div', { class: 'pf-pie' }, [
       Perfiles.listar().length ? el('button', { class: 'pf-btn sec', text: '← VOLVER', onclick: () => { vista = 'lista'; render(); } }) : el('span'),
-      el('button', { class: 'pf-btn', text: '▶ CREAR Y JUGAR', onclick: () => {
-        const r = Perfiles.crear({ nombre: borrador.nombre, avatar: borrador.avatar, dispositivo: borrador.dispositivo });
-        if (!r.ok) { err.textContent = r.error; return; }
-        borrador = { nombre: '', avatar: 'sakura', dispositivo: null }; jugarNuevo(r.perfil);
-      } })
+      el('button', { class: 'pf-btn', text: '▶ JUGAR', onclick: crear })
     ]));
     setTimeout(() => inp.focus(), 30);
   }
