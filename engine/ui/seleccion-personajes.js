@@ -1,184 +1,122 @@
-/* engine/ui — Pantalla de elección de personaje 2.0
-   Reemplaza las dos tarjetas pequeñas por un escenario grande con el ninja animado, flechas / deslizar para cambiar,
-   barras con los valores REALES del juego (salto y velocidad) y la descripción de su ataque especial.
-   Sigue usando selChar() del juego, así que "Continuar partida" y "Comenzar" funcionan igual. */
+/* engine/ui — Selector de personaje (versión limpia)
+   Dos TARJETAS VERTICALES (proporción 3:4) con el héroe de cuerpo completo; tocar una tarjeta la elige.
+   Panel a la derecha con lo mínimo: nombre, rol, su ataque especial en una línea y el botón de JUGAR.
+   Sigue usando selChar() del juego, así que "Continuar partida", "¿Quién juega?" y "Comenzar" funcionan igual. */
 (function(){
 if(!window.NinjaMods)return;
-NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Pantalla de personajes 2.0',
- desc:'Escenario grande con el ninja animado, flechas, deslizar y estadísticas reales de salto, velocidad y ataque especial.',
+NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de personaje (tarjetas)',
+ desc:'Dos tarjetas verticales con el héroe de cuerpo completo, nombre, ataque especial y botón de jugar; sin barras ni textos de más.',
  init(){
   const grid=document.getElementById('cgrid');if(!grid||!grid.parentNode)return;
   const CH={
-    mario:{n:'SAKURA',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#8A0057',c3:'#FFB3DA',
-      desc:'Ágil y de gran salto. Alcanza las plataformas más altas y los atajos por el aire.',
-      sk:'✨ X · TRIPLE ABANICO',skd:'Lanza 3 disparos en abanico hacia el frente. Si hay un enemigo cerca, abre su pregunta.',
-      jump:()=>Math.abs(typeof JUMP_MARIO!=='undefined'?JUMP_MARIO:13.2)},
-    peach:{n:'KAGE',rol:'NINJA DE LA SOMBRA',emoji:'🔥',c1:'#FF3B44',c2:'#5A0006',c3:'#FFC2C5',
-      desc:'Silencioso y letal. Salta un poco menos, pero domina el combate a dos frentes.',
-      sk:'✨ X · DOBLE DISPARO',skd:'Dispara hacia adelante Y hacia atrás al mismo tiempo: ideal cuando te rodean.',
-      jump:()=>Math.abs(typeof JUMP_PEACH!=='undefined'?JUMP_PEACH:11.4)}
+    mario:{n:'SAKURA EVE',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#4B174A',c3:'#FFB3DA',sk:'X  ·  TRIPLE ABANICO',desc:'Ágil y precisa. Domina el viento para abrirte camino entre los enemigos.',tag:'VELOCIDAD  ·  TÉCNICA',art:'sakura'},
+    peach:{n:'KAGE',rol:'NINJA DE LA SOMBRA',emoji:'🔥',c1:'#FF654F',c2:'#4A1C2A',c3:'#FFC2A8',sk:'X  ·  DISPARO DOBLE',desc:'Fuerte y decidido. Su energía oscura golpea con potencia a los rivales.',tag:'POTENCIA  ·  ENERGÍA',art:'kage'}
   };
   const ORDER=['mario','peach'];
+  const _m=/[?&]sel=(\d)/.exec(location.search),SEL=/^[123]$/.test(_m&&_m[1])?_m[1]:'3';
   const css=document.createElement('style');css.textContent=`
   #cgrid{display:none!important}
-  #cpick{--c1:#FF2E92;--c2:#8A0057;--c3:#FFB3DA;position:relative;width:100%;max-width:440px;margin:0 auto;font-family:'Press Start 2P',monospace;text-align:center;color:#fff}
-  #cpick .cp-title{font-size:clamp(9px,2vw,12px);letter-spacing:3px;color:rgba(255,230,160,.9);margin-bottom:6px;text-shadow:0 0 10px var(--c1)}
-  #cpick .cp-stage{position:relative;height:clamp(190px,40vh,270px);border-radius:16px;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;
-    background:radial-gradient(ellipse at 50% 85%,var(--c1) 0%,var(--c2) 38%,rgba(4,0,24,.96) 78%);
-    border:2px solid var(--c1);box-shadow:0 0 28px var(--c1),inset 0 0 40px rgba(0,0,0,.55);transition:border-color .3s,box-shadow .3s,background .3s}
-  #cpick .cp-stage::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px);pointer-events:none}
-  #cpick .cp-floor{position:absolute;left:12%;right:12%;bottom:8%;height:14px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.7),transparent 70%)}
-  #cpick canvas{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:100%;width:auto;filter:drop-shadow(0 0 16px var(--c1))}
-  #cpick .cp-stage.swap canvas{animation:cpIn .42s cubic-bezier(.2,1.3,.4,1)}
-  #cpArt{position:absolute;left:50%;bottom:1%;height:97%;width:auto;max-width:78%;object-fit:contain;transform:translateX(-50%);pointer-events:none;
-    filter:drop-shadow(0 0 16px var(--c1)) drop-shadow(0 8px 10px rgba(0,0,0,.6));animation:cpFloat 3.2s ease-in-out infinite}
-  #cpick .cp-stage.swap #cpArt{animation:cpArtIn .45s cubic-bezier(.2,1.3,.4,1),cpFloat 3.2s .45s ease-in-out infinite}
-  @keyframes cpFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
-  @keyframes cpArtIn{0%{opacity:0;transform:translateX(-50%) scale(.85) translateY(14px);filter:blur(5px)}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
-  #cpick .cp-stage.swap .cp-emoji{animation:cpIn .6s ease-out}
-  @keyframes cpIn{0%{opacity:0;transform:translateX(-50%) scale(.82) translateY(14px);filter:blur(5px) drop-shadow(0 0 30px var(--c1))}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
-  #cpick .cp-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:44px;height:58px;border:2px solid var(--c1);border-radius:12px;
-    background:rgba(0,0,30,.62);color:#fff;font-size:20px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:inherit;box-shadow:0 0 12px var(--c1)}
-  #cpick .cp-arrow:active{transform:translateY(-50%) scale(.92);background:var(--c2)}
-  #cpick .cp-arrow.l{left:8px}#cpick .cp-arrow.r{right:8px}
-  #cpick .cp-emoji{position:absolute;right:62px;top:10px;font-size:22px;opacity:.9;filter:drop-shadow(0 0 8px var(--c1))}
-  #cpick .cp-name{font-size:clamp(18px,4.6vw,28px);margin-top:10px;color:var(--c3);text-shadow:0 0 14px var(--c1),3px 3px 0 #000;letter-spacing:2px}
-  #cpick .cp-role{font-size:clamp(6px,1.4vw,8px);color:rgba(255,255,255,.7);letter-spacing:2px;margin:5px 0 8px}
-  #cpick .cp-desc{font-size:clamp(6px,1.35vw,8px);line-height:1.8;color:rgba(225,232,255,.85);margin:0 auto 8px;max-width:360px}
-  #cpick .cp-stats{display:grid;grid-template-columns:auto 1fr;gap:7px 10px;align-items:center;text-align:left;max-width:340px;margin:0 auto 9px}
-  #cpick .cp-stats label{font-size:clamp(6px,1.3vw,7.5px);color:rgba(255,255,255,.8)}
-  #cpick .cp-bar{height:11px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;border:1px solid rgba(255,255,255,.18)}
-  #cpick .cp-bar i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3));box-shadow:0 0 10px var(--c1);transition:width .55s cubic-bezier(.2,1,.3,1)}
-  #cpick .cp-skill{max-width:360px;margin:0 auto 9px;padding:9px 11px;border-radius:10px;background:rgba(0,0,30,.6);border:1px solid var(--c1);text-align:left}
-  #cpick .cp-skill b{display:block;font-size:clamp(7px,1.5vw,9px);color:#FFE040;font-weight:400;margin-bottom:5px}
-  #cpick .cp-skill span{font-size:clamp(6px,1.3vw,7.5px);line-height:1.8;color:rgba(225,232,255,.85)}
-  #cpick .cp-chips{display:flex;gap:8px;justify-content:center}
-  #cpick .cp-chip{font-family:inherit;font-size:clamp(7px,1.5vw,9px);padding:9px 12px;border-radius:20px;cursor:pointer;color:rgba(255,255,255,.7);
-    background:rgba(0,0,30,.6);border:2px solid rgba(255,255,255,.2);-webkit-tap-highlight-color:transparent}
-  #cpick .cp-chip.on{color:#fff;border-color:var(--c1);background:var(--c2);box-shadow:0 0 14px var(--c1)}
-
-  .heroPick{max-width:min(96vw,860px)!important}
-  #cpick{max-width:100%}
-  #cpick .cp-grid{display:grid;grid-template-columns:1fr;gap:8px}
-  #cpick .cp-stage{height:clamp(140px,27vh,250px)}
-  #cpick .cp-name{font-size:clamp(15px,3.6vh,26px);margin-top:4px}
-  #cpick .cp-desc{display:none}
-  #cpick .cp-stats{margin-bottom:6px}#cpick .cp-skill{margin-bottom:6px;padding:7px 10px}
-  #cpick .cp-play{margin-top:4px}
-  #cpPlay #btnStart{margin:4px auto 0!important}
-  #cpPlay #btnStart img{width:auto!important;height:clamp(50px,10vh,86px)!important;max-width:100%}
-  #cpPlay #btnCont{margin:0 auto 4px!important;font-size:clamp(7px,1.4vw,9px)!important;padding:8px 12px!important}
-  #introTitle{max-height:19vh!important;width:auto!important;max-width:88vw}
-  /* PANTALLAS ANCHAS (computador, celular horizontal): dos columnas — personaje a la izquierda, información y JUGAR a la derecha */
-  @media (min-width:600px) and (min-aspect-ratio:11/10){
-    #cpick .cp-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center}
-    #cpick .cp-stage{height:clamp(150px,50vh,360px)}
-    #cpick .cp-right{text-align:left}
-    #cpick .cp-name,#cpick .cp-role{text-align:left}
-    #cpick .cp-name{margin-top:0;font-size:clamp(16px,4.4vh,30px)}
-    #cpick .cp-role{margin:3px 0 6px}
-    #cpick .cp-desc{display:block;margin:0 0 7px;max-width:none;font-size:clamp(6px,1.9vh,8px)}
-    #cpick .cp-stats,#cpick .cp-skill{margin-left:0;margin-right:0;max-width:none}
-    #cpick .cp-chips{justify-content:flex-start}
-    #cpPlay #btnStart{margin:6px 0 0!important}
-    #cpPlay #btnCont{margin:0 0 4px!important}
-    #introTitle{max-height:15vh!important}
+  .heroPick{width:min(96vw,980px)!important;max-width:980px!important;display:flex!important;flex-direction:column;align-items:center;gap:clamp(10px,2vh,18px);margin:0 auto}
+  .heroPick>.brow{display:contents!important}
+  .heroPick .pbtn.sm{flex:0 0 auto!important;width:auto!important;min-width:0!important;margin:0!important;padding:9px 13px!important;font:800 11px Inter,ui-sans-serif,sans-serif!important;white-space:nowrap;border-radius:999px!important}
+  #ipReplay{top:max(10px,env(safe-area-inset-top))!important;bottom:auto!important;left:max(10px,env(safe-area-inset-left))!important}
+  #cpick{--c1:#16C8E8;--c2:#7667E8;--c3:#FFC247;flex:0 0 100%;width:100%;font-family:Inter,ui-sans-serif,sans-serif;color:#F4F6FC}
+  #cpick .cp-kicker{font:800 10px/1.4 Inter,ui-sans-serif,sans-serif;letter-spacing:.2em;color:#16C8E8;text-transform:uppercase;text-align:center;margin-bottom:5px}
+  #cpick .cp-heading{font:900 clamp(16px,2.5vw,22px)/1.25 Inter,ui-sans-serif,sans-serif;letter-spacing:.015em;text-align:center;color:#F4F6FC;margin:0 0 5px;text-shadow:0 4px 18px rgba(0,0,0,.55)}
+  #cpick .cp-sub{font:500 clamp(11px,1.3vw,13px)/1.5 Inter,ui-sans-serif,sans-serif;color:#B7C3DF;text-align:center;margin-bottom:clamp(8px,1.4vh,14px)}
+  #cpick .cp-main{display:flex;align-items:center;justify-content:center;gap:clamp(18px,4vw,46px);width:100%}
+  #cpick .cp-cards{display:flex;gap:clamp(10px,2vw,20px);flex:none;align-items:stretch}
+  #cpick .cp-card{--ch:clamp(180px,43vh,330px);position:relative;display:flex;flex-direction:column;justify-content:flex-end;height:var(--ch);width:clamp(138px,19vw,220px);border-radius:20px;padding:0;overflow:hidden;cursor:pointer;
+    border:1px solid rgba(185,202,240,.24);background:radial-gradient(ellipse at 50% 76%,var(--k1) 0%,var(--k2) 48%,#10152B 100%);
+    opacity:.84;filter:saturate(.82);transform:translateY(0) scale(.97);transition:transform .24s ease,opacity .24s ease,filter .24s ease,border-color .24s ease,box-shadow .24s ease;-webkit-tap-highlight-color:transparent;color:#fff;text-align:center;box-shadow:0 14px 35px rgba(0,0,0,.28)}
+  #cpick .cp-card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 35%,rgba(5,9,23,.08) 60%,rgba(5,9,23,.92));z-index:1;pointer-events:none}
+  #cpick .cp-card::after{content:"";position:absolute;inset:8px;border:1px solid rgba(255,255,255,.13);border-radius:14px;pointer-events:none;z-index:2}
+  #cpick .cp-card:hover{opacity:1;filter:none;transform:translateY(-4px) scale(1);border-color:rgba(22,200,232,.65)}
+  #cpick .cp-card.on{opacity:1;filter:none;transform:translateY(-5px) scale(1.025);border:2px solid var(--k3);box-shadow:0 0 0 4px rgba(255,255,255,.06),0 16px 38px color-mix(in srgb,var(--k1) 35%,transparent),0 20px 42px rgba(0,0,0,.4)}
+  #cpick .cp-card img{position:absolute;left:50%;top:2%;transform:translateX(-50%);height:82%;width:94%;object-fit:contain;object-position:50% 100%;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(0,0,0,.45));z-index:0}
+  #cpick .cp-card img.sakuraArt{top:-6%;height:94.5%;width:105%}
+  #cpick .cp-card.on img{animation:cpFloat 3.4s ease-in-out infinite}
+  @keyframes cpFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+  #cpick .cp-card .nm{position:relative;z-index:3;padding:15px 8px 8px;text-align:center;font:900 clamp(12px,1.7vw,16px)/1.2 Inter,ui-sans-serif,sans-serif;letter-spacing:.1em;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+  #cpick .cp-card .tag{position:relative;z-index:3;padding:0 8px 13px;font:700 9px/1.4 Inter,ui-sans-serif,sans-serif;letter-spacing:.1em;color:var(--k3);text-transform:uppercase}
+  #cpick .cp-check{position:absolute;top:14px;right:14px;z-index:4;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--k3);color:#111827;font:900 14px Inter,sans-serif;opacity:0;transform:scale(.7);transition:opacity .2s,transform .2s;box-shadow:0 4px 15px rgba(0,0,0,.35)}
+  #cpick .cp-card.on .cp-check{opacity:1;transform:scale(1)}
+  #cpick .cp-panel{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;max-width:300px;flex:0 1 290px;padding:clamp(14px,2.2vw,22px);border:1px solid rgba(150,175,225,.23);border-radius:18px;background:linear-gradient(145deg,rgba(20,29,56,.88),rgba(10,17,36,.9));box-shadow:0 16px 38px rgba(0,0,0,.3);backdrop-filter:blur(14px);text-align:left}
+  #cpick .cp-label{font:800 9px Inter,ui-sans-serif,sans-serif;letter-spacing:.18em;color:#16C8E8;text-transform:uppercase}
+  #cpick .cp-name{font:900 clamp(23px,4vh,34px)/1.1 Inter,ui-sans-serif,sans-serif;color:var(--c3);letter-spacing:.04em;text-shadow:0 4px 18px color-mix(in srgb,var(--c1) 35%,transparent)}
+  #cpick .cp-role{font:800 10px/1.5 Inter,ui-sans-serif,sans-serif;letter-spacing:.12em;color:#C4CEE4}
+  #cpick .cp-desc{font:500 12px/1.55 Inter,ui-sans-serif,sans-serif;color:#AAB8D4}
+  #cpick .cp-skill{display:flex;align-items:center;gap:9px;width:100%;padding:11px 12px;border:1px solid color-mix(in srgb,var(--c1) 48%,transparent);border-radius:12px;background:color-mix(in srgb,var(--c1) 10%,rgba(6,12,28,.8));font:700 11px/1.4 Inter,ui-sans-serif,sans-serif;color:#F4F6FC}
+  #cpick .cp-skill b{color:var(--c3);font-size:10px;letter-spacing:.08em}
+  #cpick .cp-hint{font:500 10px/1.5 Inter,ui-sans-serif,sans-serif;color:#8796B8}
+  #cpick .cp-play{display:flex;flex-direction:column;align-items:flex-start;gap:9px;width:100%;margin-top:2px}
+  #cpPlay #btnStart{margin:0!important;animation:none!important;filter:drop-shadow(0 8px 18px rgba(22,200,232,.2))}
+  #cpPlay #btnStart img{width:auto!important;height:clamp(48px,10vh,76px)!important;max-width:100%;transition:transform .2s,filter .2s}
+  #cpPlay #btnStart:hover img{transform:translateY(-2px);filter:brightness(1.12)}
+  #cpPlay #btnCont{margin:0!important;font:800 11px Inter,ui-sans-serif,sans-serif!important;padding:10px 14px!important}
+  #cpPlay #pfChip{margin:0!important;font:700 10px Inter,ui-sans-serif,sans-serif!important;padding:8px 11px!important}
+  #introTitle{max-height:12vh!important;width:auto!important;max-width:min(58vw,480px)}
+  @media(max-width:760px){
+    .heroPick{gap:9px}
+    #cpick .cp-main{flex-direction:column;gap:10px}
+    #cpick .cp-cards{gap:10px}
+    #cpick .cp-card{--ch:clamp(148px,31vh,235px);width:clamp(125px,37vw,190px)}
+    #cpick .cp-panel{align-items:center;text-align:center;max-width:min(94vw,520px);width:100%;padding:12px 14px;gap:7px}
+    #cpick .cp-skill{justify-content:center}
+    #cpick .cp-play{align-items:center}
+    #cpick .cp-desc{max-width:420px}
+    #introTitle{max-height:10vh!important;max-width:58vw}
   }
-  @media (min-width:600px) and (min-aspect-ratio:11/10) and (max-height:520px){
-    #cpick .cp-desc{display:none}#cpick .cp-title{margin-bottom:2px}
-    #cpick .cp-stage{height:clamp(120px,46vh,200px)}
-    #cpick .cp-skill{padding:5px 8px}#cpick .cp-skill span{font-size:6px}
-    #cpick .cp-chip{padding:6px 10px}
-    #cpPlay #btnStart img{height:clamp(42px,12vh,60px)!important}
-    #introTitle{max-height:12vh!important}
+  @media(max-height:620px) and (orientation:landscape){
+    #cpick .cp-main{flex-direction:row;gap:14px}
+    #cpick .cp-card{--ch:clamp(145px,43vh,230px);width:clamp(112px,18vw,165px)}
+    #cpick .cp-panel{max-width:250px;padding:10px;gap:6px}
+    #cpick .cp-name{font-size:22px}
+    #cpick .cp-desc{font-size:10px}
+    #cpick .cp-skill{padding:7px 9px}
+    #introTitle{max-height:8vh!important}
   }
-  `;document.head.appendChild(css);
+  @media(prefers-reduced-motion:reduce){#cpick .cp-card,#cpick .cp-card img{animation:none!important;transition:none!important}}
+`;document.head.appendChild(css);
 
   const box=document.createElement('div');box.id='cpick';
-  box.innerHTML=`<div class="cp-title">ELIGE A TU NINJA</div>
-   <div class="cp-grid">
-    <div class="cp-left"><div class="cp-stage swap" id="cpStage"><div class="cp-floor"></div><img id="cpArt" alt="" draggable="false"><canvas id="cpCv" width="320" height="320" style="display:none"></canvas>
-      <div class="cp-emoji" id="cpEmo"></div>
-      <button class="cp-arrow l" id="cpL" aria-label="Anterior">◀</button><button class="cp-arrow r" id="cpR" aria-label="Siguiente">▶</button></div></div>
-    <div class="cp-right">
-     <div class="cp-name" id="cpName"></div><div class="cp-role" id="cpRole"></div><div class="cp-desc" id="cpDesc"></div>
-     <div class="cp-stats">
-       <label>SALTO</label><div class="cp-bar"><i id="cpJump"></i></div>
-       <label>VELOCIDAD</label><div class="cp-bar"><i id="cpSpd"></i></div></div>
-     <div class="cp-skill"><b id="cpSk"></b><span id="cpSkd"></span></div>
-     <div class="cp-chips" id="cpChips"></div>
-     <div class="cp-play" id="cpPlay"></div>
-    </div>
-   </div>`;
+  box.innerHTML=`<div class="cp-kicker">ELIGE TU CAMINO</div>
+    <div class="cp-heading">¿CON QUÉ NINJA JUGARÁS?</div>
+    <div class="cp-sub">Selecciona tu héroe y prepárate para recuperar las tablas</div>
+    <div class="cp-main">
+      <div class="cp-cards" id="cpCards" role="radiogroup" aria-label="Selecciona tu personaje"></div>
+      <div class="cp-panel">
+        <div class="cp-label">PERSONAJE SELECCIONADO</div>
+        <div class="cp-name" id="cpName"></div><div class="cp-role" id="cpRole"></div>
+        <div class="cp-desc" id="cpDesc"></div>
+        <div class="cp-skill"><b>HABILIDAD</b><span id="cpSk"></span></div>
+        <div class="cp-hint">Tu aventura comienza aquí. ¡Demuestra lo que sabes!</div>
+        <div class="cp-play" id="cpPlay"></div>
+      </div></div>`;
   grid.parentNode.insertBefore(box,grid);
+  const cards=document.getElementById('cpCards');
+  ORDER.forEach(c=>{const d=CH[c],b=document.createElement('button');b.type='button';b.className='cp-card';b.dataset.c=c;b.setAttribute('role','radio');b.setAttribute('aria-checked','false');b.setAttribute('aria-label',d.n+' · '+d.rol);
+    b.style.cssText=`--k1:${d.c1};--k2:${d.c2};--k3:${d.c3}`;
+  const im=new Image();im.alt='';im.draggable=false;im.decoding='async';if(c==='mario')im.className='sakuraArt';im.src=c==='mario'?'assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png':'assets/ui/select/'+d.art+'_'+SEL+'.png';im.onerror=()=>{im.style.display='none';if(!b.querySelector('.cp-fallback')){const f=document.createElement('span');f.className='cp-fallback';f.textContent=d.emoji;f.style.cssText='position:absolute;inset:12% 0 20%;display:grid;place-items:center;font-size:clamp(48px,8vw,82px);z-index:0';b.insertBefore(f,b.firstChild);}};
+  b.appendChild(im);const ck=document.createElement('span');ck.className='cp-check';ck.textContent='✓';ck.setAttribute('aria-hidden','true');b.appendChild(ck);
+    const nm=document.createElement('div');nm.className='nm';nm.textContent=d.n;b.appendChild(nm);
+    const tag=document.createElement('div');tag.className='tag';tag.textContent=d.tag;b.appendChild(tag);
+    b.onclick=()=>window.selChar(c);cards.appendChild(b);});
+  // botones de jugar (los mueve a la columna derecha conservando sus eventos)
   const play=document.getElementById('cpPlay');
-  ['btnCont','btnStart'].forEach(id=>{const el=document.getElementById(id);if(el)play.appendChild(el);});
-  const chips=document.getElementById('cpChips');
-  ORDER.forEach(c=>{const b=document.createElement('button');b.className='cp-chip';b.dataset.c=c;b.textContent=CH[c].emoji+' '+CH[c].n;
-    b.onclick=()=>window.selChar(c);chips.appendChild(b);});
+  ['btnCont','pfChip','btnStart'].forEach(id=>{const e=document.getElementById(id);if(e)play.appendChild(e);});
+  // si otro módulo crea la ficha "¿Quién juega?" después, que quede junto al botón de jugar
+  new MutationObserver(()=>{const st=document.getElementById('btnStart'),pf=document.getElementById('pfChip');if(st&&pf&&pf.parentNode!==play)play.insertBefore(pf,st);}).observe(document.getElementById('S0')||document.body,{childList:true,subtree:true});
 
-  /* --- fotogramas de reposo (los mismos que usa el juego) --- */
-  const cache={};
-  function frames(c){
-    if(cache[c])return cache[c];let list=[];
-    try{
-      const MAN=c==='mario'?window.SAKURA_MANIFEST:window.KAGE_MANIFEST,BASE=c==='mario'?'assets/characters/sakura/':'assets/characters/kage/';
-      if(MAN&&MAN.idle){
-        list=MAN.idle.map(f=>{const img=new Image();img.src=BASE+f.file;return{img,ax:f.ax,ay:f.ay};});
-      }else if(typeof NJX!=='undefined'){
-        const X=NJX[c==='peach'?'black':'pink'];if(X&&X.idle)list=X.idle;
-      }
-    }catch(e){}
-    return cache[c]=list;
-  }
-  const cv=document.getElementById('cpCv'),cx=cv.getContext('2d'),art=document.getElementById('cpArt');
-  const _m=/[?&]sel=(\d)/.exec(location.search),SEL=_m?_m[1]:'3';
-  const ART={mario:'assets/ui/select/sakura_'+SEL+'.png',peach:'assets/ui/select/kage_'+SEL+'.png'};
-  const useArt=/^[123]$/.test(SEL);
-  function showArt(c){
-    if(!useArt){art.style.display='none';cv.style.display='block';return;}
-    art.onerror=()=>{art.style.display='none';cv.style.display='block';};
-    art.onload=()=>{art.style.display='block';cv.style.display='none';};
-    art.src=ART[c];
-  }
   let cur=(typeof _char!=='undefined'?_char:'mario');
-  function frame(){
-    const t=Date.now();
-    const s0=document.getElementById('S0');
-    if(!s0||!s0.classList.contains('on')){setTimeout(frame,250);return;}
-    requestAnimationFrame(frame);
-    const L=frames(cur).filter(f=>f.img&&f.img.complete&&f.img.naturalWidth);
-    cx.clearRect(0,0,cv.width,cv.height);
-    if(!L.length)return;
-    const n=L.length,per=Math.max(1,2*n-2),k=Math.floor(t/170)%per,fr=L[k<n?k:per-k];
-    const avgH=L.reduce((a,f)=>a+f.img.naturalHeight,0)/n;
-    const s=(cv.height*0.86)/avgH,bob=Math.sin(t/420)*3;
-    cx.imageSmoothingEnabled=true;cx.imageSmoothingQuality='high';
-    cx.drawImage(fr.img,cv.width/2-fr.ax*s,cv.height-14-fr.ay*s+bob,fr.img.naturalWidth*s,fr.img.naturalHeight*s);
-  }
-  function show(c,anim){
-    if(!CH[c])c='mario';cur=c;const d=CH[c],st=document.getElementById('cpStage');
+  function show(c){
+    if(!CH[c])c='mario';cur=c;const d=CH[c];
     box.style.setProperty('--c1',d.c1);box.style.setProperty('--c2',d.c2);box.style.setProperty('--c3',d.c3);
-    document.getElementById('cpName').textContent=d.n;document.getElementById('cpRole').textContent=d.rol;
-    document.getElementById('cpDesc').textContent=d.desc;document.getElementById('cpSk').textContent=d.sk;
-    document.getElementById('cpSkd').textContent=d.skd;document.getElementById('cpEmo').textContent=d.emoji;
-    const sp=(typeof SPD!=='undefined'?SPD:4.5);
-    document.getElementById('cpJump').style.width=Math.round(d.jump()/13.5*100)+'%';
-    document.getElementById('cpSpd').style.width=Math.round(sp/5.2*100)+'%';
-    chips.querySelectorAll('.cp-chip').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
-    showArt(c);
-    if(anim){st.classList.remove('swap');void st.offsetWidth;st.classList.add('swap');}
+    document.getElementById('cpName').textContent=d.n;document.getElementById('cpRole').textContent=d.rol;document.getElementById('cpSk').textContent=d.sk;document.getElementById('cpDesc').textContent=d.desc;
+    cards.querySelectorAll('.cp-card').forEach(b=>{const active=b.dataset.c===c;b.classList.toggle('on',active);b.setAttribute('aria-checked',String(active));});
   }
-  /* engancha selChar: cualquier cambio (flechas, chips, "Continuar") actualiza la pantalla */
   const orig=window.selChar;
-  window.selChar=function(c){orig.apply(this,arguments);show(c,true);};
-  const step=d=>{const i=ORDER.indexOf(cur);window.selChar(ORDER[(i+d+ORDER.length)%ORDER.length]);};
-  document.getElementById('cpL').onclick=()=>step(-1);document.getElementById('cpR').onclick=()=>step(1);
-  /* deslizar con el dedo */
-  let sx=null;const stg=document.getElementById('cpStage');
-  stg.addEventListener('pointerdown',e=>{sx=e.clientX;});
-  stg.addEventListener('pointerup',e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40)step(dx<0?1:-1);});
-  stg.addEventListener('pointercancel',()=>{sx=null;});
-  show(cur,false);frame();
+  window.selChar=function(c){orig.apply(this,arguments);show(c);};
+  show(cur);
  }});
 })();

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#06031a">
+<meta name="theme-color" content="#10152B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -185,11 +185,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   transition:transform .08s,box-shadow .08s,background .08s,opacity .08s,border-color .08s}
 .mbt.mjump{border-color:rgba(90,255,150,.85);background:radial-gradient(circle at 35% 28%,rgba(170,255,200,.55),rgba(0,70,40,.82) 64%);box-shadow:0 0 12px rgba(0,255,130,.5),inset 0 0 14px rgba(255,255,255,.2),0 5px 12px rgba(0,0,0,.55)}
 .mbt.matk{border-color:rgba(255,90,100,.9);background:radial-gradient(circle at 35% 28%,rgba(255,180,170,.6),rgba(110,0,30,.85) 64%);box-shadow:0 0 12px rgba(255,60,80,.55),inset 0 0 14px rgba(255,255,255,.2),0 5px 12px rgba(0,0,0,.55)}
+.mbt.mpower{border-color:rgba(220,120,255,.9);background:radial-gradient(circle at 35% 28%,rgba(245,200,255,.65),rgba(70,18,120,.88) 64%);box-shadow:0 0 12px rgba(190,90,255,.55),inset 0 0 14px rgba(255,255,255,.2),0 5px 12px rgba(0,0,0,.55)}
 .mbt.down{opacity:1;transform:translate(-50%,-50%) scale(1.13);border-color:#fff;
   background:radial-gradient(circle at 50% 45%,#fff,#8fecff 34%,rgba(0,130,255,.9) 82%);
   box-shadow:0 0 22px #00e5ff,0 0 52px rgba(0,229,255,.85),inset 0 0 20px rgba(255,255,255,.75);text-shadow:0 0 10px #0077ff}
 .mbt.mjump.down{background:radial-gradient(circle at 50% 45%,#fff,#a6ffc6 34%,rgba(0,200,100,.9) 82%);box-shadow:0 0 22px #00ff88,0 0 52px rgba(0,255,136,.85),inset 0 0 20px rgba(255,255,255,.75)}
 .mbt.matk.down{background:radial-gradient(circle at 50% 45%,#fff,#ffb0a8 34%,rgba(255,40,60,.92) 82%);box-shadow:0 0 22px #ff3355,0 0 52px rgba(255,51,85,.85),inset 0 0 20px rgba(255,255,255,.75)}
+.mbt.mpower.down{background:radial-gradient(circle at 50% 45%,#fff,#f2b0ff 34%,rgba(150,40,255,.94) 82%);box-shadow:0 0 22px #d45cff,0 0 52px rgba(180,70,255,.85),inset 0 0 20px rgba(255,255,255,.75)}
 #mctl.edit .mbt{border-style:dashed;border-color:#FFD700;opacity:.95}
 .mbt.drag{opacity:1;transform:translate(-50%,-50%) scale(1.2);border:3px dashed #FFD700;box-shadow:0 0 26px #FFD700,0 0 60px rgba(255,215,0,.7)}
 .mbedit{position:absolute;bottom:8px;pointer-events:all;touch-action:manipulation;z-index:2;
@@ -256,6 +258,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   backdrop-filter:blur(8px);display:none;flex-direction:column;
   align-items:center;justify-content:center;gap:20px}
 #pauseOverlay.on{display:flex}
+#fxVolumeControl{display:flex;align-items:center;gap:10px;margin-top:12px;color:rgba(160,205,255,.8);font:clamp(7px,1.3vw,9px) 'Press Start 2P',monospace}
+#fxMusicVolume{width:min(220px,48vw);accent-color:#00D4FF}
 .pause-title{font-size:clamp(28px,6vw,52px);color:#FFD700;
   text-shadow:0 0 30px rgba(255,215,0,.8),4px 4px 0 rgba(0,0,0,.9);
   animation:pausePulse 1.5s ease-in-out infinite}
@@ -368,6 +372,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   font-family:'Press Start 2P';transition:opacity .3s;pointer-events:none}
 #godIcon:hover::after{opacity:0.5}
 </style>
+<link rel="stylesheet" href="intro-premium.css?v=1">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -447,6 +452,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <button class="mbt" id="mbR" data-k="R" aria-label="Derecha">▶</button>
   <button class="mbt mjump" id="mbJ" data-k="J" aria-label="Saltar">⬆</button>
   <button class="mbt matk" id="mbA" data-k="A" aria-label="Atacar">⚔️</button>
+  <button class="mbt mpower" id="mbP" data-k="P" aria-label="Poder especial">✨</button>
   <button class="mbedit" id="mbEdit">✥ MOVER</button>
   <button class="mbedit" id="mbReset">↺</button>
 </div>
@@ -465,6 +471,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <button id="btnMutePause" onclick="toggleMute()" style="margin-top:14px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));
     border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:8px 16px;color:#FFF;
     font-family:'Press Start 2P';font-size:clamp(9px,1.6vw,12px);cursor:pointer">🔊 SONIDO: ON</button>
+  <label id="fxVolumeControl" for="fxMusicVolume">🎵 MÚSICA
+    <input id="fxMusicVolume" type="range" min="0" max="0.4" step="0.01" value="0.22"
+      aria-label="Volumen de la música" oninput="if(window.FX&&FX.music)FX.music.setVolume(this.value)">
+  </label>
   <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.4vw,10px);color:rgba(150,200,255,.5);margin-top:8px">ESC = MENÚ PRINCIPAL</div>
 </div>
 <!-- FIRST-TIME TUTORIAL -->
@@ -536,7 +546,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <!-- Beat 4: heroes streak across -->
   <div id="cineBeat4" style="position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;overflow:hidden">
-    <img src="assets/embebidas/94db1b0e8f.png" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%) scaleX(-1);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
+    <img src="assets/characters/sakura_assets/sakura/frames/run/sakura_run_01.png" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
     <img src="assets/embebidas/e63205ea51.png" alt="" style="position:absolute;top:46%;right:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(120,80,255,.7));animation:cineHeroRunR 1.3s cubic-bezier(.3,.7,.4,1) .12s forwards">
     <img id="cineSlash" src="assets/embebidas/0e6e3fa33d.png" alt="" style="position:absolute;top:50%;left:50%;width:70vw;max-width:560px;height:auto;transform:translate(-50%,-50%) scale(.3) rotate(-8deg);opacity:0;filter:drop-shadow(0 0 30px rgba(140,220,255,.9))">
   </div>
@@ -588,6 +598,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         style="display:block;width:min(88vw,620px);max-height:26vh;height:auto;object-fit:contain;margin:0 auto;
         filter:drop-shadow(0 0 30px rgba(255,150,0,.55)) drop-shadow(0 6px 10px rgba(0,0,0,.7));
         animation:logoFloat 4s ease-in-out infinite;will-change:transform">
+      <h1 id="menuTypewriter" aria-label="Domina las tablas">¡DOMINA LAS TABLAS!</h1>
 
     </div>
     <style>
@@ -595,6 +606,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       0%,100%{transform:translateY(0) scale(1)}
       50%{transform:translateY(-7px) scale(1.015)}
     }
+    #menuTypewriter{min-height:1.6em;margin:0 auto;color:#9cf4ff;font:clamp(7px,1.45vw,11px) 'Press Start 2P',monospace;letter-spacing:1px;
+      text-shadow:0 0 8px #00d4ff,0 0 20px rgba(0,160,255,.8),2px 2px #000}
+    #menuTypewriter::after{content:'▋';color:#ffd700;animation:typeCaret .7s steps(2) infinite}
+    @keyframes typeCaret{50%{opacity:0}}
+    @media(prefers-reduced-motion:reduce){#menuTypewriter::after{animation:none}}
     @keyframes title3d{
   0%{transform:perspective(800px) rotateX(0deg) rotateY(-2deg) scale(1)}
   25%{transform:perspective(800px) rotateX(4deg) rotateY(2deg) scale(1.03)}
@@ -741,7 +757,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
           <div class="hcardGlow"></div>
           <span class="petal p1">🌸</span><span class="petal p2">🌸</span><span class="petal p3">🌸</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/embebidas/ae59e332e9.jpg" alt="Sakura" class="hcardArtBig">
+          <img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png" alt="Sakura Eve" class="hcardArtBig">
           <div class="hcardKeys"><span>F</span> Disparo &nbsp; <span>X</span> Triple &nbsp; <span>C</span> Tajo</div>
         </div>
         <div class="hcard" data-c="peach" onclick="selChar('peach')" style="--hc1:#FF3B44;--hc2:#5A0006;--hc3:#FFC2C5">
@@ -768,6 +784,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         <button class="pbtn sm gh" onclick="showReport()">📊 REPORTE (PROFE)</button>
         <button class="pbtn sm gh" id="btnMuteMenu" onclick="toggleMute()">🔊 SONIDO</button>
       </div>
+      <button class="pbtn sm gh" id="achievementsButton" style="margin-top:6px" onclick="window.NinjaAchievements&&NinjaAchievements.open()">🏅 LOGROS</button>
     </div>
   </div>
 </div>
@@ -1922,6 +1939,7 @@ function initP(){
   P={ x:90, y:0, w:36, h:46, vx:0, vy:0,
       onGround:false, jumpHeld:0, jumping:false,
       facing:1, iframes:0, alive:true, anim:0,
+      _kunaiT:0, _specialT:0,
       spd:SPD,
       _baseSpd:SPD,
       jumpForce: iP ? JUMP_PEACH : JUMP_MARIO,   // Mario jumps higher than Peach
@@ -3482,6 +3500,7 @@ function onAns(val,btn){
 
   if(ok){
     GS.correct++; GS.streak++; if(GS.streak>GS.maxStreak)GS.maxStreak=GS.streak;
+    if(window.NinjaAchievements)window.NinjaAchievements.record('correct',{streak:GS.streak});
     const lv=curLV();
     const mul=(P.starOn?2:1)*(P.crownOn?2:1)*(AQe&&AQe.elite?1.8:1);
     const comb=GS.streak>2?Math.floor(lv.pts*GS.streak*.3):0;
@@ -3694,6 +3713,7 @@ function doAttack(spread=false, pitch=0){
   if(spread){
     if(_spreadCooldown>0)return;
     _spreadCooldown=35;
+    P._specialT=36;P._kunaiT=0;
     const px=P.x+P.w/2,py=P.y+P.h/2;
     let nearest=null,nearD=9999;
     enemies.forEach(e=>{if(!e.alive||e.beingQ)return;const d=Math.hypot((e.x+e.w/2)-px,(e.y+e.h/2)-py);if(d<145&&d<nearD){nearD=d;nearest=e;}});
@@ -3707,6 +3727,7 @@ function doAttack(spread=false, pitch=0){
   }
   if(_attackCooldown>0)return;
   _attackCooldown=18;
+  P._kunaiT=24;P._specialT=0;
   const px=P.x+P.w/2, py=P.y+P.h/2;
   const RANGE=145;
   let nearest=null,nearD=9999;
@@ -4543,6 +4564,8 @@ function update(dt){
   _attackCooldown=Math.max(0,_attackCooldown-1);
   _spreadCooldown=Math.max(0,_spreadCooldown-1);
   P._meleeT=Math.max(0,(P._meleeT||0)-1);
+  P._kunaiT=Math.max(0,(P._kunaiT||0)-1);
+  P._specialT=Math.max(0,(P._specialT||0)-1);
   if(deathAnims.length) deathAnims.forEach(d=>d.t+=dt);
   deathAnims=deathAnims.filter(d=>d.t<44);
   // Spike-trap damage (Area 1) — touching one hurts like any other hazard.
@@ -8567,6 +8590,10 @@ function levelDone(){
   else stars=0;
   if(stars===2 && pct>=.85 && fastRun && livesLost===0) stars=3;
   saveLevelStars(GS.phase, GS.level, stars);
+  if(window.NinjaAchievements)window.NinjaAchievements.record('level-complete',{
+    stars,damageFree:livesLost===0,phase:GS.phase,
+    campaignComplete:GS.level>=curLevels().length-1
+  });
   saveLB({name:GS.name,score:GS.totalScore,phase:GS.phase,level:lv.n,diff:GS.phase,date:Date.now()});
   updateMiniLB();
   const rank=getRank(GS.totalScore-1);
@@ -8971,13 +8998,13 @@ let _char='mario';
 function selChar(c){_char=c;document.querySelectorAll('.hcard').forEach(b=>b.classList.remove('on'));document.querySelector(`[data-c="${c}"]`).classList.add('on');uAC();SFX.coin();}
 document.getElementById('btnStart').addEventListener('click',()=>{
   uAC();
-  GS.name=(_char==='peach'?'KAGE':'SAKURA')+'-'+Math.floor(100+Math.random()*900);
+  GS.name=(_char==='peach'?'KAGE':'SAKURA EVE')+'-'+Math.floor(100+Math.random()*900);
   GS.char=_char;GS.phase='easy';GS.totalScore=0;GS.level=0;
   _lifeMilestone=0;
   _xpBar=0; _xpTotalLevels=0; _xpRewardAnim=0; _turboTrail=[];
   startLevel(0,'easy');
 });
-document.getElementById('btnLb').addEventListener('click',()=>{uAC();buildLB();showS(1);});
+document.getElementById('btnLb').addEventListener('click',()=>{uAC();buildLB();showS(1);confetti(24);});
 document.getElementById('btnClrLb').addEventListener('click',()=>{if(confirm('¿Borrar ranking?')){localStorage.removeItem(LBK);buildLB();}});
 document.getElementById('btnNext').addEventListener('click',()=>{uAC();startLevel(GS.level+1,GS.phase);});
 document.getElementById('btnRetry').addEventListener('click',()=>{uAC();startLevel(GS.level,GS.phase);});
@@ -9256,6 +9283,16 @@ console.log('★ MATES CON EL PROFE LUIS v10 — listo!');
   startIntroAnimation();
 })();
 
+// Neon typewriter subtitle complements the existing illustrated game logo.
+(function(){
+  const el=document.getElementById('menuTypewriter');
+  if(!el)return;
+  const text=el.textContent;el.textContent='';
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=text;return;}
+  let i=0;
+  const type=()=>{if(i<text.length){el.textContent+=text[i++];setTimeout(type,55);}};
+  setTimeout(type,450);
+})();
 
 // ── DRAW MARIO & PEACH PREVIEW on canvas ──
 (function(){
@@ -9512,14 +9549,14 @@ function drawMiniPeach(canvasId){
     const xm=Math.max(16,sa.l+10),xr=Math.max(16,sa.r+10),ym=Math.max(12,sa.b+10);
     const bl=(dx,dy)=>[(xm+dx)/w,(h-ym-dy)/h],br=(dx,dy)=>[(w-xr-dx)/w,(h-ym-dy)/h];
     return{L:bl(.5*u,.5*u),R:bl(1.75*u,.5*u),B:bl(1.125*u,1.7*u),
-           J:br(.75*u,.75*u),A:br(2.1*u,.5*u),D:br(3.55*u,.5*u),X:br(1.0*u,2.25*u),C:br(2.45*u,1.95*u)};
+           J:br(.75*u,.75*u),A:br(2.1*u,.5*u),D:br(3.55*u,.5*u),X:br(1.0*u,2.25*u),P:br(1.0*u,2.25*u),C:br(2.45*u,1.95*u)};
   }
   window.njLayout=njLayout;
-  const mkDEF=()=>{const l=njLayout();return{L:l.L,R:l.R,J:l.J,A:l.A};};
+  const mkDEF=()=>{const l=njLayout();return{L:l.L,R:l.R,J:l.J,A:l.A,P:l.P};};
   let DEF=mkDEF();
   let pos=JSON.parse(JSON.stringify(DEF)),custom=false;
   try{ const sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){custom=true; for(const k in DEF) if(sv[k]&&sv[k].length===2) pos[k]=sv[k];} }catch(e){}
-  const btns={L:document.getElementById('mbL'),R:document.getElementById('mbR'),J:document.getElementById('mbJ'),A:document.getElementById('mbA')};
+  const btns={L:document.getElementById('mbL'),R:document.getElementById('mbR'),J:document.getElementById('mbJ'),A:document.getElementById('mbA'),P:document.getElementById('mbP')};
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   function place(k){
     const el=btns[k], r=el.offsetWidth/2||40;
@@ -9549,9 +9586,10 @@ function drawMiniPeach(canvasId){
       // y mantener pulsado da salto más alto. El buffer asegura que un toque rápido no se pierda.
       K.ArrowUp=1; if(P&&P.alive!==false) P.jumpBuffer=10;
     }
+    else if(k==='P') K.KeyX=1;
     else if(k==='A') doAttack();
   }
-  function release(k){ if(k==='L') K.ArrowLeft=0; else if(k==='R') K.ArrowRight=0; else if(k==='J') K.ArrowUp=0; }
+  function release(k){ if(k==='L') K.ArrowLeft=0; else if(k==='R') K.ArrowRight=0; else if(k==='J') K.ArrowUp=0; else if(k==='P') K.KeyX=0; }
 
   Object.keys(btns).forEach(k=>{
     const el=btns[k]; let st=null;
@@ -9572,7 +9610,7 @@ function drawMiniPeach(canvasId){
         press(k);
         // Mantener ~0.8 s sin mover el dedo en ⬆ / ⚔️ activa el modo mover.
         // ◀ ▶ se mueven con el botón ✥ MOVER para no interrumpir la caminata.
-        if(k==='J'||k==='A') st.timer=setTimeout(()=>{ if(st&&!st.drag) startDrag(); },HOLD_MS);
+        if(k==='J'||k==='A'||k==='P') st.timer=setTimeout(()=>{ if(st&&!st.drag) startDrag(); },HOLD_MS);
       }
     });
     el.addEventListener('pointermove',e=>{
@@ -9596,23 +9634,29 @@ function drawMiniPeach(canvasId){
     el.addEventListener('pointercancel',end);
     el.addEventListener('lostpointercapture',end);
   });
-  window.addEventListener('blur',()=>{ K.ArrowLeft=0; K.ArrowRight=0; K.ArrowUp=0; });
+  window.addEventListener('blur',()=>{ K.ArrowLeft=0; K.ArrowRight=0; K.ArrowUp=0; K.KeyX=0; });
 })();
 </script>
 <script src="engine/fx-engine.js"></script>
 <script src="engine/mobile-fix.js"></script>
 <script src="assets/characters/sakura/manifest.js"></script>
+<script src="assets/characters/sakura_assets/sakura/manifest.js"></script>
 <script src="assets/characters/kage/manifest.js"></script>
 <script src="engine/hero-pro.js"></script>
 <script src="assets/characters/villain/manifest.js"></script>
 <script src="engine/villain-boss.js"></script>
-<script src="engine/intro-pro.js"></script>
+<script src="engine/intro-pro.js?v=2"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
+<script>window.NJ_BUILD="2026-11-15-b";</script>
+<script src="engine/core/version.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
 <script src="engine/escenario/islas.js?v=4"></script>
-<script src="engine/ui/seleccion-personajes.js?v=4"></script>
+<script src="engine/escenario/fondos-tema.js?v=14"></script>
+<script src="engine/ui/seleccion-personajes.js?v=21"></script>
+<script src="engine/ui/intro-cinematica.js?v=1"></script>
+<script src="intro-premium.js?v=1"></script>
 <script src="engine/nivel1/perfiles.js?v=1"></script>
-<script src="engine/nivel1/perfil-ui.js?v=6"></script>
+<script src="engine/nivel1/perfil-ui.js?v=9"></script>
 <script src="engine/ui/pantalla-movil.js?v=11"></script>
 <script src="engine/ui/hud-nuevo.js?v=13"></script>
 <script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
@@ -9627,5 +9671,160 @@ function drawMiniPeach(canvasId){
 <script src="engine/poderes/pista-reloj.js?v=4"></script>
 <script src="engine/secretos/flores-doradas.js?v=4"></script>
 <script src="engine/secretos/tuberia-secreta.js?v=4"></script>
+<script src="engine/ui/achievements.js?v=1"></script>
+<style id="arcade-ninja-evolved">
+/* ARCADE NINJA EVOLUCIONADO · DESIGN SYSTEM
+   Capa visual no invasiva: conserva canvas, arte, personajes y lógica del juego. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap');
+:root{
+  --an-bg:#10152B;--an-panel:rgba(22,29,55,.94);--an-panel-2:rgba(29,38,70,.92);
+  --an-line:rgba(130,157,218,.24);--an-line-strong:rgba(22,200,232,.58);
+  --an-cyan:#16C8E8;--an-gold:#FFC247;--an-violet:#7667E8;
+  --an-text:#F4F6FC;--an-muted:#AAB5D0;--an-radius:18px;
+  --an-shadow:0 18px 48px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);
+}
+html,body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+.scr{
+  background:radial-gradient(ellipse at 50% 0%,rgba(75,67,155,.38),transparent 55%),linear-gradient(145deg,#151b35 0%,#0c1226 100%)!important;
+  color:var(--an-text);padding:clamp(12px,2.5vw,28px);
+}
+#S0.scr{background:transparent!important}
+.scr .card,.scr .lbcard{
+  background:linear-gradient(145deg,rgba(29,38,70,.96),rgba(15,22,45,.97))!important;
+  border:1px solid var(--an-line)!important;border-radius:var(--an-radius)!important;
+  box-shadow:var(--an-shadow)!important;backdrop-filter:blur(18px);
+  padding:clamp(18px,3vw,28px)!important;gap:14px!important;
+}
+.scr .card::before{height:2px;left:10%;right:10%;background:linear-gradient(90deg,transparent,var(--an-cyan),var(--an-violet),var(--an-gold),transparent);opacity:.8}
+.scr .ttl,.scr .bntitle,.pause-title,.ht-title,.pc-title{
+  font-family:"Press Start 2P",monospace!important;letter-spacing:.02em;
+}
+.scr .ttl{
+  font-size:clamp(15px,2.5vw,23px)!important;line-height:1.55;
+  filter:drop-shadow(0 3px 12px rgba(22,200,232,.2));
+}
+.scr .lbl,.scr .sl,.scr .ddesc,.scr .qctx,.scr .bnsub,.scr .bntip{
+  font-family:Inter,ui-sans-serif,sans-serif!important;color:var(--an-muted)!important;
+  font-size:clamp(11px,1.15vw,13px)!important;letter-spacing:.045em;line-height:1.5;
+}
+.scr .sv,.scr .dname,.scr .cname{font-family:Inter,ui-sans-serif,sans-serif!important;font-weight:800}
+.scr .srow{
+  background:rgba(8,14,31,.58)!important;border:1px solid var(--an-line)!important;
+  border-radius:12px!important;padding:11px 14px!important;min-height:46px;
+}
+.scr .sl{font-weight:700;color:#AAB5D0!important}
+.scr .sv{font-size:clamp(14px,1.6vw,18px)!important;color:var(--an-gold)!important}
+.scr .inp{
+  font-family:Inter,ui-sans-serif,sans-serif!important;font-size:16px!important;font-weight:600;
+  color:var(--an-text)!important;background:rgba(7,13,30,.8)!important;
+  border:1px solid var(--an-line-strong)!important;border-radius:12px!important;
+  min-height:48px;padding:12px 15px!important;
+}
+.scr .inp:focus{outline:3px solid rgba(22,200,232,.18)!important;border-color:var(--an-cyan)!important}
+.scr .dbtn,.scr .cbtn{
+  background:rgba(12,20,43,.78)!important;border:1px solid var(--an-line)!important;
+  border-radius:13px!important;padding:12px 10px!important;min-height:58px;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.scr .dbtn:hover,.scr .cbtn:hover{transform:translateY(-2px);border-color:var(--an-cyan)!important;background:rgba(22,200,232,.09)!important}
+.scr .dbtn.on,.scr .cbtn.on{border-color:var(--an-gold)!important;background:rgba(255,194,71,.1)!important;box-shadow:0 0 0 3px rgba(255,194,71,.1)!important}
+.scr .dname{font-size:13px!important;color:var(--an-text)!important}
+.scr .ddesc{font-size:11px!important}
+.scr .pbtn{
+  font-family:Inter,ui-sans-serif,sans-serif!important;font-size:14px!important;font-weight:800;
+  letter-spacing:.035em!important;line-height:1.2;min-height:46px;padding:12px 16px!important;
+  color:#fff!important;background:linear-gradient(135deg,#187EAD,#2856B8)!important;
+  border:1px solid rgba(75,190,235,.65)!important;border-radius:12px!important;
+  box-shadow:0 5px 0 rgba(6,23,61,.8),0 8px 22px rgba(10,95,170,.2)!important;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+}
+.scr .pbtn::before{display:none}
+.scr .pbtn:hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 7px 0 rgba(6,23,61,.8),0 12px 26px rgba(10,95,170,.28)!important}
+.scr .pbtn:active{transform:translateY(1px);box-shadow:0 2px 0 rgba(6,23,61,.8)!important}
+.scr .pbtn.gr{background:linear-gradient(135deg,#147C63,#159B78)!important;border-color:#46D6B0!important;box-shadow:0 5px 0 #074B3C,0 8px 22px rgba(20,170,125,.18)!important}
+.scr .pbtn.gh{background:rgba(255,255,255,.045)!important;border-color:var(--an-line)!important;color:#D7E0F5!important;box-shadow:none!important}
+.scr .brow{gap:10px;flex-wrap:wrap}
+.scr .brow>.pbtn{flex:1 1 130px}
+#S1 .lbcard,#S6 .lbcard{width:min(680px,96vw);max-height:90vh;overflow:auto}
+#S1 .lbcard>div:first-child>div:first-child,#S6 .lbcard>div:first-child>div:first-child{
+  font-family:"Press Start 2P",monospace!important;letter-spacing:0!important;
+  font-size:clamp(15px,2.7vw,25px)!important;
+}
+#levelSelectorModal{
+  background:rgba(8,12,28,.94)!important;backdrop-filter:blur(18px)!important;
+  font-family:Inter,ui-sans-serif,sans-serif!important;
+}
+#levelSelectorModal>div{
+  border-radius:14px!important;border-color:var(--an-line)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.25);
+}
+#qpanel{
+  background:linear-gradient(145deg,rgba(20,31,61,.97),rgba(10,18,39,.98))!important;
+  border:1px solid rgba(22,200,232,.72)!important;border-radius:18px!important;
+  box-shadow:0 14px 42px rgba(0,0,0,.42),0 0 24px rgba(22,200,232,.12)!important;
+  padding:12px 14px 14px!important;backdrop-filter:blur(14px);
+}
+#qpanel .qctx{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:11px!important;font-weight:800;letter-spacing:.08em}
+#qexpr{font-family:Inter,ui-sans-serif,sans-serif!important;font-weight:900;letter-spacing:.02em!important;text-shadow:0 2px 16px rgba(22,200,232,.24)!important}
+#agrid button,.ans{
+  font-family:Inter,ui-sans-serif,sans-serif!important;font-weight:800!important;
+  border-radius:12px!important;
+}
+#pauseOverlay{background:rgba(7,11,25,.86)!important;backdrop-filter:blur(16px)}
+.pause-title{font-size:clamp(25px,5vw,44px)!important;color:var(--an-gold)!important;text-shadow:0 6px 24px rgba(255,194,71,.2)!important}
+.pause-sub{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:14px!important;letter-spacing:.08em}
+#pauseBtn{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:12px!important;font-weight:800;border-radius:10px;padding:8px 12px;border-color:var(--an-line-strong);background:rgba(15,25,49,.92)}
+#powerChooser{
+  background:linear-gradient(145deg,rgba(29,38,70,.98),rgba(12,19,41,.99))!important;
+  border:1px solid rgba(255,194,71,.65)!important;border-radius:18px!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.5)!important;backdrop-filter:blur(18px);
+}
+.pc-title{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:13px!important;font-weight:900;letter-spacing:.08em}
+.pc-btn{font-family:Inter,ui-sans-serif,sans-serif!important;border-radius:12px!important;border-width:1px!important}
+.pc-name{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:12px!important;font-weight:800}
+.pc-desc{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:10px!important;line-height:1.45}
+#lifeOffer{font-family:Inter,ui-sans-serif,sans-serif!important;background:linear-gradient(145deg,rgba(29,38,70,.98),rgba(12,19,41,.99))!important;border:1px solid rgba(255,194,71,.55)!important;border-radius:16px!important;box-shadow:var(--an-shadow)!important}
+.lo-title,.lo-q,.lo-b{font-family:Inter,ui-sans-serif,sans-serif!important}
+.lo-title{font-weight:900!important;font-size:12px!important}
+.lo-q{font-weight:900!important;font-size:20px!important}
+.lo-b{font-size:13px!important;font-weight:800;border-radius:10px!important}
+#miniLB{font-family:Inter,ui-sans-serif,sans-serif!important;background:rgba(17,25,49,.94)!important;border:1px solid var(--an-line)!important;border-radius:13px!important;box-shadow:var(--an-shadow)!important;backdrop-filter:blur(14px)}
+.mlb-title,.mlb-row,.mlb-rank,.mlb-name,.mlb-score{font-family:Inter,ui-sans-serif,sans-serif!important}
+.mlb-title{font-size:11px!important;font-weight:900;letter-spacing:.08em}
+.mlb-name{font-size:11px!important}.mlb-rank,.mlb-score{font-size:12px!important;font-weight:800}
+#tutorialModal{font-family:Inter,ui-sans-serif,sans-serif!important;background:rgba(7,11,25,.88)!important;backdrop-filter:blur(14px)!important}
+#tutorialModal>div{border-radius:18px!important}
+#hud{filter:drop-shadow(0 8px 18px rgba(0,0,0,.28))}
+#banner .bntitle{font-size:clamp(12px,2vw,18px)}
+#banner .bnsub,#banner .bntip{font-family:Inter,ui-sans-serif,sans-serif!important;letter-spacing:0!important}
+#banner .bntip{font-size:clamp(11px,1.3vw,14px)!important;line-height:1.7}
+#banner .bngo{font-family:Inter,ui-sans-serif,sans-serif!important;font-size:12px!important;font-weight:900;letter-spacing:.08em}
+#mctl .mbt,#mctl .mbedit{font-family:Inter,ui-sans-serif,sans-serif!important;touch-action:manipulation}
+button:focus-visible,[role="button"]:focus-visible{outline:3px solid var(--an-gold)!important;outline-offset:3px}
+@media(max-width:640px){
+  .scr{padding:10px}
+  .scr .card,.scr .lbcard{width:min(100%,520px)!important;max-height:92dvh!important;padding:16px!important;gap:11px!important;border-radius:16px!important}
+  .scr .ttl{font-size:clamp(14px,4vw,20px)!important}
+  .scr .brow{gap:8px}
+  .scr .brow>.pbtn{flex:1 1 42%;min-height:46px}
+  .scr .pbtn{font-size:13px!important}
+  .scr .srow{padding:9px 11px!important;min-height:42px}
+  #qpanel{top:54px;width:min(92vw,360px);padding:10px!important}
+  #miniLB{top:auto;bottom:8px;right:8px;min-width:145px;max-width:170px}
+  #powerChooser{bottom:calc(82px + env(safe-area-inset-bottom));width:min(94vw,520px)}
+}
+@media(max-height:560px) and (orientation:landscape){
+  .scr{padding:6px}
+  .scr .card,.scr .lbcard{max-height:96dvh!important;gap:8px!important;padding:12px!important}
+  .scr .ttl{font-size:14px!important}
+  .scr .srow{padding:6px 9px!important;min-height:34px}
+  .scr .pbtn{min-height:38px;padding:8px 12px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .scr .pbtn,.scr .dbtn,.scr .cbtn{transition:none!important}
+}
+</style>
+
 </body>
 </html>

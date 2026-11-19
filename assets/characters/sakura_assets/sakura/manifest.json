@@ -1,0 +1,314 @@
+{
+  "character": "Sakura Eve",
+  "frames_per_sheet": 10,
+  "sheet_layout": {
+    "columns": 5,
+    "rows": 2,
+    "order": "left-to-right, top-to-bottom"
+  },
+  "facing": "right",
+  "pivot": "bottom_center",
+  "sheets": {
+    "idle": {
+      "sheet_number": 1,
+      "spritesheet": "spritesheets/sakura_idle.png",
+      "frame_size": [
+        292,
+        525
+      ],
+      "sheet_size": [
+        1460,
+        1050
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/idle/sakura_idle_01.png",
+        "frames/idle/sakura_idle_02.png",
+        "frames/idle/sakura_idle_03.png",
+        "frames/idle/sakura_idle_04.png",
+        "frames/idle/sakura_idle_05.png",
+        "frames/idle/sakura_idle_06.png",
+        "frames/idle/sakura_idle_07.png",
+        "frames/idle/sakura_idle_08.png",
+        "frames/idle/sakura_idle_09.png",
+        "frames/idle/sakura_idle_10.png"
+      ],
+      "pivot_px": [
+        166,
+        517
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    },
+    "walk": {
+      "sheet_number": 2,
+      "spritesheet": "spritesheets/sakura_walk.png",
+      "frame_size": [
+        296,
+        508
+      ],
+      "sheet_size": [
+        1480,
+        1016
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/walk/sakura_walk_01.png",
+        "frames/walk/sakura_walk_02.png",
+        "frames/walk/sakura_walk_03.png",
+        "frames/walk/sakura_walk_04.png",
+        "frames/walk/sakura_walk_05.png",
+        "frames/walk/sakura_walk_06.png",
+        "frames/walk/sakura_walk_07.png",
+        "frames/walk/sakura_walk_08.png",
+        "frames/walk/sakura_walk_09.png",
+        "frames/walk/sakura_walk_10.png"
+      ],
+      "pivot_px": [
+        159,
+        500
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    },
+    "run": {
+      "sheet_number": 3,
+      "spritesheet": "spritesheets/sakura_run.png",
+      "frame_size": [
+        340,
+        506
+      ],
+      "sheet_size": [
+        1700,
+        1012
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/run/sakura_run_01.png",
+        "frames/run/sakura_run_02.png",
+        "frames/run/sakura_run_03.png",
+        "frames/run/sakura_run_04.png",
+        "frames/run/sakura_run_05.png",
+        "frames/run/sakura_run_06.png",
+        "frames/run/sakura_run_07.png",
+        "frames/run/sakura_run_08.png",
+        "frames/run/sakura_run_09.png",
+        "frames/run/sakura_run_10.png"
+      ],
+      "pivot_px": [
+        176,
+        498
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    },
+    "jump": {
+      "sheet_number": 4,
+      "spritesheet": "spritesheets/sakura_jump.png",
+      "frame_size": [
+        342,
+        530
+      ],
+      "sheet_size": [
+        1710,
+        1060
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/jump/sakura_jump_01.png",
+        "frames/jump/sakura_jump_02.png",
+        "frames/jump/sakura_jump_03.png",
+        "frames/jump/sakura_jump_04.png",
+        "frames/jump/sakura_jump_05.png",
+        "frames/jump/sakura_jump_06.png",
+        "frames/jump/sakura_jump_07.png",
+        "frames/jump/sakura_jump_08.png",
+        "frames/jump/sakura_jump_09.png",
+        "frames/jump/sakura_jump_10.png"
+      ],
+      "pivot_px": [
+        174,
+        522
+      ],
+      "vertical_anchor": "preserved_from_source (aerial)"
+    },
+    "glide_fall": {
+      "sheet_number": 5,
+      "spritesheet": "spritesheets/sakura_glide_fall.png",
+      "frame_size": [
+        352,
+        485
+      ],
+      "sheet_size": [
+        1760,
+        970
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/glide_fall/sakura_glide_fall_01.png",
+        "frames/glide_fall/sakura_glide_fall_02.png",
+        "frames/glide_fall/sakura_glide_fall_03.png",
+        "frames/glide_fall/sakura_glide_fall_04.png",
+        "frames/glide_fall/sakura_glide_fall_05.png",
+        "frames/glide_fall/sakura_glide_fall_06.png",
+        "frames/glide_fall/sakura_glide_fall_07.png",
+        "frames/glide_fall/sakura_glide_fall_08.png",
+        "frames/glide_fall/sakura_glide_fall_09.png",
+        "frames/glide_fall/sakura_glide_fall_10.png"
+      ],
+      "pivot_px": [
+        176,
+        477
+      ],
+      "vertical_anchor": "preserved_from_source (aerial)"
+    },
+    "crouch_slide_dash": {
+      "sheet_number": 6,
+      "spritesheet": "spritesheets/sakura_crouch_slide_dash.png",
+      "frame_size": [
+        339,
+        406
+      ],
+      "sheet_size": [
+        1695,
+        812
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_01.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_02.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_03.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_04.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_05.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_06.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_07.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_08.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_09.png",
+        "frames/crouch_slide_dash/sakura_crouch_slide_dash_10.png"
+      ],
+      "pivot_px": [
+        176,
+        398
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    },
+    "wall": {
+      "sheet_number": 7,
+      "spritesheet": "spritesheets/sakura_wall.png",
+      "frame_size": [
+        318,
+        483
+      ],
+      "sheet_size": [
+        1590,
+        966
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/wall/sakura_wall_01.png",
+        "frames/wall/sakura_wall_02.png",
+        "frames/wall/sakura_wall_03.png",
+        "frames/wall/sakura_wall_04.png",
+        "frames/wall/sakura_wall_05.png",
+        "frames/wall/sakura_wall_06.png",
+        "frames/wall/sakura_wall_07.png",
+        "frames/wall/sakura_wall_08.png",
+        "frames/wall/sakura_wall_09.png",
+        "frames/wall/sakura_wall_10.png"
+      ],
+      "pivot_px": [
+        152,
+        475
+      ],
+      "vertical_anchor": "preserved_from_source (aerial)"
+    },
+    "melee": {
+      "sheet_number": 8,
+      "spritesheet": "spritesheets/sakura_melee.png",
+      "frame_size": [
+        483,
+        483
+      ],
+      "sheet_size": [
+        2415,
+        966
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/melee/sakura_melee_01.png",
+        "frames/melee/sakura_melee_02.png",
+        "frames/melee/sakura_melee_03.png",
+        "frames/melee/sakura_melee_04.png",
+        "frames/melee/sakura_melee_05.png",
+        "frames/melee/sakura_melee_06.png",
+        "frames/melee/sakura_melee_07.png",
+        "frames/melee/sakura_melee_08.png",
+        "frames/melee/sakura_melee_09.png",
+        "frames/melee/sakura_melee_10.png"
+      ],
+      "pivot_px": [
+        219,
+        475
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    },
+    "special": {
+      "sheet_number": 9,
+      "spritesheet": "spritesheets/sakura_special.png",
+      "frame_size": [
+        402,
+        374
+      ],
+      "sheet_size": [
+        2010,
+        748
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/special/sakura_special_01.png",
+        "frames/special/sakura_special_02.png",
+        "frames/special/sakura_special_03.png",
+        "frames/special/sakura_special_04.png",
+        "frames/special/sakura_special_05.png",
+        "frames/special/sakura_special_06.png",
+        "frames/special/sakura_special_07.png",
+        "frames/special/sakura_special_08.png",
+        "frames/special/sakura_special_09.png",
+        "frames/special/sakura_special_10.png"
+      ],
+      "pivot_px": [
+        177,
+        366
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    },
+    "hurt_death_win": {
+      "sheet_number": 10,
+      "spritesheet": "spritesheets/sakura_hurt_death_win.png",
+      "frame_size": [
+        382,
+        455
+      ],
+      "sheet_size": [
+        1910,
+        910
+      ],
+      "frame_count": 10,
+      "frames": [
+        "frames/hurt_death_win/sakura_hurt_death_win_01.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_02.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_03.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_04.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_05.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_06.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_07.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_08.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_09.png",
+        "frames/hurt_death_win/sakura_hurt_death_win_10.png"
+      ],
+      "pivot_px": [
+        171,
+        447
+      ],
+      "vertical_anchor": "feet_on_baseline"
+    }
+  },
+  "total_frames": 100
+}

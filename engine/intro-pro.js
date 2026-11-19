@@ -24,7 +24,8 @@ const IM={logo:dom('#cineLogo')||dom('#introTitle'),panel:dom('#cineBeat3 img'),
 (function(){const d=S0.querySelector('div[style*="background-image"]');
   const m=d&&/url\(["']?([^"')]+)["']?\)/.exec(d.style.backgroundImage);IM.bg=m?img(m[1]):null;})();
 IM.villain=img('assets/characters/villain/portrait.png');
-const SK=((window.SAKURA_MANIFEST&&SAKURA_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/sakura/'+f.file),ax:f.ax,ay:f.ay}));
+const SKM=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST;
+const SK=((SKM&&SKM.run)||[]).map(f=>({img:img((SKM.base||'assets/characters/sakura/')+f.file),ax:f.ax,ay:f.ay}));
 const KG=((window.KAGE_MANIFEST&&KAGE_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/kage/'+f.file),ax:f.ax,ay:f.ay}));
 const PAN=[null,null,null,null];
 function tryPanel(n){return new Promise(res=>{const a=img('assets/ui/intro/panel_'+n+'.jpg');
@@ -33,26 +34,30 @@ function tryPanel(n){return new Promise(res=>{const a=img('assets/ui/intro/panel
 
 /* ---------- estilos ---------- */
 if(!document.getElementById('ipCss')){const st=mk('style','ipCss',document.head);st.textContent=`
-#ipRoot{position:fixed;inset:0;z-index:2100;background:#02000a;overflow:hidden;font-family:'Press Start 2P',monospace;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+#ipRoot{position:fixed;inset:0;z-index:2100;background:#080d20;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f4f6fc;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 #ipCv{position:absolute;inset:0;width:100%;height:100%}
-.ipBar{position:absolute;left:0;right:0;height:0;background:#000;z-index:3;transition:height 1.2s cubic-bezier(.2,.8,.2,1)}
-#ipBarT{top:0}#ipBarB{bottom:0}#ipRoot.cin .ipBar{height:12vh}
-#ipCap{position:absolute;left:0;right:0;bottom:2.4vh;text-align:center;z-index:4;font-size:clamp(9px,1.9vw,16px);line-height:2.1;padding:0 6vw;opacity:0;transition:opacity .6s;text-shadow:0 0 16px rgba(0,170,255,.75),2px 2px 0 #000;pointer-events:none}
-#ipLoad{position:absolute;left:50%;bottom:9vh;transform:translateX(-50%);width:min(72vw,560px);z-index:4;text-align:center;transition:opacity .6s}
-#ipPct{font-size:clamp(10px,2vw,15px);color:#ffd36b;letter-spacing:3px;margin-bottom:34px;text-shadow:0 0 14px rgba(255,170,0,.7)}
-#ipBar{position:relative;height:10px;border:1px solid rgba(255,211,107,.55);border-radius:8px;background:rgba(0,0,0,.55);box-shadow:0 0 18px rgba(255,150,0,.25)}
-#ipFill{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,#ff3b8d,#ffb347,#fff2a0);box-shadow:0 0 16px rgba(255,170,60,.9)}
-#ipRun{position:absolute;bottom:6px;left:0;width:96px;height:96px;margin-left:-48px;pointer-events:none;filter:drop-shadow(0 0 10px rgba(255,80,160,.7))}
-#ipTip{margin-top:20px;font-size:clamp(7px,1.35vw,10px);line-height:2;color:rgba(190,215,255,.85);min-height:3em;transition:opacity .4s}
-#ipTap{position:absolute;left:0;right:0;bottom:12vh;text-align:center;z-index:4;font-size:clamp(10px,2.1vw,17px);color:#fff;letter-spacing:3px;opacity:0;text-shadow:0 0 18px rgba(255,200,80,.9),2px 2px 0 #000;pointer-events:none}
-#ipTap.on{animation:ipBlink 1.3s ease-in-out infinite}
-@keyframes ipBlink{0%,100%{opacity:.25}50%{opacity:1}}
-#ipSkip{position:absolute;top:14px;right:14px;z-index:6;background:rgba(0,10,40,.65);border:1px solid rgba(0,200,255,.5);color:#8cf;font-family:inherit;font-size:clamp(7px,1.4vw,10px);padding:8px 12px;border-radius:20px;cursor:pointer;letter-spacing:1px;opacity:0;transition:opacity .5s}
-#ipRing{position:absolute;left:50%;top:50%;border-radius:50%;border:4px solid rgba(255,214,120,.95);box-shadow:0 0 40px 8px rgba(255,170,60,.8),inset 0 0 40px rgba(255,170,60,.6);transform:translate(-50%,-50%);z-index:7;pointer-events:none;display:none}
-@keyframes ipMenuIn{0%{opacity:0;transform:scale(1.12);filter:blur(10px) brightness(1.9)}100%{opacity:1;transform:none;filter:none}}
-#S0.ipIn{animation:ipMenuIn 1.3s cubic-bezier(.2,.8,.2,1) both}
+.ipBar{position:absolute;left:0;right:0;height:0;background:#050916;z-index:3;transition:height 1.2s cubic-bezier(.2,.8,.2,1)}
+#ipBarT{top:0}#ipBarB{bottom:0}#ipRoot.cin .ipBar{height:9vh}
+#ipCap{position:absolute;left:0;right:0;bottom:3vh;text-align:center;z-index:4;font:700 clamp(14px,2.2vw,22px)/1.65 Inter,ui-sans-serif,sans-serif;padding:0 7vw;opacity:0;transition:opacity .6s;text-shadow:0 3px 18px rgba(0,0,0,.95),0 0 22px rgba(22,200,232,.4);pointer-events:none}
+#ipLoad{position:absolute;left:50%;bottom:max(7vh,calc(env(safe-area-inset-bottom) + 28px));transform:translateX(-50%);width:min(78vw,540px);z-index:4;text-align:center;padding:22px 24px 18px;border:1px solid rgba(150,180,235,.25);border-radius:20px;background:linear-gradient(145deg,rgba(12,20,44,.88),rgba(9,14,31,.78));box-shadow:0 24px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(16px);transition:opacity .6s}
+#ipBrand{font:800 10px/1.4 Inter,ui-sans-serif,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#16c8e8;margin-bottom:15px}
+#ipPct{font:800 clamp(12px,1.8vw,16px)/1.4 Inter,ui-sans-serif,sans-serif;color:#f4f6fc;letter-spacing:.08em;margin-bottom:10px;text-shadow:0 0 16px rgba(22,200,232,.25)}
+#ipBar{position:relative;height:9px;border:1px solid rgba(120,160,220,.35);border-radius:99px;background:rgba(3,8,22,.8);box-shadow:inset 0 2px 5px rgba(0,0,0,.5);overflow:visible}
+#ipFill{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#7667e8,#16c8e8 65%,#ffc247);box-shadow:0 0 18px rgba(22,200,232,.55);transition:width .2s ease}
+#ipRun{position:absolute;bottom:3px;left:0;width:76px;height:76px;margin-left:-38px;pointer-events:none;filter:drop-shadow(0 0 10px rgba(22,200,232,.55))}
+#ipTip{margin-top:16px;font:500 clamp(11px,1.35vw,13px)/1.6 Inter,ui-sans-serif,sans-serif;color:#b7c3df;min-height:2.8em;transition:opacity .4s}
+#ipTap{position:absolute;left:0;right:0;bottom:max(9vh,calc(env(safe-area-inset-bottom) + 42px));text-align:center;z-index:4;font:900 clamp(13px,2vw,19px)/1.4 Inter,ui-sans-serif,sans-serif;color:#fff;letter-spacing:.12em;opacity:0;text-shadow:0 3px 22px rgba(0,0,0,.9),0 0 24px rgba(255,194,71,.55);pointer-events:none}
+#ipTap.on{animation:ipBlink 1.5s ease-in-out infinite}
+@keyframes ipBlink{0%,100%{opacity:.4}50%{opacity:1}}
+#ipSkip{position:absolute;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:6;background:rgba(12,20,43,.72);border:1px solid rgba(22,200,232,.48);color:#d9faff;font:800 11px Inter,ui-sans-serif,sans-serif;padding:10px 15px;border-radius:999px;cursor:pointer;letter-spacing:.08em;opacity:0;transition:opacity .5s,background .2s;backdrop-filter:blur(12px)}
+#ipSkip:hover{background:rgba(22,200,232,.18)}
+#ipRing{position:absolute;left:50%;top:50%;border-radius:50%;border:3px solid rgba(255,194,71,.95);box-shadow:0 0 40px 8px rgba(255,194,71,.55),inset 0 0 40px rgba(255,194,71,.35);transform:translate(-50%,-50%);z-index:7;pointer-events:none;display:none}
+@keyframes ipMenuIn{0%{opacity:0;transform:scale(1.08);filter:blur(8px) brightness(1.5)}100%{opacity:1;transform:none;filter:none}}
+#S0.ipIn{animation:ipMenuIn 1s cubic-bezier(.2,.8,.2,1) both}
 html.ipActive #tutorialModal{display:none!important}
-#ipReplay{position:fixed;left:12px;bottom:12px;z-index:60;background:rgba(10,0,30,.6);border:1px solid rgba(255,211,107,.5);color:#ffd36b;font-family:'Press Start 2P',monospace;font-size:9px;padding:8px 11px;border-radius:16px;cursor:pointer;letter-spacing:1px}
+#ipReplay{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:60;background:rgba(12,20,43,.82);border:1px solid rgba(255,194,71,.55);color:#ffe0a0;font:800 11px Inter,ui-sans-serif,sans-serif;padding:10px 14px;border-radius:999px;cursor:pointer;letter-spacing:.06em;backdrop-filter:blur(12px)}
+@media(max-width:600px){#ipLoad{width:calc(100vw - 34px);padding:18px 16px 14px;bottom:max(6vh,calc(env(safe-area-inset-bottom) + 22px))}#ipBrand{font-size:9px}#ipTip{font-size:11px}#ipRun{width:64px;height:64px;margin-left:-32px}#ipTap{bottom:max(8vh,calc(env(safe-area-inset-bottom) + 34px));padding:0 16px}}
+@media(prefers-reduced-motion:reduce){#ipTap.on{animation:none}#S0.ipIn{animation:none}#ipFill{transition:none}}
 `;}
 
 /* ---------- audio (sintetizado, pasa por el bus con reverb del motor FX si está activo) ---------- */
@@ -301,7 +306,7 @@ function drawStory(){
     else if(ok(IM.heroR)){const ar=IM.heroR.naturalWidth/IM.heroR.naturalHeight;cx.save();cx.globalAlpha=fade;cx.shadowColor='rgba(120,80,255,.8)';cx.shadowBlur=26;cx.drawImage(IM.heroR,xR-hh*ar/2,gyH-hh,hh*ar,hh);cx.restore();}
     if(run&&Math.random()<dt*28){sparks(xL-30,gyH-6,1);}
     const pa=ss(15.0,15.5,t)*(1-ss(17.7,18.1,t)),py=gyH-hh-VH*.03;
-    plate('SAKURA','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
+    plate('SAKURA EVE','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
     plate('KAGE','LA SOMBRA',VW*.66,py,'rgba(130,100,255,1)',ss(15.4,15.9,t)*(1-ss(17.7,18.1,t)),(1-ss(15.4,16.0,t))*140);
     if(t>=18.2&&t<19.8&&ok(IM.slash)){const sc=.3+eo((t-18.2)/.5)*.9,al=1-ss(18.9,19.7,t);const ar=IM.slash.naturalHeight/IM.slash.naturalWidth,w=VW*.6*sc;
       const sw=Math.max(8,w|0),shh=Math.max(8,(w*ar)|0);slashC.width=sw;slashC.height=shh;const sx=slashC.getContext('2d');
@@ -361,12 +366,20 @@ let dtG=.016;const T0s=()=>(performance.now()-loadStart)/1000;
 
 /* ---------- carga real ---------- */
 function runLoader(){
-  const items=[];const add=p=>items.push(p);
-  add(document.readyState==='complete'?Promise.resolve():new Promise(r=>addEventListener('load',r,{once:true})));
-  add(document.fonts&&document.fonts.load?document.fonts.load('14px "Press Start 2P"').catch(()=>{}):Promise.resolve());
-  [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash,IM.villain].concat(SK.map(f=>f.img),KG.map(f=>f.img)).forEach(i=>{if(!i)return;add(ok(i)?Promise.resolve():new Promise(r=>{i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});}));});
+  const items=[];const add=p=>items.push(Promise.resolve(p).catch(()=>null));
+  const waitImage=i=>{if(!i)return Promise.resolve();if(i.complete)return Promise.resolve();
+    return new Promise(resolve=>{let settled=false;const finish=()=>{if(settled)return;settled=true;resolve();};
+      i.addEventListener('load',finish,{once:true});i.addEventListener('error',finish,{once:true});setTimeout(finish,7000);});};
+  if(document.readyState!=='complete')add(new Promise(r=>addEventListener('load',r,{once:true})));
+  if(document.fonts&&document.fonts.load)add(document.fonts.load('700 14px Inter').catch(()=>{}));
+  const sel=/[?&]sel=(\d)/.exec(Q),profile=sel&&sel[1]||'3';
+  ['assets/ui/select/sakura_'+profile+'.png','assets/ui/select/kage_'+profile+'.png',
+   'assets/embebidas/abe821c0f3.png','assets/embebidas/ae59e332e9.jpg','assets/embebidas/ab8b337fd0.jpg']
+   .forEach(src=>add(new Promise(resolve=>{const im=new Image();im.onload=im.onerror=resolve;im.src=src;setTimeout(resolve,7000);})));
+  [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash,IM.villain].concat(SK.map(f=>f.img),KG.map(f=>f.img)).forEach(i=>add(waitImage(i)));
   [1,2,3,4].forEach(n=>add(tryPanel(n)));
-  let done=0;items.forEach(p=>p.then(()=>{done++;real=done/items.length;}));real=0;
+  let done=0;real=0;
+  items.forEach(p=>p.then(()=>{done++;real=done/items.length;}));
 }
 
 /* ---------- ciclo principal ---------- */
@@ -391,11 +404,11 @@ function loop(ts){
   shake=Math.max(0,shake-dt*1.8);flash=Math.max(0,flash-dt*2.6);glitchK=Math.max(0,glitchK-dt*5);
   if(phase==='load'){
     const el=T0s();loadShown+=(Math.min(real,el/minLoad)-loadShown)*Math.min(1,dt*4);
-    const pct=Math.min(100,Math.round(loadShown*100));document.getElementById('ipPct').textContent='CARGANDO… '+pct+'%';
+    const pct=Math.min(100,Math.round(loadShown*100));document.getElementById('ipPct').textContent=(pct>=100?'¡TODO LISTO!':'PREPARANDO EL JUEGO')+'  ·  '+pct+'%';
     document.getElementById('ipFill').style.width=pct+'%';
     const run=document.getElementById('ipRun');run.style.left=pct+'%';
     const rx=run.getContext('2d');rx.clearRect(0,0,96,96);const fr=skFrame(el,16);if(fr&&ok(fr.img)){const s=84/200;rx.drawImage(fr.img,48-fr.ax*s,90-fr.ay*s,fr.img.naturalWidth*s,fr.img.naturalHeight*s);}
-    const tip=document.getElementById('ipTip');const ti=Math.floor(el/2.6)%TIPS.length;if(tip.dataset.i!==String(ti)){tip.dataset.i=ti;tip.textContent='💡 '+TIPS[ti];}
+    const tip=document.getElementById('ipTip');const ti=Math.floor(el/3.2)%TIPS.length;if(tip.dataset.i!==String(ti)){tip.dataset.i=ti;tip.textContent='CONSEJO NINJA  ·  '+TIPS[ti];}
     drawTitleBackdrop();
     if(loadShown>.995&&el>=minLoad){phase='tap';tapT0=T0s();document.getElementById('ipLoad').style.opacity=0;const tp=document.getElementById('ipTap');tp.classList.add('on');tp.textContent=full?'▶ TOCA O PRESIONA UNA TECLA PARA COMENZAR':'▶ TOCA O PRESIONA UNA TECLA';}
   } else if(phase==='tap'){
@@ -422,9 +435,10 @@ function build(opts){
   document.documentElement.classList.add('ipActive');
   root=mk('div','ipRoot',document.body);cv=mk('canvas','ipCv',root);cx=cv.getContext('2d');
   mk('div','ipBarT',root,'ipBar');mk('div','ipBarB',root,'ipBar');mk('div','ipCap',root);
-  const ld=mk('div','ipLoad',root);mk('div','ipPct',ld).textContent='CARGANDO… 0%';
+  const ld=mk('div','ipLoad',root);mk('div','ipBrand',ld).textContent='COLBOLÍVAR  ·  AVENTURA MATEMÁTICA';
+  mk('div','ipPct',ld).textContent='PREPARANDO EL JUEGO  ·  0%';
   const bar=mk('div','ipBar2',ld);bar.id='ipBar';mk('i','ipFill',bar);const rc=mk('canvas','ipRun',bar);rc.width=rc.height=96;
-  mk('div','ipTip',ld);mk('div','ipTap',root);
+  mk('div','ipTip',ld).textContent='Preparando personajes, escenarios y desafíos…';mk('div','ipTap',root);
   const sk=mk('button','ipSkip',root);sk.textContent='SALTAR ⏭';sk.addEventListener('click',e=>{e.stopPropagation();if(phase==='story')startWipe(true);});
   mk('div','ipRing',root);
   resize();addEventListener('resize',()=>{if(!dead)resize();});

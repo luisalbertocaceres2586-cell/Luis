@@ -1,6 +1,6 @@
 /* engine/ui — Botones táctiles extra + tamaño ajustable
-   En celular faltaban acciones que en teclado sí existen: ESQUIVAR (dash), AGACHARSE/BAJAR (⬇), DISPARO ESPECIAL (X)
-   y TAJO (C). Se añaden como botones pequeños. Además, un control para cambiar el tamaño de TODOS los botones. */
+   Añade ESQUIVAR (dash), AGACHARSE/BAJAR (⬇) y TAJO (C) en celular. El poder especial X
+   tiene un botón permanente en el grupo principal de controles. */
 (function(){
 if(!window.NinjaMods)return;
 const SK='ninja_btn_size_v1';
@@ -21,7 +21,7 @@ NinjaMods.register({id:'botones-extra',carpeta:'ui',nombre:'Botones táctiles ex
   .mbx.on{transform:scale(.9);background:radial-gradient(circle,rgba(255,255,255,.55),rgba(0,120,255,.7))}
   .mbx small{position:absolute;bottom:-11px;font-size:7px;font-family:'Press Start 2P',monospace;color:rgba(255,255,255,.75);text-shadow:0 1px 2px #000;white-space:nowrap}`;
   document.head.appendChild(st);
-  const B=[['⬇','KeyS','BAJAR','B'],['💨','ShiftLeft','ESQUIVA','D'],['✨','KeyX','ESPECIAL','X'],['🗡','KeyC','TAJO','C']];
+  const B=[['⬇','KeyS','BAJAR','B'],['💨','ShiftLeft','ESQUIVA','D'],['🗡','KeyC','TAJO','C']];
   const lay=()=>(typeof window.njLayout==='function')?window.njLayout():{B:[.27,.84],D:[.78,.86],X:[.78,.58],C:[.94,.5]};
   const colocar=[];
   B.forEach(([ico,code,lab,key])=>{

@@ -20,6 +20,7 @@ assets/
 ├── effects/             efectos de impacto del meteorito: explosiones, anillos, grietas, cráter, humo, rocas, haz de luz (fuego · hielo · magia)
 ├── environment/         214 sprites de entornos + catalog.json / catalog.js
 │   ├── backgrounds/scenery/   escenas grandes (montañas de hielo, islas flotantes con pagoda)
+│   ├── backgrounds/themes/    montañas recoloreadas por tema (desierto, noche, selva, agua, lava, tormenta, hielo) para fondos con parallax
 │   ├── platforms/{grass,stone,ice,lava,wood,crystal,desert}/   plataformas anchas por bioma (campo `top` = línea de la superficie)
 │   ├── platforms/islands/     30 islas flotantes compactas que usa el módulo de islas del juego (+ islas.js con la superficie de cada una)
 │   ├── levels/nivel1/         arte exclusivo del nivel 1 (montañas lejanas y nubes) + nubes.js

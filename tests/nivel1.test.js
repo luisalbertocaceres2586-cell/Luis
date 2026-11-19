@@ -183,4 +183,12 @@ ok('las antorchas de la cueva siguen la cuenta y el orden en pantalla es distint
   let mezclado = 0; for (let s = 1; s <= 100; s++) { const e = gen(s).est[15]; const v = e.ac.secuencia; assert.deepStrictEqual(v.slice().sort((a, b) => a - b), v); assert.strictEqual(v[1] - v[0], 2); if (e.objetos.some((o, i) => o.idx !== i)) mezclado++; }
   assert(mezclado > 60);
 });
+ok('Nivel 2 alterna las tablas 4, 5 y 6 en sus 16 estaciones', () => {
+  for (let seed = 1; seed <= 20; seed++) {
+    const N = Gen.generar({ semilla: seed, dificultad: 3, preguntas: 16, tablas: [4, 5, 6] }, null);
+    assert.deepStrictEqual(Gen.validar(N), []);
+    assert.strictEqual(N.est.length, 16);
+    N.est.forEach((e, i) => assert.strictEqual(+e.ac.hecho.split('x')[0], [4, 5, 6][i % 3], 'tabla estación ' + i + ', semilla ' + seed));
+  }
+});
 console.log('\n' + n + ' pruebas OK');
