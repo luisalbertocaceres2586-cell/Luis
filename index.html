@@ -9,6 +9,18 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&display=swap">
+<style>
+/* Pantalla de arranque: se ve al instante (antes de que cargue el resto) y la intro la toma sin saltos */
+#bootSplash{position:fixed;inset:0;z-index:2099;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4vh,34px);padding-bottom:4vh;
+ background:radial-gradient(ellipse at 50% 40%,#16204a 0%,#0a1030 48%,#050817 100%);transition:opacity .5s}
+#bootSplash.off{opacity:0;pointer-events:none}
+#bootSplash img{width:min(66vw,540px);max-height:34vh;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,150,30,.5)) drop-shadow(0 8px 14px rgba(0,0,0,.65))}
+#bootSplash i{position:relative;display:block;width:min(56vw,360px);height:4px;border-radius:9px;background:rgba(160,190,255,.16);overflow:hidden}
+#bootSplash i:after{content:"";position:absolute;top:0;bottom:0;width:36%;border-radius:9px;background:linear-gradient(90deg,#8b5cf6,#3fa7ff,#ffd36b);animation:bootRun 1.2s ease-in-out infinite}
+@keyframes bootRun{0%{left:-40%}100%{left:104%}}
+</style>
 <title>🥷 NINJA MULTIPLICACIÓN — Tablas con el Profe Luis · ColBolívar</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -372,9 +384,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   font-family:'Press Start 2P';transition:opacity .3s;pointer-events:none}
 #godIcon:hover::after{opacity:0.5}
 </style>
-<link rel="stylesheet" href="intro-premium.css?v=1">
+<link rel="stylesheet" href="engine/ui/menu-2026.css?v=2">
 </head>
 <body>
+<div id="bootSplash"><img src="assets/embebidas/67423bd03d.png" alt=""><i></i></div>
 <canvas id="c"></canvas>
 <!-- ADMIN LOCK — subtle bottom-right corner -->
 <div id="adminLock" onclick="_handleGodIconClick()" title="" style="
@@ -1045,9 +1058,16 @@ const TUT_STEPS=[
   {icon:'⚔️', text:'F para DISPARAR<br>X para un disparo especial'},
   {icon:'✖️', text:'¡Resuelve la tabla que aparece<br>para atacar al enemigo!'},
 ];
+// En teléfono/tableta (detectado solo) las instrucciones hablan de los botones en pantalla, no del teclado.
+const TUT_STEPS_M=[
+  {icon:'👆', text:'Usa los botones ◀ ▶ de la pantalla<br>para MOVERTE y ⬆ para SALTAR'},
+  {icon:'⏫', text:'Mantén ⬆ presionado<br>para saltar MÁS ALTO'},
+  {icon:'⚔️', text:'Toca los botones de ataque<br>para DISPARAR y usar tu poder'},
+  TUT_STEPS[3],
+];
 let _tutIdx=0;
 function tutRender(){
-  const s=TUT_STEPS[_tutIdx];
+  const s=((window.NinjaDevice&&NinjaDevice.esMovil())?TUT_STEPS_M:TUT_STEPS)[_tutIdx];
   document.getElementById('tutStepIcon').textContent=s.icon;
   document.getElementById('tutStepText').innerHTML=s.text;
   document.getElementById('tutDots').innerHTML=TUT_STEPS.map((_,i)=>
@@ -9642,20 +9662,21 @@ function drawMiniPeach(canvasId){
 <script src="assets/characters/sakura/manifest.js"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
 <script src="assets/characters/kage/manifest.js"></script>
-<script src="engine/hero-pro.js?v=sk2"></script>
+<script src="assets/characters/antarez/manifest.js?v=an1"></script>
+<script src="engine/hero-pro.js?v=an1"></script>
 <script src="assets/characters/villain/manifest.js"></script>
 <script src="engine/villain-boss.js"></script>
-<script src="engine/intro-pro.js?v=2"></script>
+<script src="engine/ui/intro-2026.js?v=1"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-18-nivel2-v5";</script>
+<script>window.NJ_BUILD="2026-11-19-b";</script>
 <script src="engine/core/version.js?v=1"></script>
+<script src="engine/core/dispositivo.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
 <script src="engine/escenario/islas.js?v=4"></script>
 <script src="engine/escenario/fondos-tema.js?v=14"></script>
-<script src="engine/ui/seleccion-personajes.js?v=21"></script>
-<script src="intro-premium.js?v=1"></script>
+<script src="engine/ui/menu-2026.js?v=1"></script>
 <script src="engine/nivel1/perfiles.js?v=1"></script>
-<script src="engine/nivel1/perfil-ui.js?v=8"></script>
+<script src="engine/nivel1/perfil-ui.js?v=10"></script>
 <script src="engine/ui/pantalla-movil.js?v=11"></script>
 <script src="engine/ui/hud-nuevo.js?v=13"></script>
 <script src="engine/ui/controles-tactiles-extra.js?v=11"></script>

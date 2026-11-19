@@ -310,7 +310,7 @@
     A.estela.forEach(e => { c.globalAlpha = Math.max(0, e.t / .22) * .4; c.save(); c.translate(e.x - s.cam, e.y); if (e.dir < 0) c.scale(-1, 1); c.drawImage(sp.im, -sp.ax, -sp.ay, sp.w, sp.hh); c.restore(); });
     c.restore();
   }
-  function encima() {                                             // cuerda, ala del planeo, tajo hacia abajo, aura del dash
+  function encima() {                                             // cuerda, tajo hacia abajo, aura del dash
     const s = S(), c = ctx(), h = s.h, A = s.hab, cam = s.cam; if (!A) return;
     const hx = h.x - cam, hy = h.y - 70;
     if (A.gancho.on) {
@@ -318,11 +318,7 @@
       c.lineCap = 'round'; c.strokeStyle = '#4a2e14'; c.lineWidth = 5; c.beginPath(); c.moveTo(hx, hy); c.lineTo(ex, ey); c.stroke(); c.strokeStyle = '#d8b070'; c.lineWidth = 2; c.stroke();
       c.fillStyle = '#ffd86a'; c.beginPath(); c.arc(ex, ey, 5, 0, 7); c.fill();
     }
-    if (A.planeando) {
-      const y = h.y - 108, sw = Math.sin(s.t * 6) * 3; c.save(); c.translate(hx, y);
-      c.fillStyle = '#ff4d6d'; c.beginPath(); c.moveTo(-58, 8 + sw); c.quadraticCurveTo(0, -34, 58, 8 - sw); c.quadraticCurveTo(0, -6, -58, 8 + sw); c.fill();
-      c.strokeStyle = '#fff6c2'; c.lineWidth = 2; c.stroke(); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-52, 8); c.lineTo(-6, 52); c.moveTo(52, 8); c.lineTo(6, 52); c.stroke(); c.restore();
-    }
+    // (el planeo ya no dibuja paracaídas: lo muestra la capa del propio sprite — glide_start / glide)
     if (h.tajoAbajo && h.atk > 0) {
       const p = 1 - h.atk / .28; c.save(); c.translate(hx, h.y - 10); c.globalAlpha = Math.sin(p * Math.PI) * .95; c.lineCap = 'round';
       c.strokeStyle = '#fff6c2'; c.lineWidth = 10; c.beginPath(); c.arc(0, 0, 78, .35 + p * .5, Math.PI - .35 - p * .5); c.stroke(); c.strokeStyle = '#ffc93c'; c.lineWidth = 4; c.stroke(); c.restore();

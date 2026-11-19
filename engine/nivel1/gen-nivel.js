@@ -9,7 +9,7 @@
 
   // segundos que tarda, de media, un estudiante en cada cosa (para estimar la duración)
   const COSTO = { llano: 6, patrulla: 16, puente: 8, barranco: 12, estacas: 9, escalera: 12, taikos: 16, moviles: 18, fragil: 12, carreta: 26, palanca: 20, emboscada: 32, roca: 24, kunaiR: 15, sierras: 16, viento: 14, ruptura: 12, chimenea: 12,
-    pasillo: 18, estalactitas: 14, hongos: 14, telaranas: 14, arana: 16, fuegos: 18, estacion: 42, jefe: 60, final: 50 };
+    patrullaB: 24, patrullaC: 26, llave: 20, bestias: 24, pasillo: 18, estalactitas: 14, hongos: 14, telaranas: 14, arana: 16, fuegos: 18, estacion: 42, jefe: 60, final: 50 };
 
   function generar(params, maestria) {
     const rng = Ruta.crearRng(params.semilla, 'nivel1');
@@ -27,10 +27,14 @@
     const enem = (o) => { N.enem.push(Object.assign({ y: G, vivo: true, hp: 1 }, o)); };
     const elem = (o) => { o.zona = zona; N.elem.push(o); return o; };
     const decorar = (x0, x1) => {
-      const tipos = zona === 'bosque' ? ['bambu', 'bambu', 'bambu', 'toro', 'kitsune', 'estandarte'] : ['cristal', 'cristal', 'hongo', 'hongo', 'toro'];
+      const tipos = zona === 'bosque' ? ['bambu', 'bambu', 'cerezo', 'pino', 'rocas', 'valla', 'fuente', 'farolitos', 'cartel', 'helechos', 'toro', 'kitsune', 'estandarte'] : ['cristal', 'cristal', 'hongo', 'hongoGigante', 'columna', 'floresLuz', 'altar', 'arco', 'paredMineral', 'toro'];
       const n = Math.floor((x1 - x0) / 240);
-      for (let i = 0; i < n; i++) N.deco.push({ x: x0 + 100 + i * 240 + rng.int(-50, 50), tipo: rng.pick(tipos), capa: rng.chance(zona === 'bosque' ? .25 : .1) ? 'frente' : 'atras', zona });
+      for (let i = 0; i < n; i++) { const t = rng.pick(tipos); N.deco.push({ x: x0 + 100 + i * 240 + rng.int(-50, 50), tipo: t, capa: (t === 'bambu' || t === 'helechos') && rng.chance(.3) ? 'frente' : 'atras', zona }); }
+      if (zona === 'cueva' && n >= 2 && rng.chance(.8)) N.deco.push({ x: x0 + rng.int(120, Math.max(130, x1 - x0 - 120)), tipo: rng.pick(['cristalesTecho', 'raices']), capa: 'atras', techo: true, zona });
     };
+    const pl = () => zona === 'bosque' ? rng.pick(['bambu', 'bambu', 'tronco', 'flores', 'losa', 'loto']) : rng.pick(['roca', 'roca', 'cristal', 'hongoPlat']);
+    const frasco = px => N.items.push({ x: px, y: G - 70, tipo: 'frasco' });
+    const npc = (who, px) => { const n = N.elem.filter(q => q.t === 'npc' && q.who === who).length; N.elem.push({ t: 'npc', who, x: px, n, zona, usos: 0 }); };
     const especial = (tipo, x0, x1) => N.especiales.push({ tipo, x0, x1 });
 
     // ---------------- MÓDULOS (cada uno es un reto distinto) ----------------
@@ -39,20 +43,20 @@
       patrulla() {
         const w = rng.int(760, 980); suelo(x, x + w); decorar(x, x + w);
         enem({ kind: 'ninja', x: x + 280, min: x + 150, max: x + 420, vx: 55 + dif * 10 });
-        enem({ kind: dif > 1 ? 'ninjaAtk' : 'ninja', x: x + 600, min: x + 480, max: x + w - 80, vx: 60 + dif * 10, t: rng.next() * 3 });
+        enem({ kind: dif > 1 || (usados.bosquepatrulla || 0) >= 2 ? 'ninjaAtk' : 'ninja', x: x + 600, min: x + 480, max: x + w - 80, vx: 60 + dif * 10, t: rng.next() * 3 });
         if (zona === 'bosque' && (dif >= 3 || (usados.bosquepatrulla || 0) >= 3)) enem({ kind: 'tengu', x: x + 450, y: G - 210, min: x + 200, max: x + w - 100, vx: 90, base: G - 210, amp: 50 });
         x += w;
       },
       puente() { const g = rng.int(280, 420), a = 150, b = 140; suelo(x, x + a); hueco(x + a, x + a + g); plat(x + a - 20, G, g + 40, 'puente'); suelo(x + a + g, x + a + g + b); arco(x + a + 40, x + a + g - 40, G - 40, 4); x += a + g + b; },
       barranco() {
         const a = 130, b = 140, pasos = rng.int(2, 3); suelo(x, x + a); let px = x + a + 40; const ini = x + a;
-        for (let i = 0; i < pasos; i++) { const py = G - rng.int(45, 95) - (i % 2 ? 0 : 20); plat(px, py, 150, zona === 'bosque' ? 'bambu' : 'roca'); perg(px + 75, py - 70); px += 150 + rng.int(60, 120); }
+        for (let i = 0; i < pasos; i++) { const py = G - rng.int(45, 95) - (i % 2 ? 0 : 20); plat(px, py, 150, pl()); perg(px + 75, py - 70); px += 150 + rng.int(60, 120); }
         const fin = px - 60 + 40; hueco(ini, fin); suelo(fin, fin + b); x = fin + b;
       },
-      estacas() { const w = rng.int(130, 200), a = 220, b = 220; suelo(x, x + a + w + b); N.haz.push({ x: x + a, y: G - 46, w, h: 46, tipo: 'kunai' }); if (rng.chance(.7)) { plat(x + a - 10, G - 120, w + 20, zona === 'bosque' ? 'bambu' : 'roca'); perg(x + a + w / 2, G - 190); } x += a + w + b; },
+      estacas() { const w = rng.int(130, 200), a = 220, b = 220; suelo(x, x + a + w + b); N.haz.push({ x: x + a, y: G - 46, w, h: 46, tipo: 'kunai' }); if (rng.chance(.7)) { plat(x + a - 10, G - 120, w + 20, pl()); perg(x + a + w / 2, G - 190); } x += a + w + b; },
       escalera() {
         const base = x, w = 960; suelo(x, x + w); decorar(x, x + w);
-        [0, 190, 380, 570, 760].forEach((dx, i) => { const y = G + [-90, -170, -250, -170, -90][i]; plat(base + 80 + dx, y, 150, zona === 'bosque' ? 'bambu' : 'roca'); if (i === 2) { perg(base + 80 + dx + 50, y - 70); perg(base + 80 + dx + 100, y - 70); } });
+        [0, 190, 380, 570, 760].forEach((dx, i) => { const y = G + [-90, -170, -250, -170, -90][i]; plat(base + 80 + dx, y, 150, pl()); if (i === 2) { perg(base + 80 + dx + 50, y - 70); perg(base + 80 + dx + 100, y - 70); } });
         if (rng.chance(.5)) onigiri(base + 80 + 380 + 75, G - 330); x += w;
       },
       taikos() {  // cadena de tambores: cada uno lanza hasta la isla siguiente
@@ -70,7 +74,7 @@
       },
       fragil() {
         const a = 140, n = 5; suelo(x, x + a); let px = x + a + 20;
-        for (let i = 0; i < n; i++) { plat(px, G - (i % 2) * 30, 110, zona === 'bosque' ? 'bambu' : 'roca', { fragil: true, estado: 'firme' }); px += 150; }
+        for (let i = 0; i < n; i++) { plat(px, G - (i % 2) * 30, 110, pl(), { fragil: true, estado: 'firme' }); px += 150; }
         hueco(x + a, px - 20); suelo(px - 20, px + 140); x = px + 140; especial('fragil', x - 1000, x);
       },
       carreta() {  // un muro alto: hay que empujar la carreta hasta él y subirse
@@ -91,7 +95,7 @@
       },
       palanca() {  // una palanca en alto abre la reja
         suelo(x, x + 1000); decorar(x, x + 400);
-        const id = 'p' + N.elem.length; plat(x + 180, G - 160, 160, zona === 'bosque' ? 'bambu' : 'roca');
+        const id = 'p' + N.elem.length; plat(x + 180, G - 160, 160, pl());
         elem({ t: 'palanca', x: x + 260, y: G - 160, id, on: false });
         N.muros.push({ x: x + 700, y: G - 520, w: 36, h: 520, tipo: 'reja', id, abierta: false, zona });
         x += 1000; especial('palanca', x - 1000, x);
@@ -106,7 +110,7 @@
         const w = 2000; suelo(x, x + w);
         elem({ t: 'roca', x: x - 200, y: G, x0: x + 250, x1: x + w - 120, activa: false, r: 120 });
         N.haz.push({ x: x + 700, y: G - 46, w: 130, h: 46, tipo: 'kunai' }); N.haz.push({ x: x + 1250, y: G - 46, w: 130, h: 46, tipo: 'kunai' });
-        plat(x + 1000, G - 130, 140, zona === 'bosque' ? 'bambu' : 'roca'); arco(x + 400, x + 1700, G - 30, 8);
+        plat(x + 1000, G - 130, 140, pl()); arco(x + 400, x + 1700, G - 30, 8);
         x += w; especial('roca', x - w, x);
       },
       kunaiR() {  // kunai que suben y bajan a ritmo
@@ -122,24 +126,44 @@
       viento() {  // corriente de viento hacia un mirador alto (bonus)
         suelo(x, x + 760); decorar(x, x + 300);
         N.elem.push({ t: 'viento', x: x + 250, y: G - 520, w: 190, h: 520, zona });
-        plat(x + 330, G - 480, 260, 'piedra'); [0, 60, 120, 180].forEach(d => perg(x + 360 + d, G - 560)); onigiri(x + 560, G - 540); x += 760;
+        plat(x + 330, G - 480, 260, 'piedra'); [0, 60, 120, 180].forEach(d => perg(x + 360 + d, G - 560)); onigiri(x + 560, G - 540); N.items.push({ x: x + 480, y: G - 560, tipo: 'corazon' }); x += 760;
       },
       ruptura() {  // pared de sellos que esconde un tesoro (bonus)
         suelo(x, x + 760); decorar(x, x + 200);
         [0, 1].forEach(i => N.muros.push({ x: x + 420, y: G - 90 * (i + 1), w: 90, h: 90, tipo: 'sello', rompible: true, zona }));
-        [0, 1, 2].forEach(i => perg(x + 560 + i * 50, G - 50)); onigiri(x + 690, G - 60); x += 760;
+        [0, 1, 2].forEach(i => perg(x + 560 + i * 50, G - 50)); onigiri(x + 690, G - 60); N.items.push({ x: x + 620, y: G - 120, tipo: 'corazon' }); x += 760;
+      },
+      patrullaB() {   // arquero (flechas que se esquivan saltando) + lancero
+        const w = rng.int(900, 1100); suelo(x, x + w); decorar(x, x + w);
+        enem({ kind: 'arquero', x: x + w - 240, y: G, vx: 0, cd: 1 }); enem({ kind: 'lancero', x: x + 380, min: x + 200, max: x + 620, vx: 55 + dif * 8, t: 0 }); if (zona === 'bosque') enem({ kind: 'tengu', x: x + 520, y: G - 210, base: G - 210, amp: 50, min: x + 250, max: x + w - 140, vx: 90 }); arco(x + 150, x + w - 350, G - 40, 4); x += w;
+      },
+      patrullaC() {   // rana, kappa y zorro de fuego
+        const w = rng.int(1000, 1200); suelo(x, x + w); decorar(x, x + w);
+        enem({ kind: 'rana', x: x + 300, min: x + 150, max: x + 520, vx: 0, z: 0, vz: 0, t: rng.next() * 2 }); enem({ kind: 'kappa', x: x + 700, min: x + 520, max: x + 940, vx: 0, z: 0, vz: 0, t: rng.next() * 2 });
+        enem({ kind: 'zorro', x: x + w - 250, min: x + w - 560, max: x + w - 100, vx: 190 }); arco(x + 120, x + w - 120, G - 40, 5); x += w;
+      },
+      llave() {   // una llave dorada abre la reja
+        const w = 1150; suelo(x, x + w); decorar(x, x + 300); const id = 'k' + N.muros.length + '_' + N.elem.length;
+        plat(x + 230, G - 150, 170, pl()); N.items.push({ x: x + 315, y: G - 225, tipo: 'llave', id });
+        enem({ kind: zona === 'cueva' ? 'serpiente' : 'ninja', x: x + 520, min: x + 380, max: x + 700, vx: 55 });
+        N.muros.push({ x: x + 880, y: G - 520, w: 36, h: 520, tipo: 'reja', id, abierta: false, zona }); x += w; especial('llave', x - w, x);   // 520: no se salta con doble salto, planeo ni gancho
       },
       // ---- cueva ----
+      bestias() {   // serpiente + escarabajo de cristal
+        const w = rng.int(1000, 1200); suelo(x, x + w); decorar(x, x + w);
+        enem({ kind: 'serpiente', x: x + 330, min: x + 200, max: x + 540, vx: 45 }); enem({ kind: 'escarabajo', x: x + 800, min: x + 640, max: x + w - 90, vx: 50 });
+        frasco(x + w - 220); arco(x + 120, x + w - 120, G - 40, 5); x += w;
+      },
       pasillo() {
         const w = rng.int(900, 1100); suelo(x, x + w); decorar(x, x + w);
         enem({ kind: 'murcielago', x: x + 380, y: G - 180, base: G - 180, amp: 60, min: x + 200, max: x + 600, vx: 100 });
         enem({ kind: 'murcielago', x: x + 760, y: G - 150, base: G - 150, amp: 50, min: x + 580, max: x + w - 80, vx: -110 });
-        N.deco.push({ x: x + 250, tipo: 'cristal', capa: 'atras', zona }, { x: x + 700, tipo: 'hongo', capa: 'atras', zona }); arco(x + 120, x + w - 120, G - 40, 6); x += w;
+        N.deco.push({ x: x + 250, tipo: 'cristal', capa: 'atras', zona }, { x: x + 700, tipo: 'hongo', capa: 'atras', zona }); arco(x + 120, x + w - 120, G - 40, 6); frasco(x + w - 160); x += w;
       },
       estalactitas() {
         const w = 1000; suelo(x, x + w);
         [300, 520, 740].forEach(dx => elem({ t: 'estal', x: x + dx, y0: 60, estado: 'colgada', t0: 0 }));
-        arco(x + 150, x + w - 100, G - 50, 5); onigiri(x + 880, G - 60); x += w; especial('estalactitas', x - w, x);
+        arco(x + 150, x + w - 100, G - 50, 5); onigiri(x + 880, G - 60); frasco(x + 460); x += w; especial('estalactitas', x - w, x);
       },
       hongos() {  // hongos que rebotan sobre un pozo
         const a = 150, g = 720; suelo(x, x + a); hueco(x + a, x + a + g);
@@ -148,25 +172,25 @@
       },
       telaranas() {
         const w = 1000; suelo(x, x + w); [260, 560, 800].forEach(dx => elem({ t: 'tela', x: x + dx, y: G - 120, w: 120, h: 120, roto: false }));
-        enem({ kind: 'arana', x: x + 520, y: G, min: x + 380, max: x + 700, vx: 40, colgada: false }); arco(x + 100, x + w - 100, G - 40, 5); x += w; especial('telaranas', x - w, x);
+        enem({ kind: 'arana', x: x + 520, y: G, min: x + 380, max: x + 700, vx: 40, colgada: false }); arco(x + 100, x + w - 100, G - 40, 5); frasco(x + w - 120); x += w; especial('telaranas', x - w, x);
       },
       arana() {
         const w = 900; suelo(x, x + w); [300, 600].forEach(dx => enem({ kind: 'aranaTecho', x: x + dx, y: 120, base: 120, estado: 'espera', vivo: true }));
-        arco(x + 100, x + w - 100, G - 40, 5); x += w;
+        arco(x + 100, x + w - 100, G - 40, 5); frasco(x + 450); x += w;
       },
       fuegos() {
         const w = 1000; suelo(x, x + w); [350, 700].forEach(dx => enem({ kind: 'fuego', x: x + dx, y: G - 140, base: G - 140, amp: 40, min: x + 250, max: x + 880, vx: 0, sigue: true }));
-        N.deco.push({ x: x + 100, tipo: 'cristal', capa: 'atras', zona }); arco(x + 150, x + w - 100, G - 50, 6); x += w;
+        enem({ kind: 'fantasma', x: x + 560, y: G - 120, base: G - 120, amp: 30, min: x + 250, max: x + w - 100, vx: 0, hp: 2 }); N.deco.push({ x: x + 100, tipo: 'cristal', capa: 'atras', zona }); arco(x + 150, x + w - 100, G - 50, 6); frasco(x + w - 140); x += w;
       }
     };
-    const SEGUROS = { bosque: ['llano', 'patrulla', 'puente', 'barranco', 'estacas', 'escalera', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'roca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'], cueva: ['pasillo', 'estalactitas', 'hongos', 'telaranas', 'arana', 'fuegos', 'barranco', 'estacas', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'kunaiR', 'sierras', 'ruptura', 'puente', 'chimenea'] };
+    const SEGUROS = { bosque: ['llano', 'patrulla', 'patrullaB', 'patrullaC', 'llave', 'puente', 'barranco', 'estacas', 'escalera', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'roca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'], cueva: ['pasillo', 'bestias', 'llave', 'estalactitas', 'hongos', 'telaranas', 'arana', 'fuegos', 'barranco', 'estacas', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'kunaiR', 'sierras', 'ruptura', 'puente'] };
     const FACIL = ['llano', 'puente', 'patrulla', 'escalera', 'pasillo'];
-    const LIMITE = { chimenea: 2, roca: 2, emboscada: 3, carreta: 2, palanca: 2, viento: 2, ruptura: 2, taikos: 3, sierras: 3, kunaiR: 3, moviles: 3, fragil: 3, hongos: 2, telaranas: 2, estalactitas: 2 };
+    const LIMITE = { chimenea: 2, patrullaB: 3, patrullaC: 3, llave: 3, bestias: 3, roca: 2, emboscada: 3, carreta: 2, palanca: 2, viento: 2, ruptura: 2, taikos: 3, sierras: 3, kunaiR: 3, moviles: 3, fragil: 3, hongos: 2, telaranas: 2, estalactitas: 2 };
     const usados = {};
     // cada zona incluye SIEMPRE todos estos retos y enemigos (el resto se sortea)
     const MUST = {
-      bosque: ['patrulla', 'patrulla', 'patrulla', 'emboscada', 'roca', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'],
-      cueva: ['pasillo', 'pasillo', 'estalactitas', 'telaranas', 'fuegos', 'hongos', 'arana', 'emboscada', 'carreta', 'palanca', 'kunaiR', 'sierras', 'moviles', 'fragil', 'taikos']
+      bosque: ['patrulla', 'patrulla', 'patrullaB', 'patrullaC', 'llave', 'emboscada', 'roca', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'],
+      cueva: ['pasillo', 'pasillo', 'bestias', 'llave', 'ruptura', 'estalactitas', 'telaranas', 'fuegos', 'hongos', 'arana', 'emboscada', 'carreta', 'palanca', 'kunaiR', 'sierras', 'moviles', 'fragil', 'taikos']
     };
 
     // ---------------- ESTACIONES ----------------
@@ -179,7 +203,7 @@
       mecAnt = mec;
       const mecAc = mec === 'empujar_carreta' ? 'encender_farol' : mec;
       const ac = Ac.crear({ rng: rng.derivar('est' + i), tabla, mecanica: mecAc, maestria });
-      ac.mecanica = mec; if (mec === 'empujar_carreta') ac.enunciado = ac.enunciado.replace('Enciende el farol de', 'Empuja la carreta hasta la plataforma de');
+      ac.mecanica = mec; if (mec === 'empujar_carreta') ac.enunciado = ac.enunciado.replace(/Enciende el farol con (la respuesta|el número que sigue):/, 'Empuja la carreta al número correcto:');
       const e = { i: N.est.length, zona, mecanica: mec, ac, x0: x, objetos: [], resuelta: false, errores: 0, puertaX: null, ancho: 0 };
       if (mec === 'piedras') {
         const W = 1220; suelo(x, x + 280); hueco(x + 280, x + W - 150); suelo(x + W - 150, x + W);
@@ -202,7 +226,7 @@
     function estacionAntorchas() {  // cueva: enciende las antorchas en orden de la cuenta
       const i = nEst++, t = tablaPara(N.est.length), s = rng.int(1, 6);
       const vals = [0, 1, 2, 3].map(k => t * (s + k)); const W = 1300; suelo(x, x + W);
-      const ac = { mecanica: 'antorchas', tipo: 'salto', hecho: t + 'x' + (s + 3), enunciado: 'Enciende las antorchas en orden: de ' + t + ' en ' + t, objetos: vals.map(v => ({ valor: v, correcto: true })), secuencia: vals };
+      const ac = { mecanica: 'antorchas', tipo: 'salto', hecho: t + 'x' + (s + 3), enunciado: 'Enciende las antorchas del número más pequeño al más grande (se cuenta de ' + t + ' en ' + t + ')', objetos: vals.map(v => ({ valor: v, correcto: true })), secuencia: vals };
       const orden = rng.shuffle([0, 1, 2, 3]);
       const e = { i: N.est.length, zona, mecanica: 'antorchas', ac, x0: x, objetos: [], resuelta: false, errores: 0, puertaX: x + W - 90, ancho: W, sig: 0 };
       orden.forEach((k, pos) => e.objetos.push({ x: x + 260 + pos * 240, y: G - 210 - (pos % 2) * 50, valor: vals[k], idx: k, estado: 'apagada' }));
@@ -228,23 +252,23 @@
         if (e === nEstaciones - 1) while (must.length) { const m = must.shift(); usados[nombre + m] = (usados[nombre + m] || 0) + 1; MOD[m](); N.costo += COSTO[m] || 10; }   // lo que no salió por sorteo se añade antes del final
         if (nombre === 'cueva' && e === nEstaciones - 1) estacionAntorchas(); else estacion();
         // bosque: un punto de control cada dos acertijos; cueva (oscura y más difícil): tras CADA acertijo, y comida en la mitad de esos tramos
-        if ((nombre === 'cueva' ? true : e % 2 === 1) && e < nEstaciones - 1) { suelo(x, x + 220); N.ckp.push({ x: x + 110, activo: false, zona }); if (nombre === 'cueva' && e % 2 === 0) onigiri(x + 40, G - 60); x += 220; }
+        if ((nombre === 'cueva' ? true : e % 2 === 1) && e < nEstaciones - 1) { suelo(x, x + 220); N.ckp.push({ x: x + 110, activo: false, zona }); if (nombre === 'cueva' && e % 2 === 0) onigiri(x + 40, G - 60); if (e % 2 === 1) npc(e === 1 ? 'tanuki' : 'sensei', x + 185); x += 220; }
       }
       return z0;
     }
 
     N.inicio = { x: 120 };
-    suelo(x, x + 700); zona = 'bosque'; decorar(x, x + 700); arco(x + 200, x + 580, G - 30, 4); x += 700;
+    suelo(x, x + 700); zona = 'bosque'; decorar(x, x + 700); arco(x + 200, x + 580, G - 30, 4); npc('sensei', x + 380); x += 700;
     const z1 = x;
     zonaNueva('bosque', 8, 3);
     // jefe del bosque: arena con el Oni rojo
-    suelo(x, x + 300); N.ckp.push({ x: x + 150, activo: false, zona }); x += 300;
+    suelo(x, x + 300); N.ckp.push({ x: x + 100, activo: false, zona }); npc('sensei', x + 230); x += 300;
     { const w = 1400; suelo(x, x + w); N.muros.push({ x: x + 40, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'jL', abierta: true, zona, auto: true }, { x: x + w - 70, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'jR', abierta: true, zona, auto: true });
       elem({ t: 'jefe', x0: x + 70, x1: x + w - 70, estado: 0, id: 'jefe' }); N.enem.push({ kind: 'oni', x: x + w - 400, min: x + 100, max: x + w - 100, y: G, vivo: true, hp: 8, hpMax: 8, vx: 0, boss: true, estado: 'quieto', t: 0 }); x += w; N.costo += COSTO.jefe; }
     suelo(x, x + 400); N.zonas.push({ tipo: 'bosque', x0: 0, x1: x }); x += 400;
     // entrada a la cueva
     N.cueva = { x: x - 200 }; const z2 = x;
-    suelo(x, x + 500); zona = 'cueva'; x += 500;
+    suelo(x, x + 500); zona = 'cueva'; npc('sensei', x + 380); x += 500;
     zonaNueva('cueva', 8, 3);
     suelo(x, x + 300); N.zonas.push({ tipo: 'cueva', x0: z2, x1: x + 300 }); x += 300;
     N.meta = { x: x - 150 };

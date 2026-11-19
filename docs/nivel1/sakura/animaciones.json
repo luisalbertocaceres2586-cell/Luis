@@ -1,0 +1,556 @@
+{
+ "baseline": 440,
+ "celda": [
+  307,
+  512
+ ],
+ "hojas": [
+  {
+   "n": 1,
+   "archivo": "hoja01_reposo",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "idle_01",
+    "idle_02",
+    "idle_03",
+    "idle_04",
+    "idle_05",
+    "idle_06",
+    "idle_imp_01",
+    "idle_imp_02",
+    "idle_imp_03",
+    "idle_imp_04"
+   ]
+  },
+  {
+   "n": 2,
+   "archivo": "hoja02_correr",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "run_01",
+    "run_02",
+    "run_03",
+    "run_04",
+    "run_05",
+    "run_06",
+    "run_07",
+    "run_08",
+    "run_09",
+    "run_10"
+   ]
+  },
+  {
+   "n": 3,
+   "archivo": "hoja03_salto",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "salto_01_antic",
+    "salto_02_despegue",
+    "salto_03_subida",
+    "salto_04_subida_alta",
+    "salto_05_cima",
+    "salto_06_caida_ini",
+    "salto_07_caida_a",
+    "salto_08_caida_b",
+    "salto_09_aterrizaje",
+    "salto_10_recuperacion"
+   ]
+  },
+  {
+   "n": 4,
+   "archivo": "hoja04_agachar_empujar",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "agachar_01",
+    "agachar_02",
+    "agachada_a",
+    "agachada_b",
+    "levantar_01",
+    "levantar_02",
+    "empujar_01",
+    "empujar_02",
+    "empujar_03",
+    "empujar_04"
+   ]
+  },
+  {
+   "n": 5,
+   "archivo": "hoja05_tajo_a",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "tajo1_01",
+    "tajo1_02",
+    "tajo1_03",
+    "tajo1_04",
+    "tajo1_05",
+    "tajo2_01",
+    "tajo2_02",
+    "tajo2_03",
+    "tajo2_04",
+    "tajo2_05"
+   ]
+  },
+  {
+   "n": 6,
+   "archivo": "hoja06_tajo_b_shuriken",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "tajo3_01",
+    "tajo3_02",
+    "tajo3_03",
+    "tajo3_04",
+    "tajo3_05",
+    "shuriken_apuntar",
+    "shuriken_lanzar_01",
+    "shuriken_lanzar_02",
+    "shuriken_lanzar_03",
+    "shuriken_lanzar_04"
+   ]
+  },
+  {
+   "n": 7,
+   "archivo": "hoja07_aereo",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "aereo_01",
+    "aereo_02",
+    "aereo_03",
+    "aereo_04",
+    "estocada_01",
+    "estocada_02",
+    "rebote_01",
+    "rebote_02",
+    "tajo_bajo_01",
+    "tajo_bajo_02"
+   ]
+  },
+  {
+   "n": 8,
+   "archivo": "hoja08_dash_doble_planeo",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "dash_01",
+    "dash_02",
+    "dash_03",
+    "dash_04",
+    "doble_01",
+    "doble_02",
+    "doble_03",
+    "doble_04",
+    "planeo_abrir",
+    "planeo_loop"
+   ]
+  },
+  {
+   "n": 9,
+   "archivo": "hoja09_pared_gancho",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "pared_deslizar_a",
+    "pared_deslizar_b",
+    "pared_agarre",
+    "pared_salto_01",
+    "pared_salto_02",
+    "gancho_lanzar_01",
+    "gancho_lanzar_02",
+    "gancho_colgar_a",
+    "gancho_colgar_b",
+    "gancho_colgar_c"
+   ]
+  },
+  {
+   "n": 10,
+   "archivo": "hoja10_dano_victoria",
+   "carpeta": "sakura2",
+   "formato": "grid",
+   "esencial": true,
+   "frames": [
+    "dano_01",
+    "dano_02",
+    "empujon",
+    "derrota_01",
+    "derrota_02",
+    "derrota_03",
+    "derrota_04",
+    "victoria_01",
+    "victoria_02",
+    "victoria_03"
+   ]
+  },
+  {
+   "n": 11,
+   "archivo": "hoja11_retratos",
+   "carpeta": "sakura2",
+   "formato": "libre",
+   "esencial": false,
+   "frames": [
+    "retrato_neutral",
+    "retrato_feliz",
+    "retrato_sorpresa",
+    "retrato_decidida",
+    "retrato_herida",
+    "icono_a",
+    "icono_b",
+    "seleccion_a",
+    "seleccion_b",
+    "portada"
+   ]
+  },
+  {
+   "n": 12,
+   "archivo": "hoja12_fx_combate",
+   "carpeta": "sakura2",
+   "formato": "libre",
+   "esencial": false,
+   "frames": [
+    "fx_arco_horizontal",
+    "fx_arco_reves",
+    "fx_arco_vertical",
+    "fx_arco_aereo",
+    "fx_chispa_impacto",
+    "fx_chispas",
+    "fx_polvo_aterrizaje",
+    "fx_polvo_salto",
+    "fx_onda_rebote",
+    "fx_derrape"
+   ]
+  },
+  {
+   "n": 13,
+   "archivo": "hoja13_fx_habilidades",
+   "carpeta": "sakura2",
+   "formato": "libre",
+   "esencial": false,
+   "frames": [
+    "fx_dash_silueta",
+    "fx_dash_lineas",
+    "fx_invulnerable",
+    "fx_doble_salto",
+    "fx_planeo_viento",
+    "gancho_cabeza",
+    "gancho_cuerda",
+    "gancho_ancla",
+    "gancho_impacto",
+    "fx_desbloqueo"
+   ]
+  }
+ ],
+ "animaciones": {
+  "idle": {
+   "frames": [
+    "idle_01",
+    "idle_02",
+    "idle_03",
+    "idle_04",
+    "idle_05",
+    "idle_06"
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "idle_impaciente": {
+   "frames": [
+    "idle_imp_01",
+    "idle_imp_02",
+    "idle_imp_03",
+    "idle_imp_04"
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "run": {
+   "frames": [
+    "run_01",
+    "run_02",
+    "run_03",
+    "run_04",
+    "run_05",
+    "run_06",
+    "run_07",
+    "run_08",
+    "run_09",
+    "run_10"
+   ],
+   "fps": 24,
+   "loop": true
+  },
+  "jump_antic": {
+   "frames": [
+    "salto_01_antic"
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "jump_up": {
+   "frames": [
+    "salto_02_despegue",
+    "salto_03_subida",
+    "salto_04_subida_alta",
+    "salto_05_cima"
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "fall": {
+   "frames": [
+    "salto_06_caida_ini",
+    "salto_07_caida_a",
+    "salto_08_caida_b"
+   ],
+   "fps": 10,
+   "loop": true
+  },
+  "land": {
+   "frames": [
+    "salto_09_aterrizaje",
+    "salto_10_recuperacion"
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "crouch_down": {
+   "frames": [
+    "agachar_01",
+    "agachar_02"
+   ],
+   "fps": 16,
+   "loop": false
+  },
+  "crouch": {
+   "frames": [
+    "agachada_a",
+    "agachada_b"
+   ],
+   "fps": 4,
+   "loop": true
+  },
+  "crouch_up": {
+   "frames": [
+    "levantar_01",
+    "levantar_02"
+   ],
+   "fps": 16,
+   "loop": false
+  },
+  "push": {
+   "frames": [
+    "empujar_01",
+    "empujar_02",
+    "empujar_03",
+    "empujar_04"
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "slash1": {
+   "frames": [
+    "tajo1_01",
+    "tajo1_02",
+    "tajo1_03",
+    "tajo1_04",
+    "tajo1_05"
+   ],
+   "fps": 20,
+   "loop": false
+  },
+  "slash2": {
+   "frames": [
+    "tajo2_01",
+    "tajo2_02",
+    "tajo2_03",
+    "tajo2_04",
+    "tajo2_05"
+   ],
+   "fps": 20,
+   "loop": false
+  },
+  "slash3": {
+   "frames": [
+    "tajo3_01",
+    "tajo3_02",
+    "tajo3_03",
+    "tajo3_04",
+    "tajo3_05"
+   ],
+   "fps": 16,
+   "loop": false
+  },
+  "aim": {
+   "frames": [
+    "shuriken_apuntar"
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "throw": {
+   "frames": [
+    "shuriken_lanzar_01",
+    "shuriken_lanzar_02",
+    "shuriken_lanzar_03",
+    "shuriken_lanzar_04"
+   ],
+   "fps": 20,
+   "loop": false
+  },
+  "air_slash": {
+   "frames": [
+    "aereo_01",
+    "aereo_02",
+    "aereo_03",
+    "aereo_04"
+   ],
+   "fps": 20,
+   "loop": false
+  },
+  "plunge": {
+   "frames": [
+    "estocada_01",
+    "estocada_02"
+   ],
+   "fps": 10,
+   "loop": true
+  },
+  "bounce": {
+   "frames": [
+    "rebote_01",
+    "rebote_02"
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "low_slash": {
+   "frames": [
+    "tajo_bajo_01",
+    "tajo_bajo_02"
+   ],
+   "fps": 16,
+   "loop": false
+  },
+  "dash": {
+   "frames": [
+    "dash_01",
+    "dash_02",
+    "dash_03",
+    "dash_04"
+   ],
+   "fps": 18,
+   "loop": false
+  },
+  "double_jump": {
+   "frames": [
+    "doble_01",
+    "doble_02",
+    "doble_03",
+    "doble_04"
+   ],
+   "fps": 16,
+   "loop": false
+  },
+  "glide_open": {
+   "frames": [
+    "planeo_abrir"
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "glide": {
+   "frames": [
+    "planeo_loop"
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "wall_slide": {
+   "frames": [
+    "pared_deslizar_a",
+    "pared_deslizar_b"
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "wall_grab": {
+   "frames": [
+    "pared_agarre"
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "wall_jump": {
+   "frames": [
+    "pared_salto_01",
+    "pared_salto_02"
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "hook_throw": {
+   "frames": [
+    "gancho_lanzar_01",
+    "gancho_lanzar_02"
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "hook_swing": {
+   "frames": [
+    "gancho_colgar_a",
+    "gancho_colgar_b",
+    "gancho_colgar_c"
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "hurt": {
+   "frames": [
+    "dano_01",
+    "dano_02"
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "knockback": {
+   "frames": [
+    "empujon"
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "death": {
+   "frames": [
+    "derrota_01",
+    "derrota_02",
+    "derrota_03",
+    "derrota_04"
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "victory": {
+   "frames": [
+    "victoria_01",
+    "victoria_02",
+    "victoria_03"
+   ],
+   "fps": 5,
+   "loop": false
+  }
+ }
+}

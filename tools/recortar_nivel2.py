@@ -134,10 +134,16 @@ META = {
  'bola_fuego': (G+'extras ninja', 'Bola de fuego', 'Remolino de fuego naranja y amarillo.', 'Proyectil o efecto.', ['fuego', 'efecto']),
 }
 
-# ids que el juego ya usa (se actualiza en cada parte de la integración)
-USADO = {'cactus_saguaro', 'cactus_barril', 'roca_grande', 'rocas_pequenas', 'rueda_carreta', 'escorpion_walk', 'serpiente_slither',
-         'serpiente_alerta', 'buitre_vuelo', 'buitre_picada', 'buitre_huida', 'gota_agua', 'corazon_desierto',
-         'compuerta_neutral', 'compuerta_correcta', 'compuerta_incorrecta', 'compuerta_usada'}
+# «usado_en» se calcula solo: un id cuenta como usado si aparece en el código del Nivel 2 (o es de una familia armada por prefijo)
+class _Usado:
+    PREFIJOS = ('jefe_', 'alfombra_', 'vagoneta_', 'zorro_')
+    def __init__(self):
+        self.codigo = ''
+        for f in (os.path.join(RAIZ, 'engine', 'nivel2', 'surf.js'), os.path.join(RAIZ, 'nivel2.html')):
+            if os.path.exists(f): self.codigo += open(f, encoding='utf-8').read()
+    def __contains__(self, base):
+        return base in self.codigo or (base.startswith(self.PREFIJOS) and any(p in self.codigo for p in self.PREFIJOS if base.startswith(p)))
+USADO = _Usado()
 
 def quitar_fondo(a, modo):
     """a: RGBA uint8. Devuelve RGBA con el fondo en alfa 0 (solo componentes conectados al borde)."""

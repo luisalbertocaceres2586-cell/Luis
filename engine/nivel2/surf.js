@@ -78,6 +78,20 @@
     root.appendChild(cv); document.body.appendChild(root);
     const cx = cv.getContext('2d');
     const kage = o.heroe === 'kage', hero = kage ? 'kage' : 'sakura';
+    // vehículo y tabla se eligen en nivel2.html (se recuerdan en n2cfg); el jefe rota con cada victoria
+    let cfg = {}; try { cfg = JSON.parse(localStorage.getItem('n2cfg') || '{}') || {}; } catch (e) {}
+    const VEHS = ['tabla', 'alfombra', 'vagoneta'], TABLAS = ['tabla_clasica', 'tabla_cactus', 'tabla_cristal', 'tabla_dragon', 'tabla_faraon', 'tabla_neon'];
+    const vehiculo = VEHS.includes(o.vehiculo || cfg.vehiculo) ? (o.vehiculo || cfg.vehiculo) : 'alfombra';
+    const tablaId = TABLAS.includes(o.tabla || cfg.tabla) ? (o.tabla || cfg.tabla) : 'tabla_clasica';
+    const JEFES = [
+      { id: 'escorpion', n: 'ESCORPIÓN COLOSAL', art: 'AL', aguijon: '¡Aguijón!' }, { id: 'gusano', n: 'GUSANO DE LAS DUNAS', art: 'AL', aguijon: '¡Mordisco!' },
+      { id: 'esfinge', n: 'ESFINGE GUARDIANA', art: 'A LA', aguijon: '¡Rayo de la esfinge!' }, { id: 'faraon', n: 'FARAÓN MOMIA', art: 'AL', aguijon: '¡Maldición del faraón!' }];
+    const completados0 = (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.completados) || 0;
+    let ganadasSesion = 0;
+    const jefeActual = () => JEFES.find(j => j.id === o.jefe) || JEFES[(completados0 + ganadasSesion) % JEFES.length];
+    // fotogramas del personaje corriendo (solo se usan con el vehículo "tabla")
+    const SP = kage ? { run: 15, hurt: 6, idle: 6 } : { run: 14, jump: 4, hurt: 5, sprint: 5, idle: 6 }, IMG = {}, carpeta = 'assets/characters/' + hero + '/';
+    Object.keys(SP).forEach(a => { IMG[a] = []; if (vehiculo !== 'tabla') return; for (let i = 0; i < SP[a]; i++) { const im = new Image(); im.src = carpeta + a + '_' + String(i).padStart(2, '0') + '.png'; IMG[a].push(im); } });
     const KCP = clave(o) + '_cp', KTUT = clave(o) + '_tut';
     const fallosPrev = (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.fallos) || {};
     const touch = tactil();
@@ -107,8 +121,12 @@
       'zorro_run', 'zorro_idle', 'zorro_alerta', 'zorro_celebra', 'compuerta_neutral', 'compuerta_correcta', 'compuerta_incorrecta', 'compuerta_usada',
       'gota_agua', 'corazon_desierto', 'bandera_checkpoint', 'cactus_saguaro', 'cactus_barril', 'roca_grande', 'rocas_pequenas', 'rueda_carreta',
       'escorpion_walk', 'serpiente_slither', 'serpiente_alerta', 'buitre_vuelo', 'buitre_picada', 'buitre_huida',
-      'jefe_escorpion_idle', 'jefe_escorpion_aviso', 'jefe_escorpion_ataque', 'jefe_escorpion_golpe', 'jefe_escorpion_derrota'
+      'poder_escarabajo', 'poder_reloj', 'poder_iman', 'poder_comodin', 'onigiri', 'pergamino', 'cofre_cerrado', 'cofre_entreabierto', 'cofre_abierto', 'cofre_oscuro_cerrado', 'cofre_oscuro_abierto',
+      'trampolin', 'cinta_transportadora', 'pinchos', 'sierra', 'canon', 'bola_fuego', 'oni_garrote_guardia', 'oni_garrote_ataque', 'piedra_agrietada', 'portal_piedra', 'bandera_meta', 'teletransporte',
+      'trofeo_escorpion', 'isla_desierto', 'isla_cristal', 'isla_hielo', 'isla_hierba', 'isla_lava', 'enredadera', 'puente_colgante', 'puente_piedra', 'dragon_origami',
+      'cristales_azules', 'vagoneta_oro', 'tambor_taiko', tablaId
     ].forEach(id => { const a = ARTE[id]; if (a) a.frames.forEach((_, i) => img(id, i)); });
+    ['idle', 'aviso', 'ataque', 'golpe', 'derrota'].forEach(po => img('jefe_' + jefeActual().id + '_' + po, 0));   // sin parpadeos al atacar
 
     // ── utilidades de dibujo ──
     function T(s, x, y, size, col, al, lw) {
@@ -136,20 +154,23 @@
         obs: [], gates: [], drops: [], flags: [], fx: [], pops: [], vuelos: [], chips: [],
         gen: 900, rondaGen: 0, respondidas: 0, fase: 'ruta', jefe: null, buitre: null, proxB: 26, qpop: 0,
         cp: { ronda: 0, punt: 0, jefe: false }, fallos: Object.assign({}, fallosPrev),
-        msg: { s: '', t: 0 }, banner: null, inputs: {}, zorro: { est: '', t: 0 }, tut: null, pausa: false
+        msg: { s: '', t: 0 }, banner: null, inputs: {}, zorro: { est: '', t: 0 }, tut: null, pausa: false,
+        pows: [], cofres: [], pads: [], decor: [], balas: [], lento: 0, iman: 0, comodin: 0, dragon: null, proxD: 24, jefeInfo: jefeActual()
       };
       if (modo === 'continuar') {
         const c = leer(KCP); if (c) { S.cp = c; aplicarCheckpoint(); banner('CONTINUAMOS', 'Desde tu último checkpoint', 2.6); return; }
         modo = 'ruta';
       }
       if (modo === 'tut') { S.fase = 'tut'; S.tut = { paso: 0, t: 0, ok: 0, vis: [0, 1, 0], golpeado: false }; entrarPaso(0); }
-      else { S.gen = S.d + 800; msg('Cruza la puerta con la respuesta correcta', 3.2); }
+      else if (o.directo) {   // ?jefe=gusano&directo=1 → práctica: empieza ya contra ese jefe
+        S.respondidas = CONFIG.RONDAS; S.rondaGen = CONFIG.RONDAS; S.fase = 'jefe'; S.jefe = nuevoJefe(); S.v = CONFIG.VEL_JEFE; S.gen = S.d + 800; banner('¡' + S.jefeInfo.n + '!', 'Acierta ' + CONFIG.JEFE_HP + ' puertas para vencerlo', 3, '#ff7a6a');
+      } else { S.gen = S.d + 800; msg('Cruza la puerta con la respuesta correcta', 3.2); }
     }
 
     // ───────────────────────── generación del recorrido ─────────────────────────
     function addObs(x, l, tipo, v) {
-      const h = ({ cac: v ? 44 : 68, roca: v ? 30 : 52, rueda: 46, ser: 26, esc: 30 })[tipo];
-      const alto = ({ cac: v ? 68 : 112, roca: v ? 46 : 80, rueda: 74, ser: 34, esc: 58 })[tipo];
+      const h = ({ cac: v ? 44 : 68, roca: v === 2 ? 56 : v ? 30 : 52, rueda: 46, ser: 26, esc: 30, pin: 24, sie: 46, can: 44, oni: 64 })[tipo];
+      const alto = ({ cac: v ? 68 : 112, roca: v === 2 ? 92 : v ? 46 : 80, rueda: 74, ser: 34, esc: 58, pin: 46, sie: 72, can: 76, oni: 124 })[tipo];
       const ob = { x, l, tipo, v, h, alto, hit: false, cd: -1, cambio: false }; S.obs.push(ob); return ob;
     }
     const addGota = (x, l, y) => S.drops.push({ x, l, y, ok: false });
@@ -159,28 +180,53 @@
 
     function construirRonda() {
       const r = S.rondaGen++, x0 = S.gen, jefe = r >= CONFIG.RONDAS;
-      const tipos = r < 2 ? ['cac', 'roca'] : r < 4 ? ['cac', 'roca', 'rueda', 'esc'] : ['cac', 'roca', 'rueda', 'esc', 'ser'];
+      // los enemigos se van sumando poco a poco: así cada ronda enseña algo nuevo sin abrumar
+      const tipos = jefe ? ['cac', 'roca', 'pin'] : r < 2 ? ['cac', 'roca'] : r < 3 ? ['cac', 'roca', 'rueda', 'esc'] : r < 4 ? ['cac', 'roca', 'rueda', 'esc', 'pin', 'ser'] : r < 5 ? ['cac', 'roca', 'rueda', 'esc', 'pin', 'ser', 'sie'] : ['cac', 'roca', 'rueda', 'esc', 'pin', 'ser', 'sie', 'can', 'oni'];
       const nObs = jefe ? 1 : r < 2 ? 1 : r < 5 ? 2 : 3, largo = jefe ? 1500 : 1750;
       lineaGotas(x0 + 110, RI(0, 2), 5);
       let x = x0 + 400;
       for (let i = 0; i < nObs; i++) {
         const l = RI(0, 2), tipo = pick(tipos);
-        addObs(x, l, tipo, RI(0, 1)); arcoGotas(x, l);
+        addObs(x, l, tipo, tipo === 'roca' ? RI(0, 2) : RI(0, 1)); arcoGotas(x, l);
         x += RI(300, 380);
       }
-      // ≥ 600 px antes de la puerta sin obstáculos ni gotas: tiempo para pensar y elegir
+      if (!jefe) generarExtras(x0);
+      // ≥ 600 px antes de la puerta sin obstáculos ni poderes: tiempo para pensar y elegir
       nuevaPuerta(x0 + largo, pregunta(S.fallos), S.errSeg >= CONFIG.PISTA_TRAS_ERRORES);
       if (CONFIG.CHECKS.includes(r + 1)) S.flags.push({ x: x0 + largo + 300, n: r + 1, tomada: false });
       S.gen = x0 + largo + 520;
     }
+    // poderes, curación, cofres, plataformas y decorado: SOLO en la primera parte de cada ronda (nunca en la zona de respuesta)
+    function generarExtras(x0) {
+      const PODERES = ['poder_escarabajo', 'poder_reloj', 'poder_iman', 'poder_comodin'], X = () => x0 + RI(450, 1100);
+      if (Math.random() < .6) S.pows.push({ x: X(), l: RI(0, 2), tipo: pick(PODERES) });
+      if (S.vidas < CONFIG.VIDAS && Math.random() < .55) S.pows.push({ x: X(), l: RI(0, 2), tipo: 'onigiri' });
+      if (Math.random() < .35) S.pows.push({ x: X(), l: RI(0, 2), tipo: 'pergamino' });
+      if (Math.random() < .3) S.cofres.push({ x: X(), l: RI(0, 2), oscuro: S.racha >= 4, est: 0, t: 0 });
+      if (Math.random() < .5) {
+        const tra = Math.random() < .55, x = x0 + RI(450, 700), l = RI(0, 2); S.pads.push({ x, l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
+        if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(x + dx, l, y));
+      }
+      for (let i = 0; i < 3; i++) S.decor.push({ x: x0 + RI(0, 1700), id: pick(['cristales_azules', 'vagoneta_oro', 'tambor_taiko', 'piedra_agrietada']), alto: RI(54, 86) });
+    }
+    function recoger(p) {
+      p.ok = true; beep(900, .08, 'sine'); const px = X_H, py = laneY(S.d, S.lane) - 150;
+      if (p.tipo === 'poder_escarabajo') { S.escudo = true; msg('¡ESCARABAJO! Te protege de 1 golpe', 2); pop('ESCUDO', px, py, '#ffd35a', 30); }
+      else if (p.tipo === 'poder_reloj') { S.lento = 6; msg('¡RELOJ! El tiempo va más lento', 2); pop('RELOJ', px, py, '#8fb8ff', 30); }
+      else if (p.tipo === 'poder_iman') { S.iman = 8; msg('¡IMÁN! Atrae las gotas', 2); pop('IMÁN', px, py, '#ff9a9a', 30); }
+      else if (p.tipo === 'poder_comodin') { S.comodin = 1; msg('¡COMODÍN! Tacha una respuesta mala', 2.2); pop('COMODÍN', px, py, '#e9a8ff', 30); }
+      else if (p.tipo === 'onigiri') { if (S.vidas < CONFIG.VIDAS) { S.vidas++; msg('¡ONIGIRI! +1 corazón', 1.8); pop('+1 ♥', px, py, '#ff6f8f', 34); } else { S.punt += 80; pop('+80', px, py, '#ffe27a', 30); } }
+      else { S.punt += 150; pop('+150', px, py, '#ffe27a', 30); }
+      chispas(px, laneY(S.d, S.lane) - 60, 14, ['#fff', '#ffe27a'], 220, .7);
+    }
     function generar() { if (S.fase === 'tut') return; while (S.gen < S.d + 3200) construirRonda(); }
 
     const siguienteGate = () => S.gates.find(g => !g.res);
-    const nuevoJefe = () => ({ hp: CONFIG.JEFE_HP, max: CONFIG.JEFE_HP, atq: null, cd: 3, golpe: 0, ata: 0 });
+    const nuevoJefe = () => ({ hp: CONFIG.JEFE_HP, max: CONFIG.JEFE_HP, atq: null, cd: 3, golpe: 0 });
 
     function aplicarCheckpoint() {
       const c = S.cp;
-      S.obs = []; S.gates = []; S.drops = []; S.flags = []; S.buitre = null; S.proxB = 22; S.vuelos = [];
+      S.obs = []; S.gates = []; S.drops = []; S.flags = []; S.buitre = null; S.proxB = 22; S.vuelos = []; S.pows = []; S.cofres = []; S.pads = []; S.balas = []; S.decor = []; S.lento = 0; S.iman = 0; S.comodin = 0;
       S.rondaGen = c.ronda; S.respondidas = c.ronda; S.punt = c.punt; S.fase = c.jefe ? 'jefe' : 'ruta'; S.jefe = c.jefe ? nuevoJefe() : null;
       S.gen = S.d + 700; S.vidas = CONFIG.VIDAS; S.racha = 0; S.errSeg = 0; S.inv = 2.5; S.v = 140; S.lane = 1; S.ly = 1; S.fly = 1; S.z = 0; S.vz = 0; S.escudo = false; S.fade = 1; S.caido = 0; S.boost = 0;
     }
@@ -246,7 +292,7 @@
     // ───────────────────────── reglas ─────────────────────────
     function responder(g) {
       const l = clamp(S.lane, 0, 2), ok = g.q.ops[l] === g.q.ans;
-      g.res = true; g.lane = l; g.ok = ok; g.t = 0;
+      g.res = true; g.lane = l; g.ok = ok; g.t = 0; if (g.tach !== undefined) S.comodin = 0;
       if (S.fase === 'tut') return tutRespuesta(g);
       const gx = g.x - (S.d - X_H), gy = laneY(g.x, l) - 60;
       S.respondidas++;
@@ -263,7 +309,7 @@
       }
       if (!S.jefe && S.respondidas >= CONFIG.RONDAS && S.fase === 'ruta') {
         S.fase = 'jefe'; S.jefe = nuevoJefe(); S.obs = S.obs.filter(ob => ob.x < S.d + 500); S.drops = S.drops.filter(d => d.x < S.d + 500);
-        banner('¡ESCORPIÓN COLOSAL!', 'Cambia a vagoneta cohete · acierta ' + CONFIG.JEFE_HP + ' puertas', 3.2, '#ff7a6a'); beep(110, .6, 'sawtooth', .08);
+        S.flags.push({ tipo: 'portal', x: S.d + 560 }); banner('¡' + S.jefeInfo.n + '!', 'Acierta ' + CONFIG.JEFE_HP + ' puertas para vencerlo', 3.2, '#ff7a6a'); beep(110, .6, 'sawtooth', .08);
       }
     }
     function daño() {
@@ -285,8 +331,8 @@
       }
     }
     function checkpoint(f) {
-      f.tomada = true; S.cp = { ronda: f.n, punt: S.punt, jefe: f.n === CONFIG.RONDAS }; guardar(KCP, S.cp);
-      banner('CHECKPOINT', 'Tu avance quedó guardado', 2.2, '#ffe27a'); S.zorro = { est: 'celebra', t: 1.5 }; sonidoOk();
+      f.tomada = true; const cura = S.vidas < CONFIG.VIDAS; if (cura) S.vidas++; else S.punt += 200; S.cp = { ronda: f.n, punt: S.punt, jefe: f.n === CONFIG.RONDAS }; guardar(KCP, S.cp);
+      banner('CHECKPOINT', cura ? 'Avance guardado · +1 corazón' : 'Avance guardado · +200 puntos', 2.4, '#ffe27a'); S.zorro = { est: 'celebra', t: 1.5 }; sonidoOk();
       chispas(f.x - (S.d - X_H), laneY(f.x, 1) - 70, 36, ['#ffe27a', '#fff', '#ffad58'], 330, 1.1);
     }
 
@@ -299,7 +345,7 @@
     }
     function actualizar(dt) {
       S.t += dt; S.msg.t -= dt; S.inv = Math.max(0, S.inv - dt); S.boost = Math.max(0, S.boost - dt); S.flash = Math.max(0, S.flash - dt);
-      S.shake = Math.max(0, S.shake - dt); S.fade = Math.max(0, S.fade - dt * 1.6); S.qpop = Math.max(0, S.qpop - dt); S.medidor = Math.max(0, S.medidor - dt * 1.5);
+      S.shake = Math.max(0, S.shake - dt); S.fade = Math.max(0, S.fade - dt * 1.6); S.qpop = Math.max(0, S.qpop - dt); S.medidor = Math.max(0, S.medidor - dt * 1.5); S.iman = Math.max(0, S.iman - dt);
       if (S.banner) { S.banner.t -= dt; if (S.banner.t <= 0) S.banner = null; }
       if (S.zorro.t > 0) S.zorro.t -= dt;
       if (S.caido > 0) {
@@ -314,6 +360,10 @@
       S.vz -= GR * dt; S.z = Math.max(0, S.z + S.vz * dt); if (S.z === 0 && S.vz < 0) S.vz = 0; S.fz += (S.z - S.fz) * Math.min(1, dt * 7);
       S.v += (velObjetivo() - S.v) * Math.min(1, dt * 2.5); S.d += S.v * dt;
       const lh = clamp(Math.round(S.ly), 0, 2);
+      // comodín: tacha una respuesta mala de la próxima puerta; dragón de origami decorativo en el cielo
+      if (S.comodin) { const g = S.gates.find(g => !g.res && g.x > S.d && g.x - S.d < 1900); if (g && g.tach === undefined) { const malas = [0, 1, 2].filter(n => g.q.ops[n] !== g.q.ans); g.tach = pick(malas); } }
+      S.proxD -= dt; if (!S.dragon && S.proxD <= 0 && !S.jefe && S.fase !== 'tut') { S.dragon = { x: W + 90, y: RI(60, 150) }; S.proxD = R(35, 50); }
+      if (S.dragon) { S.dragon.x -= 70 * dt; if (S.dragon.x < -120) S.dragon = null; }
       // obstáculos
       S.obs.forEach(ob => {
         const dx = ob.x - S.d;
@@ -327,17 +377,24 @@
       // gotas (con imán suave para que se noten y se recojan)
       S.drops.forEach(g => {
         if (g.ok) return; const dx = g.x - S.d;
-        if (g.l === lh && dx > -20 && dx < 120 && Math.abs(S.z - g.y) < 90) g.x -= (dx > 0 ? Math.min(dx, 260 * dt) : 0) * .5;
+        if (S.iman > 0 && dx > -40 && dx < 320) { g.l = lh; g.x += (S.d - g.x) * Math.min(1, dt * 5); g.y += (S.z + 30 - g.y) * Math.min(1, dt * 5); }
+        else if (g.l === lh && dx > -20 && dx < 120 && Math.abs(S.z - g.y) < 90) g.x -= (dx > 0 ? Math.min(dx, 260 * dt) : 0) * .5;
         if (g.l === lh && Math.abs(g.x - S.d) < 36 && Math.abs(S.z - g.y) < 80) recogerGota(g, X_H, laneY(S.d, S.ly) - S.z - 50);
       });
       S.gates.forEach(g => { g.t += dt; if (!g.res && S.d >= g.x) responder(g); });
-      S.flags.forEach(f => { if (!f.tomada && S.d >= f.x) checkpoint(f); });
+      S.flags.forEach(f => { if (f.tipo !== 'portal' && !f.tomada && S.d >= f.x) checkpoint(f); });
+      S.pows.forEach(pw => { if (!pw.ok && pw.l === lh && Math.abs(pw.x - S.d) < 34 && S.z < 100) recoger(pw); });
+      S.cofres.forEach(c => { if (c.est === 0 && c.l === lh && Math.abs(c.x - S.d) < 34 && S.z < 45) { c.est = 1; c.t = .3; S.punt += c.oscuro ? 300 : 150; msg(c.oscuro ? '¡COFRE OSCURO! +300' : '¡COFRE! +150', 1.6); beep(780, .1, 'triangle'); setTimeout(() => beep(1040, .15), 100); } else if (c.est === 1) { c.t -= dt; if (c.t <= 0) c.est = 2; } });
+      S.pads.forEach(pd => { if (pd.t > 0) pd.t -= dt; if (!pd.ok && pd.l === lh && Math.abs(pd.x - S.d) < 28 && S.z < 40) { pd.ok = true; pd.t = .35; if (pd.tipo === 'trampolin') { S.vz = 900; beep(300, .15, 'square'); setTimeout(() => beep(600, .15, 'square'), 80); } else { S.boost = Math.max(S.boost, 1.3); beep(520, .12, 'sawtooth'); } } });
+      S.obs.forEach(ob => { if (ob.tipo === 'can' && !ob.fired && ob.x - S.d > 0 && ob.x - S.d < 650) { ob.fired = true; S.balas.push({ x: ob.x - 30, l: ob.l, hit: false }); beep(110, .25, 'sawtooth'); } });
+      S.balas.forEach(b => { b.x -= 380 * dt; if (!b.hit && b.l === lh && Math.abs(b.x - S.d) < 26 && S.z < 44) { b.hit = true; if (daño()) msg('¡Bola de fuego!', 1.2); } });
       // zorro: avisa si hay un obstáculo cerca en tu carril
-      if (S.zorro.t <= 0 && S.obs.some(ob => ob.l === lh && ob.x - S.d > 80 && ob.x - S.d < 420 && !ob.hit) && S.fase !== 'tut') S.zorro = { est: 'alerta', t: .35 };
+      if (S.zorro.t <= 0 && S.fase !== 'tut' && (S.obs.some(ob => ob.l === lh && ob.x - S.d > 80 && ob.x - S.d < 420 && !ob.hit) || S.balas.some(b => !b.hit && b.l === lh && b.x - S.d > 0 && b.x - S.d < 420))) S.zorro = { est: 'alerta', t: .35 };
       // estela de la alfombra
       if (Math.random() < dt * 26) S.fx.push({ x: X_H - 50, y: laneY(S.d, S.ly) - S.z - 6, vx: -R(90, 190) - S.v * .3, vy: R(-30, 30), t: .5, t0: .5, c: S.jefe ? '#ffb347' : '#ffe9a8', r: R(1.5, 3.2) });
       fxUpdate(dt);
       S.obs = S.obs.filter(ob => ob.x > S.d - 400); S.drops = S.drops.filter(g => g.x > S.d - 400); S.gates = S.gates.filter(g => !g.res || g.x > S.d - 500); S.flags = S.flags.filter(f => f.x > S.d - 500);
+      S.pows = S.pows.filter(p => p.x > S.d - 400); S.cofres = S.cofres.filter(c => c.x > S.d - 400); S.pads = S.pads.filter(p => p.x > S.d - 400); S.decor = S.decor.filter(d => d.x > S.d - 500); S.balas = S.balas.filter(b => b.x > S.d - 400);
     }
     function fxUpdate(dt) {
       S.fx.forEach(p => { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 420 * dt * (p.t0 > .6 && p.r > 2 ? 1 : .2); }); S.fx = S.fx.filter(p => p.t > 0);
@@ -362,14 +419,15 @@
           }
         } else { b.bx += (b.est === 'huida' ? 300 : -260) * dt; b.by -= 140 * dt; if (b.bx < -120 || b.bx > W + 120 || b.by < -80) S.buitre = null; }
       }
-      // jefe: ataca solo cuando la puerta aún está lejos (en la zona de respuesta no te molesta)
+      // jefe: cada uno ataca distinto. Solo ataca con la puerta lejos (en la zona de respuesta te deja pensar).
+      // escorpión/gusano: 1 carril (se esquiva cambiando de carril o saltando) · esfinge: 1 carril, NO se salta · faraón: 2 carriles (queda 1 libre)
       if (S.jefe) {
-        const j = S.jefe; j.cd -= dt; j.golpe = Math.max(0, j.golpe - dt * 1.4); j.ata = Math.max(0, j.ata - dt);
-        if (!j.atq && j.cd <= 0 && dg > 650) { j.atq = { l: RI(0, 2), t: 0, golpe: false }; beep(260, .3, 'triangle'); }
+        const j = S.jefe, tipo = S.jefeInfo.id; j.cd -= dt; j.golpe = Math.max(0, j.golpe - dt * 1.4);
+        if (!j.atq && j.cd <= 0 && dg > 650) { let lanes = [RI(0, 2)]; if (tipo === 'faraon') { const libre = RI(0, 2); lanes = [0, 1, 2].filter(n => n !== libre); } j.atq = { lanes, t: 0, golpe: false }; beep(260, .3, 'triangle'); }
         if (j.atq) {
-          j.atq.t += dt;
-          if (j.atq.t > 1.3 && !j.atq.golpe) { j.atq.golpe = true; j.ata = .35; S.shake = .3; if (clamp(Math.round(S.ly), 0, 2) === j.atq.l && S.z < 55) { daño(); msg('¡Aguijón!', 1.2); } }
-          if (j.atq.t > 1.7) { j.atq = null; j.cd = R(2.2, 3.2); }
+          const A = j.atq; A.t += dt;
+          if (A.t > 1.3 && !A.golpe) { A.golpe = true; S.shake = .3; const lh = clamp(Math.round(S.ly), 0, 2); if (A.lanes.includes(lh) && (tipo === 'esfinge' || S.z < 55) && daño()) msg(S.jefeInfo.aguijon, 1.2); }
+          if (A.t > 1.7) { j.atq = null; j.cd = R(2.2, 3.2); }
         }
       }
     }
@@ -380,8 +438,17 @@
       cx.fillStyle = cie; cx.fillRect(-10, -10, W + 20, H + 20);
       estrellas.forEach(s => { cx.globalAlpha = .4 + .6 * Math.abs(Math.sin(S.t + s.f)); cx.fillStyle = '#fff'; cx.fillRect(s.x, s.y, s.r, s.r); }); cx.globalAlpha = 1;
       cx.fillStyle = '#ffe9a8'; cx.beginPath(); cx.arc(800, 92, 38, 0, 7); cx.fill(); cx.fillStyle = '#2a1f55'; cx.beginPath(); cx.arc(815, 84, 34, 0, 7); cx.fill();
+      cieloExtra(cam);
       cx.fillStyle = '#3a2a63'; const pc = -cam * .08 % 700; for (let i = -1; i < 3; i++) { const px = pc + i * 700 + 300; cx.beginPath(); cx.moveTo(px - 70, 262); cx.lineTo(px, 182); cx.lineTo(px + 70, 262); cx.fill(); }
       [[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]].forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
+      S.decor.forEach(d => { const x = d.x - cam; if (x < -90 || x > W + 90) return; spr(d.id, 0, x, laneY(d.x, 0) - CARR / 2 + 6, d.alto); });
+    }
+    // islas flotantes, puentes lejanos y dragón de origami en el cielo (parallax lento)
+    function cieloExtra(cam) {
+      const per = 1700, px = ix => ((ix - cam * .05) % per + per) % per - 160;
+      [['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]].forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
+      spr('enredadera', 0, px(1180), 184 + Math.sin(S.t * .8 + 1180) * 6 + 30, 34, false, .85); spr('puente_colgante', 0, px(280), 205, 30, false, .7); spr('puente_piedra', 0, px(1020), 215, 34, false, .7);
+      if (S.dragon) spr('dragon_origami', 0, S.dragon.x, S.dragon.y + 70 + Math.sin(S.t * 2) * 8, 70, true);
     }
     function curva(l, cam, dy, f) { for (let x = 0; x <= W + 12; x += 12) { const y = laneY(cam + x, l) + dy; f(x, y, x === 0); } }
     function banda(l, cam) {
@@ -404,16 +471,17 @@
     }
     function dibujarCompuertas(l, cam) {
       S.gates.forEach(g => {
-        let x = g.x - cam; if (x < -90 || x > W + 90) return; const y = laneY(g.x, l), alto = 108;
+        let x = g.x - cam; if (x < -90 || x > W + 90) return; const y = laneY(g.x, l), alto = 98;
         let id = 'compuerta_neutral', k = 1;
         if (g.res) { id = l === g.lane ? (g.ok ? 'compuerta_correcta' : 'compuerta_incorrecta') : (l === g.corr ? 'compuerta_correcta' : 'compuerta_usada'); if (l === g.lane) { if (g.ok) k = 1 + .18 * Math.max(0, 1 - g.t * 2.5); else x += Math.sin(g.t * 55) * 5 * Math.max(0, 1 - g.t * 1.6); } }
         const cerca = !g.res && g.x - S.d < 950;
         if (cerca && l === S.lane) { const gr = cx.createRadialGradient(x, y - 50, 10, x, y - 50, 90); gr.addColorStop(0, COL[l] + 'cc'); gr.addColorStop(1, COL[l] + '00'); cx.fillStyle = gr; cx.fillRect(x - 100, y - 150, 200, 190); }
         if (!g.res && g.ayuda && l === g.corr) { cx.globalAlpha = .55 + .35 * Math.sin(S.t * 6); const gr = cx.createRadialGradient(x, y - 50, 10, x, y - 50, 100); gr.addColorStop(0, '#53e08a'); gr.addColorStop(1, '#53e08a00'); cx.fillStyle = gr; cx.fillRect(x - 110, y - 160, 220, 200); cx.globalAlpha = 1; }
-        if (!spr(id, 0, x, y + 4, alto * k)) {
+        if (!spr(id, 0, x, y + 4, alto * k, false, g.tach === l && !g.res ? .3 : null)) {
           const col = !g.res ? '#ffd35a' : (l === g.lane ? (g.ok ? '#53e08a' : '#ff5a5a') : l === g.corr ? '#53e08a' : '#6b5a7a');
           cx.strokeStyle = col; cx.lineWidth = 6; cx.beginPath(); cx.moveTo(x - 36, y); cx.lineTo(x - 36, y - 90); cx.lineTo(x + 36, y - 90); cx.lineTo(x + 36, y); cx.stroke(); cx.fillStyle = col; cx.globalAlpha = .25; cx.fillRect(x - 34, y - 88, 68, 88); cx.globalAlpha = 1;
         }
+        if (g.tach === l && !g.res) { cx.strokeStyle = '#ff5a5a'; cx.lineWidth = 6; cx.beginPath(); cx.moveTo(x - 24, y - 70); cx.lineTo(x + 24, y - 24); cx.moveTo(x + 24, y - 70); cx.lineTo(x - 24, y - 24); cx.stroke(); }
         if (!g.res && g.ayuda && l === g.corr) T('▼', x, y - 118 + Math.sin(S.t * 7) * 6, 30, '#53e08a', 'center', 5);
         if (!g.res && cerca && l === S.lane && g.x - S.d < 420) T('TU RESPUESTA', x, y - 126, 15, '#fff', 'center', 4);
       });
@@ -426,13 +494,17 @@
         for (let l = 0; l < 3; l++) {
           const y = laneY(g.x, l) - 52, mia = g.res && g.lane === l, corr = g.res && l === g.corr, txt = String(g.q.ops[l]);
           const col = !g.res ? '#fff' : (mia ? (g.ok ? '#d6ffe4' : '#ffd0d0') : corr ? '#d6ffe4' : '#a79fc4');
-          cx.globalAlpha = alfa; T(txt, x, y + 12, txt.length > 2 ? 30 : 36, col, 'center', 7); cx.globalAlpha = 1;
+          cx.globalAlpha = alfa * (g.tach === l && !g.res ? .35 : 1); T(txt, x, y + 12, txt.length > 2 ? 30 : 36, col, 'center', 7); cx.globalAlpha = 1;
         }
       });
     }
     function obsSprite(ob, x, y) {
       if (ob.tipo === 'cac') return spr(ob.v ? 'cactus_barril' : 'cactus_saguaro', 0, x, y + 6, ob.alto);
-      if (ob.tipo === 'roca') return spr(ob.v ? 'rocas_pequenas' : 'roca_grande', 0, x, y + 6, ob.alto);
+      if (ob.tipo === 'roca') return spr(ob.v === 2 ? 'piedra_agrietada' : ob.v ? 'rocas_pequenas' : 'roca_grande', 0, x, y + 6, ob.alto);
+      if (ob.tipo === 'pin') return spr('pinchos', 0, x, y + 6, ob.alto);
+      if (ob.tipo === 'sie') return spr('sierra', 0, x, y + 6 + Math.sin(S.t * 8 + ob.x) * 2, ob.alto);
+      if (ob.tipo === 'can') return spr('canon', 0, x, y + 6, ob.alto, true);
+      if (ob.tipo === 'oni') return spr(ob.x - S.d < 260 ? 'oni_garrote_ataque' : 'oni_garrote_guardia', 0, x, y + 6, ob.alto, true);
       if (ob.tipo === 'rueda') return spr('rueda_carreta', 0, x, y + 6, ob.alto);
       if (ob.tipo === 'esc') return spr('escorpion_walk', S.t * 10 + ob.x, x, y + 4, ob.alto, true);
       if (ob.tipo === 'ser') return ob.cd > 0 && ob.cd < .9 && !ob.cambio ? spr('serpiente_alerta', 0, x, y + 4, ob.alto * 1.8, true) : spr('serpiente_slither', S.t * 9 + ob.x, x, y + 4, ob.alto, true);
@@ -443,19 +515,25 @@
       cx.fillRect(x - 20, y - ob.h - 6, 40, ob.h + 6);
     }
     function dibujarLane(l, cam) {
-      const sx = x => x - cam;
+      const sx = x => x - cam, sy = (x, dz) => laneY(x, l) - (dz || 0);
       // avisos rojos de ataque
-      const atq = (S.jefe && S.jefe.atq && S.jefe.atq.l === l) ? S.jefe.atq : null, bu = S.buitre && (S.buitre.est === 'aviso' || S.buitre.est === 'picada') && S.buitre.lane === l;
+      const atq = (S.jefe && S.jefe.atq && S.jefe.atq.lanes.includes(l)) ? S.jefe.atq : null, bu = S.buitre && (S.buitre.est === 'aviso' || S.buitre.est === 'picada') && S.buitre.lane === l;
       if (atq || bu) {
         const y = laneY(S.d, l); cx.fillStyle = 'rgba(255,40,40,' + (.2 + .18 * Math.sin(S.t * 24)) + ')'; cx.fillRect(X_H - 70, y - CARR / 2 + 6, 190, CARR - 12);
         T('!', X_H + 48, y - 56 + Math.sin(S.t * 20) * 3, 40, '#ffd35a', 'center', 6);
       }
-      if (l === 1 && S.jefe) jefeDib();
-      S.flags.forEach(f => { const x = sx(f.x); if (x < -80 || x > W + 80 || l !== 1) return;
+      if (S.jefe) jefeCuerpo(l);
+      if (l === 1 && S.est === 'gano') { spr('bandera_meta', 0, X_H + 330, laneY(S.d + 330, 1) + 6, 130); spr('teletransporte', 0, X_H + 480, laneY(S.d + 480, 1) + 10, 70); }
+      S.flags.forEach(f => { const x = sx(f.x); if (x < -100 || x > W + 100 || l !== 1) return;
+        if (f.tipo === 'portal') { spr('portal_piedra', 0, x, laneY(f.x, 1) + 10, 190, false, .95); return; }
         cx.fillStyle = 'rgba(255,226,122,' + (f.tomada ? .12 : .3) + ')'; cx.fillRect(x - 6, laneY(f.x, 0) - CARR, 12, CARR * 2 + 20);
         if (!spr('bandera_checkpoint', 0, x, laneY(f.x, 1) + 6, 120, false, f.tomada ? .65 : 1)) { cx.fillStyle = '#ff4d4d'; cx.fillRect(x, laneY(f.x, 1) - 100, 40, 26); cx.fillStyle = '#ddd'; cx.fillRect(x - 3, laneY(f.x, 1) - 100, 5, 100); }
         T(f.n < CONFIG.RONDAS ? 'CHECKPOINT' : 'JEFE', x, laneY(f.x, 1) - 126, 14, '#ffe27a', 'center', 4); });
       dibujarCompuertas(l, cam);
+      S.pads.forEach(pd => { if (pd.l !== l) return; const x = sx(pd.x); if (x < -60 || x > W + 60) return; spr(pd.tipo, 0, x, sy(pd.x, 0) + 8, pd.tipo === 'trampolin' ? 44 - (pd.t > 0 ? 12 : 0) : 34, false, pd.ok && pd.tipo !== 'trampolin' ? .6 : null); });
+      S.cofres.forEach(c => { if (c.l !== l) return; const x = sx(c.x); if (x < -60 || x > W + 60) return; spr(c.est === 0 ? (c.oscuro ? 'cofre_oscuro_cerrado' : 'cofre_cerrado') : c.est === 1 && !c.oscuro ? 'cofre_entreabierto' : (c.oscuro ? 'cofre_oscuro_abierto' : 'cofre_abierto'), 0, x, sy(c.x, 0) + 8, 56); });
+      S.pows.forEach(pw => { if (pw.l !== l || pw.ok) return; const x = sx(pw.x); if (x < -40 || x > W + 40) return; spr(pw.tipo, 0, x, sy(pw.x, 40 + Math.sin(S.t * 4 + pw.x) * 5) + 22, 44); });
+      S.balas.forEach(b => { if (b.l !== l || b.hit) return; const x = sx(b.x); if (x < -40 || x > W + 40) return; spr('bola_fuego', 0, x, sy(b.x, 14) + 22, 46); });
       S.obs.forEach(ob => { if (ob.l !== l) return; const x = sx(ob.x), y = laneY(ob.x, l); if (x < -60 || x > W + 60) return; if (!obsSprite(ob, x, y)) obsFallback(ob, x, y); });
       S.drops.forEach(g => { if (g.l !== l || g.ok) return; const x = sx(g.x), y = laneY(g.x, l) - g.y; if (x < -20 || x > W + 20) return;
         const bob = Math.sin(S.t * 4 + g.x * .05) * 3; cx.globalAlpha = .28; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, laneY(g.x, l) + 3, 10, 3.5, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
@@ -471,23 +549,55 @@
       const ok = e === 'celebra' ? spr('zorro_celebra', 0, x, y + 4 - salto, 84) : e === 'alerta' ? spr('zorro_alerta', 0, x, y + 4, 84) : spr('zorro_run', S.t * 11, x, y + 3, 62);
       if (!ok) { cx.fillStyle = '#f2a040'; cx.beginPath(); cx.ellipse(x, y - 20, 26, 16, 0, 0, 7); cx.fill(); }
     }
+    function dibujarSprite() {      // personaje corriendo sobre la tabla (vehículo "tabla")
+      const a = S.inv > 1.1 && IMG.hurt ? 'hurt' : S.z > 6 && IMG.jump ? 'jump' : S.boost > 0 && IMG.sprint ? 'sprint' : 'run', fr = IMG[a];
+      if (!fr || !fr.length) return false;
+      const i = a === 'jump' ? clamp(S.vz > 200 ? 0 : S.vz > 0 ? 1 : S.vz > -250 ? 2 : 3, 0, fr.length - 1) : Math.floor(S.t * 10) % fr.length, im = fr[i];
+      if (!im || !im.complete || !im.naturalWidth) return false;
+      const h = 118, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
+    }
     function heroe() {
-      const x = X_H, gy = laneY(S.d, S.ly), y = gy - S.z, ang = Math.atan((hY(S.d + 10) - hY(S.d - 10)) / 20) * .7, cart = S.jefe && S.fase === 'jefe';
+      const x = X_H, gy = laneY(S.d, S.ly), y = gy - S.z, ang = Math.atan((hY(S.d + 10) - hY(S.d - 10)) / 20) * .7;
       cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58, 9, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
       const parp = S.inv > 0 && Math.floor(S.t * 14) % 2, alfa = parp ? .4 : 1;
       let ok;
-      if (cart) { const id = S.z > 8 ? 'vagoneta_' + hero + '_salto' : 'vagoneta_' + hero + '_rueda'; ok = spr(id, S.t * 12, x, y + 4, 128, false, alfa, ang); }
-      else { const bob = S.z === 0 ? Math.sin(S.t * 5) * 3 : 0, id = S.vz > 160 ? 'alfombra_' + hero + '_sube' : S.vz < -160 ? 'alfombra_' + hero + '_baja' : 'alfombra_' + hero + '_planeo'; ok = spr(id, S.t * 5, x, y - 6 + bob, 122, false, alfa, ang); }
+      if (vehiculo === 'vagoneta') { const id = S.z > 8 ? 'vagoneta_' + hero + '_salto' : 'vagoneta_' + hero + '_rueda'; ok = spr(id, S.t * 12, x, y + 4, 128, false, alfa, ang); }
+      else if (vehiculo === 'alfombra') { const bob = S.z === 0 ? Math.sin(S.t * 5) * 3 : 0, id = S.vz > 160 ? 'alfombra_' + hero + '_sube' : S.vz < -160 ? 'alfombra_' + hero + '_baja' : 'alfombra_' + hero + '_planeo'; ok = spr(id, S.t * 5, x, y - 6 + bob, 122, false, alfa, ang); }
+      else {
+        cx.save(); cx.globalAlpha = alfa; cx.translate(x, y); cx.rotate(ang * .8);
+        if (!spr(tablaId, 0, 0, 22, 54)) { cx.fillStyle = '#7a4a8c'; cx.beginPath(); cx.ellipse(0, 4, 40, 8, 0, 0, 7); cx.fill(); }
+        ok = dibujarSprite(); cx.restore();
+      }
       if (!ok) { cx.save(); cx.globalAlpha = alfa; cx.fillStyle = '#7a4a8c'; cx.fillRect(x - 40, y - 8, 80, 8); cx.fillStyle = kage ? '#4aa3ff' : '#ff6fa8'; cx.fillRect(x - 10, y - 50, 20, 40); cx.fillStyle = '#f2d1ad'; cx.beginPath(); cx.arc(x, y - 60, 12, 0, 7); cx.fill(); cx.restore(); }
       if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(x - 70 - i * 16, y - 20 + i * 12); cx.lineTo(x - 120 - i * 16, y - 20 + i * 12); cx.stroke(); } }
       if (S.escudo) { const gr = cx.createRadialGradient(x, y - 58, 20, x, y - 58, 78); gr.addColorStop(0, 'rgba(111,214,255,.04)'); gr.addColorStop(.8, 'rgba(111,214,255,.22)'); gr.addColorStop(1, 'rgba(190,240,255,.7)'); cx.fillStyle = gr; cx.beginPath(); cx.arc(x, y - 58, 78 + Math.sin(S.t * 6) * 2, 0, 7); cx.fill(); }
     }
-    function jefeDib() {
-      const j = S.jefe, bx = 20 + (S.errSeg ? S.errSeg * 12 : 0), by = laneY(S.d - 220, 1) + 34;
-      let id = 'jefe_escorpion_idle'; if (j.golpe > 0) id = 'jefe_escorpion_golpe'; else if (j.ata > 0) id = 'jefe_escorpion_ataque'; else if (j.atq && j.atq.t > .3) id = 'jefe_escorpion_aviso';
-      const sacudir = j.golpe > 0 ? Math.sin(S.t * 60) * 5 : 0, adel = j.ata > 0 ? 70 : 0;
-      cx.globalAlpha = .35; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(bx, by + 4, 110, 14, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
-      if (!spr(id, 0, bx + adel + sacudir, by, 235 + Math.sin(S.t * 3) * 4)) { cx.fillStyle = '#9c2f3b'; cx.beginPath(); cx.ellipse(bx, by - 50, 90, 50, 0, 0, 7); cx.fill(); }
+    // ── jefes: el escorpión persigue desde atrás, el gusano emerge delante, la esfinge y el faraón vigilan al fondo ──
+    const poseJefe = () => { const j = S.jefe, A = j.atq; return S.est === 'gano' ? 'derrota' : j.golpe > 0 ? 'golpe' : A ? (A.t < 1.3 ? 'aviso' : 'ataque') : 'idle'; };
+    function jefeCuerpo(l) {     // se llama en cada carril; dibuja solo cuando le toca
+      const j = S.jefe, tipo = S.jefeInfo.id, A = j.atq, id = 'jefe_' + tipo + '_' + poseJefe(), sac = j.golpe > 0 ? Math.sin(S.t * 60) * 5 : 0;
+      if (tipo === 'escorpion' && l === 1) {
+        const bx = 40, by = laneY(S.d - 220, 1) + 34, adel = A && A.t > 1.3 ? 70 : 0; j.bx = bx + adel; j.by = by;
+        cx.globalAlpha = .35; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(bx, by + 4, 110, 14, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+        if (!spr(id, 0, bx + adel + sac, by, 235 + Math.sin(S.t * 3) * 4)) { cx.fillStyle = '#9c2f3b'; cx.beginPath(); cx.ellipse(bx, by - 50, 90, 50, 0, 0, 7); cx.fill(); }
+      } else if (tipo === 'gusano' && A && S.est !== 'gano' && l === A.lanes[0]) {
+        spr(id, 0, X_H + 130, laneY(S.d + 130, l) + 12, A.t < 1.3 ? 120 : 170, true);
+      }
+    }
+    function jefeFondo(cam) {    // guardianes gigantes detrás de las dunas (no tapan nada de los carriles)
+      const j = S.jefe, tipo = S.jefeInfo.id; if (!j || tipo === 'escorpion' || (tipo === 'gusano' && j.atq && S.est !== 'gano')) return;
+      const bx = W - 150, by = laneY(cam + bx, 0) - CARR / 2 + 66 + (tipo === 'faraon' ? Math.sin(S.t * 3) * 6 : 0), sac = j.golpe > 0 ? Math.sin(S.t * 60) * 5 : 0;
+      spr('jefe_' + tipo + '_' + poseJefe(), 0, bx + sac, by, 235, true);
+    }
+    function jefeRayos(cam) {    // ataques que cruzan los carriles: se dibujan encima de todo para que se vean
+      const j = S.jefe; if (!j || !j.atq || !(j.atq.t > 1.3 && j.atq.t < 1.65)) return; const A = j.atq, tipo = S.jefeInfo.id, yA = l => laneY(S.d, l) - 38, bx = W - 210;
+      cx.save(); cx.lineCap = 'round';
+      A.lanes.forEach(l => {
+        if (tipo === 'escorpion') { cx.strokeStyle = '#ffd35a'; cx.lineWidth = 9; cx.beginPath(); cx.moveTo((j.bx || 110) + 60, (j.by || 300) - 150); cx.quadraticCurveTo((j.bx || 110) + 160, (j.by || 300) - 200, X_H + 40, yA(l)); cx.stroke(); }
+        else if (tipo === 'esfinge') { const g = cx.createLinearGradient(bx, 0, 0, 0); g.addColorStop(0, 'rgba(111,214,255,.95)'); g.addColorStop(1, 'rgba(111,214,255,.15)'); cx.fillStyle = g; cx.fillRect(0, yA(l) - 14, bx, 28); }
+        else if (tipo === 'faraon') { cx.strokeStyle = '#e8dcc0'; cx.lineWidth = 12; cx.beginPath(); for (let x = bx; x > 0; x -= 14) { const y = yA(l) + Math.sin(x / 22 + S.t * 30) * 10; x === bx ? cx.moveTo(x, y) : cx.lineTo(x, y); } cx.stroke(); }
+      });
+      cx.restore();
     }
     function dibujarBuitre() {
       const b = S.buitre; if (!b) return; const id = b.est === 'picada' ? 'buitre_picada' : b.est === 'huida' ? 'buitre_huida' : 'buitre_vuelo';
@@ -499,8 +609,9 @@
       if (S.shake > 0) cx.translate(R(-5, 5) * S.shake * 2, R(-5, 5) * S.shake * 2);
       fondo(cam);
       viento.forEach(w => { const x = ((w.x - cam * .9 * w.s) % (W + 120) + (W + 120)) % (W + 120) - 60; cx.strokeStyle = 'rgba(255,230,190,.16)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, w.y); cx.lineTo(x - w.l, w.y + 2); cx.stroke(); });
+      if (S.jefe) jefeFondo(cam);
       for (let l = 0; l < 3; l++) { banda(l, cam); guias(l, cam); dibujarLane(l, cam); }
-      numerosPuertas(cam); dibujarBuitre();
+      jefeRayos(cam); numerosPuertas(cam); dibujarBuitre();
       S.fx.forEach(p => { cx.globalAlpha = clamp(p.t / p.t0, 0, 1); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); }); cx.globalAlpha = 1;
       cx.restore(); hud();
     }
@@ -509,18 +620,19 @@
     function hud() {
       // corazones + medidor de agua
       for (let i = 0; i < CONFIG.VIDAS; i++) { if (!spr('corazon_desierto', 0, 30 + i * 36, 46, 36, false, i < S.vidas ? 1 : .22)) T('♥', 14 + i * 30, 36, 30, i < S.vidas ? '#ff4d6d' : '#4a3a5a'); }
-      if (S.escudo) { cx.fillStyle = 'rgba(111,214,255,.9)'; cx.beginPath(); cx.arc(CONFIG.VIDAS * 36 + 36, 30, 14, 0, 7); cx.fill(); T('🛡', CONFIG.VIDAS * 36 + 36, 36, 16, '#fff', 'center'); }
       const mx = 16, my = 58, mw = 150, pul = S.medidor > 0 ? 1 + S.medidor * .35 : 1;
       caja(mx + 26, my + 4, mw, 18, 9, 'rgba(10,6,30,.7)', S.medidor > 0 ? '#fff' : '#6fd6ff', 2);
       for (let i = 0; i < CONFIG.GOTAS_X_CORAZON; i++) { const w = (mw - 8) / CONFIG.GOTAS_X_CORAZON; if (i < S.gotas) caja(mx + 30 + i * w, my + 8, w - 2, 10, 4, '#6fd6ff'); }
       if (!spr('gota_agua', 0, mx + 12, my + 28, 30 * pul)) T('💧', mx, my + 20, 20, '#6fd6ff');
       T(S.gotas + '/' + CONFIG.GOTAS_X_CORAZON + ' gotas = ♥', mx + 26, my + 40, 12, '#bfeaff', 'left', 3);
+      let ix = 16; const ic = (id, t) => { if (spr(id, 0, ix + 17, 152, 34)) { if (t) T(Math.ceil(t) + 's', ix + 17, 166, 12, '#fff', 'center', 3); ix += 42; } };
+      if (S.escudo) ic('poder_escarabajo'); if (S.lento > 0) ic('poder_reloj', S.lento); if (S.iman > 0) ic('poder_iman', S.iman); if (S.comodin) ic('poder_comodin');
       // pregunta
       const g = siguienteGate();
       if (g) {
         const sc = 1 + S.qpop * .35, w = 360, h = 70; cx.save(); cx.translate(W / 2, 12 + h / 2); cx.scale(sc, sc);
         caja(-w / 2, -h / 2, w, h, 16, 'rgba(12,6,34,.86)', '#ffe27a', 3);
-        const lbl = S.fase === 'tut' ? 'PREGUNTA DE PRÁCTICA' : S.jefe ? 'JEFE · GOLPE ' + (S.jefe.max - S.jefe.hp + 1) + ' DE ' + S.jefe.max : 'PREGUNTA ' + Math.min(S.respondidas + 1, CONFIG.RONDAS) + ' DE ' + CONFIG.RONDAS;
+        const lbl = S.fase === 'tut' ? 'PREGUNTA DE PRÁCTICA' : S.jefe ? 'JEFE · GOLPE ' + Math.min(S.jefe.max, S.jefe.max - S.jefe.hp + 1) + ' DE ' + S.jefe.max : 'PREGUNTA ' + Math.min(S.respondidas + 1, CONFIG.RONDAS) + ' DE ' + CONFIG.RONDAS;
         T(lbl, 0, -h / 2 + 18, 12, '#b9a8ff', 'center'); T(g.q.txt, 0, 22, 38, '#ffe27a', 'center', 5); cx.restore();
       }
       // carteles de carril (izquierda, alineados con cada carril; también se pueden tocar)
@@ -530,22 +642,25 @@
         for (let l = 0; l < 3; l++) {
           const act = l === lc, w = act ? 92 : 80, h = act ? 54 : 44, cy = laneY(cam + 52, l) - 26, x0 = 8;
           S.chips.push({ l, x: x0, y: cy - h / 2, w, h });
-          cx.save(); cx.globalAlpha = act ? 1 : .8;
+          cx.save(); cx.globalAlpha = g.tach === l ? .3 : act ? 1 : .8;
           if (act) { cx.shadowColor = COL[l]; cx.shadowBlur = 18; }
           caja(x0, cy - h / 2, w, h, 14, act ? COL[l] : 'rgba(14,8,36,.82)', act ? '#fff' : COL[l], act ? 4 : 3); cx.shadowBlur = 0;
-          T(String(g.q.ops[l]), x0 + w / 2, cy + (act ? 11 : 9), act ? 32 : 26, act ? '#2a1030' : '#fff', 'center'); cx.restore();
+          T(String(g.q.ops[l]), x0 + w / 2, cy + (act ? 11 : 9), act ? 32 : 26, act ? '#2a1030' : '#fff', 'center');
+          if (g.tach === l) { cx.strokeStyle = '#ff5a5a'; cx.lineWidth = 5; cx.beginPath(); cx.moveTo(x0 + 10, cy - 14); cx.lineTo(x0 + w - 10, cy + 14); cx.moveTo(x0 + w - 10, cy - 14); cx.lineTo(x0 + 10, cy + 14); cx.stroke(); }
+          cx.restore();
           if (act) { cx.fillStyle = '#fff'; cx.beginPath(); cx.moveTo(x0 + w + 4, cy - 9); cx.lineTo(x0 + w + 18, cy); cx.lineTo(x0 + w + 4, cy + 9); cx.fill(); }
         }
       }
       // progreso (derecha)
       progreso();
       // textos
-      if (S.msg.t > 0) T(S.msg.s, W / 2, g ? 142 : 120, 26, '#fff', 'center', 7);
+      if (S.msg.t > 0) T(S.msg.s, W / 2, g ? 114 : 120, 26, '#fff', 'center', 7);
       if (S.fase === 'tut' && S.tut) panelTutorial(g ? 160 : 100);
       bannerDib();
       S.pops.forEach(p => { cx.globalAlpha = clamp(p.t * 1.6, 0, 1); T(p.s, p.x, p.y, p.size, p.col, 'center', 6); }); cx.globalAlpha = 1;
       S.vuelos.forEach(v => { const k = clamp(v.t, 0, 1); if (!spr(v.id, 0, v.x, v.y + v.h / 2, v.h * (1 - .3 * k))) { cx.fillStyle = '#6fd6ff'; cx.beginPath(); cx.arc(v.x, v.y, 8, 0, 7); cx.fill(); } });
       if (S.pausa) { cx.fillStyle = '#000000aa'; cx.fillRect(0, 0, W, H); T('PAUSA', W / 2, H / 2, 54, '#ffe27a', 'center', 6); T('P o toca II para continuar', W / 2, H / 2 + 40, 20, '#fff', 'center'); }
+      if (S.lento > 0) { cx.fillStyle = 'rgba(80,140,255,.10)'; cx.fillRect(0, 0, W, H); }
       if (S.flash > 0) { cx.fillStyle = 'rgba(120,255,170,' + S.flash * .8 + ')'; cx.fillRect(0, 0, W, H); }
       if (S.inv > 1.2 && S.caido <= 0) { cx.fillStyle = 'rgba(255,0,0,.22)'; cx.fillRect(0, 0, W, H); }
       if (S.caido > 0) { cx.fillStyle = 'rgba(40,0,10,' + clamp(.75 - S.caido * .15, 0, .7) + ')'; cx.fillRect(0, 0, W, H); }
@@ -557,7 +672,7 @@
       if (S.fase === 'tut') { T('TUTORIAL', W - 16, 66, 14, '#b9a8ff', 'right', 3); return; }
       if (S.jefe) {
         caja(W - 236, 50, 220, 18, 9, 'rgba(0,0,0,.55)', '#ff7a6a', 2); caja(W - 234, 52, 216 * clamp(S.jefe.hp / S.jefe.max, 0, 1), 14, 7, '#ff4d4d');
-        T('ESCORPIÓN COLOSAL', W - 16, 86, 13, '#fff', 'right', 3); return;
+        T(S.jefeInfo.n, W - 16, 86, 13, '#fff', 'right', 3); return;
       }
       const n = CONFIG.RONDAS, paso = wTot / n; cx.strokeStyle = 'rgba(255,255,255,.3)'; cx.lineWidth = 4; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x0 + wTot, y0); cx.stroke();
       cx.strokeStyle = '#ffe27a'; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x0 + paso * Math.min(S.respondidas, n), y0); cx.stroke();
@@ -588,13 +703,14 @@
 
     // ───────────────────────── fin de partida ─────────────────────────
     function terminar(gano) {
-      if (S.est !== 'play') return; S.est = gano ? 'gano' : 'perdio'; beep(gano ? 988 : 120, .6, gano ? 'sine' : 'sawtooth');
+      if (S.est !== 'play') return; S.est = gano ? 'gano' : 'perdio'; if (gano) ganadasSesion++; beep(gano ? 988 : 120, .6, gano ? 'sine' : 'sawtooth');
       if (gano) { guardar(KCP, null); S.zorro = { est: 'celebra', t: 9 }; chispas(W / 2, 220, 60, ['#ffe27a', '#53e08a', '#fff', '#ff7fae'], 420, 1.6); }
       const estr = !gano ? 0 : S.caidas > 0 ? (S.err <= 5 ? 2 : 1) : S.err <= 1 ? 3 : S.err <= 4 ? 2 : 1;
       if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel2 = p.nivel2 || {}; p.nivel2.fallos = S.fallos; p.nivel2.mejor = Math.max(p.nivel2.mejor || 0, S.punt); p.nivel2.intentos = (p.nivel2.intentos || 0) + 1; p.nivel2.estrellas = Math.max(p.nivel2.estrellas || 0, estr); if (gano) p.nivel2.completados = (p.nivel2.completados || 0) + 1; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aci; p.estadisticas.errores += S.err; p.estadisticas.minutos += Math.round(S.t / 6) / 10; }); } catch (e) {} }
       setTimeout(() => {
         const p = document.createElement('div'); p.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000000b0;color:#fff;text-align:center;padding:20px';
-        p.innerHTML = '<h1 style="margin:0;color:#ffe27a">¡DERROTASTE AL ESCORPIÓN!</h1><div style="font-size:44px;color:#ffe27a;letter-spacing:6px">' + '★'.repeat(estr) + '<span style="color:#554">' + '★'.repeat(3 - estr) + '</span></div>' +
+        const url = id => ARTE[id] ? 'assets/nivel2/' + ARTE[id].frames[0].f : '', premio = [S.jefeInfo.id === 'escorpion' ? 'trofeo_escorpion' : 'cofre_abierto', 'bandera_meta'].filter(url);
+        p.innerHTML = '<div style="display:flex;align-items:flex-end;gap:14px">' + premio.map(id => '<img src="' + url(id) + '" alt="" style="height:90px">').join('') + '</div><h1 style="margin:0;color:#ffe27a">¡DERROTASTE ' + S.jefeInfo.art + ' ' + S.jefeInfo.n + '!</h1><div style="font-size:44px;color:#ffe27a;letter-spacing:6px">' + '★'.repeat(estr) + '<span style="color:#554">' + '★'.repeat(3 - estr) + '</span></div>' +
           '<div>Aciertos ' + S.aci + ' · Errores ' + S.err + ' · Puntos ' + S.punt + ' · Récord ' + Math.max(S.punt, (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.mejor) || 0) + (S.caidas ? ' · Caídas ' + S.caidas : '') + '</div>' +
           '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button id="r2">↻ REPETIR</button><button id="s2">VOLVER AL MENÚ</button></div>';
         p.querySelectorAll('button').forEach(b => b.style.cssText = 'font:inherit;font-weight:bold;padding:12px 18px;border:0;border-radius:8px;background:#ffc93c;cursor:pointer');
@@ -639,14 +755,14 @@
 
     function bucle(ts) {
       const dt = Math.min(.033, ((ts - (ult || ts)) / 1000) || 0); ult = ts;
-      if (S.est === 'play' && !S.pausa) actualizar(dt); else if (S.est !== 'play') fxUpdate(dt);
+      if (S.est === 'play' && !S.pausa) { actualizar(dt * (S.lento > 0 ? .6 : 1)); S.lento = Math.max(0, S.lento - dt); } else if (S.est !== 'play') fxUpdate(dt);
       ombit.style.display = S.fase === 'tut' && S.est === 'play' ? 'block' : 'none';
       dibujar(); raf = requestAnimationFrame(bucle);
     }
     // modo: 'tut' (por defecto la primera vez), 'ruta' (sin tutorial) o 'continuar' (desde el último checkpoint)
     const hechoTut = leer(KTUT) || (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.tutorial);
     if (o.debug || /[?&]debug/.test(location.search)) window.__n2 = () => S;
-    nuevo(o.modo || (hechoTut ? 'ruta' : 'tut')); raf = requestAnimationFrame(bucle);
+    nuevo(o.modo || (hechoTut || o.directo ? 'ruta' : 'tut')); raf = requestAnimationFrame(bucle);
   }
 
   window.Nivel2 = { iniciar, _pregunta: pregunta, guardado: o => leer(clave(o) + '_cp'), tutorialHecho: o => !!(leer(clave(o) + '_tut') || (o && o.perfil && o.perfil.nivel2 && o.perfil.nivel2.tutorial)) };

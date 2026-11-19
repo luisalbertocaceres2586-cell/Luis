@@ -4,24 +4,31 @@
 <meta name="theme-color" content="#090b24"><title>Nivel 2 · Surf de Dunas</title>
 <style>
 html,body{margin:0;height:100%;background:#090b24;color:#fff;font-family:"Trebuchet MS",Verdana,ui-sans-serif,sans-serif}
-#ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px;text-align:center;background:radial-gradient(ellipse at 50% 35%,#3a2a63,#090b24 72%)}
-h1{margin:0;color:#ffe27a;font-size:clamp(24px,5vw,40px);text-shadow:0 0 18px #ee9b56}
-p{max-width:580px;line-height:1.6;color:#d7d4ee;margin:0}
-.reglas{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:640px}
-.reglas span{background:#ffffff14;border:1px solid #ffffff30;border-radius:12px;padding:8px 12px;font-size:14px}
+#ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:16px;text-align:center;background:radial-gradient(ellipse at 50% 35%,#3a2a63,#090b24 72%);overflow:auto}
+h1{margin:0;color:#ffe27a;font-size:clamp(24px,5vw,38px);text-shadow:0 0 18px #ee9b56}
+p{max-width:580px;line-height:1.55;color:#d7d4ee;margin:0;font-size:15px}
+.reglas{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:640px}
+.reglas span{background:#ffffff14;border:1px solid #ffffff30;border-radius:12px;padding:6px 10px;font-size:13px}
+#sel{display:flex;flex-direction:column;gap:6px;align-items:center}.fila{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.op{background:#ffffff14;border:2px solid #ffffff33;color:#fff;border-radius:10px;padding:6px 10px;font-weight:normal;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px}
+.op img{height:44px;max-width:88px;object-fit:contain}.op.on{border-color:#ffe27a;background:#ffe27a30}#sel small{color:#d7d4ee}
 button{font:inherit;font-weight:bold;padding:14px 22px;border-radius:10px;border:1px solid #ffe27a;background:linear-gradient(#ffe27a,#ffad58);color:#281532;cursor:pointer}
+button.op{padding:6px 10px;border:2px solid #ffffff33;background:#ffffff14;color:#fff;font-weight:normal}button.op.on{border-color:#ffe27a;background:#ffe27a30}
 button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 16px;font-size:14px}
-.fila{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 </style></head><body>
 <main id="ini">
 <h1>SURF DE DUNAS</h1>
-<p>Tu alfombra mágica vuela sola y no se detiene. Cambia de carril y cruza la puerta con la <b>respuesta correcta</b> de las tablas del 4, 5 y 6. Al final te espera el Escorpión Colosal.</p>
+<p>Tu vehículo vuela solo y no se detiene. Cambia de carril y cruza la puerta con la <b>respuesta correcta</b> de las tablas del 4, 5 y 6. Al final te espera un jefe del desierto.</p>
 <div class="reglas">
 <span>🦊 Un tutorial corto te enseña todo</span>
 <span>💧 8 gotas = 1 corazón</span>
 <span>🏁 Banderas que guardan tu avance</span>
 </div>
 <p id="teclas">PC: ▲ ▼ (o W S, o las teclas 1 2 3) cambian de carril · ESPACIO salta · P pausa.<br>Celular: desliza ↑ ↓, toca los carteles de la izquierda y el botón SALTAR.</p>
+<div id="sel">
+<small>Elige tu vehículo</small><div class="fila" id="vehs"></div>
+<small id="tt">Elige el diseño de tu tabla</small><div class="fila" id="tabs"></div>
+</div>
 <div class="fila">
 <button id="go" type="button">▶ JUGAR</button>
 <button id="cont" type="button" class="sec" style="display:none">🏁 CONTINUAR DESDE MI BANDERA</button>
@@ -30,18 +37,37 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
 </main>
 <script src="engine/nivel1/perfiles.js?v=8"></script>
 <script src="assets/nivel2/manifest.js?v=1"></script>
-<script src="engine/nivel2/surf.js?v=5"></script>
+<script src="engine/nivel2/surf.js?v=9"></script>
 <script>
 (function(){
+  var A=window.NIVEL2_ARTE||{},U=function(id){return A[id]?'assets/nivel2/'+A[id].frames[0].f:'';};
   var q=new URLSearchParams(location.search),perfil=null;
   try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
-  var base={heroe:(perfil&&perfil.avatar)||q.get('heroe')||'sakura',perfil:perfil||null,onSalir:function(){location.href='index.html';}};
-  function jugar(modo){document.getElementById('ini').remove();var o=Object.assign({},base);if(modo)o.modo=modo;Nivel2.iniciar(o);}
+  var heroe=(perfil&&perfil.avatar)||q.get('heroe')||'sakura'; if(heroe!=='kage')heroe='sakura';
+  var base={heroe:heroe,perfil:perfil||null,jefe:q.get('jefe')||undefined,directo:q.get('directo')||undefined,onSalir:function(){location.href='index.html';}};
+  /* vehículo y diseño de tabla (se recuerdan en este equipo) */
+  var cfg={};try{cfg=JSON.parse(localStorage.getItem('n2cfg')||'{}')||{};}catch(e){}
+  cfg.vehiculo=q.get('vehiculo')||cfg.vehiculo||'alfombra'; cfg.tabla=q.get('tabla')||cfg.tabla||'tabla_clasica';
+  var VEH=[['alfombra','Alfombra',U('alfombra_'+heroe+'_planeo')],['vagoneta','Vagoneta',U('vagoneta_'+heroe+'_rueda')],['tabla','Tabla','']];
+  var TABS=['tabla_clasica','tabla_cactus','tabla_cristal','tabla_dragon','tabla_faraon','tabla_neon'];
+  function guardar(){try{localStorage.setItem('n2cfg',JSON.stringify(cfg));}catch(e){}}
+  function boton(img,txt,on,fn){var b=document.createElement('button');b.type='button';b.className='op'+(on?' on':'');b.innerHTML=(img?'<img src="'+img+'" alt="">':'')+'<span>'+txt+'</span>';b.onclick=fn;return b;}
+  function pintar(){
+    var v=document.getElementById('vehs'),t=document.getElementById('tabs');v.innerHTML='';t.innerHTML='';
+    VEH.forEach(function(x){v.appendChild(boton(x[0]==='tabla'?U(cfg.tabla):x[2],x[1],cfg.vehiculo===x[0],function(){cfg.vehiculo=x[0];guardar();pintar();}));});
+    var esT=cfg.vehiculo==='tabla';document.getElementById('tt').style.display=esT?'':'none';t.style.display=esT?'':'none';
+    TABS.forEach(function(id){t.appendChild(boton(U(id),id.replace('tabla_',''),cfg.tabla===id,function(){cfg.tabla=id;guardar();pintar();}));});
+  }
+  pintar();
+  function jugar(modo){
+    document.getElementById('ini').remove();
+    var o=Object.assign({},base,{vehiculo:cfg.vehiculo,tabla:cfg.tabla});if(modo)o.modo=modo;Nivel2.iniciar(o);
+  }
   var cp=Nivel2.guardado(base);
-  if(cp&&cp.ronda>0){var c=document.getElementById('cont');c.style.display='';c.textContent='🏁 CONTINUAR · pregunta '+(cp.jefe?'del jefe':cp.ronda+' de 8');c.onclick=function(){jugar('continuar');};}
-  if(Nivel2.tutorialHecho(base)){var s=document.getElementById('go');s.textContent='▶ JUGAR';var t=document.createElement('button');t.type='button';t.className='sec';t.textContent='Repetir tutorial';t.onclick=function(){jugar('tut');};document.querySelector('.fila').appendChild(t);}
+  if(cp&&cp.ronda>0){var c=document.getElementById('cont');c.style.display='';c.textContent='🏁 CONTINUAR · '+(cp.jefe?'jefe':'pregunta '+cp.ronda+' de 8');c.onclick=function(){jugar('continuar');};}
+  if(Nivel2.tutorialHecho(base)){var t=document.createElement('button');t.type='button';t.className='sec';t.textContent='Repetir tutorial';t.onclick=function(){jugar('tut');};document.querySelectorAll('.fila')[2].appendChild(t);}
   else{var k=document.getElementById('sk');k.style.display='';k.onclick=function(){jugar('ruta');};}
   document.getElementById('go').addEventListener('click',function(){jugar(null);});
-  if(q.get('auto'))jugar(q.get('auto'));   // para pruebas: ?auto=tut | ruta | continuar
+  if(q.get('auto'))jugar(q.get('auto'));   // pruebas: ?auto=tut | ruta | continuar
 })();
 </script></body></html>
