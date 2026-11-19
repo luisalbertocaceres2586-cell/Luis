@@ -180,7 +180,7 @@
     }
     if (A.pared.lock > 0) res.skipMove = true;                    // justo tras saltar de la pared se conserva el impulso
     if (A.tiene.doble && !h.suelo && h.coyote <= 0 && h.buffer > 0 && !A.doble.usado && !s.apunta && !A.gancho.on && A.pared.gracia <= 0 && !(h.vy > 0 && distSuelo(s) < 40)) {
-      h.vy = P.saltoDoble; h.buffer = 0; h.cortado = false; A.doble.usado = true; A.doble.usos++;
+      h.vy = P.saltoDoble; h.buffer = 0; h.cortado = false; h.saltoT = 0; A.doble.usado = true; A.doble.usos++;
       for (let i = 0; i < 6; i++) s.part.push({ x: h.x + (i - 2.5) * 10, y: h.y, vx: (i - 2.5) * 60, vy: 40 + Math.random() * 60, t: .35, col: '#cfe8ff', r: 4 });
     }
     if (A.gancho.on) {                                            // --- gancho: balanceo (la cuerda se aplica después de la gravedad)
