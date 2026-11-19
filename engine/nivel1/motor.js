@@ -19,6 +19,20 @@
     shuriken: 'animados/shuriken_espiritual_8', antorchaAnim: 'animados/antorcha_llama_10',
     montanas: '../environment/levels/nivel1/n1_bg_montanas_lejos', nube: '../environment/levels/nivel1/nubes/nube_01'
   };
+  // arte extra (decorado, cueva, terreno, enemigos, objetos, hojas del Oni): se carga en segundo plano, sin alargar la pantalla de carga
+  const IMGS_EXTRA = {
+    cerezo: 'decorado_extra/cerezo_sakura', pino: 'decorado_extra/pino_bonsai', rocasMusgo: 'decorado_extra/rocas_musgo', valla: 'decorado_extra/valla_madera', cartel: 'decorado_extra/cartel_flecha',
+    fuenteBambu: 'decorado_extra/fuente_bambu', farolitos: 'decorado_extra/farolitos_cuerda', helechos: 'decorado_extra/helechos_luciernagas', farolTemplo: 'decorado/farol_templo', pilar: 'decorado/pilar_rojo',
+    jizo: 'decorado/santuario_jizo', bambuRoca: 'decorado/bambu_roca', emblema: 'decorado/estandarte_emblema', portalAzul: 'decorado/portal_azul',
+    hongoG: 'cueva_extra/hongo_gigante', arcoRuinas: 'cueva_extra/arco_ruinas', floresLum: 'cueva_extra/flores_luminosas', paredMin: 'cueva_extra/pared_mineral', estalagmita: 'cueva_extra/estalagmita_columna',
+    altarVela: 'cueva_extra/altar_vela', raices: 'cueva_extra/raices_colgantes', cristTecho: 'cueva_extra/cristales_techo',
+    sueloLajas: 'terreno_extra/suelo_bosque_lajas', sueloOtonal: 'terreno_extra/suelo_otonal', platFlores: 'terreno_extra/plataforma_flores', hojaLoto: 'terreno_extra/hoja_loto', tronco: 'terreno_extra/tronco_caido',
+    hongoPlat: 'terreno_extra/hongo_plataforma', losaRunas: 'terreno_extra/losa_runas', platCristal: 'terreno_extra/plataforma_cristal', alero: 'terreno/alero_tejas',
+    ninjaLancero: 'enemigos_extra/ninja_lancero', ninjaArquero: 'enemigos_extra/ninja_arquero', kappa: 'enemigos_extra/kappa', zorroFuego: 'enemigos_extra/zorro_fuego', samuraiF: 'enemigos_extra/samurai_fantasma',
+    serpCueva: 'enemigos_extra/serpiente_cueva', ranaG: 'enemigos_extra/rana_gigante', escarabajo: 'enemigos_extra/escarabajo_cristal', guardiaPiedra: 'enemigos/guardia_piedra', sombraPers: 'enemigos/sombra_perseguidora',
+    palancaOff: 'objetos_extra/palanca_apagada', palancaOn: 'objetos_extra/palanca_encendida', campana: 'objetos_extra/campana_templo', mercader: 'objetos_extra/mercader_tanuki', sensei: 'objetos_extra/maestro_sensei',
+    corazonJade: 'objetos_extra/corazon_jade', frascoLuz: 'objetos_extra/frasco_luz', oniCaminar: 'jefe/oni_caminar_8', oniAtaque: 'jefe/oni_ataque_6'
+  };
   const SKY = { A: ['#2b2468', '#ff8f6b', '#ffe3a3'], B: ['#3d5a80', '#98c1d9', '#e8f1f2'], C: ['#5c2a6e', '#e86a5c', '#ffd08a'] };
   const BANDERAS = { antorcha: 'una antorcha', armadura: 'la armadura samurái', aliado_mercader: 'la ayuda del mercader', bendicion_zorro: 'la bendición del zorro', llave_dojo: 'la llave del dojo', llave_portal: 'la llave del portal', vista_torre: 'vista desde la torre', pergamino_dragon: 'el pergamino del dragón', ritmo_tejados: 'ritmo de tejados' };
 
@@ -61,6 +75,7 @@
     }
     let n = 0; await Promise.all(lista.map(async ([k, src]) => { img[k] = await cargarImg(src); progreso(++n / lista.length); }));
     if (M.animations) Object.keys(M.animations).forEach(name => M.animations[name].frames.forEach((f, i) => { img['h:' + name + ':' + i] = img[f.file]; }));
+    Object.keys(IMGS_EXTRA).forEach(k => { cargarImg(A + IMGS_EXTRA[k] + '.png').then(im => { img[k] = im; }); });
     return M;
   }
 
@@ -475,7 +490,7 @@
         }
         cx.restore(); return;
       }
-      const tile = s.zona === 'cueva' ? img.sueloCueva : img.suelo; if (!tile) return; const tw = 440, th = tile.height * tw / tile.width, so = superficie(tile) * th;
+      const pr = S.N.cueva && S.N.cueva.x ? s.x0 / S.N.cueva.x : 0, tile = s.zona === 'cueva' ? img.sueloCueva : ((pr > .75 ? img.sueloOtonal : pr > .4 ? img.sueloLajas : null) || img.suelo); if (!tile) return; const tw = 440, th = tile.height * tw / tile.width, so = superficie(tile) * th;
       cx.save(); cx.beginPath(); cx.rect(s.x0 - S.cam, 0, s.x1 - s.x0, H); cx.clip();
       const gr = cx.createLinearGradient(0, G + th - so - 6, 0, H); if (s.zona === 'cueva') { gr.addColorStop(0, '#2a2a3c'); gr.addColorStop(1, '#0c0c18'); } else { gr.addColorStop(0, '#5a321c'); gr.addColorStop(1, '#1c0f08'); }
       cx.fillStyle = gr; cx.fillRect(s.x0 - S.cam, G - so + th - 4, s.x1 - s.x0, H);
@@ -483,17 +498,20 @@
     });
   }
   function decorado(capa) {
-    const D = { bambu: [img.bambuDeco, 130], toro: [img.toro, 110], kitsune: [img.kitsune, 110], estandarte: [img.estandarte, 100], cristal: [img.cristal, 110], hongo: [img.hongo, 100] };
+    const D = { bambu: [img.bambuDeco, 130], toro: [img.toro, 110], kitsune: [img.kitsune, 110], estandarte: [img.estandarte, 100], cristal: [img.cristal, 110], hongo: [img.hongo, 100],
+      cerezo: [img.cerezo, 230], pino: [img.pino, 170], rocasMusgo: [img.rocasMusgo, 120], valla: [img.valla, 150], cartel: [img.cartel, 90], fuenteBambu: [img.fuenteBambu, 120], farolitos: [img.farolitos, 190],
+      helechos: [img.helechos, 120], farolTemplo: [img.farolTemplo, 90], pilar: [img.pilar, 90], jizo: [img.jizo, 100], bambuRoca: [img.bambuRoca, 120], emblema: [img.emblema, 100],
+      hongoG: [img.hongoG, 160], arcoRuinas: [img.arcoRuinas, 210], floresLum: [img.floresLum, 100], paredMin: [img.paredMin, 130], estalagmita: [img.estalagmita, 90], altarVela: [img.altarVela, 90], raices: [img.raices, 140], cristTecho: [img.cristTecho, 140] };
     S.N.deco.forEach(d => {
       if (d.capa !== capa || d.x < S.cam - 160 || d.x > S.cam + W + 160) return; const q = D[d.tipo]; if (!q || !q[0]) return; const im = q[0], w = q[1], hh = im.height * w / im.width;
-      cx.globalAlpha = capa === 'frente' && Math.abs(d.x - S.h.x) < 170 ? .35 : 1; if (d.tipo === 'estandarte') sprite(im, d.x - S.cam - w / 2, G - hh - 60, w, hh); else sprite(im, d.x - S.cam - w / 2, G + 4 - hh, w, hh); cx.globalAlpha = 1;
+      cx.globalAlpha = capa === 'frente' && Math.abs(d.x - S.h.x) < 170 ? .35 : 1; if (d.tipo === 'estandarte' || d.tipo === 'emblema') sprite(im, d.x - S.cam - w / 2, G - hh - 60, w, hh); else if (d.tipo === 'raices' || d.tipo === 'cristTecho' || d.tipo === 'farolitos') sprite(im, d.x - S.cam - w / 2, 0, w, hh); else sprite(im, d.x - S.cam - w / 2, G + 4 - hh, w, hh); cx.globalAlpha = 1;
     });
-    if (capa === 'atras') { S.ckp.forEach(c => porAncho(c.activo ? img.toriiOn : img.toriiOff, c.x - S.cam, G + 6, 230)); porAncho(img.toriiOn, S.N.meta.x - S.cam, G + 6, 300); porAncho(img.boca, S.N.cueva.x + 250 - S.cam, G + 10, 520); }
+    if (capa === 'atras') { S.ckp.forEach((c, k) => { porAncho(c.activo ? img.toriiOn : img.toriiOff, c.x - S.cam, G + 6, 230); porAncho(img.campana, c.x - S.cam + 120, G + 4, 64); if (c.zona !== 'cueva' && k === 0) porAncho(img.sensei, c.x - S.cam - 140, G + 4, 100); if (c.zona !== 'cueva' && k === 2) porAncho(img.mercader, c.x - S.cam - 140, G + 4, 100); }); porAncho(img.toriiOn, S.N.meta.x - S.cam, G + 6, 300); porAncho(img.portalAzul, S.N.meta.x - S.cam, G + 6, 190); porAncho(img.boca, S.N.cueva.x + 250 - S.cam, G + 10, 520); }
   }
   function plataformas() {
     S.N.plat.forEach(p => {
       if (p.X + p.w < S.cam - 120 || p.X > S.cam + W + 120) return; const top = platY(p); if (p.estado === 'caida' && top > H + 100) return;
-      const im = { puente: img.puente, bambu: img.bambu, roca: img.roca, viga: img.viga, piedra: img.piedra, piedra_num: img.piedra }[p.tipo]; if (!im) return;
+      const vr = { bambu: [img.bambu, img.platFlores, img.hojaLoto, img.tronco], roca: [img.roca, img.hongoPlat, img.platCristal, img.losaRunas], viga: [img.viga, img.alero] }[p.tipo], im = (vr && vr[Math.abs(Math.floor((p.x || 0) / 7)) % vr.length]) || img[{ puente: 'puente', bambu: 'bambu', roca: 'roca', viga: 'viga', piedra: 'piedra', piedra_num: 'piedra' }[p.tipo]]; if (!im) return;
       const w = p.tipo === 'piedra_num' ? p.w + 30 : p.w, hh = im.height * w / im.width, so = superficie(im) * hh; let dx = p.X - S.cam - (w - p.w) / 2; if (p.estado === 'cruje') dx += Math.sin(S.t * 70) * 3;
       sprite(im, dx, top - so, w, hh); if (p.tipo === 'piedra_num' && p.valor !== null && p.valor !== undefined) etiqueta(String(p.valor), p.X + p.w / 2 - S.cam, top - 14, 26, p.fija ? '#fff' : '#ffe27a');
     });
@@ -624,7 +642,7 @@
     const L = [], h = S.h, fl = 1 + Math.sin(S.t * 13) * .04 + Math.sin(S.t * 31) * .03;
     L.push({ x: h.x, y: h.y - 70, r: S.luz * fl });
     S.ckp.forEach(c => { if (c.zona === 'cueva' && Math.abs(c.x - h.x) < 900) L.push({ x: c.x, y: G - 100, r: c.activo ? 230 : 90 }); });
-    S.N.deco.forEach(d => { if (d.zona === 'cueva' && (d.tipo === 'cristal' || d.tipo === 'hongo') && Math.abs(d.x - h.x) < 800) L.push({ x: d.x, y: G - 50, r: d.tipo === 'cristal' ? 95 : 80 }); });
+    S.N.deco.forEach(d => { if (d.zona === 'cueva' && (d.tipo === 'cristal' || d.tipo === 'hongo') && Math.abs(d.x - h.x) < 800) L.push({ x: d.x, y: G - 50, r: d.tipo === 'cristal' ? 95 : 80 }); else if (d.zona === 'cueva' && Math.abs(d.x - h.x) < 800 && ({ floresLum: 85, hongoG: 110, altarVela: 110, cristTecho: 95 })[d.tipo]) L.push({ x: d.x, y: d.tipo === 'cristTecho' ? 120 : G - 60, r: ({ floresLum: 85, hongoG: 110, altarVela: 110, cristTecho: 95 })[d.tipo] }); });
     lucesAcertijos(L);
     N1elem.luces(L); if (window.N1dir) N1dir.luces(L); S.shur.forEach(s => L.push({ x: s.x, y: s.y, r: 55 })); return L;
   }
@@ -643,7 +661,7 @@
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
     if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
-    S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = i.tipo === 'onigiri' ? img.onigiri : img.pergamino, w = i.tipo === 'onigiri' ? 46 : 52; if (im) sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); });
+    S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const alt = Math.abs(Math.floor(i.x / 11)) % 2 === 0, cue = S.N.cueva && i.x > S.N.cueva.x, im = i.tipo === 'onigiri' ? ((alt && (cue ? img.frascoLuz : img.corazonJade)) || img.onigiri) : img.pergamino, w = i.tipo === 'onigiri' ? 46 : 52; if (im) sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.shur.forEach(s => { const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
     if (!S.nivel2) decorado('frente'); if (window.N1dir && !S.nivel2) N1dir.mundo();

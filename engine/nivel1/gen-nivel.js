@@ -27,7 +27,7 @@
     const enem = (o) => { N.enem.push(Object.assign({ y: G, vivo: true, hp: 1 }, o)); };
     const elem = (o) => { o.zona = zona; N.elem.push(o); return o; };
     const decorar = (x0, x1) => {
-      const tipos = zona === 'bosque' ? ['bambu', 'bambu', 'bambu', 'toro', 'kitsune', 'estandarte'] : ['cristal', 'cristal', 'hongo', 'hongo', 'toro'];
+      const tipos = zona === 'bosque' ? ['bambu', 'bambu', 'bambu', 'toro', 'kitsune', 'estandarte', 'cerezo', 'pino', 'rocasMusgo', 'valla', 'cartel', 'fuenteBambu', 'farolitos', 'helechos', 'farolTemplo', 'pilar', 'jizo', 'bambuRoca', 'emblema'] : ['cristal', 'cristal', 'hongo', 'hongo', 'toro', 'hongoG', 'arcoRuinas', 'floresLum', 'paredMin', 'estalagmita', 'altarVela', 'raices', 'cristTecho'];
       const n = Math.floor((x1 - x0) / 240);
       for (let i = 0; i < n; i++) N.deco.push({ x: x0 + 100 + i * 240 + rng.int(-50, 50), tipo: rng.pick(tipos), capa: rng.chance(zona === 'bosque' ? .25 : .1) ? 'frente' : 'atras', zona });
     };

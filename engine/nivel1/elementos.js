@@ -192,19 +192,24 @@
     }
     const g = c.createLinearGradient(x, 0, x + m.w, 0); g.addColorStop(0, '#6f6a80'); g.addColorStop(1, '#4a455c'); c.fillStyle = g; c.fillRect(x, m.y, m.w, m.h); c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 2; for (let y = m.y; y < m.y + m.h; y += 50) { c.beginPath(); c.moveTo(x, y); c.lineTo(x + m.w, y); c.stroke(); } c.strokeRect(x, m.y, m.w, m.h);
   };
+  // variante visual estable (no usa el azar del generador, así los niveles por semilla no cambian)
+  function piel(e, lista, base) { const k = Math.abs(Math.floor((e.min !== undefined ? e.min : e.base || 0) / 13)) % lista.length; return lista[k] || base; }
   function dibujarEnemigo(e) {
     const s = S(), c = cx(); if (!e.vivo || e.x < s.cam - 200 || e.x > s.cam + W + 200) return; const x = e.x - s.cam;
     switch (e.kind) {
-      case 'ninja': { const b = Math.abs(Math.sin(s.t * 8 + e.x)) * 4; core.porAncho(img.ninja, x, e.y - b, 96, e.dir < 0); break; }
-      case 'ninjaAtk': { const im = e.fase === 'carga' ? img.ninjaAtk : img.ninja; if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.4)'; c.beginPath(); c.arc(x, e.y - 90, 18 + Math.sin(s.t * 40) * 4, 0, 7); c.fill(); } core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 130 : 96, e.dir < 0); break; }
+      case 'ninja': { const b = Math.abs(Math.sin(s.t * 8 + e.x)) * 4; core.porAncho(piel(e, [img.ninja, img.ninjaLancero, img.ninjaArquero, img.kappa, img.ranaG, img.zorroFuego], img.ninja), x, e.y - b, 96, e.dir < 0); break; }
+      case 'ninjaAtk': { const sk = piel(e, [null, img.samuraiF, img.guardiaPiedra], null), im = sk || (e.fase === 'carga' ? img.ninjaAtk : img.ninja); if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.4)'; c.beginPath(); c.arc(x, e.y - 90, 18 + Math.sin(s.t * 40) * 4, 0, 7); c.fill(); } core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 130 : 96, e.dir < 0); break; }
       case 'tengu': core.porAncho(img.tengu, x, e.y + 20, 120, e.dir < 0); break;
       case 'murcielago': { const f = 1 + Math.sin(s.t * 18 + e.x) * .12; c.save(); c.translate(x, e.y); c.scale(1, f); core.porAncho(img.murcielago, 0, 24, 110, false); c.restore(); break; }
-      case 'arana': core.porAncho(img.arana, x, e.y + 8, 84, e.dir < 0); break;
+      case 'arana': core.porAncho(piel(e, [img.arana, img.serpCueva, img.escarabajo], img.arana), x, e.y + 8, 84, e.dir < 0); break;
       case 'aranaTecho': { c.strokeStyle = 'rgba(220,220,240,.7)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, 0); c.lineTo(x, e.y - 30); c.stroke(); core.porAncho(img.arana, x, e.y + 34, 88, false); break; }
-      case 'fuego': { c.save(); c.globalAlpha = .92; core.porAncho(img.fuego, x, e.y + 40 + Math.sin(s.t * 4 + e.x) * 5, 84, e.dir < 0); c.restore(); break; }
+      case 'fuego': { c.save(); c.globalAlpha = .92; core.porAncho((e.sigue && piel(e, [null, img.sombraPers], null)) || img.fuego, x, e.y + 40 + Math.sin(s.t * 4 + e.x) * 5, 84, e.dir < 0); c.restore(); break; }
       case 'oni': {
         const ex = e.estado === 'aviso' ? Math.sin(s.t * 60) * 4 : 0; if (e.estado === 'aviso') { c.fillStyle = 'rgba(255,40,40,.28)'; c.fillRect(0, 0, W, H); }
-        if (e.inv > 0 && Math.floor(s.t * 20) % 2) break; core.porAncho(img.oni, x + ex, e.y, 200, e.dir < 0); break;
+        if (e.inv > 0 && Math.floor(s.t * 20) % 2) break;
+        { const atq = e.estado === 'aviso' || e.estado === 'carga', sh = atq ? img.oniAtaque : img.oniCaminar, n = atq ? 6 : 8;
+          if (sh) { const fw = sh.width / n, w = 230, hh = sh.height * w / fw, fr = Math.floor(s.t * (atq ? 9 : 7)) % n; c.save(); c.translate(x + ex, e.y); if (e.dir < 0) c.scale(-1, 1); c.drawImage(sh, fr * fw, 0, fw, sh.height, -w / 2, -hh, w, hh); c.restore(); }
+          else core.porAncho(img.oni, x + ex, e.y, 200, e.dir < 0); } break;
       }
     }
   }
@@ -212,7 +217,7 @@
     const s = S(), c = cx(); const x = (t.x !== undefined ? t.x : 0) - s.cam;
     switch (t.t) {
       case 'carreta': if (capa === 'enemigos' && x > -300 && x < W + 300) { const im = img.carreta; if (im) { const w = 190, hh = im.height * w / im.width; sprite(im, x - w / 2, t.y - hh + 6, w, hh); } } break;
-      case 'palanca': if (capa === 'atras' && x > -100 && x < W + 100) { c.fillStyle = '#5a4a3a'; c.fillRect(x - 24, t.y - 18, 48, 18); c.save(); c.translate(x, t.y - 16); c.rotate(t.on ? .8 : -.8); c.fillStyle = '#8b5a2b'; c.fillRect(-4, -54, 8, 54); c.fillStyle = t.on ? '#6f6' : '#f44'; c.beginPath(); c.arc(0, -56, 11, 0, 7); c.fill(); c.restore(); } break;
+      case 'palanca': if (capa === 'atras' && x > -100 && x < W + 100) { const pl = t.on ? img.palancaOn : img.palancaOff; if (pl) { core.porAncho(pl, x, t.y + 2, 96); break; } c.fillStyle = '#5a4a3a'; c.fillRect(x - 24, t.y - 18, 48, 18); c.save(); c.translate(x, t.y - 16); c.rotate(t.on ? .8 : -.8); c.fillStyle = '#8b5a2b'; c.fillRect(-4, -54, 8, 54); c.fillStyle = t.on ? '#6f6' : '#f44'; c.beginPath(); c.arc(0, -56, 11, 0, 7); c.fill(); c.restore(); } break;
       case 'roca': if (capa === 'enemigos' && t.activa) { const im = img.rocaG; if (im) { c.save(); c.translate(x, G - t.r); c.rotate(t.x / t.r); c.drawImage(im, -t.r, -t.r, t.r * 2, t.r * 2); c.restore(); } } break;
       case 'kunaiR': if (capa === 'atras' && t.x - s.cam > -200 && t.x - s.cam < W + 200) { const k = img.kunai; c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(x, G - 4, t.w, 8); if (k && t.ext > 0) { c.save(); c.beginPath(); c.rect(x - 10, G - 60, t.w + 20, 60 + 2); c.clip(); const hh = k.height * (t.w + 30) / k.width; sprite(k, x - 15, G + 10 - hh + (1 - t.ext) * 56, t.w + 30, hh); c.restore(); } else { c.fillStyle = 'rgba(255,90,60,.6)'; for (let i = 0; i < 4; i++) c.fillRect(x + 14 + i * 34, G - 3, 8, 4); } } break;
       case 'sierra': if (capa === 'enemigos' && x > -100 && x < W + 100) { c.strokeStyle = 'rgba(90,70,60,.85)'; c.lineWidth = 6; c.beginPath(); c.moveTo(x, t.y0 - 70); c.lineTo(x, t.y1 + 60); c.stroke(); const im = img.shuriken; if (im) { const fw = im.width / 8; c.save(); c.translate(x, t.cy); c.rotate(t.a); c.drawImage(im, 4 * fw, 0, fw, im.height, -62, -62, 124, 124 * im.height / fw); c.restore(); } } break;
