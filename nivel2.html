@@ -24,7 +24,7 @@ button{font:inherit;font-weight:bold;padding:14px 22px;border-radius:8px;border:
 </main>
 <script src="engine/nivel1/perfiles.js?v=8"></script>
 <script src="assets/nivel2/manifest.js?v=1"></script>
-<script src="engine/nivel2/surf.js?v=5"></script>
+<script src="engine/nivel2/surf.js?v=8"></script>
 <script>
 (function(){
   var A=window.NIVEL2_ARTE||{},U=function(id){return A[id]?'assets/nivel2/'+A[id].frames[0].f:'';};
@@ -48,6 +48,6 @@ document.getElementById('go').addEventListener('click',function(){
   var q=new URLSearchParams(location.search),perfil=null;
   try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
   document.getElementById('ini').remove();
-  Nivel2.iniciar({vehiculo:window.__n2cfg.vehiculo,tabla:window.__n2cfg.tabla,jefe:q.get('jefe')||undefined,heroe:(perfil&&perfil.avatar)||q.get('heroe')||'sakura',perfil:perfil||null,onSalir:function(){location.href='index.html';}});
+  Nivel2.iniciar({vehiculo:window.__n2cfg.vehiculo,tabla:window.__n2cfg.tabla,jefe:q.get('jefe')||undefined,directo:q.get('directo')||undefined,heroe:(perfil&&perfil.avatar)||q.get('heroe')||'sakura',perfil:perfil||null,onSalir:function(){location.href='index.html';}});
 });
 </script></body></html>

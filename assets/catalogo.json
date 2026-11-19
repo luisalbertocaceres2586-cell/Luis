@@ -2926,7 +2926,7 @@
    179
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 5
  },
  {
@@ -2944,7 +2944,7 @@
    216
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 5
  },
  {
@@ -2962,7 +2962,7 @@
    220
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 5
  },
  {
@@ -2980,7 +2980,7 @@
    239
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 5
  },
  {
@@ -2998,7 +2998,7 @@
    213
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/companero/zorro_run_*.png",
@@ -3016,7 +3016,7 @@
    192
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 3
  },
  {
@@ -3035,7 +3035,7 @@
    237
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/companero/zorro_celebra.png",
@@ -3053,7 +3053,7 @@
    233
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/vehiculos/alfombra_sakura_planeo_*.png",
@@ -3072,7 +3072,7 @@
    219
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 2
  },
  {
@@ -3091,7 +3091,7 @@
    222
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/vehiculos/alfombra_sakura_baja.png",
@@ -3109,7 +3109,7 @@
    220
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/vehiculos/alfombra_kage_planeo_*.png",
@@ -3128,7 +3128,7 @@
    213
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 2
  },
  {
@@ -3147,7 +3147,7 @@
    214
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/vehiculos/alfombra_kage_baja.png",
@@ -3165,7 +3165,7 @@
    210
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/vehiculos/vagoneta_sakura_rueda_*.png",
@@ -3184,7 +3184,7 @@
    222
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 2
  },
  {
@@ -3203,7 +3203,7 @@
    245
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/vehiculos/vagoneta_kage_rueda_*.png",
@@ -3222,7 +3222,7 @@
    258
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar",
+  "usado_en": "engine/nivel2/surf.js",
   "cuadros": 2
  },
  {
@@ -3241,7 +3241,7 @@
    207
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/poderes/poder_escarabajo.png",
@@ -3259,7 +3259,7 @@
    243
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/poderes/poder_reloj.png",
@@ -3277,7 +3277,7 @@
    251
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/poderes/poder_iman.png",
@@ -3295,7 +3295,7 @@
    250
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/poderes/poder_comodin.png",
@@ -3313,7 +3313,7 @@
    251
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/objetos/gota_agua.png",
@@ -3365,7 +3365,7 @@
    218
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/objetos/cofre_entreabierto.png",
@@ -3382,7 +3382,7 @@
    233
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/objetos/cofre_abierto.png",
@@ -3399,7 +3399,7 @@
    262
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/objetos/trofeo_escorpion.png",
@@ -3417,7 +3417,7 @@
    280
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_clasica.png",
@@ -3434,7 +3434,7 @@
    218
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_faraon.png",
@@ -3451,7 +3451,7 @@
    213
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_neon.png",
@@ -3468,7 +3468,7 @@
    211
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_dragon.png",
@@ -3485,7 +3485,7 @@
    208
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_cristal.png",
@@ -3502,7 +3502,7 @@
    201
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/tablas/tabla_cactus.png",
@@ -3519,7 +3519,7 @@
    207
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/compuertas/compuerta_neutral.png",
@@ -3603,7 +3603,7 @@
    206
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/isla_desierto.png",
@@ -3621,7 +3621,7 @@
    218
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/isla_hielo.png",
@@ -3639,7 +3639,7 @@
    168
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/isla_lava.png",
@@ -3657,7 +3657,7 @@
    165
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/isla_cristal.png",
@@ -3675,7 +3675,7 @@
    221
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/puente_colgante.png",
@@ -3692,7 +3692,7 @@
    161
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/puente_piedra.png",
@@ -3709,7 +3709,7 @@
    168
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/escalera_madera.png",
@@ -3742,7 +3742,7 @@
    205
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/vagoneta_oro.png",
@@ -3759,7 +3759,7 @@
    202
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/cristales_azules.png",
@@ -3776,7 +3776,7 @@
    260
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/bandera_checkpoint.png",
@@ -3793,7 +3793,7 @@
    253
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/portal_piedra.png",
@@ -3809,7 +3809,7 @@
    246
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/teletransporte.png",
@@ -3826,7 +3826,7 @@
    256
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/trampolin.png",
@@ -3843,7 +3843,7 @@
    230
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/cinta_transportadora.png",
@@ -3859,7 +3859,7 @@
    170
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/pinchos.png",
@@ -3876,7 +3876,7 @@
    194
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/sierra.png",
@@ -3893,7 +3893,7 @@
    220
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/canon.png",
@@ -3910,7 +3910,7 @@
    209
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/bandera_meta.png",
@@ -3927,7 +3927,7 @@
    241
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/pergamino.png",
@@ -3944,7 +3944,7 @@
    297
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/cofre_oscuro_cerrado.png",
@@ -3961,7 +3961,7 @@
    236
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/cofre_oscuro_abierto.png",
@@ -3978,7 +3978,7 @@
    307
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/onigiri.png",
@@ -3995,7 +3995,7 @@
    237
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/tambor_taiko.png",
@@ -4012,7 +4012,7 @@
    335
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/piedra_agrietada.png",
@@ -4029,7 +4029,7 @@
    308
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/dragon_origami.png",
@@ -4046,7 +4046,7 @@
    327
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/oni_garrote_guardia.png",
@@ -4063,7 +4063,7 @@
    406
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/oni_garrote_ataque.png",
@@ -4080,7 +4080,7 @@
    424
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  },
  {
   "ruta": "assets/nivel2/extras/bola_fuego.png",
@@ -4097,6 +4097,6 @@
    260
   ],
   "origen": "Generado con ChatGPT a partir de prompts del proyecto (2026)",
-  "usado_en": "pendiente de integrar"
+  "usado_en": "engine/nivel2/surf.js"
  }
 ]

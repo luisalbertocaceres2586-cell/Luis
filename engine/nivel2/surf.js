@@ -102,7 +102,13 @@
       spr(id, S.t * 9, b.bx, b.by + 40, 84, b.est !== 'huida');
     }
 
+    // ?jefe=gusano&directo=1 → modo práctica: empieza directamente peleando contra ese jefe
     function nuevo() {
+      nuevoBase();
+      ['idle', 'aviso', 'ataque', 'golpe', 'derrota'].forEach(po => img('jefe_' + S.jefeInfo.id + '_' + po, 0));   // precarga: sin parpadeos al atacar
+      if (o.directo) { S.respondidas = 8; S.fase = 'jefe'; S.jefe = { hp: 5, max: 5, gap: 300, atq: null, cd: 2.5 }; S.msg = { t: 3, s: '¡' + S.jefeInfo.n + '! Acierta 5 compuertas' }; }
+    }
+    function nuevoBase() {
       S = { est: 'play', t: 0, d: 0, v: 300, lane: 1, ly: 1, z: 0, vz: 0, vidas: 3, punt: 0, racha: 0, aci: 0, err: 0, inv: 0, boost: 0, flash: 0, shake: 0,
         obs: [], gates: [], gotas: [], gen: 900, fallos: Object.assign({}, fallosPrev), fase: 'ruta', respondidas: 0, buitre: null, proxB: 22, jefe: null, msg: { t: 3, s: 'SURF DE DUNAS · ¡cruza la compuerta correcta!' }, part: [], inputs: {},
         pows: [], cofres: [], pads: [], flags: [], decor: [], balas: [], nGen: 0, escudo: 0, lento: 0, iman: 0, comodin: 0, celebra: 0, zly: 1, zz: 0, dragon: null, proxD: 24, jefeInfo: jefeActual() };
@@ -209,10 +215,12 @@
       S.obs.forEach(ob => { if (ob.tipo === 'can' && !ob.fired && ob.x - S.d > 0 && ob.x - S.d < 650) { ob.fired = true; S.balas.push({ x: ob.x - 30, l: ob.l, hit: false }); beep(110, .25, 'sawtooth'); } });
       S.balas.forEach(b => { b.x -= 380 * dt; if (!b.hit && b.l === lh && Math.abs(b.x - S.d) < 26 && S.z < 44) { b.hit = true; daño('¡Bola de fuego!'); } });
       if (S.jefe) {
-        const j = S.jefe; j.cd -= dt;
-        if (!j.atq && j.cd <= 0) { j.atq = { l: RI(0, 2), t: 0 }; }
-        if (j.atq) { j.atq.t += dt; if (j.atq.t > .9 && !j.atq.golpe) { j.atq.golpe = true; if (clamp(Math.round(S.ly), 0, 2) === j.atq.l && S.z < 50) daño(S.jefeInfo.aguijon); S.shake = .3; }
-          if (j.atq.t > 1.2) { j.atq = null; j.cd = R(1.6, 2.6); } }
+        const j = S.jefe, tipo = S.jefeInfo.id; j.cd -= dt;
+        // cada jefe ataca distinto: escorpión/gusano 1 carril (se salta) · esfinge 1 carril (NO se salta) · faraón 2 carriles (queda 1 libre)
+        if (!j.atq && j.cd <= 0) { let lanes = [RI(0, 2)]; if (tipo === 'faraon') { const libre = RI(0, 2); lanes = [0, 1, 2].filter(x => x !== libre); } j.atq = { lanes, l: lanes[0], t: 0 }; beep(240, .2, 'triangle'); }
+        if (j.atq) { const A = j.atq; A.t += dt;
+          if (A.t > .9 && !A.golpe) { A.golpe = true; S.shake = .3; const lh = clamp(Math.round(S.ly), 0, 2); if (A.lanes.includes(lh) && (tipo === 'esfinge' || S.z < 50)) daño(S.jefeInfo.aguijon); }
+          if (A.t > 1.25) { j.atq = null; j.cd = R(1.5, 2.5); } }
       }
       if (S.est === 'play' && Math.random() < dt * 20) S.part.push({ x: S.d - 20, l: S.ly, z: S.z, vx: -R(60, 160), vz: R(30, 120), t: .5 });
       S.part.forEach(p => { p.t -= dt; p.x += p.vx * dt; p.z += p.vz * dt; }); S.part = S.part.filter(p => p.t > 0);
@@ -244,7 +252,7 @@
 
     function dibujarLane(l, cam) {
       const sx = x => x - cam, sy = (x, z) => laneY(x, l) - (z || 0);
-      if ((S.jefe && S.jefe.atq && S.jefe.atq.l === l) || (S.buitre && (S.buitre.est === 'aviso' || S.buitre.est === 'picada') && S.buitre.lane === l)) { cx.fillStyle = 'rgba(255,40,40,' + (.25 + .2 * Math.sin(S.t * 30)) + ')'; cx.fillRect(X_H - 50, sy(S.d, 0) - 24, 120, 40); }
+      if ((S.jefe && S.jefe.atq && S.jefe.atq.lanes.includes(l)) || (S.buitre && (S.buitre.est === 'aviso' || S.buitre.est === 'picada') && S.buitre.lane === l)) { cx.fillStyle = 'rgba(255,40,40,' + (.25 + .2 * Math.sin(S.t * 30)) + ')'; cx.fillRect(X_H - 50, sy(S.d, 0) - 24, 120, 40); }
       S.gates.forEach(g => { const x = sx(g.x); if (x < -80 || x > W + 80) return; const y = sy(g.x, 0), alto = 100, mia = g.res && g.lane === l;
         const id = !g.res ? 'compuerta_neutral' : (mia ? (g.ok ? 'compuerta_correcta' : 'compuerta_incorrecta') : 'compuerta_usada');
         if (spr(id, 0, x, y + 4, alto, false, g.tach === l && !g.res ? .3 : null)) return;
@@ -299,14 +307,24 @@
     }
 
     function jefeDib(cam) {
-      const j = S.jefe; if (!j) return; const info = S.jefeInfo, bx = X_H - 100 - (j.gap - 150) * .55, by = laneY(S.d - j.gap, 1) + 30;
-      const est = S.est === 'gano' ? 'derrota' : j.golpe > 0 ? 'golpe' : j.atq ? (j.atq.t > .5 ? 'ataque' : 'aviso') : 'idle';
-      if (spr('jefe_' + info.id + '_' + est, 0, bx, by + Math.sin(S.t * 3) * 3, 210, !!info.espejo)) return;
-      cx.save(); cx.translate(bx, by); const s = 2.6; cx.scale(s, s); cx.fillStyle = '#9c2f3b'; cx.beginPath(); cx.ellipse(0, -20, 46, 24, 0, 0, 7); cx.fill();
-      cx.strokeStyle = '#9c2f3b'; cx.lineWidth = 9; const atq = j.atq && j.atq.t > .5; cx.beginPath(); cx.moveTo(-30, -30); cx.quadraticCurveTo(-60, -90, atq ? 30 : -10, atq ? -20 : -86); cx.stroke();
-      cx.fillStyle = '#ffd35a'; cx.beginPath(); cx.arc(atq ? 34 : -6, atq ? -18 : -88, 8, 0, 7); cx.fill();
-      cx.strokeStyle = '#7a2230'; cx.lineWidth = 6; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(20, -14 + i * 6); cx.lineTo(54, 6 + Math.sin(S.t * 10 + i) * 4); cx.stroke(); }
-      cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(38, -30, 5, 0, 7); cx.fill(); cx.fillStyle = '#000'; cx.beginPath(); cx.arc(39, -30, 2.4, 0, 7); cx.fill(); cx.restore();
+      const j = S.jefe; if (!j) return;
+      const info = S.jefeInfo, tipo = info.id, A = j.atq, gano = S.est === 'gano', wx = sxp => S.d - X_H + sxp, golpeando = A && A.t > .9 && A.t < 1.2;
+      const pose = gano ? 'derrota' : j.golpe > 0 ? 'golpe' : A ? (A.t < .9 ? 'aviso' : 'ataque') : 'idle', id = 'jefe_' + tipo + '_' + pose;
+      const yAtq = l => laneY(S.d, l) - 38; let ok = false, bx = W - 130, by = 380;
+      if (tipo === 'escorpion') {            // persigue desde atrás; su aguijón dorado cruza al carril atacado
+        bx = X_H - 100 - (j.gap - 150) * .55; by = laneY(wx(bx), 1) + 30 + Math.sin(S.t * 3) * 3; ok = spr(id, 0, bx, by, 210);
+        if (golpeando) { cx.strokeStyle = '#ffd35a'; cx.lineWidth = 9; cx.lineCap = 'round'; A.lanes.forEach(l => { cx.beginPath(); cx.moveTo(bx + 60, by - 150); cx.quadraticCurveTo(bx + 160, by - 200, X_H + 40, yAtq(l)); cx.stroke(); }); }
+      } else if (tipo === 'gusano') {        // emerge de la arena justo delante, en el carril marcado
+        if (A && !gano) { const l = A.lanes[0]; bx = X_H + 130; by = laneY(S.d + 130, l) + 12; ok = spr(id, 0, bx, by, A.t < .9 ? 120 : 170, true); }
+        else { bx = W - 140; by = laneY(wx(bx), 1) + 22; ok = spr(id, 0, bx, by, 210, true); }
+      } else {                               // esfinge y faraón: al fondo a la derecha, mirando al héroe
+        bx = W - 130; by = laneY(wx(bx), 1) + 26 + (tipo === 'faraon' ? Math.sin(S.t * 3) * 6 : 0); ok = spr(id, 0, bx, by, 210, true);
+        if (golpeando) A.lanes.forEach(l => {
+          if (tipo === 'esfinge') { const g = cx.createLinearGradient(bx - 60, 0, 0, 0); g.addColorStop(0, 'rgba(111,214,255,.95)'); g.addColorStop(1, 'rgba(111,214,255,.15)'); cx.fillStyle = g; cx.fillRect(0, yAtq(l) - 14, bx - 60, 28); }
+          else { cx.strokeStyle = '#e8dcc0'; cx.lineWidth = 12; cx.lineCap = 'round'; cx.beginPath(); for (let x = bx - 60; x > 0; x -= 14) { const y = yAtq(l) + Math.sin(x / 22 + S.t * 30) * 10; x === bx - 60 ? cx.moveTo(x, y) : cx.lineTo(x, y); } cx.stroke(); }
+        });
+      }
+      if (!ok && !ARTE['jefe_' + tipo + '_idle']) { cx.fillStyle = '#9c2f3b'; cx.beginPath(); cx.ellipse(bx, by - 60, 60, 50, 0, 0, 7); cx.fill(); }   // solo si falta el arte
     }
 
     function hud() {
