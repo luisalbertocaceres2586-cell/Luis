@@ -190,24 +190,29 @@
         addObs(x, l, tipo, tipo === 'roca' ? RI(0, 2) : RI(0, 1)); arcoGotas(x, l);
         x += RI(300, 380);
       }
-      if (!jefe) generarExtras(x0);
+      if (!jefe) generarExtras(x0, largo);
       // ≥ 600 px antes de la puerta sin obstáculos ni poderes: tiempo para pensar y elegir
       nuevaPuerta(x0 + largo, pregunta(S.fallos), S.errSeg >= CONFIG.PISTA_TRAS_ERRORES);
       if (CONFIG.CHECKS.includes(r + 1)) S.flags.push({ x: x0 + largo + 300, n: r + 1, tomada: false });
       S.gen = x0 + largo + 520;
     }
     // poderes, curación, cofres, plataformas y decorado: SOLO en la primera parte de cada ronda (nunca en la zona de respuesta)
-    function generarExtras(x0) {
-      const PODERES = ['poder_escarabajo', 'poder_reloj', 'poder_iman', 'poder_comodin'], X = () => x0 + RI(450, 1100);
-      if (Math.random() < .6) S.pows.push({ x: X(), l: RI(0, 2), tipo: pick(PODERES) });
-      if (S.vidas < CONFIG.VIDAS && Math.random() < .55) S.pows.push({ x: X(), l: RI(0, 2), tipo: 'onigiri' });
-      if (Math.random() < .35) S.pows.push({ x: X(), l: RI(0, 2), tipo: 'pergamino' });
-      if (Math.random() < .3) S.cofres.push({ x: X(), l: RI(0, 2), oscuro: S.racha >= 4, est: 0, t: 0 });
-      if (Math.random() < .5) {
-        const tra = Math.random() < .55, x = x0 + RI(450, 700), l = RI(0, 2); S.pads.push({ x, l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
-        if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(x + dx, l, y));
+    // Solo en el tramo libre: nunca dentro de la zona de respuesta (CONFIG.ZONA px antes de la puerta), para no romper el ritmo calmado.
+    function generarExtras(x0, largo) {
+      const a = x0 + 160, b = x0 + largo - CONFIG.ZONA - 120;
+      const libre = (x, l) => !S.obs.some(ob => ob.l === l && Math.abs(ob.x - x) < 150) && !S.drops.some(g => g.l === l && !g.ok && Math.abs(g.x - x) < 60);
+      const lugar = tope => { for (let k = 0; k < 8; k++) { const x = RI(a, Math.max(a, tope || b)), l = RI(0, 2); if (libre(x, l)) return { x, l }; } return null; };
+      const PODERES = ['poder_escarabajo', 'poder_reloj', 'poder_iman', 'poder_comodin'];
+      let p;
+      if (Math.random() < .5 && (p = lugar())) S.pows.push({ x: p.x, l: p.l, tipo: pick(PODERES) });
+      if (S.vidas < CONFIG.VIDAS && Math.random() < .5 && (p = lugar())) S.pows.push({ x: p.x, l: p.l, tipo: 'onigiri' });
+      if (Math.random() < .3 && (p = lugar())) S.pows.push({ x: p.x, l: p.l, tipo: 'pergamino' });
+      if (Math.random() < .3 && (p = lugar())) S.cofres.push({ x: p.x, l: p.l, oscuro: S.racha >= 4, est: 0, t: 0 });
+      if (Math.random() < .4 && (p = lugar(b - 420))) {     // el trampolín lleva un arco de gotas de 400 px
+        const tra = Math.random() < .55; S.pads.push({ x: p.x, l: p.l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
+        if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(p.x + dx, p.l, y));
       }
-      for (let i = 0; i < 3; i++) S.decor.push({ x: x0 + RI(0, 1700), id: pick(['cristales_azules', 'vagoneta_oro', 'tambor_taiko', 'piedra_agrietada']), alto: RI(54, 86) });
+      for (let k = 0; k < 3; k++) S.decor.push({ x: x0 + RI(0, largo), id: pick(['cristales_azules', 'vagoneta_oro', 'tambor_taiko', 'piedra_agrietada']), alto: RI(54, 86) });
     }
     function recoger(p) {
       p.ok = true; beep(900, .08, 'sine'); const px = X_H, py = laneY(S.d, S.lane) - 150;
