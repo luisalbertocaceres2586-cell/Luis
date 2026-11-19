@@ -1,0 +1,30 @@
+/* FX 2026 de la selección de ninjas y del logo (sprites de assets/intro-2026). Todo relativo a --hh, así se adapta a PC, tableta y celular. */
+#m26 .m26-ring{display:none}
+#m26 .m26-hero .fx{position:absolute;left:50%;display:block;max-width:none;pointer-events:none;user-select:none;-webkit-user-drag:none;transform-origin:50% 60%}
+#m26 .m26-hero .fx-plat{z-index:1;bottom:calc(clamp(40px,7vh,64px) - var(--hh)*.085);height:calc(var(--hh)*.62);width:auto;translate:-50% 0;opacity:.0;scale:.6;transition:opacity .5s,scale .6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 18px var(--a))}
+#m26 .m26-hero.on .fx-plat{opacity:.95;scale:1;animation:ninjaPlat 3.2s ease-in-out infinite}
+@keyframes ninjaPlat{50%{filter:drop-shadow(0 0 30px var(--a)) brightness(1.15)}}
+#m26 .m26-hero .fx-aura{z-index:1;bottom:calc(clamp(40px,7vh,64px) + var(--hh)*.02);height:calc(var(--hh)*.98);width:auto;translate:-50% 0;opacity:0;scale:.7;transition:opacity .5s,scale .6s cubic-bezier(.2,.8,.2,1);mix-blend-mode:screen}
+#m26 .m26-hero.on .fx-aura{opacity:.8;scale:1}
+#m26 .m26-hero[data-hero="mario"].on .fx-aura{animation:ninjaSpin 14s linear infinite}
+#m26 .m26-hero[data-hero="peach"].on .fx-aura{animation:ninjaPulse 3.6s ease-in-out infinite;mix-blend-mode:normal}
+@keyframes ninjaSpin{to{rotate:360deg}}
+@keyframes ninjaPulse{50%{scale:1.07;opacity:.95}}
+#m26 .m26-hero .fx-extra{z-index:1;bottom:calc(clamp(40px,7vh,64px) + var(--hh)*.05);height:calc(var(--hh)*.8);width:auto;translate:-50% 0;opacity:0;transition:opacity .6s}
+#m26 .m26-hero.on .fx-extra{opacity:.55}
+#m26 .m26-hero[data-hero="mario"] .fx-extra{animation:ninjaSpin 22s linear infinite reverse}
+#m26 .m26-hero[data-hero="peach"] .fx-extra{bottom:calc(clamp(40px,7vh,64px) - var(--hh)*.04);height:calc(var(--hh)*.5);animation:ninjaSmoke 5s ease-in-out infinite}
+@keyframes ninjaSmoke{50%{translate:-50% -6px;opacity:.35}}
+#m26 .m26-hero .fx-burst{z-index:4;bottom:calc(clamp(40px,7vh,64px) + var(--hh)*.2);height:calc(var(--hh)*.8);width:auto;translate:-50% 0;opacity:0;mix-blend-mode:screen}
+#m26 .m26-hero .fx-burst.go{animation:ninjaBurst .75s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes ninjaBurst{0%{opacity:1;scale:.25}60%{opacity:.9}100%{opacity:0;scale:1.35}}
+/* logo: destellos y divisor ornamental */
+#m26 .m26-top{position:relative}
+#m26 .m26-spark{position:absolute;left:50%;top:0;width:min(64vw,380px);translate:-50% -4%;opacity:.45;mix-blend-mode:screen;pointer-events:none;animation:ninjaTwinkle 3.4s ease-in-out infinite}
+@keyframes ninjaTwinkle{0%,100%{opacity:.25}50%{opacity:.75}}
+#m26 .m26-orn{display:block;width:min(28vw,180px);height:auto;margin:-8px auto -12px;opacity:.95;filter:drop-shadow(0 0 10px rgba(255,190,80,.35));pointer-events:none}
+@media(max-height:520px){#m26 .m26-orn,#m26 .m26-spark{display:none}}
+@media(max-width:640px) and (orientation:portrait){#m26 .m26-orn{width:46vw;margin:-4px auto -8px}#m26 .m26-hero .fx-extra{opacity:.4}}
+@media(prefers-reduced-motion:reduce){#m26 .m26-hero .fx,#m26 .m26-spark{animation:none!important}}
+/* PC con poca altura (portátiles 720p): ninjas un poco más pequeños para que el dock inferior quede completo */
+@media(min-width:641px) and (min-height:521px) and (max-height:780px){#m26{--hh:clamp(150px,37vh,420px)}}
