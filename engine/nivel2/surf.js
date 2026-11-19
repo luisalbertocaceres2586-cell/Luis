@@ -105,6 +105,7 @@
     const estrellas = Array.from({ length: 70 }, () => ({ x: R(0, W), y: R(0, 230), r: R(.4, 1.6), f: R(0, 6) }));
     const viento = Array.from({ length: 22 }, () => ({ x: R(0, W), y: R(250, H), l: R(30, 90), s: R(.6, 1.4) }));
     let S, raf = 0, ult = 0, ac = null;
+    window.Nivel2._estado = () => S;   // solo lectura, para pruebas (igual que Nivel1._estado)
 
     const beep = (f, d, tipo, vol) => { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); const os = ac.createOscillator(), g = ac.createGain(); os.type = tipo || 'square'; os.frequency.value = f; g.gain.value = vol || .05; os.connect(g); g.connect(ac.destination); os.start(); g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + d); os.stop(ac.currentTime + d); } catch (e) {} };
     const sonidoOk = () => { beep(660, .12, 'square'); setTimeout(() => beep(880, .16, 'square'), 90); setTimeout(() => beep(1175, .2, 'triangle'), 190); };
@@ -368,7 +369,8 @@
       if (S.fase === 'tut') tutorial(dt); else { generar(); buitreYJefe(dt); }
       // carril, salto y velocidad
       S.ly += (S.lane - S.ly) * Math.min(1, dt * 11); S.fly += (S.ly - S.fly) * Math.min(1, dt * 5);
-      if (S.inputs.salto && S.z === 0) { S.vz = VSALTO; beep(420, .08, 'triangle'); } S.inputs.salto = false;
+      if (S.inputs.salto) S.saltoBuf = .12; else if (S.saltoBuf > 0) S.saltoBuf -= dt;   // buffer: el toque justo antes de aterrizar no se pierde
+      if (S.saltoBuf > 0 && S.z === 0) { S.vz = VSALTO; S.saltoBuf = 0; beep(420, .08, 'triangle'); } S.inputs.salto = false;
       S.vz -= GR * dt; S.z = Math.max(0, S.z + S.vz * dt); if (S.z === 0 && S.vz < 0) S.vz = 0; S.fz += (S.z - S.fz) * Math.min(1, dt * 7);
       S.v += (velObjetivo() - S.v) * Math.min(1, dt * 2.5); S.d += S.v * dt;
       const lh = clamp(Math.round(S.ly), 0, 2);
@@ -748,8 +750,8 @@
     const vis = () => { if (document.hidden && S && S.est === 'play') S.pausa = true; };
     document.addEventListener('visibilitychange', vis);
     if (touch) {
-      [['▲', 'right:14px;bottom:122px;width:64px;height:64px', () => lane(S.lane - 1)], ['▼', 'right:14px;bottom:40px;width:64px;height:64px', () => lane(S.lane + 1)], ['SALTAR', 'right:92px;bottom:40px;width:112px;height:64px', () => { if (S) S.inputs.salto = true; }]].forEach(([t, pos, fn]) => {
-        const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'position:absolute;' + pos + ';border-radius:32px;border:2px solid #ffe27a;background:#ffffff26;color:#fff;font:bold 18px ' + FUENTE + ';touch-action:none';
+      [['▲', 'right:14px;bottom:122px;width:64px;height:64px', () => lane(S.lane - 1)], ['▼', 'right:14px;bottom:40px;width:64px;height:64px', () => lane(S.lane + 1)], ['SALTAR', 'right:92px;bottom:40px;width:128px;height:72px', () => { if (S) S.inputs.salto = true; }]].forEach(([t, pos, fn]) => {
+        const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'position:absolute;' + pos + ';border-radius:32px;border:2px solid #ffe27a;background:#ffffff26;color:#fff;font:bold 18px ' + FUENTE + ';touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none';
         b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); }); root.appendChild(b);
       });
     }
@@ -758,10 +760,17 @@
     const ombit = document.createElement('button'); ombit.textContent = 'OMITIR TUTORIAL ▶▶'; ombit.style.cssText = 'position:absolute;left:50%;transform:translateX(-50%);bottom:10px;border:1px solid #6fd6ff;border-radius:16px;padding:8px 16px;background:#120a2cdd;color:#fff;font:bold 14px ' + FUENTE + ';cursor:pointer;display:none'; ombit.onclick = omitirTutorial; ombit.addEventListener('pointerdown', e => e.stopPropagation()); root.appendChild(ombit);
     let sy0 = 0, sx0 = 0;
     const aDiseno = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
-    cv.addEventListener('pointerdown', e => { sy0 = e.clientY; sx0 = e.clientX; });
+    let gesto = false;   // true cuando este toque ya cambió de carril (para no saltar además al soltar)
+    cv.addEventListener('pointerdown', e => { sy0 = e.clientY; sx0 = e.clientX; gesto = false; });
+    // El cambio de carril se aplica en cuanto el dedo recorre ~26 px (antes esperaba a que lo levantaras); se puede encadenar varios.
+    cv.addEventListener('pointermove', e => {
+      if (!S || S.est !== 'play' || S.pausa || !e.buttons && e.pointerType === 'mouse') return; const dy = e.clientY - sy0, dx = e.clientX - sx0;
+      if (Math.abs(dy) > 26 && Math.abs(dy) > Math.abs(dx)) { lane(S.lane + (dy < 0 ? -1 : 1)); sy0 = e.clientY; sx0 = e.clientX; gesto = true; }
+    });
     cv.addEventListener('pointerup', e => {
       if (!S || S.est !== 'play' || S.pausa) return; const dy = e.clientY - sy0, dx = e.clientX - sx0;
-      if (Math.abs(dy) > 30 && Math.abs(dy) > Math.abs(dx)) { lane(S.lane + (dy < 0 ? -1 : 1)); return; }
+      if (gesto) { gesto = false; return; }
+      if (Math.abs(dy) > 26 && Math.abs(dy) > Math.abs(dx)) { lane(S.lane + (dy < 0 ? -1 : 1)); return; }
       const p = aDiseno(e), chip = S.chips.find(c => p.x >= c.x - 4 && p.x <= c.x + c.w + 24 && p.y >= c.y - 6 && p.y <= c.y + c.h + 6);
       if (chip) lane(chip.l); else S.inputs.salto = true;
     });
