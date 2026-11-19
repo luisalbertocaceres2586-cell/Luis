@@ -1,0 +1,122 @@
+[
+ {
+  "file": "hoja6_katana_kaze_viento_B_f01.png",
+  "cell": [
+   0,
+   0
+  ],
+  "bbox": [
+   19,
+   93,
+   379,
+   461
+  ],
+  "w": 360,
+  "h": 368
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f02.png",
+  "cell": [
+   0,
+   1
+  ],
+  "bbox": [
+   395,
+   113,
+   764,
+   456
+  ],
+  "w": 369,
+  "h": 343
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f03.png",
+  "cell": [
+   0,
+   2
+  ],
+  "bbox": [
+   779,
+   117,
+   1165,
+   458
+  ],
+  "w": 386,
+  "h": 341
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f04.png",
+  "cell": [
+   0,
+   3
+  ],
+  "bbox": [
+   1173,
+   53,
+   1522,
+   457
+  ],
+  "w": 349,
+  "h": 404
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f05.png",
+  "cell": [
+   1,
+   0
+  ],
+  "bbox": [
+   14,
+   561,
+   382,
+   937
+  ],
+  "w": 368,
+  "h": 376
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f06.png",
+  "cell": [
+   1,
+   1
+  ],
+  "bbox": [
+   438,
+   539,
+   778,
+   933
+  ],
+  "w": 340,
+  "h": 394
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f07.png",
+  "cell": [
+   1,
+   2
+  ],
+  "bbox": [
+   790,
+   587,
+   1130,
+   955
+  ],
+  "w": 340,
+  "h": 368
+ },
+ {
+  "file": "hoja6_katana_kaze_viento_B_f08.png",
+  "cell": [
+   1,
+   3
+  ],
+  "bbox": [
+   1160,
+   530,
+   1530,
+   943
+  ],
+  "w": 370,
+  "h": 413
+ }
+]

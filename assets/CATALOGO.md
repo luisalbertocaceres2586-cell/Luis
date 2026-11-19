@@ -25,6 +25,159 @@ Todas las imágenes del juego, organizadas y descritas para encontrarlas y reuti
 - **Todo con fondo transparente** (PNG con alfa). Lo que venía con cuadriculado pintado se limpió; si no se pudo, se explica en la columna "Nota".
 - Cada carpeta de `hud/` tiene su propio `LEEME.md` con lo esencial.
 
+
+
+
+
+
+
+
+
+
+
+
+<!-- NIVEL2:INICIO -->
+## 🏜️ Nivel 2 — Surf de Dunas (`nivel2/`)
+
+Arte del Nivel 2, recortado por `tools/recortar_nivel2.py` desde las hojas guardadas en `_originales/nivel2/`. Se carga con `nivel2/manifest.js` (`window.NIVEL2_ARTE`). Ancla: centro-abajo. Fondo transparente. Para volver a generar todo: `python3 tools/recortar_nivel2.py`.
+
+### Obstáculos
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/obstaculos/cactus_saguaro.png` | **Cactus saguaro.** Cactus verde alto de dos brazos con espinas crema, sobre un montículo de arena. | Obstáculo alto (hay que saltarlo o cambiar de carril). | 183×260 |
+| `nivel2/obstaculos/cactus_barril.png` | **Cactus barril con flor.** Cactus redondo y bajo con una flor rosada en la cima. | Obstáculo bajo, variante visual del cactus. | 202×209 |
+| `nivel2/obstaculos/roca_grande.png` | **Roca grande.** Roca violeta de caras planas con arena y pasto seco en la base. | Obstáculo medio-alto del carril. | 279×199 |
+| `nivel2/obstaculos/rocas_pequenas.png` | **Rocas pequeñas.** Grupo de tres piedras violetas con pasto seco. | Obstáculo bajo. | 244×131 |
+| `nivel2/obstaculos/rueda_carreta.png` | **Rueda de carreta rota.** Rueda de madera con aro de hierro, medio enterrada en la arena. | Obstáculo decorativo/medio; ambientación de caravana. | 280×198 |
+
+### Enemigos
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/enemigos/escorpion_walk_*.png` ×4 | **Escorpión rojo (caminar).** Escorpión rojo carmesí con cola en alto y pinzas abiertas; ciclo de 4 cuadros. | Enemigo pequeño del carril (se salta). | 232×202 |
+| `nivel2/enemigos/escorpion_golpe.png` | **Escorpión golpeando.** Pose de picadura con marca de impacto amarilla. | Reacción cuando choca con el héroe o aviso de ataque. | 221×210 |
+| `nivel2/enemigos/serpiente_slither_*.png` ×4 | **Serpiente (deslizarse).** Serpiente verde lima con rombos y lengua roja; ciclo de 4 cuadros en forma de S. | Enemigo que cambia de carril. | 277×106 |
+| `nivel2/enemigos/serpiente_alerta.png` | **Serpiente enroscada.** Serpiente en espiral con la cabeza erguida y lengua afuera. | Pose de aviso antes de cambiar de carril. | 227×203 |
+| `nivel2/enemigos/buitre_vuelo_*.png` ×3 | **Buitre ladrón (vuelo).** Buitre de plumas moradas oscuras, cuello rosado y pico dorado; 3 cuadros de aleteo. | Evento del buitre ladrón que sobrevuela. | 280×241 |
+| `nivel2/enemigos/buitre_picada.png` | **Buitre en picada.** Buitre con alas atrás y garras al frente, lanzándose hacia abajo. | Ataque en picada sobre un carril. | 254×190 |
+| `nivel2/enemigos/buitre_huida.png` | **Buitre huyendo con la bolsa.** Buitre con una bolsita dorada con gema azul entre las garras. | Final del evento: se escapa con lo robado. | 250×256 |
+
+### Jefes
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/jefes/jefe_escorpion_*.png` ×5 | **Escorpión Colosal.** Escorpión gigante carmesí con aguijón dorado; poses: idle, aviso (brillo rojo), ataque (cola clavada), golpe (mareado) y derrota (bandera blanca). | Jefe perseguidor del final del recorrido. | 301×179 |
+| `nivel2/jefes/jefe_gusano_*.png` ×5 | **Gusano de arena gigante.** Gusano violeta con vientre arena y boca circular con dientes redondeados; poses: idle, aviso (asomando), ataque, golpe y derrota (inflado y mareado). | Jefe que emerge por un carril. | 305×216 |
+| `nivel2/jefes/jefe_esfinge_*.png` ×5 | **Esfinge guardiana.** Esfinge de arenisca con tocado dorado y azul y ojos cian; poses: idle, aviso (runas flotando), ataque (rayo con anillos), golpe (grietas) y derrota (pila de rocas). | Jefe de adivinanzas con rayo por el carril. | 348×220 |
+| `nivel2/jefes/jefe_faraon_*.png` ×5 | **Faraón momia.** Momia con máscara dorada y azul, ojos cian, cayado y mayal; poses: idle, aviso (vendas flotando), ataque (látigo de venda), golpe y derrota (montón de vendas). | Jefe que lanza vendas por el carril. | 353×239 |
+
+### Compañero
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/companero/zorro_idle.png` | **Zorro fénec (reposo).** Zorro fénec naranja de orejas enormes con pañuelo cian, sentado. | Compañero del héroe; pantalla de inicio. | 218×213 |
+| `nivel2/companero/zorro_run_*.png` ×3 | **Zorro fénec (correr).** Ciclo de carrera de 3 cuadros hacia la derecha. | Compañero que corre junto al héroe. | 263×192 |
+| `nivel2/companero/zorro_alerta.png` | **Zorro fénec alerta.** Erguido sobre las patas traseras con signo de exclamación dorado. | Aviso de peligro cercano. | 234×237 |
+| `nivel2/companero/zorro_celebra.png` | **Zorro fénec celebrando.** Salta con los brazos arriba y ojos cerrados de alegría. | Reacción a un acierto o a la victoria. | 259×233 |
+
+### Vehículos
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/vehiculos/alfombra_sakura_planeo_*.png` ×2 | **Sakura en alfombra (planeo).** Sakura agachada sobre una alfombra mágica violeta con flecos dorados; 2 cuadros. | Zona de cielo (alfombra voladora). | 289×219 |
+| `nivel2/vehiculos/alfombra_sakura_sube.png` | **Sakura en alfombra (subiendo).** Alfombra inclinada hacia arriba. | Subir de carril en la zona de cielo. | 274×222 |
+| `nivel2/vehiculos/alfombra_sakura_baja.png` | **Sakura en alfombra (bajando).** Alfombra inclinada hacia abajo. | Bajar de carril en la zona de cielo. | 278×220 |
+| `nivel2/vehiculos/alfombra_kage_planeo_*.png` ×2 | **Kage en alfombra (planeo).** Kage sobre una alfombra azul con flecos dorados; 2 cuadros. | Zona de cielo (alfombra voladora). | 276×213 |
+| `nivel2/vehiculos/alfombra_kage_sube.png` | **Kage en alfombra (subiendo).** Alfombra azul inclinada hacia arriba. | Subir de carril en la zona de cielo. | 267×214 |
+| `nivel2/vehiculos/alfombra_kage_baja.png` | **Kage en alfombra (bajando).** Alfombra azul inclinada hacia abajo. | Bajar de carril en la zona de cielo. | 271×210 |
+| `nivel2/vehiculos/vagoneta_sakura_rueda_*.png` ×2 | **Sakura en vagoneta (rodar).** Vagoneta minera de madera con chispas en las ruedas; 2 cuadros. | Zona del cañón minero. | 238×222 |
+| `nivel2/vehiculos/vagoneta_sakura_salto.png` | **Sakura en vagoneta (salto).** Vagoneta en el aire con Sakura agarrada. | Salto en la zona del cañón minero. | 235×245 |
+| `nivel2/vehiculos/vagoneta_kage_rueda_*.png` ×2 | **Kage en vagoneta (rodar).** Vagoneta minera con Kage y chispas; 2 cuadros. | Zona del cañón minero. | 238×258 |
+| `nivel2/vehiculos/vagoneta_kage_salto.png` | **Kage en vagoneta (salto).** Vagoneta en el aire con Kage. | Salto en la zona del cañón minero. | 235×207 |
+
+### Poderes
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/poderes/poder_escarabajo.png` | **Escarabajo escudo.** Escarabajo egipcio dorado con alas abiertas y gema cian. | Poder: absorbe un golpe. | 305×243 |
+| `nivel2/poderes/poder_reloj.png` | **Reloj de arena.** Reloj de arena con marco dorado y arena cayendo. | Poder: ralentiza el tiempo. | 181×251 |
+| `nivel2/poderes/poder_iman.png` | **Imán de gotas.** Imán de herradura rojo con tres gotas cian atraídas. | Poder: atrae las gotas de agua. | 231×250 |
+| `nivel2/poderes/poder_comodin.png` | **Comodín 50/50.** Medallón dorado partido en dos mitades, sin números. | Poder: elimina una respuesta incorrecta. | 254×251 |
+
+### Objetos
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/objetos/gota_agua.png` | **Gota de agua.** Gota cian brillante con contorno oscuro. | Coleccionable (impulso y puntos). | 169×245 |
+| `nivel2/objetos/corazon_desierto.png` | **Corazón del desierto.** Corazón rojo facetado con gema dorada al centro. | Vidas en el HUD o recompensa de vida. | 272×231 |
+| `nivel2/objetos/cofre_cerrado.png` | **Cofre cerrado.** Cofre de madera con bandas doradas y gema cian. | Premio misterioso. | 270×218 |
+| `nivel2/objetos/cofre_entreabierto.png` | **Cofre entreabierto.** Cofre con la tapa a medias y una moneda saltando. | Animación de apertura. | 248×233 |
+| `nivel2/objetos/cofre_abierto.png` | **Cofre abierto.** Cofre con monedas, gemas y una estrella dorada. | Pantalla de recompensa. | 272×262 |
+| `nivel2/objetos/trofeo_escorpion.png` | **Trofeo del escorpión.** Copa dorada con asas en forma de pinzas de escorpión y gema cian. | Premio por vencer al jefe. | 289×280 |
+
+### Tablas de surf
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/tablas/tabla_clasica.png` | **Tabla clásica.** Tabla de madera con vetas y correa de cuero. | Skin inicial del héroe. | 294×218 |
+| `nivel2/tablas/tabla_faraon.png` | **Tabla del faraón.** Tabla dorada con ojo egipcio y franjas azules. | Skin desbloqueable. | 289×213 |
+| `nivel2/tablas/tabla_neon.png` | **Tabla azul neón.** Tabla azul con líneas cian brillantes. | Skin desbloqueable. | 286×211 |
+| `nivel2/tablas/tabla_dragon.png` | **Tabla dragón rojo.** Tabla roja con un dragón dorado. | Skin desbloqueable. | 288×208 |
+| `nivel2/tablas/tabla_cristal.png` | **Tabla de cristal.** Tabla translúcida de hielo con facetas. | Skin desbloqueable. | 280×201 |
+| `nivel2/tablas/tabla_cactus.png` | **Tabla cactus.** Tabla verde con espinas y una flor rosada. | Skin desbloqueable. | 285×207 |
+
+### Compuertas
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/compuertas/compuerta_neutral.png` | **Compuerta neutral.** Arco de piedra con bordes dorados y panel crema vacío (el número se escribe por código). | Compuerta de respuesta aún sin cruzar. | 271×286 |
+| `nivel2/compuertas/compuerta_correcta.png` | **Compuerta correcta.** Arco con panel verde y marca de visto. | Resultado de acierto. | 270×286 |
+| `nivel2/compuertas/compuerta_incorrecta.png` | **Compuerta incorrecta.** Arco con panel rojo y cruz. | Resultado de error. | 270×286 |
+| `nivel2/compuertas/compuerta_usada.png` | **Compuerta usada.** Arco apagado en gris violeta. | Compuertas no elegidas ya resueltas. | 269×286 |
+
+### Extras generales
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/extras/isla_hierba.png` | **Isla flotante de pasto.** Isla de tierra con pasto y piedritas. | Plataforma flotante. | 269×206 |
+| `nivel2/extras/isla_desierto.png` | **Isla flotante de desierto.** Isla de arena con un cactus. | Plataforma flotante de tema desierto. | 265×218 |
+| `nivel2/extras/isla_hielo.png` | **Isla flotante de hielo.** Isla de hielo con carámbanos. | Plataforma flotante de tema hielo. | 268×168 |
+| `nivel2/extras/isla_lava.png` | **Isla flotante de lava.** Isla de roca oscura con grietas de lava. | Plataforma flotante de tema lava. | 267×165 |
+| `nivel2/extras/isla_cristal.png` | **Isla flotante de cristal.** Isla morada con cristales violetas. | Plataforma flotante de tema cristal. | 266×221 |
+| `nivel2/extras/puente_colgante.png` | **Puente colgante.** Puente de tablas y cuerdas. | Pasarela. | 288×161 |
+| `nivel2/extras/puente_piedra.png` | **Puente de piedra.** Arco de piedra con musgo. | Pasarela. | 303×168 |
+| `nivel2/extras/escalera_madera.png` | **Escalera de madera.** Escalera vertical con clavos metálicos. | Trepar. | 140×230 |
+| `nivel2/extras/enredadera.png` | **Enredadera.** Rama con hojas verdes colgante. | Agarre o decoración. | 282×205 |
+| `nivel2/extras/vagoneta_oro.png` | **Vagoneta con oro.** Vagoneta minera llena de pepitas doradas. | Decoración del cañón o premio. | 229×202 |
+| `nivel2/extras/cristales_azules.png` | **Cristales azules.** Racimo de cristales cian con rocas y hojas. | Decoración. | 218×260 |
+| `nivel2/extras/bandera_checkpoint.png` | **Bandera de punto de control.** Bandera roja con aro dorado en el suelo. | Checkpoint. | 268×253 |
+| `nivel2/extras/portal_piedra.png` | **Portal de piedra.** Arco de piedra con un vórtice azul y cristales. | Cambio de zona. | 276×246 |
+| `nivel2/extras/teletransporte.png` | **Teletransportador.** Plataforma con columna de luz azul y anillos. | Cambio de zona. | 253×256 |
+| `nivel2/extras/trampolin.png` | **Trampolín.** Resorte con plataforma amarilla y negra y flecha arriba. | Rampa que impulsa el salto. | 201×230 |
+| `nivel2/extras/cinta_transportadora.png` | **Cinta transportadora.** Cinta con flechas amarillas. | Empuja al héroe. | 288×170 |
+| `nivel2/extras/pinchos.png` | **Pinchos.** Cuatro pinchos metálicos sobre una base de madera. | Obstáculo bajo. | 281×194 |
+| `nivel2/extras/sierra.png` | **Sierra circular.** Sierra con centro rojo sobre base metálica. | Obstáculo peligroso. | 261×220 |
+| `nivel2/extras/canon.png` | **Cañón.** Cañón negro con mecha encendida. | Dispara proyectiles. | 271×209 |
+| `nivel2/extras/bandera_meta.png` | **Bandera de meta.** Bandera de cuadros blanca y negra. | Final del recorrido. | 242×241 |
+
+### Extras ninja
+
+| Imagen | Qué es | Uso | Tamaño |
+|---|---|---|---|
+| `nivel2/extras/pergamino.png` | **Pergamino.** Pergamino con cuerda y borla rojas. | Objeto coleccionable. | 255×297 |
+| `nivel2/extras/cofre_oscuro_cerrado.png` | **Cofre oscuro cerrado.** Cofre de madera oscura con remaches dorados y gema roja. | Premio. | 265×236 |
+| `nivel2/extras/cofre_oscuro_abierto.png` | **Cofre oscuro abierto.** Cofre con monedas y gemas. | Premio abierto. | 251×307 |
+| `nivel2/extras/onigiri.png` | **Onigiri sonriente.** Triángulo de arroz con alga y carita feliz. | Recuperar energía. | 262×237 |
+| `nivel2/extras/tambor_taiko.png` | **Tambor taiko.** Tambor rojo con cuerdas doradas y baquetas. | Decoración o ritmo. | 268×335 |
+| `nivel2/extras/piedra_agrietada.png` | **Piedra agrietada.** Bloque de piedra con grietas y musgo. | Obstáculo rompible. | 276×308 |
+| `nivel2/extras/dragon_origami.png` | **Dragón de origami.** Dragón rojo y dorado estilo papel plegado. | Enemigo o decoración. | 305×327 |
+| `nivel2/extras/oni_garrote_guardia.png` | **Oni con garrote (guardia).** Ogro azul con cuernos dorados y garrote con púas, en guardia. | Enemigo fuerte. | 276×406 |
+| `nivel2/extras/oni_garrote_ataque.png` | **Oni con garrote (ataque).** El mismo oni alzando el garrote para golpear. | Pose de ataque del oni. | 297×424 |
+| `nivel2/extras/bola_fuego.png` | **Bola de fuego.** Remolino de fuego naranja y amarillo. | Proyectil o efecto. | 244×260 |
+
+<!-- NIVEL2:FIN -->
+
 ## Cómo agregar algo nuevo
 
 1. Pon el PNG en la carpeta que corresponda (o crea una nueva con nombre claro).

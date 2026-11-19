@@ -1,0 +1,602 @@
+[
+ {
+  "file": "hoja11_efectos_A_croma_e01.png",
+  "bbox": [
+   20,
+   43,
+   78,
+   113
+  ],
+  "w": 58,
+  "h": 70,
+  "area": 298
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e02.png",
+  "bbox": [
+   24,
+   17,
+   334,
+   267
+  ],
+  "w": 310,
+  "h": 250,
+  "area": 31176
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e03.png",
+  "bbox": [
+   37,
+   142,
+   65,
+   198
+  ],
+  "w": 28,
+  "h": 56,
+  "area": 268
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e04.png",
+  "bbox": [
+   302,
+   16,
+   591,
+   277
+  ],
+  "w": 289,
+  "h": 261,
+  "area": 30182
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e05.png",
+  "bbox": [
+   589,
+   17,
+   861,
+   276
+  ],
+  "w": 272,
+  "h": 259,
+  "area": 14871
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e06.png",
+  "bbox": [
+   656,
+   93,
+   706,
+   126
+  ],
+  "w": 50,
+  "h": 33,
+  "area": 99
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e07.png",
+  "bbox": [
+   834,
+   16,
+   1161,
+   278
+  ],
+  "w": 327,
+  "h": 262,
+  "area": 32810
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e08.png",
+  "bbox": [
+   914,
+   105,
+   953,
+   143
+  ],
+  "w": 39,
+  "h": 38,
+  "area": 216
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e09.png",
+  "bbox": [
+   1164,
+   12,
+   1325,
+   288
+  ],
+  "w": 161,
+  "h": 276,
+  "area": 17671
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e10.png",
+  "bbox": [
+   1327,
+   12,
+   1525,
+   294
+  ],
+  "w": 198,
+  "h": 282,
+  "area": 21096
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e11.png",
+  "bbox": [
+   609,
+   292,
+   877,
+   451
+  ],
+  "w": 268,
+  "h": 159,
+  "area": 9181
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e12.png",
+  "bbox": [
+   893,
+   291,
+   1139,
+   454
+  ],
+  "w": 246,
+  "h": 163,
+  "area": 17828
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e13.png",
+  "bbox": [
+   1149,
+   302,
+   1525,
+   385
+  ],
+  "w": 376,
+  "h": 83,
+  "area": 12264
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e14.png",
+  "bbox": [
+   15,
+   291,
+   296,
+   667
+  ],
+  "w": 281,
+  "h": 376,
+  "area": 34139
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e15.png",
+  "bbox": [
+   298,
+   288,
+   581,
+   638
+  ],
+  "w": 283,
+  "h": 350,
+  "area": 34144
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e16.png",
+  "bbox": [
+   549,
+   458,
+   768,
+   637
+  ],
+  "w": 219,
+  "h": 179,
+  "area": 4782
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e17.png",
+  "bbox": [
+   776,
+   442,
+   1011,
+   638
+  ],
+  "w": 235,
+  "h": 196,
+  "area": 16037
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e18.png",
+  "bbox": [
+   1016,
+   393,
+   1525,
+   642
+  ],
+  "w": 509,
+  "h": 249,
+  "area": 22824
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e19.png",
+  "bbox": [
+   1329,
+   465,
+   1524,
+   576
+  ],
+  "w": 195,
+  "h": 111,
+  "area": 1337
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e20.png",
+  "bbox": [
+   13,
+   636,
+   318,
+   806
+  ],
+  "w": 305,
+  "h": 170,
+  "area": 19316
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e21.png",
+  "bbox": [
+   323,
+   633,
+   843,
+   806
+  ],
+  "w": 520,
+  "h": 173,
+  "area": 27014
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e22.png",
+  "bbox": [
+   478,
+   645,
+   504,
+   686
+  ],
+  "w": 26,
+  "h": 41,
+  "area": 147
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e23.png",
+  "bbox": [
+   568,
+   699,
+   591,
+   732
+  ],
+  "w": 23,
+  "h": 33,
+  "area": 150
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e24.png",
+  "bbox": [
+   836,
+   624,
+   1127,
+   808
+  ],
+  "w": 291,
+  "h": 184,
+  "area": 20291
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e25.png",
+  "bbox": [
+   1120,
+   541,
+   1525,
+   821
+  ],
+  "w": 405,
+  "h": 280,
+  "area": 21941
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e26.png",
+  "bbox": [
+   1356,
+   641,
+   1516,
+   803
+  ],
+  "w": 160,
+  "h": 162,
+  "area": 7092
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e27.png",
+  "bbox": [
+   17,
+   821,
+   308,
+   980
+  ],
+  "w": 291,
+  "h": 159,
+  "area": 23592
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e28.png",
+  "bbox": [
+   293,
+   837,
+   457,
+   977
+  ],
+  "w": 164,
+  "h": 140,
+  "area": 7518
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e29.png",
+  "bbox": [
+   440,
+   849,
+   616,
+   978
+  ],
+  "w": 176,
+  "h": 129,
+  "area": 7534
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e30.png",
+  "bbox": [
+   610,
+   847,
+   637,
+   876
+  ],
+  "w": 27,
+  "h": 29,
+  "area": 169
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e31.png",
+  "bbox": [
+   640,
+   900,
+   689,
+   952
+  ],
+  "w": 49,
+  "h": 52,
+  "area": 1015
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e32.png",
+  "bbox": [
+   644,
+   871,
+   668,
+   895
+  ],
+  "w": 24,
+  "h": 24,
+  "area": 86
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e33.png",
+  "bbox": [
+   656,
+   822,
+   682,
+   854
+  ],
+  "w": 26,
+  "h": 32,
+  "area": 186
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e34.png",
+  "bbox": [
+   674,
+   958,
+   705,
+   982
+  ],
+  "w": 31,
+  "h": 24,
+  "area": 169
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e35.png",
+  "bbox": [
+   677,
+   841,
+   712,
+   884
+  ],
+  "w": 35,
+  "h": 43,
+  "area": 159
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e36.png",
+  "bbox": [
+   697,
+   909,
+   718,
+   930
+  ],
+  "w": 21,
+  "h": 21,
+  "area": 60
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e37.png",
+  "bbox": [
+   709,
+   933,
+   789,
+   985
+  ],
+  "w": 80,
+  "h": 52,
+  "area": 485
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e38.png",
+  "bbox": [
+   717,
+   861,
+   771,
+   923
+  ],
+  "w": 54,
+  "h": 62,
+  "area": 1417
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e39.png",
+  "bbox": [
+   731,
+   822,
+   755,
+   851
+  ],
+  "w": 24,
+  "h": 29,
+  "area": 142
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e40.png",
+  "bbox": [
+   770,
+   858,
+   792,
+   884
+  ],
+  "w": 22,
+  "h": 26,
+  "area": 100
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e41.png",
+  "bbox": [
+   788,
+   925,
+   829,
+   968
+  ],
+  "w": 41,
+  "h": 43,
+  "area": 562
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e42.png",
+  "bbox": [
+   802,
+   884,
+   834,
+   921
+  ],
+  "w": 32,
+  "h": 37,
+  "area": 308
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e43.png",
+  "bbox": [
+   840,
+   850,
+   862,
+   877
+  ],
+  "w": 22,
+  "h": 27,
+  "area": 98
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e44.png",
+  "bbox": [
+   842,
+   887,
+   877,
+   936
+  ],
+  "w": 35,
+  "h": 49,
+  "area": 577
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e45.png",
+  "bbox": [
+   862,
+   947,
+   888,
+   975
+  ],
+  "w": 26,
+  "h": 28,
+  "area": 150
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e46.png",
+  "bbox": [
+   890,
+   920,
+   915,
+   953
+  ],
+  "w": 25,
+  "h": 33,
+  "area": 186
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e47.png",
+  "bbox": [
+   916,
+   821,
+   1040,
+   983
+  ],
+  "w": 124,
+  "h": 162,
+  "area": 2658
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e48.png",
+  "bbox": [
+   1042,
+   829,
+   1228,
+   981
+  ],
+  "w": 186,
+  "h": 152,
+  "area": 8262
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e49.png",
+  "bbox": [
+   1225,
+   814,
+   1382,
+   989
+  ],
+  "w": 157,
+  "h": 175,
+  "area": 7736
+ },
+ {
+  "file": "hoja11_efectos_A_croma_e50.png",
+  "bbox": [
+   1379,
+   820,
+   1525,
+   983
+  ],
+  "w": 146,
+  "h": 163,
+  "area": 9394
+ }
+]

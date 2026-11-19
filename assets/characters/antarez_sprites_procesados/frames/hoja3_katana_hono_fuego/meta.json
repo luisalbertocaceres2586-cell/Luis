@@ -1,0 +1,122 @@
+[
+ {
+  "file": "hoja3_katana_hono_fuego_f01.png",
+  "cell": [
+   0,
+   0
+  ],
+  "bbox": [
+   18,
+   90,
+   296,
+   451
+  ],
+  "w": 278,
+  "h": 361
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f02.png",
+  "cell": [
+   0,
+   1
+  ],
+  "bbox": [
+   416,
+   91,
+   699,
+   447
+  ],
+  "w": 283,
+  "h": 356
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f03.png",
+  "cell": [
+   0,
+   2
+  ],
+  "bbox": [
+   815,
+   27,
+   1182,
+   452
+  ],
+  "w": 367,
+  "h": 425
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f04.png",
+  "cell": [
+   0,
+   3
+  ],
+  "bbox": [
+   1167,
+   121,
+   1536,
+   451
+  ],
+  "w": 369,
+  "h": 330
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f05.png",
+  "cell": [
+   1,
+   0
+  ],
+  "bbox": [
+   14,
+   516,
+   362,
+   970
+  ],
+  "w": 348,
+  "h": 454
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f06.png",
+  "cell": [
+   1,
+   1
+  ],
+  "bbox": [
+   409,
+   523,
+   773,
+   901
+  ],
+  "w": 364,
+  "h": 378
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f07.png",
+  "cell": [
+   1,
+   2
+  ],
+  "bbox": [
+   782,
+   624,
+   1146,
+   955
+  ],
+  "w": 364,
+  "h": 331
+ },
+ {
+  "file": "hoja3_katana_hono_fuego_f08.png",
+  "cell": [
+   1,
+   3
+  ],
+  "bbox": [
+   1160,
+   636,
+   1531,
+   924
+  ],
+  "w": 371,
+  "h": 288
+ }
+]

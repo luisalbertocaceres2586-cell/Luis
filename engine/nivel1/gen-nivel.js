@@ -146,7 +146,7 @@
         const w = 1150; suelo(x, x + w); decorar(x, x + 300); const id = 'k' + N.muros.length + '_' + N.elem.length;
         plat(x + 230, G - 150, 170, pl()); N.items.push({ x: x + 315, y: G - 225, tipo: 'llave', id });
         enem({ kind: zona === 'cueva' ? 'serpiente' : 'ninja', x: x + 520, min: x + 380, max: x + 700, vx: 55 });
-        N.muros.push({ x: x + 880, y: G - 300, w: 36, h: 300, tipo: 'reja', id, abierta: false, zona }); x += w; especial('llave', x - w, x);
+        N.muros.push({ x: x + 880, y: G - 520, w: 36, h: 520, tipo: 'reja', id, abierta: false, zona }); x += w; especial('llave', x - w, x);   // 520: no se salta con doble salto, planeo ni gancho
       },
       // ---- cueva ----
       bestias() {   // serpiente + escarabajo de cristal

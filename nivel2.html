@@ -1,50 +1,53 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <meta name="theme-color" content="#090b24">
-  <title>Nivel 2 · El Desierto Nocturno</title>
-  <style>
-    html,body{margin:0;min-height:100%;background:#090b24;color:#fff;font-family:ui-monospace,monospace}
-    #ini{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:20px;text-align:center;background:radial-gradient(ellipse at 50% 35%,#28204c,#090b24 72%)}
-    h1{margin:0;color:#ffe27a;font-size:clamp(20px,5vw,36px);text-shadow:0 0 18px #ee9b56}
-    p{max-width:560px;line-height:1.7;color:#d7d4ee}
-    button{font:inherit;font-weight:bold;padding:14px 20px;border-radius:8px;border:1px solid #ffe27a;background:linear-gradient(#ffe27a,#ffad58);color:#281532;cursor:pointer;box-shadow:0 0 20px #ec995866}
-  </style>
-</head>
-<body>
-  <main id="ini">
-    <h1>EL DESIERTO NOCTURNO</h1>
-    <p>El viaje continúa. Enfréntate a enemigos más rápidos y demuestra tu dominio de las tablas del 4, 5 y 6.</p>
-    <button id="go" type="button">▶ ENTRAR AL NIVEL 2</button>
-  </main>
-  <script src="engine/nivel1/perfiles.js?v=8"></script>
-  <script src="engine/nivel1/ruta.js?v=8"></script>
-  <script src="engine/nivel1/acertijos.js?v=8"></script>
-  <script src="engine/nivel1/gen-nivel.js?v=8"></script>
-  <script src="engine/nivel1/motor.js?v=8"></script>
-  <script src="engine/nivel1/elementos.js?v=8"></script>
-  <script src="engine/nivel1/habilidades.js?v=8"></script>
-  <script src="engine/nivel1/director.js?v=8"></script>
-  <script>
-    (function () {
-      const q = new URLSearchParams(location.search);
-      function arrancar() {
-        const perfil = q.get('perfil') ? Perfiles.obtener(q.get('perfil')) : Perfiles.activo();
-        document.getElementById('ini').remove();
-        Nivel1.iniciar({
-          nivel2: true,
-          heroe: (perfil && perfil.avatar) || q.get('heroe') || 'sakura',
-          dispositivo: (perfil && perfil.dispositivo) || q.get('dispositivo') || 'pc',
-          perfil: perfil || null,
-          semilla: q.get('semilla') ? +q.get('semilla') : undefined,
-          habilidades: ['dash', 'doble', 'planeo', 'pared', 'tajoAereo', 'gancho'],
-          onSalir: function () { location.href = 'index.html'; }
-        });
-      }
-      document.getElementById('go').addEventListener('click', arrancar);
-    })();
-  </script>
-</body>
-</html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#090b24"><title>Nivel 2 · Surf de Dunas</title>
+<style>
+html,body{margin:0;height:100%;background:#090b24;color:#fff;font-family:ui-monospace,monospace}
+#ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px;text-align:center;background:radial-gradient(ellipse at 50% 35%,#3a2a63,#090b24 72%)}
+h1{margin:0;color:#ffe27a;font-size:clamp(22px,5vw,38px);text-shadow:0 0 18px #ee9b56}
+p{max-width:560px;line-height:1.7;color:#d7d4ee;margin:0}
+#sel{display:flex;flex-direction:column;gap:8px;align-items:center}.fila{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.op{background:#ffffff14;border:2px solid #ffffff33;color:#fff;border-radius:10px;padding:6px 10px;font-weight:normal;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px}
+.op img{height:44px;max-width:88px;object-fit:contain}.op.on{border-color:#ffe27a;background:#ffe27a30}#sel small{color:#d7d4ee}
+button{font:inherit;font-weight:bold;padding:14px 22px;border-radius:8px;border:1px solid #ffe27a;background:linear-gradient(#ffe27a,#ffad58);color:#281532;cursor:pointer}
+</style></head><body>
+<main id="ini">
+<h1>SURF DE DUNAS</h1>
+<p>Desliza por el desierto de noche. Cambia de carril y cruza la compuerta que tiene la respuesta correcta de las tablas del 4, 5 y 6. Esquiva cactus, rocas y escorpiones, y al final enfrenta al Escorpión Colosal.</p>
+<p>PC: ↑ ↓ cambian de carril · ESPACIO salta. Celular: botones en pantalla.</p>
+<div id="sel">
+<small>Elige tu vehículo</small><div class="fila" id="vehs"></div>
+<small id="tt">Elige el diseño de tu tabla</small><div class="fila" id="tabs"></div>
+</div>
+<button id="go" type="button">▶ ENTRAR AL NIVEL 2</button>
+</main>
+<script src="engine/nivel1/perfiles.js?v=8"></script>
+<script src="assets/nivel2/manifest.js?v=1"></script>
+<script src="engine/nivel2/surf.js?v=8"></script>
+<script>
+(function(){
+  var A=window.NIVEL2_ARTE||{},U=function(id){return A[id]?'assets/nivel2/'+A[id].frames[0].f:'';};
+  var cfg={};try{cfg=JSON.parse(localStorage.getItem('n2cfg')||'{}')||{};}catch(e){}
+  var q=new URLSearchParams(location.search);
+  var heroe=q.get('heroe')==='kage'?'kage':'sakura';
+  cfg.vehiculo=q.get('vehiculo')||cfg.vehiculo||'tabla'; cfg.tabla=q.get('tabla')||cfg.tabla||'tabla_clasica';
+  var VEH=[['tabla','Tabla',U(cfg.tabla)],['alfombra','Alfombra',U('alfombra_'+heroe+'_planeo')],['vagoneta','Vagoneta',U('vagoneta_'+heroe+'_rueda')]];
+  var TABS=['tabla_clasica','tabla_cactus','tabla_cristal','tabla_dragon','tabla_faraon','tabla_neon'];
+  function guardar(){try{localStorage.setItem('n2cfg',JSON.stringify(cfg));}catch(e){}}
+  function boton(img,txt,on,fn){var b=document.createElement('button');b.type='button';b.className='op'+(on?' on':'');b.innerHTML=(img?'<img src="'+img+'" alt="">':'')+'<span>'+txt+'</span>';b.onclick=fn;return b;}
+  function pintar(){
+    var v=document.getElementById('vehs'),t=document.getElementById('tabs');v.innerHTML='';t.innerHTML='';
+    VEH.forEach(function(x){v.appendChild(boton(x[0]==='tabla'?U(cfg.tabla):x[2],x[1],cfg.vehiculo===x[0],function(){cfg.vehiculo=x[0];guardar();pintar();}));});
+    var esT=cfg.vehiculo==='tabla';document.getElementById('tt').style.display=esT?'':'none';t.style.display=esT?'':'none';
+    TABS.forEach(function(id){t.appendChild(boton(U(id),id.replace('tabla_',''),cfg.tabla===id,function(){cfg.tabla=id;guardar();pintar();}));});
+  }
+  pintar(); window.__n2cfg=cfg;
+})();
+document.getElementById('go').addEventListener('click',function(){
+  var q=new URLSearchParams(location.search),perfil=null;
+  try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
+  document.getElementById('ini').remove();
+  Nivel2.iniciar({vehiculo:window.__n2cfg.vehiculo,tabla:window.__n2cfg.tabla,jefe:q.get('jefe')||undefined,directo:q.get('directo')||undefined,heroe:(perfil&&perfil.avatar)||q.get('heroe')||'sakura',perfil:perfil||null,onSalir:function(){location.href='index.html';}});
+});
+</script></body></html>

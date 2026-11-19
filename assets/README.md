@@ -26,6 +26,7 @@ assets/
 │   ├── levels/nivel1/         arte exclusivo del nivel 1 (montañas lejanas y nubes) + nubes.js
 │   ├── props/{nature,structures,water,bridges,lights,crystals,objects,islands,decor}/   decorados
 │   └── sky/{sun_moon,clouds,clouds_warm,storm,wind,vortex,fx}/   cielo y efectos
+├── nivel2/              Arte del Nivel 2 «Surf de Dunas»: obstaculos, enemigos, jefes, companero, vehiculos, poderes, objetos, tablas, compuertas, extras (+ manifest.js, galeria.html)
 ├── _originales/hud/     archivos de arte tal como se recibieron (hojas y GIF) para volver a recortar
 └── _previews/           hojas de contacto (JPG) para ver todo de un vistazo
 ```

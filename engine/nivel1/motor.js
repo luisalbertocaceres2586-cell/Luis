@@ -24,6 +24,20 @@
     shuriken: 'animados/shuriken_espiritual_8', antorchaAnim: 'animados/antorcha_llama_10',
     montanas: '../environment/levels/nivel1/n1_bg_montanas_lejos', nube: '../environment/levels/nivel1/nubes/nube_01'
   };
+  // arte extra (decorado, cueva, terreno, enemigos, objetos, hojas del Oni): se carga en segundo plano, sin alargar la pantalla de carga
+  const IMGS_EXTRA = {
+    cerezo: 'decorado_extra/cerezo_sakura', pino: 'decorado_extra/pino_bonsai', rocasMusgo: 'decorado_extra/rocas_musgo', valla: 'decorado_extra/valla_madera', cartel: 'decorado_extra/cartel_flecha',
+    fuenteBambu: 'decorado_extra/fuente_bambu', farolitos: 'decorado_extra/farolitos_cuerda', helechos: 'decorado_extra/helechos_luciernagas', farolTemplo: 'decorado/farol_templo', pilar: 'decorado/pilar_rojo',
+    jizo: 'decorado/santuario_jizo', bambuRoca: 'decorado/bambu_roca', emblema: 'decorado/estandarte_emblema', portalAzul: 'decorado/portal_azul',
+    hongoG: 'cueva_extra/hongo_gigante', arcoRuinas: 'cueva_extra/arco_ruinas', floresLum: 'cueva_extra/flores_luminosas', paredMin: 'cueva_extra/pared_mineral', estalagmita: 'cueva_extra/estalagmita_columna',
+    altarVela: 'cueva_extra/altar_vela', raices: 'cueva_extra/raices_colgantes', cristTecho: 'cueva_extra/cristales_techo',
+    sueloLajas: 'terreno_extra/suelo_bosque_lajas', sueloOtonal: 'terreno_extra/suelo_otonal', platFlores: 'terreno_extra/plataforma_flores', hojaLoto: 'terreno_extra/hoja_loto', tronco: 'terreno_extra/tronco_caido',
+    hongoPlat: 'terreno_extra/hongo_plataforma', losaRunas: 'terreno_extra/losa_runas', platCristal: 'terreno_extra/plataforma_cristal', alero: 'terreno/alero_tejas',
+    ninjaLancero: 'enemigos_extra/ninja_lancero', ninjaArquero: 'enemigos_extra/ninja_arquero', kappa: 'enemigos_extra/kappa', zorroFuego: 'enemigos_extra/zorro_fuego', samuraiF: 'enemigos_extra/samurai_fantasma',
+    serpCueva: 'enemigos_extra/serpiente_cueva', ranaG: 'enemigos_extra/rana_gigante', escarabajo: 'enemigos_extra/escarabajo_cristal', guardiaPiedra: 'enemigos/guardia_piedra', sombraPers: 'enemigos/sombra_perseguidora',
+    palancaOff: 'objetos_extra/palanca_apagada', palancaOn: 'objetos_extra/palanca_encendida', campana: 'objetos_extra/campana_templo', mercader: 'objetos_extra/mercader_tanuki', sensei: 'objetos_extra/maestro_sensei',
+    corazonJade: 'objetos_extra/corazon_jade', frascoLuz: 'objetos_extra/frasco_luz', oniCaminar: 'jefe/oni_caminar_8', oniAtaque: 'jefe/oni_ataque_6'
+  };
   const SKY = { A: ['#2b2468', '#ff8f6b', '#ffe3a3'], B: ['#3d5a80', '#98c1d9', '#e8f1f2'], C: ['#5c2a6e', '#e86a5c', '#ffd08a'] };
   const BANDERAS = { antorcha: 'una antorcha', armadura: 'la armadura samurái', aliado_mercader: 'la ayuda del mercader', bendicion_zorro: 'la bendición del zorro', llave_dojo: 'la llave del dojo', llave_portal: 'la llave del portal', vista_torre: 'vista desde la torre', pergamino_dragon: 'el pergamino del dragón', ritmo_tejados: 'ritmo de tejados' };
 
@@ -66,6 +80,7 @@
     }
     let n = 0; await Promise.all(lista.map(async ([k, src]) => { img[k] = await cargarImg(src); progreso(++n / lista.length); }));
     if (M.animations) Object.keys(M.animations).forEach(name => M.animations[name].frames.forEach((f, i) => { img['h:' + name + ':' + i] = img[f.file]; }));
+    Object.keys(IMGS_EXTRA).forEach(k => { cargarImg(A + IMGS_EXTRA[k] + '.png').then(im => { img[k] = im; }); });
     return M;
   }
 
@@ -495,7 +510,7 @@
         }
         cx.restore(); return;
       }
-      const tile = s.zona === 'cueva' ? img.sueloCueva : img.suelo; if (!tile) return; const tw = 440, th = tile.height * tw / tile.width, so = superficie(tile) * th;
+      const pr = S.N.cueva && S.N.cueva.x ? s.x0 / S.N.cueva.x : 0, tile = s.zona === 'cueva' ? img.sueloCueva : ((pr > .75 ? img.sueloOtonal : pr > .4 ? img.sueloLajas : null) || img.suelo); if (!tile) return; const tw = 440, th = tile.height * tw / tile.width, so = superficie(tile) * th;
       cx.save(); cx.beginPath(); cx.rect(s.x0 - S.cam, 0, s.x1 - s.x0, H); cx.clip();
       const gr = cx.createLinearGradient(0, G + th - so - 6, 0, H); if (s.zona === 'cueva') { gr.addColorStop(0, '#2a2a3c'); gr.addColorStop(1, '#0c0c18'); } else { gr.addColorStop(0, '#5a321c'); gr.addColorStop(1, '#1c0f08'); }
       cx.fillStyle = gr; cx.fillRect(s.x0 - S.cam, G - so + th - 4, s.x1 - s.x0, H);
