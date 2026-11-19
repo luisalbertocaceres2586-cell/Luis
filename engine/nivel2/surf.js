@@ -92,6 +92,13 @@
     // fotogramas del personaje corriendo (solo se usan con el vehículo "tabla")
     const SP = kage ? { run: 15, hurt: 6, idle: 6 } : { run: 14, jump: 4, hurt: 5, sprint: 5, idle: 6 }, IMG = {}, carpeta = 'assets/characters/' + hero + '/';
     Object.keys(SP).forEach(a => { IMG[a] = []; if (vehiculo !== 'tabla') return; for (let i = 0; i < SP[a]; i++) { const im = new Image(); im.src = carpeta + a + '_' + String(i).padStart(2, '0') + '.png'; IMG[a].push(im); } });
+    // Antarez (antes Kage): en modo "tabla" se dibuja con los fotogramas nuevos de assets/characters/antarez/ (manifiesto ANTAREZ_MANIFEST)
+    const ANT = kage && vehiculo === 'tabla' && window.ANTAREZ_MANIFEST ? window.ANTAREZ_MANIFEST : null;
+    if (ANT) {
+      const pick = (nombre, n) => { const fr = ANT.animations[nombre].frames, paso = Math.max(1, Math.floor(fr.length / n)), out = []; for (let i = 0; i < fr.length && out.length < n; i += paso) out.push(fr[i]); return out; };
+      const set = { run: pick('run', 12), hurt: ANT.animations.hurt.frames, jump: ANT.animations.jump.frames.slice(0, 4), sprint: ANT.animations.sprint.frames, idle: ANT.animations.idle.frames };
+      Object.keys(set).forEach(a => { IMG[a] = set[a].map(f => { const im = new Image(); im.src = ANT.base + f.file; im._ax = f.ax; im._ay = f.ay; return im; }); });
+    }
     const KCP = clave(o) + '_cp', KTUT = clave(o) + '_tut';
     const fallosPrev = (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.fallos) || {};
     const touch = tactil();
@@ -559,6 +566,7 @@
       if (!fr || !fr.length) return false;
       const i = a === 'jump' ? clamp(S.vz > 200 ? 0 : S.vz > 0 ? 1 : S.vz > -250 ? 2 : 3, 0, fr.length - 1) : Math.floor(S.t * 10) % fr.length, im = fr[i];
       if (!im || !im.complete || !im.naturalWidth) return false;
+      if (ANT && im._ay) { const k = 118 / 235; cx.drawImage(im, -im._ax * k, -im._ay * k + 6, im.naturalWidth * k, im.naturalHeight * k); return true; }   // Antarez: se alinea por su ancla (pies)
       const h = 118, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
     }
     function heroe() {
