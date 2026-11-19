@@ -27,11 +27,12 @@ const IM={bg:img('assets/embebidas/f6bc290b80.jpg'),logo:img('assets/embebidas/6
   isl:img('assets/environment/backgrounds/scenery/floating_islands_sakura.png'),vil:img('assets/characters/villain/portrait.png'),
   boom:img('assets/effects/explosion_magia_a.png'),crack:img('assets/effects/fx_grieta_cielo_magia.png'),petal:img('assets/intro-premium/petalo_sakura.png')};
 const CLOUDS=['c01','d01','d02','d03'].map(n=>img('assets/environment/sky/clouds/cloud_'+n+'.png'));
-const EVE=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST,KM=window.KAGE_MANIFEST;
-const ebase=(EVE&&EVE.base)||'assets/characters/sakura/',kbase='assets/characters/kage/';
+const EVE=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST;
+const ebase=(EVE&&EVE.base)||'assets/characters/sakura/';
+const KM=window.ANTAREZ_MANIFEST,kbase=(KM&&KM.base)||'assets/characters/antarez/',KA=n=>((KM&&KM.animations&&KM.animations[n]&&KM.animations[n].frames)||[]),slow=(l,k)=>[].concat(...l.map(f=>Array(k).fill(f)));
 const frames=(base,list)=>((list)||[]).map(f=>({img:img(base+f.file),ax:f.ax,ay:f.ay}));
 const SK=frames(ebase,EVE&&EVE.run),SKI=frames(ebase,EVE&&EVE.idle),SKA=frames(ebase,EVE&&EVE.atk);
-const KG=frames(kbase,KM&&KM.run),KGI=frames(kbase,KM&&KM.idle),KGA=frames(kbase,KM&&KM.atk);
+const KG=frames(kbase,KA('run')),KGI=frames(kbase,slow(KA('idle'),4)),KGA=frames(kbase,KA('melee'));
 const nom=a=>a.reduce((m,f)=>Math.max(m,f.ay||0),1);
 const NSK=nom(SK),NKG=nom(KG);
 
@@ -229,7 +230,7 @@ function drawStory(){
     const g=cx.createLinearGradient(0,gy-4,0,gy+VH*.2);g.addColorStop(0,'rgba(120,190,255,.28)');g.addColorStop(1,'rgba(120,190,255,0)');cx.globalAlpha=C;cx.fillStyle=g;cx.fillRect(0,gy-2,VW,VH*.2);cx.globalAlpha=1;
     glow(xl,gy-hh*.4,hh*.8,'rgba(255,60,150,'+.2*C+')');glow(xr,gy-hh*.4,hh*.8,'rgba(255,70,50,'+.2*C+')');
     sprite(run?fr(SK,t,16):fr(SKI,t,10),NSK,xl,gy,hh,C);sprite(run?fr(KG,t,18):fr(KGI,t,10),NKG,xr,gy,hh,C,true);
-    const pa=ss(13.4,14,t)*C;plate('SAKURA EVE','NINJA DEL VIENTO',VW*.38,gy+VH*.065,'#ff5fa8',pa);plate('KAGE','NINJA DE LA SOMBRA',VW*.62,gy+VH*.065,'#ff5a4a',pa);}
+    const pa=ss(13.4,14,t)*C;plate('SAKURA EVE','NINJA DEL VIENTO',VW*.38,gy+VH*.065,'#ff5fa8',pa);plate('ANTAREZ','NINJA DE LA KATANA',VW*.62,gy+VH*.065,'#ff5a4a',pa);}
   rays(t,t<5?.5:t<11?.3:.7);
   drawTablet(t);drawVillain(t);
   /* Acto 4 · título */
@@ -265,7 +266,7 @@ function runLoader(){const items=[];
   const add=p=>items.push(Promise.resolve(p).catch(()=>null));
   Object.values(IM).forEach(i=>add(wait(i)));CLOUDS.forEach(i=>add(wait(i)));
   [SK,SKI,SKA,KG,KGI,KGA].forEach(a=>a.forEach(f=>add(wait(f.img))));
-  ['assets/ui/select/sakura_3.png','assets/ui/select/kage_3.png','assets/embebidas/ab8b337fd0.jpg'].forEach(s=>add(wait(img(s))));
+  ['assets/ui/select/sakura_3.png','assets/ui/select/antarez_3.png','assets/embebidas/ab8b337fd0.jpg'].forEach(s=>add(wait(img(s))));
   if(document.fonts&&document.fonts.load)add(document.fonts.load('800 14px Inter').catch(()=>{}));
   if(document.readyState!=='complete')add(new Promise(r=>addEventListener('load',r,{once:true})));
   let done=0;real=0;items.forEach(p=>p.then(()=>{done++;real=done/items.length;}));}

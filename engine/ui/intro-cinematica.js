@@ -72,7 +72,7 @@ function mountStage(){
  if(!main||!cards||!panel||document.getElementById('niHeroStage'))return false;
  const stage=document.createElement('div');stage.id='niHeroStage';stage.innerHTML='<img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png" alt="Sakura Eve, ninja protagonista" draggable="false"><span class="ni-hero-caption">HÉROE DESTACADA · SAKURA EVE</span>';
  const col=document.createElement('div');col.id='niSelectColumn';main.append(stage,col);col.append(cards,panel);
- const update=()=>{const chosen=cards.querySelector('.cp-card.on');const im=stage.querySelector('img');if(chosen&&chosen.dataset.c==='peach'){im.src='assets/characters/kage/idle_00.png';stage.querySelector('.ni-hero-caption').textContent='HÉROE DESTACADO · KAGE';}else{im.src='assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png';stage.querySelector('.ni-hero-caption').textContent='HÉROE DESTACADA · SAKURA EVE';}};
+ const update=()=>{const chosen=cards.querySelector('.cp-card.on');const im=stage.querySelector('img');if(chosen&&chosen.dataset.c==='peach'){im.src='assets/characters/antarez/mov_01.png';stage.querySelector('.ni-hero-caption').textContent='HÉROE DESTACADO · ANTAREZ';}else{im.src='assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png';stage.querySelector('.ni-hero-caption').textContent='HÉROE DESTACADA · SAKURA EVE';}};
  cards.addEventListener('click',()=>requestAnimationFrame(update));update();return true;
 }
 if(!mountStage()){const mo=new MutationObserver(()=>{if(mountStage())mo.disconnect();});mo.observe(S0,{childList:true,subtree:true});}
