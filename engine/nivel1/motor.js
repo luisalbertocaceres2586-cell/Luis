@@ -6,6 +6,9 @@
 (function () {
   'use strict';
   const W = 1280, H = 720, G = 560, DT = 1 / 60;
+  // Salto variable. PC: soltar corta el salto al instante (x0.55). CELULAR: un toque corto es ~80 ms, así que el salto se "compromete"
+  // SALTO_MIN_MOVIL s antes de poder cortarse y el corte es suave (x0.8): un toque ya da ~90 % del salto, mantener da el 100 %.
+  const SALTO_MIN_MOVIL = .18, SALTO_CORTE_MOVIL = .8, SALTO_CORTE_PC = .55;
   const A = 'assets/nivel1/';
   const IMGS = {
     suelo: 'terreno/suelo_bosque', sueloCueva: 'terreno/suelo_cueva', puente: 'terreno/puente_cuerda', bambu: 'terreno/plataforma_bambu', piedra: 'terreno/plataforma_piedra_toro',
@@ -161,8 +164,8 @@
 .n1Op:hover,.n1Op:focus{border-color:#FFC93C;background:rgba(255,201,60,.14);outline:none}.n1Op h3{margin:0 0 6px;color:#FFE27A;font-size:clamp(9px,1.7vw,12px)}
 .n1Btn{font-family:inherit;cursor:pointer;border:0;border-radius:8px;padding:11px 15px;font-size:clamp(8px,1.4vw,10px);color:#1a0a33;background:linear-gradient(180deg,#FFE27A,#FFB300);box-shadow:0 3px 0 #8a5a00}
 .n1Btn.sec{background:rgba(255,255,255,.14);color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.4)}.n1Fila{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
-.n1Tac{position:absolute;z-index:5;display:flex;gap:10px;bottom:14px}
-.n1Tac button{width:clamp(54px,12vw,84px);height:clamp(54px,12vw,84px);border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(255,255,255,.18);color:#fff;font-size:clamp(16px,4vw,26px);touch-action:none}`;
+.n1Tac{position:absolute;z-index:5;display:flex;gap:10px;bottom:14px;touch-action:none;user-select:none;-webkit-user-select:none}
+.n1Tac button{width:clamp(54px,12vw,84px);height:clamp(54px,12vw,84px);border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(255,255,255,.18);color:#fff;font-size:clamp(16px,4vw,26px);touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}\n.n1Tac button.on{transform:scale(1.1);background:rgba(255,255,255,.42)}\n.n1Tac button.n1Salto{width:clamp(66px,15vw,100px);height:clamp(66px,15vw,100px);border-color:#9dffc2;background:rgba(80,230,140,.28)}`;
   function crearPantalla() {
     if (!document.getElementById('n1Css')) { const s = document.createElement('style'); s.id = 'n1Css'; s.textContent = CSS; document.head.appendChild(s); }
     root = document.createElement('div'); root.id = 'n1Root';
@@ -173,8 +176,34 @@
   function ajustar() { if (!cv) return; const k = Math.min(innerWidth / W, innerHeight / H); cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; }
   function crearTactil() {
     const izq = document.createElement('div'), der = document.createElement('div'); izq.className = der.className = 'n1Tac'; izq.style.left = '14px'; der.style.right = '14px';
-    const b = (txt, tecla, cont) => { const e = document.createElement('button'); e.textContent = txt; const on = ev => { ev.preventDefault(); if (!keys[tecla]) pulsar(tecla); keys[tecla] = 1; }, off = ev => { ev.preventDefault(); if (keys[tecla]) soltar(tecla); keys[tecla] = 0; }; e.addEventListener('pointerdown', on); ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => e.addEventListener(t, off)); cont.appendChild(e); };
-    b('◀', 'ArrowLeft', izq); b('▶', 'ArrowRight', izq); b('💬', 'KeyE', der); b('🗡', 'KeyC', der); b('✦', 'KeyF', der); b('⤒', 'Space', der); root.appendChild(izq); root.appendChild(der);
+    // Un toque muy rápido (< 1 cuadro) podía empezar y terminar entre dos pasos de física y perderse (ataque, esquiva...).
+    // Por eso la tecla soltada se mantiene hasta que corra al menos un paso (máx. ~70 ms).
+    const mkBtn = (txt, clase) => { const e = document.createElement('button'); e.textContent = txt; if (clase) e.className = clase; e.addEventListener('contextmenu', ev => ev.preventDefault()); return e; };
+    const b = (txt, tecla, cont, clase) => {
+      const e = mkBtn(txt, clase); let t0 = -1, tok = 0;
+      const liberar = (mio, n) => {
+        if (mio !== tok || !keys[tecla]) return;
+        if (S && S.t === t0 && n < 6) { setTimeout(() => liberar(mio, n + 1), 12); return; }
+        soltar(tecla); keys[tecla] = 0;
+      };
+      // pointerdown responde al instante (sin el retraso del "click"). Se captura el puntero para que, si el dedo se desliza un poco,
+      // el botón siga pulsado (antes el salto se cortaba). El salto siempre registra el toque, aunque la tecla se hubiera quedado pegada.
+      const on = ev => { ev.preventDefault(); try { e.setPointerCapture(ev.pointerId); } catch (_) {} tok++; t0 = S ? S.t : -1; e.classList.add('on'); if (!keys[tecla] || tecla === 'Space') pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} },
+            off = ev => { ev.preventDefault(); e.classList.remove('on'); liberar(tok, 0); };
+      e.addEventListener('pointerdown', on); ['pointerup', 'pointerleave', 'pointercancel', 'lostpointercapture'].forEach(t => e.addEventListener(t, off)); cont.appendChild(e);
+    };
+    // ◀ ▶ como una cruceta: el dedo puede deslizarse de un lado al otro sin levantarlo, y toda la zona (incluido el hueco) responde.
+    const cruceta = cont => {
+      const bi = mkBtn('◀'), bd = mkBtn('▶'); let pid = null;
+      const poner = (code, el, on) => { if (on && !keys[code]) { pulsar(code); keys[code] = 1; el.classList.add('on'); } else if (!on && keys[code]) { soltar(code); keys[code] = 0; el.classList.remove('on'); } };
+      const aplicar = x => { const r = cont.getBoundingClientRect(), izqOn = x < r.left + r.width / 2; poner('ArrowLeft', bi, izqOn); poner('ArrowRight', bd, !izqOn); };
+      const fin = ev => { if (pid === null || (ev && ev.pointerId !== pid)) return; pid = null; poner('ArrowLeft', bi, false); poner('ArrowRight', bd, false); };
+      cont.addEventListener('pointerdown', ev => { if (pid !== null) return; ev.preventDefault(); pid = ev.pointerId; try { cont.setPointerCapture(pid); } catch (_) {} aplicar(ev.clientX); });
+      cont.addEventListener('pointermove', ev => { if (ev.pointerId === pid) { ev.preventDefault(); aplicar(ev.clientX); } });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => cont.addEventListener(t, fin));
+      cont.appendChild(bi); cont.appendChild(bd);
+    };
+    cruceta(izq); b('💬', 'KeyE', der); b('🗡', 'KeyC', der); b('✦', 'KeyF', der); b('⤒', 'Space', der, 'n1Salto'); root.appendChild(izq); root.appendChild(der);
   }
 
   // ============ entrada ============
@@ -183,7 +212,7 @@
   const esF = c => c === 'KeyF' || c === 'KeyK' || c === 'KeyX';
   function pulsar(code) {
     if (!S) return;
-    if (code === 'Space' || code === 'ArrowUp' || code === 'KeyW') S.h.buffer = .12;
+    if (code === 'Space' || code === 'ArrowUp' || code === 'KeyW') S.h.buffer = S.movil ? .16 : .12;
     if (window.N1hab && !S.eligiendo) N1hab.pulsar(code);   // dash, gancho
     if (esF(code) && !S.fin && !S.pausa && !S.eligiendo) empezarApuntar();
     if (code === 'KeyE' && !S.fin && !S.pausa && !S.eligiendo) N1elem.interactuar();
@@ -253,7 +282,7 @@
     const h = S.h, N = S.N; S.t += dt; S.tiempo += dt;
     if (S.aviso && S.aviso.t > 0) S.aviso.t -= dt;
     h.inv = Math.max(0, h.inv - dt); h.aturdido = Math.max(0, h.aturdido - dt); h.atkCd = Math.max(0, h.atkCd - dt); h.shCd = Math.max(0, h.shCd - dt); h.kunaiT = Math.max(0, h.kunaiT - dt); h.atk = Math.max(0, h.atk - dt);
-    h.buffer = Math.max(0, h.buffer - dt); h.coyote = Math.max(0, h.coyote - dt); h.lento = Math.max(0, h.lento - dt); S.shake = Math.max(0, S.shake - dt); S.flash = Math.max(0, S.flash - dt);
+    h.saltoT = (h.saltoT || 0) + dt; h.buffer = Math.max(0, h.buffer - dt); h.coyote = Math.max(0, h.coyote - dt); h.lento = Math.max(0, h.lento - dt); S.shake = Math.max(0, S.shake - dt); S.flash = Math.max(0, S.flash - dt);
     if (h.muerto > 0) { h.muerto -= dt; h.vy += 2300 * dt; h.y += h.vy * dt; if (h.muerto <= 0) reaparecer(); return; }
     if (window.N1dir) N1dir.paso(dt);   // observa al jugador, sortea eventos y fija S.mod
     actualizarPlataformas(dt);
@@ -264,8 +293,8 @@
     if (h.aturdido <= 0) {
       const tope = hab.tope || (h.lento > 0 ? 120 : (h.empuja ? 150 : 340)), a = h.suelo ? 3400 * S.mod.ag : 2300;
       if (hab.skipMove) { /* la habilidad manda sobre la velocidad horizontal */ } else if (dirIn) { h.vx += clamp(dirIn * tope + S.mod.vv - h.vx, -a * dt, a * dt); h.dir = dirIn; } else { const fr = 3000 * dt * (h.suelo ? S.mod.fr : 1); h.vx += clamp(S.mod.vv - h.vx, -fr, fr) * (h.suelo ? 1 : .4); }
-      if (h.buffer > 0 && (h.suelo || h.coyote > 0) && !S.apunta) { h.vy = -900 * S.mod.jv; h.suelo = false; h.coyote = 0; h.buffer = 0; h.cortado = false; S.saltos++; chispas(h.x, h.y, 4, '#c8b48a'); }
-      if (!salto() && h.vy < -330 && !h.cortado) { h.vy *= .55; h.cortado = true; }
+      if (h.buffer > 0 && (h.suelo || h.coyote > 0) && !S.apunta) { h.vy = -900 * S.mod.jv; h.suelo = false; h.coyote = 0; h.buffer = 0; h.cortado = false; h.saltoT = 0; S.saltos++; chispas(h.x, h.y, 4, '#c8b48a'); }
+      if (!salto() && h.vy < -330 && !h.cortado && (!S.movil || h.saltoT >= SALTO_MIN_MOVIL)) { h.vy *= S.movil ? SALTO_CORTE_MOVIL : SALTO_CORTE_PC; h.cortado = true; }
       if ((keys.KeyC || keys.KeyJ || keys.KeyZ) && h.atkCd <= 0 && !S.apunta) { h.atk = .28; h.atkCd = .38; h.tajoUsado = false; S.tajos++; if (window.N1hab) N1hab.alTajo(); }
     }
     h.empuja = false; if (!hab.skipGrav) h.vy = Math.min(1250 * S.mod.gc, h.vy + 2300 * S.mod.g * dt);
@@ -287,10 +316,10 @@
     const estaba = h.suelo;
     if (apoyo) {
       if (!estaba && h.vy > 500) chispas(h.x, apoyo.y, 5, '#c8b48a');
-      h.y = apoyo.y; h.vy = 0; h.suelo = true; h.coyote = .1; h.pisando = apoyo;
+      h.y = apoyo.y; h.vy = 0; h.suelo = true; h.coyote = S.movil ? .14 : .1; h.pisando = apoyo;
       if (apoyo.tipo === 'suelo' && h.x > apoyo.s.x0 + 70 && h.x < apoyo.s.x1 - 70 && !hayEnemigoCerca()) S.seguro = { x: h.x, y: G };
       if (apoyo.tipo === 'plat') { const p = apoyo.p; if (p.tipo === 'piedra_num') pisarPiedra(p); if (p.fragil && p.estado === 'firme') { p.estado = 'cruje'; p.t = .4; } }
-    } else { if (h.suelo && h.vy >= 0) h.coyote = .1; h.suelo = false; h.pisando = null; }
+    } else { if (h.suelo && h.vy >= 0) h.coyote = S.movil ? .14 : .1; h.suelo = false; h.pisando = null; }
     if (h.y > H + 160) { if (h.vida > 1) { h.vida--; texto(h.x, 300, '-1 ♥', '#ff6b6b'); S.shake = .3; reaparecer(); } else { h.vida = 0; h.muerto = .4; } return; }
 
     const hb = rect(h.x - h.w / 2 + 4, h.y - h.h, h.w - 8, h.h - 4); S.hb = hb;
