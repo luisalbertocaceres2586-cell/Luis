@@ -24,6 +24,6 @@
 @keyframes n26lamp{0%,100%{filter:drop-shadow(0 0 18px rgba(255,190,80,.4)) brightness(1)}50%{filter:drop-shadow(0 0 30px rgba(255,200,100,.8)) brightness(1.12)}}
 #n26scene .petal{top:-24px;width:var(--s,14px);opacity:0;animation:n26fall var(--dur,12s) linear infinite;animation-delay:var(--dl,0s)}
 @keyframes n26fall{0%{translate:0 0;rotate:0deg;opacity:0}10%{opacity:.85}90%{opacity:.6}100%{translate:var(--dx,120px) 112vh;rotate:var(--rot,540deg);opacity:0}}
-@media(max-aspect-ratio:1/1){#n26scene .tree.t1{width:40vw;opacity:.8}#n26scene .tree.t2{width:34vw;opacity:.8}#n26scene .temple,#n26scene .lamp{display:none}#n26scene .moon{width:38vw;right:4%}#n26scene .isle.i1{width:26vw;top:20%}#n26scene .isle.i2{width:20vw}}
+@media(max-aspect-ratio:1/1){#n26scene .tree.t1{width:40vw;opacity:.8}#n26scene .tree.t2{width:34vw;opacity:.8}#n26scene .temple,#n26scene .lamp{display:none}#n26scene .moon{width:38vw;right:4%}#n26scene .isle.i1{width:19vw;top:3%;left:-1%}#n26scene .isle.i2{width:16vw;top:23%}}
 @media(max-height:460px){#n26scene .tree,#n26scene .temple{opacity:.35}}
 @media(prefers-reduced-motion:reduce){#n26scene *{animation:none!important}}
