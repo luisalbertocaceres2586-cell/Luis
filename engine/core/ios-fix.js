@@ -80,7 +80,13 @@ function aplicarMedida(){
   root.style.setProperty('--vh',(m.h/100)+'px');
   return m;
 }
+function escribiendo(){
+  const a=document.activeElement;
+  return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.type!=='range'&&a.type!=='checkbox');
+}
 function sincronizar(){
+  /* con el teclado abierto iOS reduce el área visible: no se reacomoda el juego mientras se escribe (se hace al cerrarlo) */
+  if(escribiendo())return;
   const m=aplicarMedida();
   if(Math.abs(m.w-lastW)<2&&Math.abs(m.h-lastH)<2)return;
   lastW=m.w;lastH=m.h;
@@ -97,6 +103,7 @@ window.addEventListener('pageshow',revisarVarias);
 window.addEventListener('load',revisarVarias);
 if(window.visualViewport){visualViewport.addEventListener('resize',sincronizar);}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)revisarVarias();});
+document.addEventListener('focusout',()=>setTimeout(revisarVarias,150));   // al cerrar el teclado
 revisarVarias();
 
 /* ---------- Gestos que en iOS ignoran user-scalable=no ---------- */
