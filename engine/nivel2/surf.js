@@ -872,10 +872,10 @@
         const url = id => ARTE[id] ? 'assets/nivel2/' + ARTE[id].frames[0].f : '', premio = [S.jefeInfo.id === 'escorpion' ? 'trofeo_escorpion' : 'cofre_abierto', 'bandera_meta'].filter(url);
         p.innerHTML = '<div style="display:flex;align-items:flex-end;gap:14px">' + premio.map(id => '<img src="' + url(id) + '" alt="" style="height:90px">').join('') + '</div><h1 style="margin:0;color:#ffe27a">¡DERROTASTE ' + S.jefeInfo.art + ' ' + S.jefeInfo.n + '!</h1><div style="font-size:44px;color:#ffe27a;letter-spacing:6px">' + '★'.repeat(estr) + '<span style="color:#554">' + '★'.repeat(3 - estr) + '</span></div>' +
           '<div>Aciertos ' + S.aci + ' · Errores ' + S.err + ' · Puntos ' + S.punt + ' · Récord ' + Math.max(S.punt, (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.mejor) || 0) + (S.caidas ? ' · Caídas ' + S.caidas : '') + '</div>' +
-          '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button id="r2">↻ REPETIR</button><button id="s2">VOLVER AL MENÚ</button></div>';
+          '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><button id="r2">↻ REPETIR</button>' + (gano ? '<button id="n3">🏮 NIVEL 3</button>' : '') + '<button id="s2">VOLVER AL MENÚ</button></div>';
         p.querySelectorAll('button').forEach(b => b.style.cssText = 'font:inherit;font-weight:bold;padding:12px 18px;border:0;border-radius:8px;background:#ffc93c;cursor:pointer');
         root.appendChild(p); p.querySelector('#r2').onclick = () => { p.remove(); const f = S.fallos; nuevo('ruta'); S.fallos = f; ult = 0; ombit.style.display = 'none'; };
-        p.querySelector('#s2').onclick = salir;
+        p.querySelector('#s2').onclick = salir; const n3 = p.querySelector('#n3'); if (n3) n3.onclick = () => { location.href = 'nivel3.html?' + new URLSearchParams({ heroe: o.heroe || 'sakura', perfil: (o.perfil && o.perfil.id) || '' }).toString(); };
       }, gano ? 1800 : 0);
     }
 

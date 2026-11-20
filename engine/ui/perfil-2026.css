@@ -38,3 +38,7 @@
 @media(prefers-reduced-motion:reduce){#pfOverlay,#pfOverlay .pf-card{animation:none!important}}
 #pfOverlay .pf-campo.pf-name{background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
 #pfOverlay .pf-card-s .pf-acc .pf-btn{min-width:112px}
+/* selector y cuadro de código (Exportar / Importar) en el mismo estilo oscuro con borde dorado */
+#pfOverlay select,#pfOverlay textarea{background:#070b26!important;color:#e8eeff!important;border:1px solid rgba(255,184,47,.55)!important;border-radius:10px!important;color-scheme:dark;font-family:Inter,system-ui,sans-serif}
+#pfOverlay select:focus,#pfOverlay textarea:focus{outline:none;border-color:#ffd36b!important;box-shadow:0 0 12px rgba(255,200,80,.45)}
+#pfOverlay select option{background:#0c1238;color:#e8eeff}
