@@ -151,7 +151,7 @@ NinjaMods.register({id:'hud-nuevo',carpeta:'ui',nombre:'HUD nuevo: retrato + bar
     shown+=(f-shown)*.17;if(Math.abs(f-shown)<.002)shown=f;
     if(f>tr)tr=f;else tr=Math.max(shown,tr-.004);
     fill.style.width=(shown*100)+'%';trail.style.width=(tr*100)+'%';fill.style.backgroundColor=colorDe(shown);
-    const e=estadoDe(f),clave=(GS.char==='peach'?'kage_':'sakura_')+ST[e];
+    const e=estadoDe(f),clave=(GS.char==='peach'?'antarez_':'sakura_')+ST[e];
     if(clave!==estado){estado=clave;retImg.src=B+'retratos/'+clave+'.png';retImg.classList.remove('pop');void retImg.offsetWidth;retImg.classList.add('pop');}
     heart.style.animationDuration=(f<.25?.42:f<.5?.75:1.15)+'s';vida.classList.toggle('low',f<.25);
     badge.textContent=(((document.getElementById('hLevel')||{}).textContent||'').match(/\d+/)||[''])[0];

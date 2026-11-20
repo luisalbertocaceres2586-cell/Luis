@@ -26,7 +26,7 @@ const IM={logo:dom('#cineLogo')||dom('#introTitle'),panel:dom('#cineBeat3 img'),
 IM.villain=img('assets/characters/villain/portrait.png');
 const SKM=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST;
 const SK=((SKM&&SKM.run)||[]).map(f=>({img:img((SKM.base||'assets/characters/sakura/')+f.file),ax:f.ax,ay:f.ay}));
-const KG=((window.KAGE_MANIFEST&&KAGE_MANIFEST.run)||[]).map(f=>({img:img('assets/characters/kage/'+f.file),ax:f.ax,ay:f.ay}));
+const KG=((window.ANTAREZ_MANIFEST&&ANTAREZ_MANIFEST.animations.run.frames)||[]).map(f=>({img:img(ANTAREZ_MANIFEST.base+f.file),ax:f.ax,ay:f.ay}));
 const PAN=[null,null,null,null];
 function tryPanel(n){return new Promise(res=>{const a=img('assets/ui/intro/panel_'+n+'.jpg');
   a.onload=()=>{PAN[n-1]=a;res();};
@@ -390,7 +390,7 @@ function drawStory(){
     if(run&&Math.random()<dt*28){sparks(xL-30,gyH-6,1);}
     const pa=ss(15.0,15.5,t)*(1-ss(17.7,18.1,t)),py=gyH-hh-VH*.03;
     plate('SAKURA EVE','LA VELOZ',VW*.36,py,'rgba(255,60,150,1)',pa,-(1-ss(15.0,15.6,t))*140);
-    plate('KAGE','LA SOMBRA',VW*.66,py,'rgba(130,100,255,1)',ss(15.4,15.9,t)*(1-ss(17.7,18.1,t)),(1-ss(15.4,16.0,t))*140);
+    plate('ANTAREZ','LA KATANA',VW*.66,py,'rgba(130,100,255,1)',ss(15.4,15.9,t)*(1-ss(17.7,18.1,t)),(1-ss(15.4,16.0,t))*140);
     if(t>=18.2&&t<19.8&&ok(IM.slash)){const sc=.3+eo((t-18.2)/.5)*.9,al=1-ss(18.9,19.7,t);const ar=IM.slash.naturalHeight/IM.slash.naturalWidth,w=VW*.6*sc;
       const sw=Math.max(8,w|0),shh=Math.max(8,(w*ar)|0);slashC.width=sw;slashC.height=shh;const sx=slashC.getContext('2d');
       sx.clearRect(0,0,sw,shh);sx.drawImage(IM.slash,0,0,sw,shh);sx.globalCompositeOperation='destination-in';
@@ -456,7 +456,7 @@ function runLoader(){
   if(document.readyState!=='complete')add(new Promise(r=>addEventListener('load',r,{once:true})));
   if(document.fonts&&document.fonts.load)add(document.fonts.load('700 14px Inter').catch(()=>{}));
   const sel=/[?&]sel=(\d)/.exec(Q),profile=sel&&sel[1]||'3';
-  ['assets/ui/select/sakura_'+profile+'.png','assets/ui/select/kage_'+profile+'.png',
+  ['assets/ui/select/sakura_'+profile+'.png','assets/ui/select/antarez_'+profile+'.png',
    'assets/embebidas/abe821c0f3.png','assets/embebidas/ae59e332e9.jpg','assets/embebidas/ab8b337fd0.jpg']
    .forEach(src=>add(new Promise(resolve=>{const im=new Image();im.onload=im.onerror=resolve;im.src=src;setTimeout(resolve,7000);})));
   [IM.logo,IM.bg,IM.dark,IM.heroL,IM.heroR,IM.slash,IM.villain].concat(SK.map(f=>f.img),KG.map(f=>f.img)).forEach(i=>add(waitImage(i)));

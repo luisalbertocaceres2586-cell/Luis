@@ -783,7 +783,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
           <div class="hcardGlow"></div>
           <span class="ember p1">🔥</span><span class="ember p2">🔥</span><span class="ember p3">🔥</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/embebidas/ab8b337fd0.jpg" alt="Kage" class="hcardArtBig">
+          <img src="assets/characters/antarez/mov_01.png" alt="Antarez" class="hcardArtBig">
           <div class="hcardKeys"><span>X</span> Dual &nbsp; <span>F</span> Disparo &nbsp; <span>C</span> Tajo</div>
         </div>
       </div>
@@ -9024,7 +9024,7 @@ let _char='mario';
 function selChar(c){_char=c;document.querySelectorAll('.hcard').forEach(b=>b.classList.remove('on'));document.querySelector(`[data-c="${c}"]`).classList.add('on');uAC();SFX.coin();}
 document.getElementById('btnStart').addEventListener('click',()=>{
   uAC();
-  GS.name=(_char==='peach'?'KAGE':'SAKURA EVE')+'-'+Math.floor(100+Math.random()*900);
+  GS.name=(_char==='peach'?'ANTAREZ':'SAKURA EVE')+'-'+Math.floor(100+Math.random()*900);
   GS.char=_char;GS.phase='easy';GS.totalScore=0;GS.level=0;
   _lifeMilestone=0;
   _xpBar=0; _xpTotalLevels=0; _xpRewardAnim=0; _turboTrail=[];
@@ -9677,21 +9677,21 @@ function drawMiniPeach(canvasId){
 <script src="engine/hero-pro.js?v=an1"></script>
 <script src="assets/characters/villain/manifest.js"></script>
 <script src="engine/villain-boss.js"></script>
-<script src="engine/ui/intro-2026.js?v=1"></script>
+<script src="engine/ui/intro-2026.js?v=an2"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-19-h";</script>
+<script>window.NJ_BUILD="2026-11-19-i";</script>
 <script src="engine/core/version.js?v=1"></script>
 <script src="engine/core/dispositivo.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
 <script src="engine/escenario/islas.js?v=4"></script>
 <script src="engine/escenario/fondos-tema.js?v=14"></script>
-<script src="engine/ui/menu-2026.js?v=1"></script>
+<script src="engine/ui/menu-2026.js?v=an2"></script>
 <script src="engine/ui/escena-2026.js?v=1"></script>
 <script src="engine/ui/ninjas-fx-2026.js?v=1"></script>
 <script src="engine/nivel1/perfiles.js?v=1"></script>
-<script src="engine/nivel1/perfil-ui.js?v=12"></script>
+<script src="engine/nivel1/perfil-ui.js?v=13"></script>
 <script src="engine/ui/pantalla-movil.js?v=11"></script>
-<script src="engine/ui/hud-nuevo.js?v=13"></script>
+<script src="engine/ui/hud-nuevo.js?v=an2"></script>
 <script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
 <script src="engine/ui/barra-progreso.js?v=4"></script>
 <script src="engine/movimiento/caida-rapida.js?v=4"></script>
