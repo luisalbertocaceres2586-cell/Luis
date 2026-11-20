@@ -167,8 +167,8 @@
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], toasts: [],
         racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [], monedas: 0, mundo: 0, qpas: 0, zp: 0, cortes: [{ d: 0, m: 0 }],
-        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null,
-        sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, ultLane: -1, decoD: 8 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
+        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0,
+        sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, cieloM: false, ultLane: -1, decoD: 8 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
 
@@ -184,6 +184,11 @@
     }
     // un tramo de carrera libre: monedas en líneas, arcos y zigzag, con obstáculos que dan monedas si los esquivas
     function patrones(d0, len, tipo) {
+      if (tipo === 'cielo') {
+        S.items.push({ k: 'nube', d: d0 + 4, hasta: d0 + len - 4, pasado: false });
+        for (let i = 0; i < 40; i++) { const dd = d0 + 12 + i * 2.2; if (dd > d0 + len - 6) break; moneda(dd, Math.round(1 + Math.sin(i * 0.5)), 120 + (i % 3) * 14); if (i % 4 === 0) { moneda(dd, 0, 135); moneda(dd, 2, 135); } }
+        return d0 + len;
+      }
       let d = d0 + 6; const suave = tipo === 'suave', pat = tipo === 'pat';
       if (pat) { S.items.push({ k: 'pat', d, lane: RI(0, 2), tomado: false }); d += 14; }
       while (d < d0 + len) {
@@ -203,9 +208,9 @@
       const sp = S.sp;
       while (!sp.fin && sp.nextD < S.dist + ZMAX) {
         if (sp.qi >= PREGS.length) { portal(sp.nextD, 0, true); sp.nextD += 30; sp.fin = true; break; }
-        if (sp.tr >= CFG.PREG_MUNDO) { const m = Math.min(TEMAS.length - 1, sp.mundo + 1); portal(sp.nextD, m, false); S.cortes.push({ d: sp.nextD, m }); sp.mundo = m; sp.tr = 0; sp.patM = false; sp.nextD += 24; continue; }
-        const tipo = sp.qi === 0 ? 'suave' : (sp.tr === 1 && !sp.patM) ? 'pat' : 'normal'; if (tipo === 'pat') sp.patM = true;
-        const len = tipo === 'pat' ? 115 : tipo === 'suave' ? 80 : R(90, 115), d0 = sp.nextD, dFin = patrones(d0, len, tipo);
+        if (sp.tr >= CFG.PREG_MUNDO) { const m = Math.min(TEMAS.length - 1, sp.mundo + 1); portal(sp.nextD, m, false); S.cortes.push({ d: sp.nextD, m }); sp.mundo = m; sp.tr = 0; sp.patM = false; sp.cieloM = false; sp.nextD += 24; continue; }
+        const tipo = sp.qi === 0 ? 'suave' : (sp.tr === 1 && !sp.patM) ? 'pat' : (sp.tr === 2 && !sp.cieloM) ? 'cielo' : 'normal'; if (tipo === 'pat') sp.patM = true; if (tipo === 'cielo') sp.cieloM = true;
+        const len = tipo === 'pat' ? 115 : tipo === 'cielo' ? 100 : tipo === 'suave' ? 80 : R(90, 115), d0 = sp.nextD; if (tipo === 'normal' && Math.random() < 0.55) S.items.push({ k: 'caja', d: d0 + 3, lane: RI(0, 2), tomado: false }); const dFin = patrones(d0, len, tipo);
         const doorD = Math.max(dFin, d0 + len) + CFG.RAMPA + 6; sp.nextD = doorD;
         const rep = S.repasos.find(x => x.espera <= 0); let q, esRep = false;
         if (rep) { S.repasos.splice(S.repasos.indexOf(rep), 1); q = rep.q; esRep = true; } else { q = PREGS[sp.qi++]; sp.tr++; S.repasos.forEach(x => x.espera--); }
@@ -243,7 +248,9 @@
       }
     }
     function golpe() {
-      if (S.inv > 0) return; S.vidas--; S.golpes++; S.inv = CFG.INV; S.hurt = 0.55; S.shake = 0.35; S.flash = 0.35; sfx.golpe();
+      if (S.inv > 0) return;
+      if (S.escudo > 0) { S.escudo = 0; S.inv = 1; sfx.bien(3); chispas(W / 2 + (S.px - 1) * LW, PY - 100, '#9ad7ff', 24); anillo(W / 2 + (S.px - 1) * LW, PY - 100, '#9ad7ff', 1.2); toast('🛡 ¡El escudo te protegió!', '#9ad7ff', 1.4); return; }
+      S.vidas--; S.golpes++; S.inv = CFG.INV; S.hurt = 0.55; S.shake = 0.35; S.flash = 0.35; sfx.golpe();
       chispas(W / 2 + (S.px - 1) * LW, PY - 80, '#ff6a6a', 18);
       if (S.vidas <= 0) { S.cae = 1.2; toast('¡Tranquilo! Seguimos', '#ffd18a', 1.6); }
     }
@@ -252,6 +259,7 @@
       if (!S || !S.corriendo || S.pausa || S.fin || S.cae > 0) return;
       if (S.plaza && !S.listo) S.listo = true; // en la plaza, cualquier gesto significa «ya elegí, seguimos»
       if (a === 'listo') return;
+      if (S.vuelo > 0 && a !== 'izq' && a !== 'der') return;
       if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
       else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
       else if (a === 'salta') { if (S.jh <= 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); } }
@@ -279,10 +287,12 @@
       else S.v += clamp(vObj - S.v, -16 * dt, 7 * dt);
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
-      if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { S.jh = 0; S.jv = 0; } }
+      if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
+      else if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { S.jh = 0; S.jv = 0; } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
       if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
+      if (!S.plaza) { if (S.iman > 0) S.iman -= dt; if (S.escudo > 0) S.escudo -= dt; }
       if (S.alegre > 0) S.alegre -= dt; if (S.pista) { S.pista.t -= dt; if (S.pista.t <= 0) S.pista = null; }
       S.hist.push({ t: S.t, px: S.px }); while (S.hist.length && S.hist[0].t < S.t - 1.4) S.hist.shift();
       efectos(dt); generar();
@@ -290,7 +300,7 @@
       for (const it of S.items) {
         const z = it.d - S.dist;
         if (it.k === 'orb' && !it.tomado && !it.row.res && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) recoge(it, W / 2 + (it.lane - 1) * LW, yz(0) - 120);
-        else if (it.k === 'coin' && !it.tomada && jugando && Math.abs(z) < 1.1 && Math.abs(S.px - it.lane) < 0.6 && Math.abs(S.jh - it.h) < 85) {
+        else if (it.k === 'coin' && !it.tomada && jugando && Math.abs(z) < 1.1 && Math.abs(S.px - it.lane) < (S.iman > 0 ? 1.7 : 0.6) && (S.iman > 0 || Math.abs(S.jh - it.h) < 85)) {
           it.tomada = true; S.monedas++; S.puntos++; sfx.moneda(S.monedas); chispas(W / 2 + (it.lane - 1) * LW, PY - 60 - it.h, '#ffd35a', 5);
         }
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
@@ -298,6 +308,11 @@
           if (!esquiva) { it.roto = true; if (S.skate > 0) { S.puntos += 5; S.monedas += 2; sfx.bien(2); chispas(W / 2 + (it.lane - 1) * LW, PY - 90, '#ff9ad5', 16); anillo(W / 2 + (it.lane - 1) * LW, PY - 90, '#ffb3e6', 0.8); toast('¡Crash! +2 🪙', '#ff9ad5', 0.7); } else golpe(); }
         } else if (it.k === 'pat' && !it.tomado && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) {
           it.tomado = true; S.skate = 8; S.puntos += 20; sfx.portal(); chispas(W / 2 + (it.lane - 1) * LW, PY - 100, '#ff9ad5', 26); anillo(W / 2 + (it.lane - 1) * LW, PY - 100, '#ffd35a', 1.3); toast('🛹 ¡Patineta ninja!', '#ff9ad5', 1.8);
+        } else if (it.k === 'caja' && !it.tomado && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) {
+          it.tomado = true; const qi = (S.iman <= 0 && (S.escudo > 0 || Math.random() < 0.5)); S.puntos += 15; sfx.portal(); chispas(W / 2 + (it.lane - 1) * LW, PY - 100, '#c9a0ff', 26); anillo(W / 2 + (it.lane - 1) * LW, PY - 100, '#e0c8ff', 1.3);
+          if (qi) { S.iman = 10; toast('🧲 ¡Imán de monedas!', '#c9a0ff', 1.8); } else { S.escudo = 12; toast('🛡 ¡Escudo!', '#9ad7ff', 1.8); }
+        } else if (it.k === 'nube' && !it.pasado && z < 0.5) {
+          it.pasado = true; S.vuelo = 1; S.vueloD = it.hasta; S.skate = 0; sfx.portal(); chispas(W / 2, PY - 120, '#ffffff', 30); anillo(W / 2, PY - 120, '#9ad7ff', 1.6); toast('☁️ ¡Tabla voladora!', '#9ad7ff', 2);
         } else if (it.k === 'portal' && !it.pasado && z < 0) {
           it.pasado = true;
           if (it.arco) { sfx.plaza(); chispas(W / 2, 330, '#9ad7ff', 14); }
@@ -435,8 +450,19 @@
       const bw = wd * 0.8, bh = 46 * p * 1.6, by = y - ht - bh * 0.55; ctx.fillStyle = 'rgba(20,10,40,.88)'; rr(x - bw / 2, by, bw, bh, 12 * p); ctx.fill(); ctx.lineWidth = 3 * p; ctx.strokeStyle = '#ffe27a'; ctx.stroke();
       ctx.fillStyle = '#ffe27a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(34 * p) + 'px ' + FUENTE; ctx.fillText(it.txt, x, by + bh / 2); ctx.globalAlpha = 1;
     }
+    function cajaDib(it, z) {
+      if (it.tomado || z < -2) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z) - (50 + 8 * Math.sin(S.t * 4 + it.d)) * p, r = 34 * p;
+      brillo(x, y, r * 2.6, '190,140,255', 0.6 * a); ctx.globalAlpha = a; ctx.fillStyle = '#7a3fd0'; ctx.strokeStyle = '#ffd35a'; ctx.lineWidth = Math.max(1.5, 3 * p); rr(x - r, y - r, r * 2, r * 2, r * 0.22); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffd35a'; ctx.fillRect(x - r * 0.14, y - r, r * 0.28, r * 2); ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(r * 1.2) + 'px ' + FUENTE; ctx.fillText('?', x, y + r * 0.06); ctx.globalAlpha = 1;
+    }
+    function nubeDib(it, z) {
+      if (it.pasado && z < -2) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2, y = yz(z), wd = RW * 2.1 * p; if (z < -3) return;
+      brillo(x, y - 60 * p, wd * 0.55, '180,225,255', 0.5 * a); ctx.globalAlpha = a * 0.95; ctx.fillStyle = '#ffffff';
+      for (let k = -4; k <= 4; k++) { ctx.beginPath(); ctx.arc(x + k * wd / 9, y - (36 + (k % 2 ? 16 : 0)) * p, (30 + (4 - Math.abs(k)) * 4) * p, 0, 7); ctx.fill(); }
+      ctx.fillStyle = '#7fd0ff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(34 * p) + 'px ' + FUENTE; ctx.fillText('☁️ TABLA VOLADORA', x, y - 120 * p); ctx.globalAlpha = 1;
+    }
     function monedaDib(it, z) {
-      if (it.tomada || z < -2) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z) - (46 + it.h) * p, r = 26 * p, mo = IMG(ART.moneda);
+      if (it.tomada || z < -2) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), ln = (S.iman > 0 && Math.abs(it.lane - S.px) <= 1.7) ? it.lane + (S.px - it.lane) * clamp(1 - z / 16, 0, 1) : it.lane, x = W / 2 + (ln - 1) * LW * p, y = yz(z) - (46 + it.h) * p, r = 26 * p, mo = IMG(ART.moneda);
       brillo(x, y, r * 1.9, '255,210,90', 0.45 * a); ctx.globalAlpha = a;
       if (listo(mo)) ctx.drawImage(mo, (Math.floor(S.t * 10 + it.d * 0.7) % 6) * 160, 0, 160, 160, x - r, y - r, r * 2, r * 2); else { ctx.fillStyle = '#ffd35a'; ctx.beginPath(); ctx.arc(x, y, r * 0.8, 0, 7); ctx.fill(); }
       ctx.globalAlpha = 1;
@@ -455,6 +481,7 @@
       const clon = alpha != null && alpha < 1, sk = S.skate > 0 && !clon && estado !== 'hurt' && estado !== 'win'; let f, mir = false, inclina = true;
       if (estado === 'win') {
         const L = fb('celebra'), seq = [0, 1, 2, 3, 4, 5, 4, 5, 4, 5, 4, 5]; f = L[seq[Math.min(seq.length - 1, Math.floor((S.t - (S.celeb != null ? S.celeb : S.alegreT)) / 0.2))]]; inclina = false;
+      } else if (estado === 'vuelo' && fb('jump').length > 4) { f = fb('jump')[4]; inclina = true;
       } else if (sk) { const L = fb('skate'); f = estado === 'jump' ? L[3] : estado === 'slide' ? L[5] : L[[0, 6, 4, 7][Math.floor(S.tAnim * 8) % 4]]; }
       else if (estado === 'run' && !clon && S.cambio && S.cambio.t > 0 && fb('carril').length >= 4) {
         const L = fb('carril'); f = L[[1, 2, 2, 3][Math.min(3, Math.floor((1 - S.cambio.t / 0.3) * 4))]]; mir = S.cambio.dir < 0; inclina = false; // las hojas se inclinan hacia la derecha; para la izquierda se voltean
@@ -490,13 +517,15 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
-      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
+      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
       const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
         pintaHeroe(W / 2 + (pxc - 1) * LW + lado * (46 + 22 * Math.floor(i / 2)), PY - 6 - 10 * i, kHeroe * (0.8 - 0.03 * i), 'run', flip, 0.4);
       }
+      if (S.vuelo > 0) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(hx, PY + 4, 46, 9, 0, 0, 7); ctx.fill(); brillo(hx, hy + 6, 110, '150,215,255', 0.5); ctx.fillStyle = 'rgba(255,255,255,.95)'; for (let k = -2; k <= 2; k++) { ctx.beginPath(); ctx.arc(hx + k * 24, hy + 6 + (k % 2 ? 6 : 0), 22 - Math.abs(k) * 3, 0, 7); ctx.fill(); } }
       if (!parpadeo) pintaHeroe(hx, hy, kHeroe, est, flip, 1);
+      if (S.escudo > 0) { ctx.save(); ctx.fillStyle = 'rgba(120,200,255,.16)'; ctx.strokeStyle = 'rgba(160,225,255,' + (S.escudo < 3 && Math.floor(S.t * 8) % 2 ? 0.3 : 0.85) + ')'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(hx, hy - 100, 100 + 4 * Math.sin(S.t * 6), 0, 7); ctx.fill(); ctx.stroke(); ctx.restore(); }
     }
     function dibAmb() {
       ctx.save();
@@ -546,6 +575,7 @@
       const ci = IMG(ART.clon), nCl = Math.min(4, Math.floor(S.racha / 2)); ctx.globalAlpha = nCl ? 1 : 0.4; if (listo(ci)) ctx.drawImage(ci, 12, H - 66, 48, 48); ctx.globalAlpha = 1;
       ctx.textAlign = 'left'; ctx.font = 'bold 22px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const t3 = 'Racha ' + S.racha + (nCl ? '  ×' + nCl : ''); ctx.strokeText(t3, 68, H - 42); ctx.fillStyle = '#fff'; ctx.fillText(t3, 68, H - 42);
       if (S.skate > 0) { const w = 150 * clamp(S.skate / 8, 0, 1); ctx.fillStyle = 'rgba(10,5,30,.72)'; rr(W - 196, H - 62, 176, 36, 18); ctx.fill(); ctx.fillStyle = (S.skate < 2 && Math.floor(S.t * 8) % 2) ? '#ff6a6a' : '#ff9ad5'; rr(W - 180, H - 53, Math.max(6, w), 18, 9); ctx.fill(); ctx.textAlign = 'left'; ctx.font = '26px serif'; ctx.fillStyle = '#fff'; ctx.fillText('🛹', W - 224, H - 42); }
+      { let yy = H - 112; ctx.textAlign = 'left'; ctx.font = 'bold 24px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; [['🧲 ', S.iman, '#e0c8ff'], ['🛡 ', S.escudo, '#9ad7ff']].forEach(c => { if (c[1] > 0) { const tx = c[0] + Math.ceil(c[1]) + ' s'; ctx.strokeText(tx, 14, yy); ctx.fillStyle = c[2]; ctx.fillText(tx, 14, yy); yy -= 34; } }); }
       // avisos
       ctx.textAlign = 'center'; S.toasts.forEach((t, i) => { const a = clamp(t.t / 0.35, 0, 1) * clamp((t.t0 - t.t) / 0.1 + 0.2, 0, 1); ctx.globalAlpha = a; ctx.font = 'bold 36px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const ty = 330 + i * 48 - (t.t0 - t.t) * 22; ctx.strokeText(t.txt, W / 2, ty); ctx.fillStyle = t.color; ctx.fillText(t.txt, W / 2, ty); ctx.globalAlpha = 1; });
       // tarjeta animada de etapa
@@ -575,7 +605,7 @@
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
-      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
+      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       dibAmb(); dibEfectos();
@@ -593,7 +623,7 @@
     function inicio() {
       S = nuevo(); S.cazaBase = 0;
       pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre por <b>6 mundos</b>, junta <b>monedas</b> 🪙 y, en cada <b>plaza</b>, elige con calma la respuesta de las tablas del <b>7, 8 y 9</b>.</p>' +
-        '<div class="reglas"><span>🪙 Junta monedas saltando y deslizando</span><span>🤔 En la plaza no hay prisa</span><span>💛 Si fallas, te damos una pista</span><span>🛹 Cada 3 aciertos seguidos: ¡premio!</span></div>' +
+        '<div class="reglas"><span>🪙 Junta monedas saltando y deslizando</span><span>🤔 En la plaza no hay prisa</span><span>💛 Si fallas, te damos una pista</span><span>🛹 Cada 3 aciertos seguidos: ¡premio!</span><span>☁️ Cajas ? y tabla voladora</span></div>' +
         '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido.') + '</p>' +
         '<button id="go" type="button">▶ JUGAR</button>');
       document.getElementById('go').onclick = () => { intentarPantallaCompleta(); try { ac() && ac().resume && ac().resume(); } catch (e) {} pantalla(''); S.corriendo = true; ponBanner(0, PREGS[0].T, 3); vigilarGiro(); };
