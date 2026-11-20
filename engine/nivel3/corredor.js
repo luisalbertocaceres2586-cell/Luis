@@ -233,8 +233,8 @@
     }
     function accion(a) {
       if (!S || !S.corriendo || S.pausa || S.fin || S.cae > 0) return;
-      if (a === 'izq') S.tl = Math.max(0, S.tl - 1);
-      else if (a === 'der') S.tl = Math.min(2, S.tl + 1);
+      if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
+      else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
       else if (a === 'salta') { if (S.jh <= 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); } }
       else if (a === 'baja') { if (S.jh > 1) S.jv = -1500; else if (S.slide <= 0) { S.slide = 0.75; sfx.desliza(); } }
     }
@@ -243,12 +243,18 @@
     function paso(dt) {
       if (!S || !S.corriendo || S.pausa) return;
       dt = Math.min(dt, 0.05); S.t += dt;
-      if (S.fin) return;
+      if (S.fin) {
+        if (S.celeb != null) S.px += clamp(1 - S.px, -dt * 3, dt * 3);
+        for (const p of S.parts) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 700 * dt; } S.parts = S.parts.filter(p => p.t < p.life); for (const r of S.rings) r.t += dt; S.rings = S.rings.filter(r => r.t < r.dur);
+        if (S.celeb != null && S.t - S.celeb < 2.3) { S.confT = (S.confT || 0) - dt; if (S.confT <= 0) { S.confT = 0.22; const cx = W / 2 + (S.px - 1) * LW; chispas(cx + R(-60, 60), PY - 230, ['#ffe27a', '#ff9ad5', '#7dffb0', '#9ad7ff'][RI(0, 3)], 14); } }
+        return;
+      }
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(2, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
       else S.v = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.hudE * 1.4 + Math.max(0, S.racha - 4) * 0.02);
       S.dist += S.v * dt; S.tAnim += dt * (S.v / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
       if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { S.jh = 0; S.jv = 0; } }
+      if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
       if (S.skate > 0) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
       S.hist.push({ t: S.t, px: S.px }); while (S.hist.length && S.hist[0].t < S.t - 1.4) S.hist.shift();
@@ -407,9 +413,13 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function pintaHeroeE(x, y, k, estado, alpha) {
-      const clon = alpha != null && alpha < 1, sk = S.skate > 0 && !clon && estado !== 'hurt'; let f;
-      if (sk) { const L = fb('skate'); f = estado === 'jump' ? L[3] : estado === 'slide' ? L[5] : L[[0, 6, 4, 7][Math.floor(S.tAnim * 8) % 4]]; }
-      else {
+      const clon = alpha != null && alpha < 1, sk = S.skate > 0 && !clon && estado !== 'hurt' && estado !== 'win'; let f, mir = false, inclina = true;
+      if (estado === 'win') {
+        const L = fb('celebra'), seq = [0, 1, 2, 3, 4, 5, 4, 5, 4, 5, 4, 5]; f = L[seq[Math.min(seq.length - 1, Math.floor((S.t - S.celeb) / 0.22))]]; inclina = false;
+      } else if (sk) { const L = fb('skate'); f = estado === 'jump' ? L[3] : estado === 'slide' ? L[5] : L[[0, 6, 4, 7][Math.floor(S.tAnim * 8) % 4]]; }
+      else if (estado === 'run' && !clon && S.cambio && S.cambio.t > 0 && fb('carril').length >= 4) {
+        const L = fb('carril'); f = L[[1, 2, 2, 3][Math.min(3, Math.floor((1 - S.cambio.t / 0.3) * 4))]]; mir = S.cambio.dir < 0; inclina = false; // las hojas se inclinan hacia la derecha; para la izquierda se voltean
+      } else {
         const L = fb(estado === 'hurt' ? 'hurt' : estado === 'slide' ? 'roll' : estado === 'jump' ? 'jump' : 'run'), n = L.length; let i;
         if (estado === 'hurt') i = Math.floor(clamp((0.55 - S.hurt) / 0.55, 0, 0.99) * n);
         else if (estado === 'slide') i = Math.floor(clamp((0.75 - S.slide) / 0.75, 0, 0.99) * n);
@@ -420,7 +430,8 @@
       if (!f) return; const im = IMG(HB.base + f.file); if (!listo(im)) return;
       ctx.save(); ctx.translate(x, y); ctx.globalAlpha = alpha == null ? 1 : alpha;
       ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill();
-      ctx.rotate(clamp((S.tl - S.px) * 0.16, -0.2, 0.2)); // se inclina al cambiar de carril
+      if (inclina) ctx.rotate(clamp((S.tl - S.px) * 0.16, -0.2, 0.2));
+      if (mir) ctx.scale(-1, 1);
       ctx.drawImage(im, -f.ax * k, -f.ay * k, f.w * k, f.h * k);
       ctx.restore(); ctx.globalAlpha = 1;
     }
@@ -440,7 +451,7 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
-      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = S.hurt > 0 ? 'hurt' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && Math.floor(S.t * 14) % 2 === 0;
+      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
       const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
@@ -528,7 +539,7 @@
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
       S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
-      cola.forEach(c => { if (!heroeHecho && c.z < 0) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
+      cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       dibAmb(); dibEfectos();
       ctx.restore(); vinetaDib(); hud();
     }
@@ -557,7 +568,12 @@
     }
     function salir() { vivo = false; cancelAnimationFrame(raf); if (o.onSalir) o.onSalir(); }
     function terminar() {
-      S.fin = true; sfx.gana(); const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
+      if (S.fin) return; S.fin = true; S.tl = 1; S.jh = 0; S.jv = 0; S.slide = 0; S.skate = 0; sfx.gana();
+      const conCel = !!(HB && fb('celebra').length);
+      if (conCel) { S.celeb = S.t; const cx = W / 2 + (S.px - 1) * LW; chispas(cx, PY - 200, '#ffe27a', 40); anillo(cx, PY - 160, '#fff3b0', 1.8); setTimeout(() => { if (vivo) mostrarFin(); }, 2700); } else mostrarFin();
+    }
+    function mostrarFin() {
+      const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
       const dificiles = Object.keys(S.fallos).sort((a, b) => S.fallos[b] - S.fallos[a]).slice(0, 4).map(k => k.replace('x', ' × '));
       if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel3 = p.nivel3 || {}; p.nivel3.completado = true; p.nivel3.mejor = Math.max(p.nivel3.mejor || 0, S.puntos); p.nivel3.estrellas = Math.max(p.nivel3.estrellas || 0, est); p.nivel3.intentos = (p.nivel3.intentos || 0) + 1; p.nivel3.fallos = S.fallos; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; }); } catch (e) {} }
       pantalla(retrato('radiante') + '<h1>¡NIVEL COMPLETADO!</h1>' + BARRA + '<div class="estrellas">' + '⭐'.repeat(est) + '<span style="opacity:.25">' + '⭐'.repeat(3 - est) + '</span></div>' +
