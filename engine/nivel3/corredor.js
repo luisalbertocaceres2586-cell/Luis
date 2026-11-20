@@ -12,7 +12,7 @@
   'use strict';
 
   const W = 540, H = 960, HOR = 268, PY = 800, Z0 = 18, ZMAX = 84, LW = 150, RW = 258;
-  const CFG = { VEL0: 9.5, VEL_SUBE: 0.35, VEL_MAX: 12.5, GAP: 19, FILAS_CAD: 10, FILAS_CAZA: 8, VIDAS: 3, INV: 1.8, ALTURA_HEROE: 215 };
+  const CFG = { VEL0: 9, VEL_SUBE: 0.25, VEL_MAX: 11.5, VIDAS: 3, INV: 1.8, ALTURA_HEROE: 215, RAMPA: 46, ESPERA: 9, VPLAZA: 3.2, PREG_TABLA: 6, PREG_MUNDO: 3 };
   const TABLAS = [7, 8, 9];
   const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
   const R = (a, b) => a + Math.random() * (b - a), RI = (a, b) => Math.floor(R(a, b + 1));
@@ -30,7 +30,9 @@
     farolPiedra: [P + 'lights/stone_lantern_a.png', P + 'lights/stone_lantern_b.png', P + 'lights/stone_lantern_c.png', P + 'lights/fire_brazier_c.png'],
     torii: P + 'structures/torii_gate_f.png', portal: P + 'structures/torii_lanterns_a.png',
     barril: P + 'objects/barrel_c.png', caja: P + 'objects/crate_c.png',
-    montanas: 'assets/environment/backgrounds/themes/montanas_night.png',
+    fuego: [P + 'lights/fire_brazier_c.png', P + 'lights/stone_lantern_d.png', P + 'lights/stone_lantern_small_e.png'],
+    cristal: [P + 'crystals/crystal_blue_d.png', P + 'crystals/crystal_purple_a.png', P + 'crystals/crystal_purple_b.png', P + 'crystals/crystal_purple_c.png'],
+    trueno: [P + 'crystals/crystal_spire_c.png', P + 'decor/rock_pillar_e.png', P + 'crystals/crystal_purple_b.png'],
     corazon: 'assets/ui/hud/animados/corazon_latido.png'
   };
   const UI0 = 'assets/ui/hud/';
@@ -40,13 +42,17 @@
   const cache = {};
   function IMG(src) { let i = cache[src]; if (!i) { i = new Image(); i.src = src; cache[src] = i; } return i; }
   const listo = i => i && i.complete && i.naturalWidth > 0;
-  function precargar() { Object.keys(ART).forEach(k => [].concat(ART[k]).forEach(IMG)); }
+  function precargar() { Object.keys(ART).forEach(k => [].concat(ART[k]).forEach(IMG)); TEMAS.forEach(t => IMG(BG + t.bg + '.png')); }
+  const BG = 'assets/environment/backgrounds/themes/';
 
   // ───────────────────────── temas por tabla ─────────────────────────
   const TEMAS = [
-    { nombre: 'Bosque de Bambú', cielo: ['#120a2e', '#3b2a6d'], pasto: ['#0b2a2a', '#12413b'], c1: '#3d3560', c2: '#463e6c', borde: '#7fe3c4', niebla: '#4b5a9c', deco: 'bambu' },
-    { nombre: 'Jardín de Sakura', cielo: ['#2a0c3a', '#8a3d7a'], pasto: ['#35193d', '#5a2a5c'], c1: '#5a3a63', c2: '#664270', borde: '#ffb3d9', niebla: '#b9609f', deco: 'sakura' },
-    { nombre: 'Camino de Fuego', cielo: ['#2a0a0a', '#a8431f'], pasto: ['#2d1410', '#4d2316'], c1: '#5b3a32', c2: '#684239', borde: '#ffc36b', niebla: '#d9692f', deco: 'farolPiedra' }
+    { nombre: 'Bosque de Bambú', cielo: ['#120a2e', '#3b2a6d'], pasto: ['#0b2a2a', '#12413b'], c1: '#3d3560', c2: '#463e6c', borde: '#7fe3c4', niebla: '#4b5a9c', deco: 'bambu', amb: 0, bg: 'montanas_jungle', dh: [300, 420] },
+    { nombre: 'Jardín de Sakura', cielo: ['#2a0c3a', '#8a3d7a'], pasto: ['#35193d', '#5a2a5c'], c1: '#5a3a63', c2: '#664270', borde: '#ffb3d9', niebla: '#b9609f', deco: 'sakura', amb: 1, bg: 'montanas_water', dh: [300, 420] },
+    { nombre: 'Aldea de Farolillos', cielo: ['#0a0a2a', '#1d2a6b'], pasto: ['#10142e', '#1a2550'], c1: '#2f3558', c2: '#38406a', borde: '#ffd27a', niebla: '#33458a', deco: 'farolPiedra', amb: 0, bg: 'montanas_night', dh: [190, 250] },
+    { nombre: 'Camino de Fuego', cielo: ['#2a0a0a', '#a8431f'], pasto: ['#2d1410', '#4d2316'], c1: '#5b3a32', c2: '#684239', borde: '#ffc36b', niebla: '#d9692f', deco: 'fuego', amb: 2, bg: 'montanas_lava', dh: [190, 250] },
+    { nombre: 'Cristales de Hielo', cielo: ['#0b1740', '#2f7fbf'], pasto: ['#0d2a4a', '#16507a'], c1: '#3e5f88', c2: '#486c98', borde: '#9ee8ff', niebla: '#6fb4e6', deco: 'cristal', amb: 0, bg: 'montanas_ice', dh: [200, 300] },
+    { nombre: 'Cumbres del Trueno', cielo: ['#0e0a22', '#4a3a7a'], pasto: ['#1a1230', '#2f2150'], c1: '#4a3f6e', c2: '#554a7c', borde: '#ffe27a', niebla: '#6b5aa8', deco: 'trueno', amb: 2, bg: 'montanas_storm', dh: [200, 300] }
   ];
   const hexA = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
   const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
@@ -69,6 +75,8 @@
     golpe() { tono(140, 0.25, 'sawtooth', 0.12); tono(90, 0.3, 'square', 0.08, 0.05); },
     salto() { tono(380, 0.16, 'sine', 0.08); tono(560, 0.14, 'sine', 0.06, 0.07); },
     desliza() { tono(300, 0.18, 'sawtooth', 0.04); },
+    moneda(r) { tono(988 + (r % 6) * 90, 0.09, 'triangle', 0.07); },
+    plaza() { tono(660, 0.25, 'sine', 0.08); tono(880, 0.3, 'sine', 0.06, 0.1); },
     portal() { [523, 659, 784, 1047].forEach((f, i) => tono(f, 0.3, 'triangle', 0.12, i * 0.09)); },
     gana() { [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tono(f, 0.4, 'triangle', 0.13, i * 0.12)); }
   };
@@ -88,11 +96,29 @@
     return s.join(' · ') + ' · ?';
   }
 
+  // preguntas del nivel: 6 por tabla, de fácil a difícil, con 3 formatos (sin tiempo límite)
+  function construir() {
+    const out = [], tipos = ['mult', 'mult', 'sigue', 'mult', 'multiplo', 'sigue'];
+    TABLAS.forEach(T => {
+      const ns = mez([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, CFG.PREG_TABLA).sort((a, b) => a - b);
+      ns.forEach((n, i) => out.push({ T, n, tipo: tipos[i % tipos.length], inv: Math.random() < 0.4 }));
+    });
+    return out;
+  }
+  function textoPregunta(q) {
+    const T = q.T, n = q.n;
+    if (q.tipo === 'sigue') return T * (n - 3) + ' · ' + T * (n - 2) + ' · ' + T * (n - 1) + ' · ?';
+    if (q.tipo === 'multiplo') return '¿Cuál es múltiplo de ' + T + '?';
+    return '¿Cuánto es ' + (q.inv ? n + ' × ' + T : T + ' × ' + n) + '?';
+  }
+  function secuencia(T, n) { const a = []; for (let k = Math.max(1, n - 4); k <= n; k++) a.push(T * k); return a.join(' · '); }
+  function distMult(c, T) { const o = []; mez([c + 1, c - 1, c + 2, c - 2, c + 3, c - 3, c + 4, c - 4]).forEach(v => { if (o.length < 2 && v > 0 && v % T !== 0 && o.indexOf(v) < 0) o.push(v); }); return o; }
+
   // ───────────────────────── juego ─────────────────────────
   function iniciar(o) {
     o = o || {};
     precargar();
-    const ET = []; TABLAS.forEach(T => { ET.push({ tipo: 'cadena', T }); ET.push({ tipo: 'caza', T }); });
+    const PREGS = construir();
     const marco = document.getElementById('marco'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
     const heroe = o.heroe === 'kage' ? 'kage' : 'sakura';
     const HM = heroe === 'kage' ? window.ANTAREZ_MANIFEST : window.SAKURA_EVE_MANIFEST;
@@ -140,62 +166,58 @@
     // ───────────────────────── estado ─────────────────────────
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], toasts: [],
-        racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [],
-        sp: { e: 0, r: 0, nextD: 34, fase: 'fila', extra: null, ultLane: -1, decoD: 8, nextPat: 100 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
+        racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [], monedas: 0, mundo: 0, qpas: 0, zp: 0, cortes: [{ d: 0, m: 0 }],
+        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null,
+        sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, ultLane: -1, decoD: 8 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
 
-    // ───────────────────────── generador de filas ─────────────────────────
+    // ───────────────────────── generador: carrera libre + plaza de pregunta ─────────────────────────
     function nuevaLane(s) { let l; do { l = RI(0, 2); } while (l === s.sp.ultLane && Math.random() < 0.7); s.sp.ultLane = l; return l; }
-    function filaCadena(e, n, repaso) {
-      const T = e.T, c = T * n, cl = nuevaLane(S), d = S.sp.nextD, vals = distractores(c, T, n), lanes = [0, 1, 2], row = { d, tipo: 'cadena', T, n, c, res: false, hint: S.fallosSeg >= 2, repaso: !!repaso, q: repaso ? T + ' × ' + n + ' = ?' : textoCadena(T, n), pasada: false };
-      lanes.forEach(l => S.items.push({ k: 'orb', d, lane: l, val: l === cl ? c : vals.pop(), ok: l === cl, row, tomado: false }));
+    function moneda(d, lane, h) { S.items.push({ k: 'coin', d, lane, h: h || 0, tomada: false }); }
+    function obs(d, lane, tipo) { S.items.push({ k: 'obs', tipo, d, lane, skin: Math.random() < 0.5 ? 'barril' : 'caja', roto: false }); }
+    function filaPregunta(q, repaso) {
+      const T = q.T, n = q.n, c = T * n, d = S.sp.nextD, cl = nuevaLane(S), vals = q.tipo === 'multiplo' ? distMult(c, T) : distractores(c, T, n);
+      const row = { d, tipo: q.tipo, T, n, c, q0: q, res: false, hint: !!repaso, repaso: !!repaso, pasada: false, plaza: true, q: textoPregunta(q) };
+      [0, 1, 2].forEach(l => S.items.push({ k: 'orb', d, lane: l, val: l === cl ? c : vals.pop(), ok: l === cl, row, tomado: false }));
       S.filas.push(row); return row;
     }
-    function filaCaza(e) {
-      const T = e.T, d = S.sp.nextD, m = Math.random() < 0.55 ? 1 : 2, mult = []; for (let k = 2; k <= 10; k++) mult.push(T * k);
-      mez(mult); const lanes = mez([0, 1, 2]), esM = lanes.slice(0, m), row = { d, tipo: 'caza', T, res: false, q: 'Solo múltiplos del ' + T, pasada: false, buenos: m, tomados: 0 };
-      lanes.forEach(l => {
-        let v; if (esM.indexOf(l) >= 0) v = mult.pop(); else { const base = T * RI(2, 10); const off = [1, 2, -1, -2, 3][RI(0, 4)]; v = base + off; if (v % T === 0 || v < 3) v = base + 1; }
-        S.items.push({ k: 'orb', d, lane: l, val: v, ok: esM.indexOf(l) >= 0, row, tomado: false });
-      });
-      S.filas.push(row); S.cazaTotal = (S.cazaTotal || 0) + m; return row;
+    // un tramo de carrera libre: monedas en líneas, arcos y zigzag, con obstáculos que dan monedas si los esquivas
+    function patrones(d0, len, tipo) {
+      let d = d0 + 6; const suave = tipo === 'suave', pat = tipo === 'pat';
+      if (pat) { S.items.push({ k: 'pat', d, lane: RI(0, 2), tomado: false }); d += 14; }
+      while (d < d0 + len) {
+        const lane = nuevaLane(S), r = Math.random(); let usado = 18;
+        if (pat) { obs(d, lane, Math.random() < 0.5 ? 'bajo' : 'alto'); for (let i = 1; i <= 4; i++) moneda(d + i * 2.4, lane, 0); usado = 14; }
+        else if (r < 0.3 || (suave && r >= 0.75)) { for (let i = 0; i < 6; i++) moneda(d + i * 2.6, lane, 0); }
+        else if (r < 0.55) { const H = [0, 60, 105, 130, 105, 60, 0]; for (let i = 0; i < 7; i++) moneda(d + i * 2.4, lane, H[i]); }
+        else if (r < 0.75) { const Z = [0, 1, 2, 1, 0, 1, 2]; for (let i = 0; i < 7; i++) moneda(d + i * 3, Z[i], 0); usado = 22; }
+        else if (r < 0.9) { obs(d + 7, lane, 'bajo'); const H = [0, 70, 120, 140, 120, 70, 0]; for (let i = 0; i < 7; i++) moneda(d + 2 + i * 1.6, lane, H[i]); usado = 20; }
+        else { obs(d + 6, lane, 'alto'); for (let i = 0; i < 5; i++) moneda(d + 2 + i * 2.4, lane, 0); }
+        d += usado + 8;
+      }
+      return d;
     }
-    function obstaculos(dFila, e) {
-      const prob = e.tipo === 'caza' ? 0.6 : 0.42 + 0.06 * Math.floor(S.sp.e / 2); if (Math.random() > prob) return;
-      const lanes = mez([0, 1, 2]), cuantos = (S.sp.e >= 2 && Math.random() < 0.4) ? 2 : 1, d = dFila + CFG.GAP * 0.5;
-      for (let i = 0; i < cuantos; i++) S.items.push({ k: 'obs', tipo: Math.random() < 0.5 ? 'bajo' : 'alto', d, lane: lanes[i], skin: Math.random() < 0.5 ? 'barril' : 'caja', roto: false });
-    }
-    function portal(d, e, final) {
-      const sig = ET[S.sp.e + 1];
-      S.items.push({ k: 'portal', d, final: !!final, txt: final ? '¡META!' : (sig.tipo === 'cadena' ? 'Tabla del ' + sig.T : 'Caza de múltiplos del ' + sig.T), pasado: false, sigE: S.sp.e + 1 });
-    }
+    function portal(d, m, final) { S.items.push({ k: 'portal', d, final: !!final, txt: final ? '¡META!' : '¡Nuevo mundo!', pasado: false, sigM: m }); }
     function generar() {
       const sp = S.sp;
       while (!sp.fin && sp.nextD < S.dist + ZMAX) {
-        const e = ET[sp.e];
-        if (sp.fase === 'portal') {
-          const ultima = sp.e === ET.length - 1; portal(sp.nextD, e, ultima); sp.nextD += 30;
-          if (ultima) { sp.fin = true; break; } sp.e++; sp.r = 0; sp.extra = null; sp.fase = 'fila'; continue;
-        }
-        const d0 = sp.nextD;
-        if (e.tipo === 'cadena') {
-          if (sp.r === CFG.FILAS_CAD && sp.extra == null) sp.extra = Math.min(2, S.repasos.length);
-          if (sp.r < CFG.FILAS_CAD) filaCadena(e, sp.r + 1, false);
-          else if (sp.r < CFG.FILAS_CAD + (sp.extra || 0)) { const f = S.repasos.shift(); if (f) filaCadena({ T: f.T }, f.n, true); }
-          else { sp.fase = 'portal'; continue; }
-        } else {
-          if (sp.r < CFG.FILAS_CAZA) filaCaza(e); else { sp.fase = 'portal'; continue; }
-        }
-        obstaculos(d0, e);
-        if (d0 > sp.nextPat && S.skate <= 0) { S.items.push({ k: 'pat', d: d0 + CFG.GAP * 0.27, lane: RI(0, 2), tomado: false }); sp.nextPat = d0 + RI(150, 210); }
-        sp.r++; sp.nextD += CFG.GAP;
+        if (sp.qi >= PREGS.length) { portal(sp.nextD, 0, true); sp.nextD += 30; sp.fin = true; break; }
+        if (sp.tr >= CFG.PREG_MUNDO) { const m = Math.min(TEMAS.length - 1, sp.mundo + 1); portal(sp.nextD, m, false); S.cortes.push({ d: sp.nextD, m }); sp.mundo = m; sp.tr = 0; sp.patM = false; sp.nextD += 24; continue; }
+        const tipo = sp.qi === 0 ? 'suave' : (sp.tr === 1 && !sp.patM) ? 'pat' : 'normal'; if (tipo === 'pat') sp.patM = true;
+        const len = tipo === 'pat' ? 115 : tipo === 'suave' ? 80 : R(90, 115), d0 = sp.nextD, dFin = patrones(d0, len, tipo);
+        const doorD = Math.max(dFin, d0 + len) + CFG.RAMPA + 6; sp.nextD = doorD;
+        const rep = S.repasos.find(x => x.espera <= 0); let q, esRep = false;
+        if (rep) { S.repasos.splice(S.repasos.indexOf(rep), 1); q = rep.q; esRep = true; } else { q = PREGS[sp.qi++]; sp.tr++; S.repasos.forEach(x => x.espera--); }
+        S.items.push({ k: 'portal', d: doorD - 26, final: false, arco: true, txt: '¡Pregunta!', pasado: false });
+        filaPregunta(q, esRep); sp.nextD = doorD + 18;
       }
-      // decorado a los lados (según el tema de la etapa que se está generando)
+      // decorado a los lados, según el mundo en que esté esa parte de la pista
       while (sp.decoD < S.dist + ZMAX) {
-        const tema = TEMAS[Math.min(2, Math.floor(sp.e / 2))], lado = Math.random() < 0.5 ? -1 : 1, set = ART[tema.deco];
-        S.deco.push({ d: sp.decoD, off: lado * R(2.1, 3.4), img: set[RI(0, set.length - 1)], h: tema.deco === 'farolPiedra' ? R(190, 250) : R(300, 420) });
-        if (Math.random() < 0.5) S.deco.push({ d: sp.decoD + R(1, 4), off: -lado * R(2.1, 3.4), img: set[RI(0, set.length - 1)], h: tema.deco === 'farolPiedra' ? R(190, 250) : R(300, 420) });
+        let m = 0; for (const c of S.cortes) if (c.d <= sp.decoD) m = c.m;
+        const tema = TEMAS[m], set = ART[tema.deco], lado = Math.random() < 0.5 ? -1 : 1, dh = tema.dh;
+        S.deco.push({ d: sp.decoD, off: lado * R(2.1, 3.4), img: set[RI(0, set.length - 1)], h: R(dh[0], dh[1]) });
+        if (Math.random() < 0.5) S.deco.push({ d: sp.decoD + R(1, 4), off: -lado * R(2.1, 3.4), img: set[RI(0, set.length - 1)], h: R(dh[0], dh[1]) });
         sp.decoD += R(4.5, 7);
       }
     }
@@ -203,36 +225,33 @@
     // ───────────────────────── reglas ─────────────────────────
     function toast(txt, color, t) { S.toasts.push({ txt, color: color || '#fff', t: t || 1.3, t0: t || 1.3 }); if (S.toasts.length > 3) S.toasts.shift(); }
     function chispas(x, y, col, n) { for (let i = 0; i < n; i++) S.parts.push({ x, y, vx: R(-220, 220), vy: R(-300, 60), life: R(0.4, 0.9), t: 0, c: col, r: R(3, 7) }); }
-    function guardaFallo(T, n) { const k = T + 'x' + n; S.fallos[k] = (S.fallos[k] || 0) + 1; if (!S.repasos.some(f => f.T === T && f.n === n)) S.repasos.push({ T, n }); }
+    function guardaFallo(row) {
+      const k = row.T + 'x' + row.n; S.fallos[k] = (S.fallos[k] || 0) + 1;
+      if (!row.repaso && !S.repasos.some(x => x.q.T === row.T && x.q.n === row.n)) S.repasos.push({ q: row.q0, espera: 1 });
+    }
     function recoge(it, x, y) {
-      const row = it.row; it.tomado = true; row.res = true;
-      if (row.tipo === 'cadena') {
-        if (it.ok) {
-          S.aciertos++; S.racha++; S.fallosSeg = 0; S.mejorRacha = Math.max(S.mejorRacha, S.racha); S.puntos += 10 + Math.min(S.racha, 10) * 2;
-          if (!row.repaso) S.cadena.push(it.val); sfx.bien(S.racha - 1); chispas(x, y, '#ffe27a', 16); anillo(x, y, '#ffd35a', 1);
-          if (S.racha === 3 || S.racha === 6 || S.racha === 10) toast('¡Racha de ' + S.racha + '! 🥷 sombras', '#7dffb0', 1.6);
-          else toast(['¡Bien!', '¡Eso es!', '¡Perfecto!', '¡Genial!'][RI(0, 3)], '#7dffb0', 0.9);
-        } else {
-          S.errores++; S.racha = 0; S.fallosSeg++; guardaFallo(row.T, row.n); sfx.casi(); chispas(x, y, '#9aa3c7', 10); anillo(x, y, '#9aa3c7', 0.7);
-          toast('Casi… ' + row.T + ' × ' + row.n + ' = ' + row.c, '#ffd18a', 1.8);
-        }
+      const row = it.row; it.tomado = true; row.res = true; if (!row.repaso) S.qpas++;
+      if (it.ok) {
+        S.aciertos++; S.racha++; S.mejorRacha = Math.max(S.mejorRacha, S.racha); const gan = row.repaso ? 3 : 5 + Math.min(S.racha, 5);
+        S.monedas += gan; S.puntos += 10 + Math.min(S.racha, 10) * 2; S.alegre = 1.1; S.alegreT = S.t; S.pista = null;
+        sfx.bien(S.racha - 1); chispas(x, y, '#ffe27a', 28); chispas(x, y, '#ffffff', 10); anillo(x, y, '#ffd35a', 1.3); S.flashB = Math.max(S.flashB, 0.12);
+        if (S.racha % 3 === 0) { S.items.push({ k: 'pat', d: row.d + 8, lane: S.tl, tomado: false }); toast('¡' + S.racha + ' seguidas! 🛹 ¡Premio!', '#7dffb0', 1.8); }
+        else toast(['¡Bien!', '¡Eso es!', '¡Perfecto!', '¡Genial!'][RI(0, 3)] + ' +' + gan + ' 🪙', '#7dffb0', 1.2);
       } else {
-        S.cazaOk = S.cazaOk || 0;
-        if (it.ok) { S.cazadas++; row.tomados++; S.racha++; S.mejorRacha = Math.max(S.mejorRacha, S.racha); S.puntos += 15; S.aciertos++; sfx.bien(S.racha - 1); chispas(x, y, '#ffe27a', 14); anillo(x, y, '#ffd35a', 0.9); toast('¡Múltiplo!', '#7dffb0', 0.8); row.res = row.tomados >= row.buenos; }
-        else { S.errores++; S.racha = 0; sfx.casi(); chispas(x, y, '#9aa3c7', 10); anillo(x, y, '#9aa3c7', 0.7); toast(it.val + ' no está en la tabla del ' + row.T, '#ffd18a', 1.6); }
+        S.errores++; S.racha = 0; guardaFallo(row); sfx.casi(); chispas(x, y, '#9aa3c7', 10); anillo(x, y, '#9aa3c7', 0.7);
+        S.pista = { txt: secuencia(row.T, row.n), t: 5 }; toast('Casi… ' + row.T + ' × ' + row.n + ' = ' + row.c, '#ffd18a', 2);
       }
     }
     function golpe() {
-      if (S.inv > 0) return; S.vidas--; S.golpes++; S.inv = CFG.INV; S.hurt = 0.55; S.shake = 0.35; S.flash = 0.35; S.racha = 0; sfx.golpe();
+      if (S.inv > 0) return; S.vidas--; S.golpes++; S.inv = CFG.INV; S.hurt = 0.55; S.shake = 0.35; S.flash = 0.35; sfx.golpe();
       chispas(W / 2 + (S.px - 1) * LW, PY - 80, '#ff6a6a', 18);
-      if (S.vidas <= 0) { S.cae = 1.6; toast('¡Tranquilo! Repetimos la etapa', '#ffd18a', 1.6); }
+      if (S.vidas <= 0) { S.cae = 1.2; toast('¡Tranquilo! Seguimos', '#ffd18a', 1.6); }
     }
-    function reaparecer() {
-      const e = S.hudE; S.items = []; S.filas = []; S.cadena = []; S.vidas = CFG.VIDAS; S.racha = 0; S.fallosSeg = 0; S.inv = 2.2; S.cae = 0;
-      S.sp.e = e; S.sp.r = 0; S.sp.fase = 'fila'; S.sp.extra = null; S.sp.fin = false; S.sp.nextD = S.dist + 30; ponBanner(ET[e], 2); S.cazaBase = S.cazadas;
-    }
+    function reaparecer() { S.vidas = CFG.VIDAS; S.inv = 2.5; S.cae = 0; }
     function accion(a) {
       if (!S || !S.corriendo || S.pausa || S.fin || S.cae > 0) return;
+      if (S.plaza && !S.listo) S.listo = true; // en la plaza, cualquier gesto significa «ya elegí, seguimos»
+      if (a === 'listo') return;
       if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
       else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
       else if (a === 'salta') { if (S.jh <= 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); } }
@@ -249,35 +268,48 @@
         if (S.celeb != null && S.t - S.celeb < 2.3) { S.confT = (S.confT || 0) - dt; if (S.confT <= 0) { S.confT = 0.22; const cx = W / 2 + (S.px - 1) * LW; chispas(cx + R(-60, 60), PY - 230, ['#ffe27a', '#ff9ad5', '#7dffb0', '#9ad7ff'][RI(0, 3)], 14); } }
         return;
       }
-      if (S.cae > 0) { S.cae -= dt; S.v = Math.max(2, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
-      else S.v = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.hudE * 1.4 + Math.max(0, S.racha - 4) * 0.02);
-      S.dist += S.v * dt; S.tAnim += dt * (S.v / CFG.VEL0);
+      // la pista se frena sola al llegar a la plaza de pregunta y espera (sin reloj) hasta que el niño decida
+      const fila = S.filas.find(f => !f.res && !f.pasada), dz = fila ? fila.d - S.dist : 999;
+      if (fila !== S.filaAct) { S.filaAct = fila; S.listo = false; }
+      S.plaza = !!fila && dz < CFG.RAMPA; S.espera = S.plaza && dz <= CFG.ESPERA + 0.3 && !S.listo;
+      S.zp += ((S.plaza ? 1 : 0) - S.zp) * Math.min(1, dt * 3);
+      const base = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.mundo + Math.max(0, S.racha - 4) * 0.02); let vObj = base;
+      if (S.plaza) { const k = clamp((dz - CFG.ESPERA) / (CFG.RAMPA - CFG.ESPERA), 0, 1); vObj = CFG.VPLAZA + (base - CFG.VPLAZA) * k; if (dz <= CFG.ESPERA + 0.3) vObj = S.listo ? CFG.VPLAZA + 1.4 : 0; }
+      if (S.cae > 0) { S.cae -= dt; S.v = Math.max(0, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
+      else S.v += clamp(vObj - S.v, -16 * dt, 7 * dt);
+      S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
       if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { S.jh = 0; S.jv = 0; } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
-      if (S.skate > 0) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
+      if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
+      if (S.alegre > 0) S.alegre -= dt; if (S.pista) { S.pista.t -= dt; if (S.pista.t <= 0) S.pista = null; }
       S.hist.push({ t: S.t, px: S.px }); while (S.hist.length && S.hist[0].t < S.t - 1.4) S.hist.shift();
       efectos(dt); generar();
       const jugando = S.cae <= 0;
       for (const it of S.items) {
         const z = it.d - S.dist;
         if (it.k === 'orb' && !it.tomado && !it.row.res && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) recoge(it, W / 2 + (it.lane - 1) * LW, yz(0) - 120);
+        else if (it.k === 'coin' && !it.tomada && jugando && Math.abs(z) < 1.1 && Math.abs(S.px - it.lane) < 0.6 && Math.abs(S.jh - it.h) < 85) {
+          it.tomada = true; S.monedas++; S.puntos++; sfx.moneda(S.monedas); chispas(W / 2 + (it.lane - 1) * LW, PY - 60 - it.h, '#ffd35a', 5);
+        }
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
           const esquiva = it.tipo === 'bajo' ? S.jh > 70 : S.slide > 0;
-          if (!esquiva) { it.roto = true; if (S.skate > 0) { S.puntos += 5; sfx.bien(2); chispas(W / 2 + (it.lane - 1) * LW, PY - 90, '#ff9ad5', 16); anillo(W / 2 + (it.lane - 1) * LW, PY - 90, '#ffb3e6', 0.8); toast('¡Crash!', '#ff9ad5', 0.7); } else golpe(); }
+          if (!esquiva) { it.roto = true; if (S.skate > 0) { S.puntos += 5; S.monedas += 2; sfx.bien(2); chispas(W / 2 + (it.lane - 1) * LW, PY - 90, '#ff9ad5', 16); anillo(W / 2 + (it.lane - 1) * LW, PY - 90, '#ffb3e6', 0.8); toast('¡Crash! +2 🪙', '#ff9ad5', 0.7); } else golpe(); }
         } else if (it.k === 'pat' && !it.tomado && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) {
           it.tomado = true; S.skate = 8; S.puntos += 20; sfx.portal(); chispas(W / 2 + (it.lane - 1) * LW, PY - 100, '#ff9ad5', 26); anillo(W / 2 + (it.lane - 1) * LW, PY - 100, '#ffd35a', 1.3); toast('🛹 ¡Patineta ninja!', '#ff9ad5', 1.8);
         } else if (it.k === 'portal' && !it.pasado && z < 0) {
           it.pasado = true;
-          if (it.final) { terminar(); } else { S.hudE = it.sigE; S.cadena = []; S.fallosSeg = 0; const e = ET[S.hudE]; ponBanner(e, 2.8); S.cazaBase = S.cazadas; S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
+          if (it.arco) { sfx.plaza(); chispas(W / 2, 330, '#9ad7ff', 14); }
+          else if (it.final) { terminar(); }
+          else { S.mundo = it.sigM; ponBanner(S.mundo, PREGS[Math.min(PREGS.length - 1, S.qpas)].T, 3); S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
         }
       }
       // filas que pasaron sin que se recogiera nada
       for (const f of S.filas) {
         if (!f.pasada && f.d - S.dist < -1.8) {
           f.pasada = true;
-          if (!f.res && f.tipo === 'cadena' && jugando) { guardaFallo(f.T, f.n); S.racha = 0; toast('Era ' + f.c + ' (' + f.T + ' × ' + f.n + ')', '#ffd18a', 1.6); }
+          if (!f.res && jugando) { f.res = true; guardaFallo(f); S.racha = 0; toast('Era ' + f.c + ' (' + f.T + ' × ' + f.n + ')', '#ffd18a', 1.6); }
         }
       }
       S.items = S.items.filter(i => i.d - S.dist > -5); S.deco = S.deco.filter(i => i.d - S.dist > -6); S.filas = S.filas.filter(f => f.d - S.dist > -12);
@@ -297,11 +329,11 @@
     const cacheBg = []; let vineta = null;
     const UI = 'assets/ui/hud/';
     const easeBack = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
-    function temaIdx() { return Math.min(2, Math.floor(S.hudE / 2)); }
-    function ponBanner(e, t) { S.banner = { s: (e.tipo === 'cadena' ? 'Tabla del ' : 'Caza del ') + e.T, sub: e.tipo === 'cadena' ? 'Cadena: sigue la tabla' : 'Caza: solo los múltiplos', T: e.T, t: t || 2.6, t0: t || 2.6 }; }
+    function temaIdx() { return S.mundo; }
+    function ponBanner(m, T, t) { S.banner = { s: TEMAS[m].nombre, sub: '¡Ahora la tabla del ' + T + '!', T, t: t || 2.6, t0: t || 2.6 }; }
     function anillo(x, y, c, esc) { S.rings.push({ x, y, c, esc: esc || 1, t: 0, dur: 0.6 }); }
     function nuevaAmb(p, inicial) {
-      const t = temaIdx(); p.tipo = t; p.t = 0; p.ph = R(0, 6.3); p.life = R(5, 10);
+      const t = TEMAS[temaIdx()].amb; p.tipo = t; p.t = 0; p.ph = R(0, 6.3); p.life = R(5, 10);
       if (t === 0) { p.x = R(20, W - 20); p.y = R(HOR + 30, PY); p.vx = R(-12, 12); p.vy = R(-10, 10); p.r = R(2, 3.6); }
       else if (t === 1) { p.x = R(0, W); p.y = inicial ? R(-20, H * 0.8) : -20; p.vx = R(10, 40); p.vy = R(40, 90); p.r = R(5, 9); p.rot = R(0, 6.3); }
       else { p.x = R(0, W); p.y = inicial ? R(HOR, H) : H + 10; p.vx = R(-14, 14); p.vy = -R(40, 110); p.r = R(1.6, 3.2); }
@@ -312,7 +344,7 @@
       const n = S.lite ? 10 : 26; while (S.amb.length < n) { const p = {}; nuevaAmb(p, true); S.amb.push(p); } if (S.amb.length > n) S.amb.length = n;
       for (const p of S.amb) {
         p.t += dt; p.ph += dt * 2.2; p.x += p.vx * dt + Math.sin(p.ph) * (p.tipo === 1 ? 30 : 10) * dt; p.y += p.vy * dt + (p.tipo === 0 ? Math.cos(p.ph * 0.7) * 10 * dt : 0); if (p.tipo === 1) p.rot += dt * 2;
-        if (p.t > p.life || p.y < -30 || p.y > H + 30 || p.x < -30 || p.x > W + 30 || (p.tipo !== ob && p.t > 1.5)) nuevaAmb(p, false);
+        if (p.t > p.life || p.y < -30 || p.y > H + 30 || p.x < -30 || p.x > W + 30 || (p.tipo !== TEMAS[ob].amb && p.t > 1.5)) nuevaAmb(p, false);
       }
       S.polvoT -= dt; if (S.polvoT <= 0 && S.cae <= 0 && S.jh <= 1) { S.polvoT = S.slide > 0 ? 0.025 : 0.07; const hx = W / 2 + (S.px - 1) * LW; S.polvo.push({ x: hx + R(-16, 16), y: PY - 2 + R(-3, 3), vx: R(-35, 35), vy: R(-70, -25), life: R(0.35, 0.6), t: 0, r: R(6, 12) }); }
       for (const p of S.polvo) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt * 14; } S.polvo = S.polvo.filter(p => p.t < p.life);
@@ -331,7 +363,7 @@
     }
     function fondoDib(ta, tb, f) {
       ctx.drawImage(cacheTema(ta), -60, -60); if (f > 0.01 && tb !== ta) { ctx.globalAlpha = f; ctx.drawImage(cacheTema(tb), -60, -60); ctx.globalAlpha = 1; }
-      const m = IMG(ART.montanas); if (listo(m)) { const hh = 200, ww = hh * m.naturalWidth / m.naturalHeight, off = -((S.dist * 0.5 + (S.px - 1) * 30) % ww); ctx.globalAlpha = 0.85; for (let x = off - ww; x < W + 60; x += ww) ctx.drawImage(m, x, HOR - hh + 16, ww, hh); ctx.globalAlpha = 1; }
+      [[ta, 0.85], [tb, f * 0.85]].forEach(c => { if (c[1] <= 0.01 || (c[0] === ta && false)) return; const m = IMG(BG + TEMAS[c[0]].bg + '.png'); if (!listo(m)) return; const hh = 200, ww = hh * m.naturalWidth / m.naturalHeight, off = -((S.dist * 0.5 + (S.px - 1) * 30) % ww); ctx.globalAlpha = c[1]; for (let x = off - ww; x < W + 60; x += ww) ctx.drawImage(m, x, HOR - hh + 16, ww, hh); ctx.globalAlpha = 1; });
     }
     function camino(Tm) {
       const paso = S.lite ? 6 : 4; let prev = null;
@@ -368,9 +400,10 @@
       }
     }
     function orbe(it, z) {
-      const p = pz(z), x = W / 2 + (it.lane - 1) * LW * p, bob = Math.sin(S.t * 3 + it.lane * 1.7) * 6, y = yz(z) - (100 + bob) * p, r = 66 * p, row = it.row;
+      const p = pz(z), x = W / 2 + (it.lane - 1) * LW * p, bob = Math.sin(S.t * 3 + it.lane * 1.7) * 6, y = yz(z) - (100 + bob) * p, r = (it.row.plaza ? 76 : 66) * p, row = it.row;
       if (it.tomado) return; let a = clamp((ZMAX - z) / 26, 0, 1); if (row.res) a *= 0.3; if (z < 0) a *= clamp(1 + z / 0.9, 0, 1); if (a <= 0) return;
       const hint = row.hint && it.ok && !row.res, pulso = hint ? 1 + 0.12 * Math.sin(S.t * 8) : 1;
+      if (!row.res && z > 0.4) brillo(x, yz(z), r * 1.9, hint && it.ok ? '90,255,150' : '110,190,255', 0.3 * a);
       if (!row.res && !S.lite && z < 34 && z > 1) { for (let k = 1; k <= 3; k++) { const z2 = z + k * 2.6, p2 = pz(z2); brillo(W / 2 + (it.lane - 1) * LW * p2, yz(z2) - (100 + bob) * p2, 66 * p2 * 0.85, '255,190,90', a * 0.28 / k); } }
       ctx.save(); ctx.globalAlpha = a;
       ctx.strokeStyle = 'rgba(60,30,10,.85)'; ctx.lineWidth = Math.max(1, 3 * p); ctx.beginPath(); ctx.moveTo(x, y - r * 1.15); ctx.lineTo(x, y - r * 2.4); ctx.stroke();
@@ -402,6 +435,12 @@
       const bw = wd * 0.8, bh = 46 * p * 1.6, by = y - ht - bh * 0.55; ctx.fillStyle = 'rgba(20,10,40,.88)'; rr(x - bw / 2, by, bw, bh, 12 * p); ctx.fill(); ctx.lineWidth = 3 * p; ctx.strokeStyle = '#ffe27a'; ctx.stroke();
       ctx.fillStyle = '#ffe27a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(34 * p) + 'px ' + FUENTE; ctx.fillText(it.txt, x, by + bh / 2); ctx.globalAlpha = 1;
     }
+    function monedaDib(it, z) {
+      if (it.tomada || z < -2) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z) - (46 + it.h) * p, r = 26 * p, mo = IMG(ART.moneda);
+      brillo(x, y, r * 1.9, '255,210,90', 0.45 * a); ctx.globalAlpha = a;
+      if (listo(mo)) ctx.drawImage(mo, (Math.floor(S.t * 10 + it.d * 0.7) % 6) * 160, 0, 160, 160, x - r, y - r, r * 2, r * 2); else { ctx.fillStyle = '#ffd35a'; ctx.beginPath(); ctx.arc(x, y, r * 0.8, 0, 7); ctx.fill(); }
+      ctx.globalAlpha = 1;
+    }
     function patDib(it, z) {
       if (it.tomado || z < -3) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z) - (46 + 10 * Math.sin(S.t * 5 + it.d)) * p;
       ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.scale(p, p);
@@ -415,7 +454,7 @@
     function pintaHeroeE(x, y, k, estado, alpha) {
       const clon = alpha != null && alpha < 1, sk = S.skate > 0 && !clon && estado !== 'hurt' && estado !== 'win'; let f, mir = false, inclina = true;
       if (estado === 'win') {
-        const L = fb('celebra'), seq = [0, 1, 2, 3, 4, 5, 4, 5, 4, 5, 4, 5]; f = L[seq[Math.min(seq.length - 1, Math.floor((S.t - S.celeb) / 0.22))]]; inclina = false;
+        const L = fb('celebra'), seq = [0, 1, 2, 3, 4, 5, 4, 5, 4, 5, 4, 5]; f = L[seq[Math.min(seq.length - 1, Math.floor((S.t - (S.celeb != null ? S.celeb : S.alegreT)) / 0.2))]]; inclina = false;
       } else if (sk) { const L = fb('skate'); f = estado === 'jump' ? L[3] : estado === 'slide' ? L[5] : L[[0, 6, 4, 7][Math.floor(S.tAnim * 8) % 4]]; }
       else if (estado === 'run' && !clon && S.cambio && S.cambio.t > 0 && fb('carril').length >= 4) {
         const L = fb('carril'); f = L[[1, 2, 2, 3][Math.min(3, Math.floor((1 - S.cambio.t / 0.3) * 4))]]; mir = S.cambio.dir < 0; inclina = false; // las hojas se inclinan hacia la derecha; para la izquierda se voltean
@@ -451,7 +490,7 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
-      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
+      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
       const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
@@ -484,26 +523,25 @@
     }
     function hud() {
       let g = ctx.createLinearGradient(0, 0, 0, 262); g.addColorStop(0, 'rgba(8,4,24,.8)'); g.addColorStop(1, 'rgba(8,4,24,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, 262);
-      const row = S.filas.find(f => !f.res && f.d - S.dist > -1.5) || S.filas[S.filas.length - 1], e = row ? { tipo: row.tipo, T: row.T } : ET[S.hudE], ti = Math.min(2, Math.floor(S.hudE / 2)), tema = TEMAS[ti];
+      const row = S.filaAct, e = { T: (row || PREGS[Math.min(PREGS.length - 1, S.qpas)]).T }, tema = TEMAS[S.mundo], mostrarQ = !!row && S.plaza;
       // retrato del héroe en medallón
       const nom = heroe === 'kage' ? 'antarez' : 'sakura', est = (S.hurt > 0 || S.vidas <= 1) ? 'herido' : (S.racha >= 4 ? 'radiante' : 'normal'), pi = IMG(UI + 'retratos/' + nom + '_' + est + '.png'), mi = IMG(ART.medallon);
       if (listo(pi)) { ctx.save(); ctx.beginPath(); ctx.arc(53, 51, 34, 0, 7); ctx.clip(); ctx.drawImage(pi, 17, 15, 72, 72); ctx.restore(); } if (listo(mi)) ctx.drawImage(mi, 6, 4, 94, 94);
       const hi = IMG(ART.corazon); for (let i = 0; i < CFG.VIDAS; i++) { ctx.globalAlpha = i < S.vidas ? 1 : 0.22; if (listo(hi)) ctx.drawImage(hi, 0, 0, 200, 175, 108 + i * 44, 14, 40, 35); else { ctx.fillStyle = '#ff5a7a'; ctx.font = '34px serif'; ctx.fillText('♥', 108 + i * 44, 44); } } ctx.globalAlpha = 1;
       const mo = IMG(ART.moneda); if (listo(mo)) ctx.drawImage(mo, (Math.floor(S.t * 8) % 6) * 160, 0, 160, 160, 108, 56, 30, 30);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; ctx.strokeText(S.puntos, 144, 72); ctx.fillStyle = '#ffe27a'; ctx.fillText(S.puntos, 144, 72);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; ctx.strokeText(S.monedas, 144, 72); ctx.fillStyle = '#ffe27a'; ctx.fillText(S.monedas, 144, 72);
       // insignia con el número de la tabla
       const ins = IMG(ART.insignia); if (listo(ins)) ctx.drawImage(ins, 300, 6, 90, 90);
       ctx.textAlign = 'center'; ctx.font = 'bold 42px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.strokeText(e.T, 343, 48); ctx.fillStyle = '#fff'; ctx.fillText(e.T, 343, 48);
-      ctx.fillStyle = tema.borde; ctx.font = 'bold 18px ' + FUENTE; ctx.lineWidth = 4; ctx.strokeText((e.tipo === 'cadena' ? '⛓ CADENA' : '🎯 CAZA') + ' · ' + tema.nombre.toUpperCase(), W / 2, 112); ctx.fillText((e.tipo === 'cadena' ? '⛓ CADENA' : '🎯 CAZA') + ' · ' + tema.nombre.toUpperCase(), W / 2, 112);
+      ctx.fillStyle = tema.borde; ctx.font = 'bold 18px ' + FUENTE; ctx.lineWidth = 4; ctx.strokeText('🌍 ' + tema.nombre.toUpperCase(), W / 2, 112); ctx.fillText('🌍 ' + tema.nombre.toUpperCase(), W / 2, 112);
       // placa de la pregunta
       const ba = IMG(ART.barra); if (listo(ba)) ctx.drawImage(ba, 20, 124, 500, 89); else { ctx.fillStyle = 'rgba(15,8,40,.85)'; rr(24, 130, W - 48, 78, 18); ctx.fill(); }
-      const txt = row ? row.q : '¡Prepárate!';
+      const txt = mostrarQ ? row.q : '¡Corre y junta monedas!';
       ctx.font = 'bold ' + (txt.length > 22 ? 28 : txt.length > 14 ? 34 : 46) + 'px ' + FUENTE; ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(8,20,60,.95)'; ctx.strokeText(txt, W / 2, 169); ctx.fillStyle = '#fff'; ctx.fillText(txt, W / 2, 169);
-      if (e.tipo === 'cadena') {
-        const n = S.cadena.length, X = i => W / 2 + (i - 4.5) * 34;
-        if (n > 1) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,200,80,.9)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(X(0), 240); for (let i = 1; i < n; i++) ctx.lineTo(X(i), 240); ctx.stroke(); ctx.restore(); }
-        for (let i = 0; i < CFG.FILAS_CAD; i++) { const on = i < n; if (on) brillo(X(i), 240, 17, '255,210,90', 0.55); ctx.fillStyle = on ? '#ffe27a' : 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.arc(X(i), 240, on ? 9 : 7, 0, 7); ctx.fill(); if (on) { ctx.strokeStyle = '#a8631b'; ctx.lineWidth = 2; ctx.stroke(); } }
-      } else { ctx.fillStyle = '#d7d4ee'; ctx.font = 'bold 20px ' + FUENTE; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const t2 = 'Múltiplos recogidos: ' + (S.cazadas - (S.cazaBase || 0)); ctx.strokeText(t2, W / 2, 240); ctx.fillText(t2, W / 2, 240); }
+      { const n = S.qpas % CFG.PREG_TABLA, X = i => W / 2 + (i - (CFG.PREG_TABLA - 1) / 2) * 40;
+        for (let i = 0; i < CFG.PREG_TABLA; i++) { const on = i < n; if (on) brillo(X(i), 240, 17, '255,210,90', 0.55); ctx.fillStyle = on ? '#ffe27a' : 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.arc(X(i), 240, on ? 10 : 8, 0, 7); ctx.fill(); if (on) { ctx.strokeStyle = '#a8631b'; ctx.lineWidth = 2; ctx.stroke(); } } }
+      if (S.pista && S.pista.t > 0) { ctx.globalAlpha = clamp(S.pista.t, 0, 1); ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.textAlign = 'center'; ctx.strokeText('Pista: ' + S.pista.txt, W / 2, 280); ctx.fillStyle = '#bff5d0'; ctx.fillText('Pista: ' + S.pista.txt, W / 2, 280); ctx.globalAlpha = 1; }
+      if (S.espera) { ctx.globalAlpha = 0.65 + 0.35 * Math.sin(S.t * 4); ctx.textAlign = 'center'; ctx.font = 'bold 28px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; const t4 = tactil() ? 'Elige tu carril y toca para seguir' : 'Elige con ← → y pulsa Espacio'; ctx.strokeText(t4, W / 2, 470); ctx.fillStyle = '#ffffff'; ctx.fillText(t4, W / 2, 470); ctx.globalAlpha = 1; }
       // abajo: sombras y racha
       const ci = IMG(ART.clon), nCl = Math.min(4, Math.floor(S.racha / 2)); ctx.globalAlpha = nCl ? 1 : 0.4; if (listo(ci)) ctx.drawImage(ci, 12, H - 66, 48, 48); ctx.globalAlpha = 1;
       ctx.textAlign = 'left'; ctx.font = 'bold 22px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const t3 = 'Racha ' + S.racha + (nCl ? '  ×' + nCl : ''); ctx.strokeText(t3, 68, H - 42); ctx.fillStyle = '#fff'; ctx.fillText(t3, 68, H - 42);
@@ -527,17 +565,17 @@
     function dibuja() {
       ctx.setTransform(q, 0, 0, q, 0, 0); ctx.clearRect(0, 0, W, H);
       if (!S) { ctx.fillStyle = '#0a0618'; ctx.fillRect(0, 0, W, H); return; }
-      const ta = Math.floor(S.temaF), tb = Math.min(2, ta + 1), f = S.temaF - ta, A = TEMAS[ta], B = TEMAS[tb];
+      const ta = Math.floor(S.temaF), tb = Math.min(TEMAS.length - 1, ta + 1), f = S.temaF - ta, A = TEMAS[ta], B = TEMAS[tb];
       const Tm = { c1: mix(A.rc1, B.rc1, f), c2: mix(A.rc2, B.rc2, f), borde: mix(A.rb, B.rb, f), niebla: mix(A.rn, B.rn, f) };
       ctx.save();
-      const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8), tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
+      const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
       ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob);
       if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
       fondoDib(ta, tb, f); camino(Tm); charcos(); niebla(Tm);
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
-      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
+      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       dibAmb(); dibEfectos();
@@ -554,11 +592,11 @@
     const BARRA = '<img class="barra" src="' + UI + 'extras/barra_ornamental_azul_dorada.png" alt="">';
     function inicio() {
       S = nuevo(); S.cazaBase = 0;
-      pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre hacia el fondo y recoge el farolillo con la <b>respuesta correcta</b> de las tablas del <b>7, 8 y 9</b>.</p>' +
-        '<div class="reglas"><span>⛓ Cadenas: 7 · 14 · 21 · ?</span><span>🎯 Caza: solo los múltiplos</span><span><img src="assets/ui/poderes/clone.png" alt="">La racha crea sombras</span><span>💛 Si fallas, solo se repasa</span><span>🛹 La patineta rompe obstáculos</span></div>' +
-        '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos).' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · P pausa · M sonido.') + '</p>' +
+      pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre por <b>6 mundos</b>, junta <b>monedas</b> 🪙 y, en cada <b>plaza</b>, elige con calma la respuesta de las tablas del <b>7, 8 y 9</b>.</p>' +
+        '<div class="reglas"><span>🪙 Junta monedas saltando y deslizando</span><span>🤔 En la plaza no hay prisa</span><span>💛 Si fallas, te damos una pista</span><span>🛹 Cada 3 aciertos seguidos: ¡premio!</span></div>' +
+        '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido.') + '</p>' +
         '<button id="go" type="button">▶ JUGAR</button>');
-      document.getElementById('go').onclick = () => { intentarPantallaCompleta(); try { ac() && ac().resume && ac().resume(); } catch (e) {} pantalla(''); S.corriendo = true; ponBanner(ET[0], 2.8); vigilarGiro(); };
+      document.getElementById('go').onclick = () => { intentarPantallaCompleta(); try { ac() && ac().resume && ac().resume(); } catch (e) {} pantalla(''); S.corriendo = true; ponBanner(0, PREGS[0].T, 3); vigilarGiro(); };
     }
     function pausar(forzar) {
       if (!S || !S.corriendo || S.fin) return; if (S.pausa && !forzar) { S.pausa = false; pantalla(''); return; } if (S.pausa) return; S.pausa = true;
@@ -575,9 +613,9 @@
     function mostrarFin() {
       const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
       const dificiles = Object.keys(S.fallos).sort((a, b) => S.fallos[b] - S.fallos[a]).slice(0, 4).map(k => k.replace('x', ' × '));
-      if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel3 = p.nivel3 || {}; p.nivel3.completado = true; p.nivel3.mejor = Math.max(p.nivel3.mejor || 0, S.puntos); p.nivel3.estrellas = Math.max(p.nivel3.estrellas || 0, est); p.nivel3.intentos = (p.nivel3.intentos || 0) + 1; p.nivel3.fallos = S.fallos; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; }); } catch (e) {} }
+      if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel3 = p.nivel3 || {}; p.nivel3.completado = true; p.nivel3.monedas = (p.nivel3.monedas || 0) + S.monedas; p.nivel3.mejor = Math.max(p.nivel3.mejor || 0, S.puntos); p.nivel3.estrellas = Math.max(p.nivel3.estrellas || 0, est); p.nivel3.intentos = (p.nivel3.intentos || 0) + 1; p.nivel3.fallos = S.fallos; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; }); } catch (e) {} }
       pantalla(retrato('radiante') + '<h1>¡NIVEL COMPLETADO!</h1>' + BARRA + '<div class="estrellas">' + '⭐'.repeat(est) + '<span style="opacity:.25">' + '⭐'.repeat(3 - est) + '</span></div>' +
-        '<p>Puntos: <b>' + S.puntos + '</b> · Aciertos: <b>' + S.aciertos + '</b> · Mejor racha: <b>' + S.mejorRacha + '</b></p>' + (dificiles.length ? '<p>Para repasar: <b>' + dificiles.join(' · ') + '</b></p>' : '<p>¡Sin tablas difíciles! 🏆</p>') +
+        '<p>Monedas: <b>' + S.monedas + ' 🪙</b> · Puntos: <b>' + S.puntos + '</b> · Aciertos: <b>' + S.aciertos + '</b> · Mejor racha: <b>' + S.mejorRacha + '</b></p>' + (dificiles.length ? '<p>Para repasar: <b>' + dificiles.join(' · ') + '</b></p>' : '<p>¡Sin tablas difíciles! 🏆</p>') +
         '<button id="otra" type="button">↻ JUGAR OTRA VEZ</button><button id="sal2" type="button" class="sec">⟵ SALIR</button>', 'fin');
       document.getElementById('otra').onclick = () => { inicio(); };
       document.getElementById('sal2').onclick = () => salir();
@@ -588,21 +626,21 @@
       const k = e.key; if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].indexOf(k) >= 0) e.preventDefault();
       if (k === 'ArrowLeft' || k === 'a' || k === 'A') accion('izq'); else if (k === 'ArrowRight' || k === 'd' || k === 'D') accion('der');
       else if (k === 'ArrowUp' || k === 'w' || k === 'W' || k === ' ') accion('salta'); else if (k === 'ArrowDown' || k === 's' || k === 'S') accion('baja');
-      else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') alternarSonido();
+      else if (k === 'Enter') accion('listo'); else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') alternarSonido();
     });
     let t0 = null;
-    marco.addEventListener('touchstart', e => { if (e.target.closest('button')) return; const t = e.changedTouches[0]; t0 = { x: t.clientX, y: t.clientY, hecho: false }; e.preventDefault(); }, { passive: false });
+    marco.addEventListener('touchstart', e => { if (e.target.closest('button')) return; const t = e.changedTouches[0]; t0 = { x: t.clientX, y: t.clientY, hecho: false, ts: Date.now() }; e.preventDefault(); }, { passive: false });
     marco.addEventListener('touchmove', e => {
-      if (!t0 || t0.hecho) return; const t = e.changedTouches[0], dx = t.clientX - t0.x, dy = t.clientY - t0.y, u = 26; e.preventDefault();
+      if (!t0 || t0.hecho) return; const t = e.changedTouches[0], dx = t.clientX - t0.x, dy = t.clientY - t0.y, u = 20; e.preventDefault();
       if (Math.abs(dx) > u && Math.abs(dx) > Math.abs(dy)) { accion(dx < 0 ? 'izq' : 'der'); t0.hecho = true; } else if (Math.abs(dy) > u) { accion(dy < 0 ? 'salta' : 'baja'); t0.hecho = true; }
     }, { passive: false });
-    marco.addEventListener('touchend', () => { t0 = null; });
+    marco.addEventListener('touchend', () => { if (t0 && !t0.hecho && Date.now() - t0.ts < 350) accion('listo'); t0 = null; });
     function alternarSonido() { mudo = !mudo; bMudo.textContent = mudo ? '🔇' : '🔊'; }
     bPausa.onclick = () => pausar(); bMudo.onclick = alternarSonido;
     document.addEventListener('visibilitychange', () => { if (document.hidden) pausar(true); });
 
     inicio(); vigilarGiro(); raf = requestAnimationFrame(bucle);
-    return { paso, accion, estado: () => S, dibuja, CFG, ET };
+    return { paso, accion, estado: () => S, dibuja, CFG, ET: PREGS };
   }
 
   window.Nivel3 = { iniciar };
