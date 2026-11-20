@@ -1,0 +1,14 @@
+/* Ranking (S1) y Reporte (S6) con el mismo lenguaje visual de la intro 2026: escena nocturna, panel de cristal con marco dorado/sakura y botones con sprites. Solo estilos. */
+#S1,#S6{background:
+  url(../../assets/intro-2026/ambiente/luna.png) no-repeat 94% 3%/min(24vw,170px),
+  url(../../assets/intro-2026/ambiente/sakura_grande.png) no-repeat -6% 106%/min(40vw,300px),
+  url(../../assets/intro-2026/ambiente/sakura_pequeno.png) no-repeat 106% 106%/min(36vw,260px),
+  radial-gradient(ellipse at 50% 28%,#2a1a6e 0%,#0f0a3a 50%,#05071a 100%)!important}
+#S1 .lbcard,#S6 .lbcard{border:30px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/panel_cristal.png) 84 fill/30px stretch!important;border-radius:0!important;background:none!important;
+  box-shadow:none!important;backdrop-filter:none!important;padding:0 6px 6px!important;filter:drop-shadow(0 24px 44px rgba(0,0,0,.65)) drop-shadow(0 0 24px rgba(157,85,233,.35));animation:pf26in .6s cubic-bezier(.2,.9,.25,1.05) both}
+#S1 .pbtn,#S6 .pbtn{border:16px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/boton_secundario.png) 55 90 55 70 fill/12px 21px 12px 17px stretch!important;border-width:12px 21px 12px 17px!important;padding:0 2px!important;
+  border-radius:0!important;background:none!important;box-shadow:none!important;color:#e8eeff!important;font-weight:900;min-height:46px;transition:transform .18s,filter .18s;filter:drop-shadow(0 6px 10px rgba(110,70,220,.35))}
+#S1 .pbtn:hover,#S6 .pbtn:hover{transform:translateY(-2px) scale(1.03);filter:drop-shadow(0 8px 16px rgba(157,85,233,.6)) brightness(1.15)}
+#S1 .pbtn:active,#S6 .pbtn:active{transform:scale(.96)}
+@media(max-width:520px){#S1 .lbcard,#S6 .lbcard{border-width:22px!important;border-image-width:22px!important;width:96vw}}
+@media(prefers-reduced-motion:reduce){#S1 .lbcard,#S6 .lbcard{animation:none!important}}
