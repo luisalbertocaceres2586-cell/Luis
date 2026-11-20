@@ -1,0 +1,7 @@
+/* Efectos de interacción 2026: destello al pasar el mouse (solo PC) y explosión de partículas al pulsar (PC y celular). Capas sueltas, no modifican los botones. */
+.fx26-hover,.fx26-click{position:fixed;left:0;top:0;z-index:100001;pointer-events:none;user-select:none;-webkit-user-drag:none;max-width:none;mix-blend-mode:screen;will-change:transform,opacity}
+.fx26-hover{opacity:0;transform:translate(-50%,-50%) scaleX(.4);transition:opacity .22s ease,transform .35s cubic-bezier(.2,.8,.2,1)}
+.fx26-hover.on{opacity:.8;transform:translate(-50%,-50%) scaleX(1)}
+.fx26-click{animation:fx26click .6s cubic-bezier(.15,.8,.25,1) forwards}
+@keyframes fx26click{0%{opacity:1;transform:translate(-50%,-50%) scale(.25) rotate(0deg)}55%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) scale(1) rotate(24deg)}}
+@media(prefers-reduced-motion:reduce){.fx26-hover,.fx26-click{display:none}}

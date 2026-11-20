@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#090b24"><title>Selector de mundos · Ninja Multiplicación</title>
+<style>html,body{margin:0;height:100%;background:#090b24}</style></head>
+<body>
+<script src="engine/nivel1/perfiles.js?v=1"></script>
+<script src="engine/ui/mundos-registro.js?v=1"></script>
+<script src="engine/ui/selector-mundos.js?v=1"></script>
+<script>
+/* Página de pruebas del selector (no toca el juego).
+   ?demo=1  simula un jugador con el Mundo 1 terminado y el Mundo 2 en curso
+   ?demo=2  simula los 3 mundos terminados
+   ?heroe=kage  prueba con el otro ninja */
+(function(){
+  var q=new URLSearchParams(location.search),perfil=null;
+  try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
+  var demo=q.get('demo');
+  if(demo){perfil={id:'demo',nombre:'Demo',avatar:q.get('heroe')==='kage'?'kage':'sakura',
+    nivel1:{completados:1,intentos:1},
+    nivel2:demo==='2'?{completados:2,intentos:3,estrellas:3,mejor:900}:{intentos:1,tutorial:true},
+    nivel3:demo==='2'?{completado:true,estrellas:2,intentos:1,mejor:400}:{}};}
+  else if(!perfil&&q.get('heroe'))perfil={id:'',nombre:'',avatar:q.get('heroe')};
+  SelectorMundos.abrir({perfil:perfil,cerrable:false});
+})();
+</script></body></html>
