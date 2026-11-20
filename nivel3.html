@@ -53,6 +53,6 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
   var q=new URLSearchParams(location.search),perfil=null;
   try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
   var heroe=(perfil&&perfil.avatar)||q.get('heroe')||'sakura'; if(heroe!=='kage')heroe='sakura';
-  Nivel3.iniciar({heroe:heroe,perfil:perfil||null,onSalir:function(){location.href='index.html';}});
+  Nivel3.iniciar({heroe:heroe,perfil:perfil||null,onSalir:function(){try{sessionStorage.setItem('ninja_abrir_mundos','1');}catch(e){}location.href='index.html?mundos=1';}});
 })();
 </script></body></html>
