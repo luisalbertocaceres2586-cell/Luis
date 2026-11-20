@@ -9636,7 +9636,12 @@ function drawMiniPeach(canvasId){
         press(k);
         // Mantener ~0.8 s sin mover el dedo en ⬆ / ⚔️ activa el modo mover.
         // ◀ ▶ se mueven con el botón ✥ MOVER para no interrumpir la caminata.
-        if(k==='J'||k==='A'||k==='P') st.timer=setTimeout(()=>{ if(st&&!st.drag) startDrag(); },HOLD_MS);
+        if(k==='J'||k==='A'||k==='P') st.timer=setTimeout(()=>{
+          // Con la partida en marcha, mantener ⬆ es para saltar más alto/planear: no se convierte en "mover botón" (soltaba el salto).
+          // Para recolocar los botones se usa ✥ MOVER.
+          if(k==='J' && typeof GS!=='undefined' && GS.running) return;
+          if(st&&!st.drag) startDrag();
+        },HOLD_MS);
       }
     });
     el.addEventListener('pointermove',e=>{
@@ -9674,7 +9679,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/villain-boss.js"></script>
 <script src="engine/ui/intro-2026.js?v=1"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-19-f";</script>
+<script>window.NJ_BUILD="2026-11-19-g";</script>
 <script src="engine/core/version.js?v=1"></script>
 <script src="engine/core/dispositivo.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
@@ -9684,7 +9689,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/ui/escena-2026.js?v=1"></script>
 <script src="engine/ui/ninjas-fx-2026.js?v=1"></script>
 <script src="engine/nivel1/perfiles.js?v=1"></script>
-<script src="engine/nivel1/perfil-ui.js?v=11"></script>
+<script src="engine/nivel1/perfil-ui.js?v=12"></script>
 <script src="engine/ui/pantalla-movil.js?v=11"></script>
 <script src="engine/ui/hud-nuevo.js?v=13"></script>
 <script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
