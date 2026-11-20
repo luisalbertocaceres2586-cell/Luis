@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#090b24"><title>Nivel 2 · Surf de Dunas</title>
+<meta name="theme-color" content="#090b24"><title>Nivel 2 · Viaje por 4 mundos</title>
 <style>
 html,body{margin:0;height:100%;background:#090b24;color:#fff;font-family:"Trebuchet MS",Verdana,ui-sans-serif,sans-serif}
 #ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:16px;text-align:center;background:radial-gradient(ellipse at 50% 35%,#3a2a63,#090b24 72%);overflow:auto}
@@ -17,15 +17,18 @@ button.op{padding:6px 10px;border:2px solid #ffffff33;background:#ffffff14;color
 button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 16px;font-size:14px}
 </style></head><body>
 <main id="ini">
-<h1>SURF DE DUNAS</h1>
-<p>Tu vehículo vuela solo y no se detiene. Cambia de carril y cruza la puerta con la <b>respuesta correcta</b> de las tablas del 4, 5 y 6. Al final te espera un jefe del desierto.</p>
+<h1>VIAJE POR 4 MUNDOS</h1>
+<p>Cruza dunas, una mina de cristales, islas en el cielo y un templo. Tu vehículo avanza solo: cambia de carril y cruza la puerta con la <b>respuesta correcta</b> de las tablas del 4, 5 y 6. Entre mundos armarás puentes de múltiplos, y al final te espera el jefe.</p>
 <div class="reglas">
 <span>🦊 Un tutorial corto te enseña todo</span>
+<span>🌄 4 mundos con ritmo propio</span>
+<span>🌉 Puentes de múltiplos</span>
 <span>💧 8 gotas = 1 corazón</span>
 <span>🏁 Banderas que guardan tu avance</span>
 </div>
-<p id="teclas">PC: ▲ ▼ (o W S, o las teclas 1 2 3) cambian de carril · ESPACIO salta · P pausa.<br>Celular: desliza ↑ ↓, toca los carteles de la izquierda y el botón SALTAR.</p>
+<p id="teclas">PC: ▲ ▼ (o W S, o las teclas 1 2 3) cambian de carril · ESPACIO salta · P pausa.<br>Celular: desliza ↑ ↓, toca los carteles de la izquierda y el botón SALTAR.<br>☁️ En el cielo vuelas libre: mantén ▲ ▼ (o arrastra el dedo) para subir y bajar.</p>
 <div id="sel">
+<small>Dificultad</small><div class="fila" id="difs"></div>
 <small>Elige tu vehículo</small><div class="fila" id="vehs"></div>
 <small id="tt">Elige el diseño de tu tabla</small><div class="fila" id="tabs"></div>
 </div>
@@ -36,9 +39,10 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
 </div>
 </main>
 <script src="engine/nivel1/perfiles.js?v=8"></script>
-<script src="assets/nivel2/manifest.js?v=1"></script>
+<script src="assets/nivel2/manifest.js?v=2"></script>
+<script src="assets/nivel2/manifest_amb.js?v=1"></script>
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
-<script src="engine/nivel2/surf.js?v=10"></script>
+<script src="engine/nivel2/surf.js?v=11"></script>
 <script>
 (function(){
   var A=window.NIVEL2_ARTE||{},U=function(id){return A[id]?'assets/nivel2/'+A[id].frames[0].f:'';};
@@ -48,13 +52,15 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
   var base={heroe:heroe,perfil:perfil||null,jefe:q.get('jefe')||undefined,directo:q.get('directo')||undefined,onSalir:function(){location.href='index.html';}};
   /* vehículo y diseño de tabla (se recuerdan en este equipo) */
   var cfg={};try{cfg=JSON.parse(localStorage.getItem('n2cfg')||'{}')||{};}catch(e){}
-  cfg.vehiculo=q.get('vehiculo')||cfg.vehiculo||'alfombra'; cfg.tabla=q.get('tabla')||cfg.tabla||'tabla_clasica';
+  cfg.vehiculo=q.get('vehiculo')||cfg.vehiculo||'alfombra'; cfg.tabla=q.get('tabla')||cfg.tabla||'tabla_clasica'; cfg.dificultad=q.get('dificultad')||cfg.dificultad||'tranquilo';
   var VEH=[['alfombra','Alfombra',U('alfombra_'+heroe+'_planeo')],['vagoneta','Vagoneta',U('vagoneta_'+heroe+'_rueda')],['tabla','Tabla','']];
+  var DIFS=[['tranquilo','😊 Tranquilo','5 corazones · ritmo lento'],['normal','🙂 Normal','4 corazones'],['reto','🔥 Reto','3 corazones · rápido']];
   var TABS=['tabla_clasica','tabla_cactus','tabla_cristal','tabla_dragon','tabla_faraon','tabla_neon'];
   function guardar(){try{localStorage.setItem('n2cfg',JSON.stringify(cfg));}catch(e){}}
   function boton(img,txt,on,fn){var b=document.createElement('button');b.type='button';b.className='op'+(on?' on':'');b.innerHTML=(img?'<img src="'+img+'" alt="">':'')+'<span>'+txt+'</span>';b.onclick=fn;return b;}
   function pintar(){
-    var v=document.getElementById('vehs'),t=document.getElementById('tabs');v.innerHTML='';t.innerHTML='';
+    var v=document.getElementById('vehs'),t=document.getElementById('tabs'),d=document.getElementById('difs');v.innerHTML='';t.innerHTML='';d.innerHTML='';
+    DIFS.forEach(function(x){d.appendChild(boton(null,x[1]+'<br><small>'+x[2]+'</small>',cfg.dificultad===x[0],function(){cfg.dificultad=x[0];guardar();pintar();}));});
     VEH.forEach(function(x){v.appendChild(boton(x[0]==='tabla'?U(cfg.tabla):x[2],x[1],cfg.vehiculo===x[0],function(){cfg.vehiculo=x[0];guardar();pintar();}));});
     var esT=cfg.vehiculo==='tabla';document.getElementById('tt').style.display=esT?'':'none';t.style.display=esT?'':'none';
     TABS.forEach(function(id){t.appendChild(boton(U(id),id.replace('tabla_',''),cfg.tabla===id,function(){cfg.tabla=id;guardar();pintar();}));});
@@ -62,7 +68,7 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
   pintar();
   function jugar(modo){
     document.getElementById('ini').remove();
-    var o=Object.assign({},base,{vehiculo:cfg.vehiculo,tabla:cfg.tabla});if(modo)o.modo=modo;Nivel2.iniciar(o);
+    var o=Object.assign({},base,{vehiculo:cfg.vehiculo,tabla:cfg.tabla,dificultad:cfg.dificultad});if(modo)o.modo=modo;Nivel2.iniciar(o);
   }
   var cp=Nivel2.guardado(base);
   if(cp&&cp.ronda>0){var c=document.getElementById('cont');c.style.display='';c.textContent='🏁 CONTINUAR · '+(cp.jefe?'jefe':'pregunta '+cp.ronda+' de 8');c.onclick=function(){jugar('continuar');};}

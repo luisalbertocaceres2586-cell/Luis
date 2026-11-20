@@ -10,7 +10,7 @@ NinjaMods.register({id:'seleccion-personajes',carpeta:'ui',nombre:'Selector de p
   const grid=document.getElementById('cgrid');if(!grid||!grid.parentNode)return;
   const CH={
     mario:{n:'SAKURA EVE',rol:'NINJA DEL VIENTO',emoji:'🌸',c1:'#FF2E92',c2:'#4B174A',c3:'#FFB3DA',sk:'X  ·  TRIPLE ABANICO',desc:'Ágil y precisa. Domina el viento para abrirte camino entre los enemigos.',tag:'VELOCIDAD  ·  TÉCNICA',art:'sakura'},
-    peach:{n:'KAGE',rol:'NINJA DE LA SOMBRA',emoji:'🔥',c1:'#FF654F',c2:'#4A1C2A',c3:'#FFC2A8',sk:'X  ·  DISPARO DOBLE',desc:'Fuerte y decidido. Su energía oscura golpea con potencia a los rivales.',tag:'POTENCIA  ·  ENERGÍA',art:'kage'}
+    peach:{n:'ANTAREZ',rol:'NINJA DE LA KATANA',emoji:'🔥',c1:'#FF654F',c2:'#4A1C2A',c3:'#FFC2A8',sk:'X  ·  DISPARO DOBLE',desc:'Fuerte y decidido. Su katana elemental golpea con potencia a los rivales.',tag:'POTENCIA  ·  ENERGÍA',art:'antarez'}
   };
   const ORDER=['mario','peach'];
   const _m=/[?&]sel=(\d)/.exec(location.search),SEL=/^[123]$/.test(_m&&_m[1])?_m[1]:'3';

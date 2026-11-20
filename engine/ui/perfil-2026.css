@@ -1,0 +1,40 @@
+/* Ventana "¿Quién juega?" 2026: fondo desenfocado, panel de cristal con marco dorado/sakura, campo de nombre y botones con los sprites nuevos.
+   Solo estilos: la lógica de perfiles (perfil-ui.js) no cambia. */
+#pfOverlay{background:radial-gradient(ellipse at 50% 35%,rgba(26,20,70,.62),rgba(3,4,16,.86))!important;backdrop-filter:blur(9px) saturate(1.1);-webkit-backdrop-filter:blur(9px) saturate(1.1);animation:pf26bg .45s ease both}
+@keyframes pf26bg{from{opacity:0}}
+#pfOverlay .pf-card{
+  border:30px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/panel_cristal.png) 84 fill/30px stretch!important;
+  border-radius:0!important;background:none!important;box-shadow:none!important;padding:2px 6px 6px!important;
+  filter:drop-shadow(0 26px 50px rgba(0,0,0,.65)) drop-shadow(0 0 26px rgba(157,85,233,.35));
+  animation:pf26in .6s cubic-bezier(.2,.9,.25,1.05) both}
+@keyframes pf26in{from{opacity:0;transform:translateY(34px) scale(.92)}}
+#pfOverlay .pf-card:before{display:none!important}
+#pfOverlay .pf-card h2{color:#ffe18a!important;text-shadow:0 2px 0 rgba(60,20,0,.55),0 0 18px rgba(255,184,47,.35)!important}
+#pfOverlay .pf-sub{color:#c9d4f5!important}
+/* campo de nombre */
+#pfOverlay .pf-name input{border:14px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/campo_nombre.png) 48 64 48 60 fill/14px 22px 14px 20px stretch!important;border-radius:0!important;
+  background:none!important;height:58px;padding:0 6px!important;color:#fff!important;caret-color:#ffd36b;transition:filter .25s,transform .25s}
+#pfOverlay .pf-name input::placeholder{color:rgba(190,205,245,.45)}
+#pfOverlay .pf-name input:focus{outline:none;box-shadow:none!important;filter:drop-shadow(0 0 12px rgba(255,200,80,.75)) brightness(1.12);transform:scale(1.015)}
+/* botones: principal dorado y secundario índigo/violeta */
+#pfOverlay .pf-btn{border:14px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/boton_principal.png) 70 110 70 90 fill/14px 22px 14px 18px stretch!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;color:#2a1300!important;font-weight:900!important;min-height:56px!important;padding:0 8px!important;
+  transition:transform .18s,filter .18s;filter:drop-shadow(0 6px 10px rgba(255,150,30,.3));-webkit-tap-highlight-color:transparent}
+#pfOverlay .pf-btn.sec{border-image:url(../../assets/intro-2026/interfaz/boton_secundario.png) 55 90 55 70 fill/16px 26px 16px 22px stretch!important;color:#e8eeff!important;filter:drop-shadow(0 6px 10px rgba(110,70,220,.35));border-width:16px 26px 16px 22px!important}
+#pfOverlay .pf-btn:hover{transform:translateY(-2px) scale(1.025);filter:drop-shadow(0 8px 16px rgba(255,190,70,.55)) brightness(1.1)}
+#pfOverlay .pf-btn.sec:hover{filter:drop-shadow(0 8px 16px rgba(157,85,233,.6)) brightness(1.15)}
+#pfOverlay .pf-btn:active{transform:scale(.96);filter:brightness(.95)}
+#pfOverlay .pf-btn:focus-visible,#pfOverlay .pf-ic:focus-visible{outline:2px solid #ffe18a;outline-offset:3px}
+#pfOverlay .pf-card-s .pf-acc .pf-btn{min-height:46px!important;padding:0 4px!important}
+#pfOverlay .pf-card-s .pf-fila{border-color:rgba(157,85,233,.35);background:rgba(8,13,44,.55)}
+#pfOverlay .pf-card-s .pf-pie>.pf-btn{width:100%;min-height:58px!important}
+/* celular: marco más fino para ganar espacio */
+@media(max-width:520px){
+  #pfOverlay .pf-card{border-width:22px!important;border-image-width:22px!important;padding:0 2px 4px!important}
+  #pfOverlay .pf-card.pf-card-s{width:96vw}
+  #pfOverlay .pf-btn{min-height:50px!important;font-size:12px!important}
+}
+@media(max-height:520px){#pfOverlay .pf-card-s .pf-lista{max-height:34vh}#pfOverlay .pf-btn{min-height:44px!important}}
+@media(prefers-reduced-motion:reduce){#pfOverlay,#pfOverlay .pf-card{animation:none!important}}
+#pfOverlay .pf-campo.pf-name{background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+#pfOverlay .pf-card-s .pf-acc .pf-btn{min-width:112px}

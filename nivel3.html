@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0618"><title>Nivel 3 · Carrera de los Farolillos</title>
+<style>
+html,body{margin:0;height:100%;background:#06031a;color:#fff;font-family:"Trebuchet MS",Verdana,ui-sans-serif,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+#app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:24px}
+aside{width:min(24vw,260px);color:#d7d4ee;font-size:14px;line-height:1.5;display:none}
+aside h2{color:#ffe27a;margin:0 0 8px;font-size:18px}
+aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padding:1px 7px}
+@media (min-aspect-ratio:1/1) and (min-width:900px){aside{display:block}}
+#marco{position:relative;overflow:hidden;background:#0a0618;box-shadow:0 0 40px #000a;border-radius:6px}
+#cv{display:block}
+#ov{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u,1px)*16);padding:calc(var(--u,1px)*28);text-align:center;background:radial-gradient(ellipse at 50% 35%,#3a2a63ee,#090b24f2 75%)}
+#ov h1{margin:0;color:#ffe27a;font-size:calc(var(--u,1px)*46);text-shadow:0 0 18px #ee9b56;line-height:1.1}
+#ov p{margin:0;color:#e3e0f6;font-size:calc(var(--u,1px)*24);line-height:1.45}
+#ov .ctl{font-size:calc(var(--u,1px)*20);color:#bdb8dd}
+#ov .reglas{display:flex;flex-wrap:wrap;gap:calc(var(--u,1px)*8);justify-content:center}
+#ov .reglas span{background:#ffffff14;border:1px solid #ffffff30;border-radius:calc(var(--u,1px)*14);padding:calc(var(--u,1px)*8) calc(var(--u,1px)*12);font-size:calc(var(--u,1px)*20)}
+#ov .estrellas{font-size:calc(var(--u,1px)*70)}
+#ov button{font:inherit;font-weight:bold;font-size:calc(var(--u,1px)*28);padding:calc(var(--u,1px)*14) calc(var(--u,1px)*34);border-radius:calc(var(--u,1px)*14);border:1px solid #ffe27a;background:linear-gradient(#ffe27a,#ffad58);color:#281532;cursor:pointer}
+#ov button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;font-size:calc(var(--u,1px)*22)}
+#bPausa,#bMudo{position:absolute;top:calc(var(--u,1px)*10);width:calc(var(--u,1px)*52);height:calc(var(--u,1px)*52);border-radius:50%;border:2px solid #ffffff66;background:#0f0828cc;color:#fff;font-size:calc(var(--u,1px)*26);cursor:pointer;padding:0;z-index:5}
+#bPausa{right:calc(var(--u,1px)*10)}#bMudo{right:calc(var(--u,1px)*70)}
+#girar{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#06031a}
+#girar.on{display:flex}#girar h2{color:#ffe27a;margin:0;font-size:24px}#girar p{margin:0;color:#d7d4ee;max-width:360px}
+#girar .tel{width:64px;height:110px;border:5px solid #ffe27a;border-radius:14px;animation:g 2.6s ease-in-out infinite}
+@keyframes g{0%,20%{transform:rotate(-90deg)}55%,85%{transform:rotate(0)}100%{transform:rotate(-90deg)}}
+</style></head><body>
+<div id="app">
+ <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre y recoge la respuesta correcta.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta barriles<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
+ <div id="marco"><canvas id="cv"></canvas></div>
+ <aside><h2>Cómo se juega</h2>⛓ <b>Cadena</b>: recoge el número que sigue (7 · 14 · 21 · ?).<br><br>🎯 <b>Caza</b>: recoge solo los múltiplos.<br><br>🥷 Cada racha suma sombras.<br><br>💛 Si fallas no pasa nada: la pregunta vuelve más adelante.</aside>
+</div>
+<div id="girar"><div class="tel"></div><h2>GIRA TU TELÉFONO</h2><p>Este nivel se juega en <b>vertical</b>, como una carrera hacia el fondo de la pantalla.</p></div>
+<script src="engine/nivel1/perfiles.js?v=8"></script>
+<script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
+<script src="assets/characters/antarez/manifest.js?v=an2"></script>
+<script src="engine/nivel3/corredor.js?v=1"></script>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),perfil=null;
+  try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
+  var heroe=(perfil&&perfil.avatar)||q.get('heroe')||'sakura'; if(heroe!=='kage')heroe='sakura';
+  Nivel3.iniciar({heroe:heroe,perfil:perfil||null,onSalir:function(){location.href='index.html';}});
+})();
+</script></body></html>

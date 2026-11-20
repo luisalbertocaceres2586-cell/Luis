@@ -26,6 +26,7 @@ function entorno(){
 }
 // jugador automático: siempre elige la respuesta correcta y salta a menudo
 function jugar(E,max,hasta){let n=0;for(;n<max;n++){const S=E.S();if(S.est!=='play'&&n>5)break;
+  if(S.fase==='puente'&&S.puente&&S.puente.est==='juega'&&n%4===0){const P=S.puente,i=P.bl.findIndex(b=>b.est==='normal'&&b.v===P.vals[P.paso]);if(i>=0)E.ctx.__n2puente(i);}
   const g=S.gates.find(g=>!g.res);if(g&&g.x-S.d<1800)S.lane=g.q.ops.indexOf(g.q.ans);if(n%23===0)S.inputs.salto=true;E.frame();if(hasta&&hasta(S))return n;}return n;}
 const nuevo=(o)=>{const E=entorno();E.ctx.Nivel2.iniciar(Object.assign({debug:true,modo:'ruta',heroe:'sakura'},o));return E;};
 

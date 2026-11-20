@@ -7,15 +7,16 @@
 'use strict';
 const S0=document.getElementById('S0');if(!S0||document.getElementById('m26'))return;
 const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-const EVE=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST,KM=window.KAGE_MANIFEST;
+const EVE=window.SAKURA_EVE_MANIFEST||window.SAKURA_MANIFEST;
 const mk=(tag,cls,par,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;if(par)par.appendChild(e);return e;};
 const frames=(base,list)=>(list||[]).map(f=>{const i=new Image();i.decoding='async';i.src=base+f.file;return{img:i,ax:f.ax,ay:f.ay};});
 const nomOf=a=>a.reduce((m,f)=>Math.max(m,f.ay||0),1);
-const ebase=(EVE&&EVE.base)||'assets/characters/sakura/',kbase='assets/characters/kage/';
+const ebase=(EVE&&EVE.base)||'assets/characters/sakura/';
+const KM=window.ANTAREZ_MANIFEST,kbase=(KM&&KM.base)||'assets/characters/antarez/',KA=n=>((KM&&KM.animations&&KM.animations[n]&&KM.animations[n].frames)||[]),slow=(l,k)=>[].concat(...l.map(f=>Array(k).fill(f)));
 
 const HEROES=[
  {id:'mario',nm:'SAKURA EVE',tag:'Viento · Velocidad',a:'#ff5fa8',a2:'#ffc2e0',idle:frames(ebase,EVE&&EVE.idle),atk:frames(ebase,EVE&&EVE.atk),ifps:9,afps:20},
- {id:'peach',nm:'KAGE',tag:'Sombra · Potencia',a:'#ff5a4a',a2:'#ffc4b0',idle:frames(kbase,KM&&KM.idle),atk:frames(kbase,KM&&KM.atk),ifps:8,afps:18}
+ {id:'peach',nm:'ANTAREZ',tag:'Katana · Potencia',a:'#ff5a4a',a2:'#ffc4b0',idle:frames(kbase,slow(KA('idle'),4)),atk:frames(kbase,KA('melee')),ifps:8,afps:18}
 ];
 HEROES.forEach(h=>{h.nom=nomOf(h.idle);h.atkT=null;h.t0=Math.random()*3;});
 
