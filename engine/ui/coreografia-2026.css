@@ -1,0 +1,40 @@
+/* Entrada coreografiada del menú 2026 (se activa con la clase .c26 que pone coreografia-2026.js al terminar la carga).
+   Secuencia: cielo (luna, nubes) → islas y árboles → logo con destello dorado → ninjas con ráfaga → botones. Usa solo opacity/translate/scale/filter con fill "backwards",
+   así al terminar cada elemento vuelve a su estado normal y no choca con el parallax ni con las animaciones continuas. */
+@keyframes c26in{from{opacity:0}}
+@keyframes c26pop{from{opacity:0;scale:.55}}
+@keyframes c26tl{from{opacity:0;translate:-14vw 0}}
+@keyframes c26tr{from{opacity:0;translate:14vw 0}}
+@keyframes c26logo{0%{opacity:0;translate:0 -70px;scale:1.45;filter:blur(12px) brightness(2.4)}55%{opacity:1;translate:0 7px;scale:.98;filter:blur(0) brightness(1.5)}100%{translate:0 0;scale:1}}
+@keyframes c26hl{from{opacity:0;translate:-110px 0;scale:.9;filter:blur(10px) brightness(1.9)}}
+@keyframes c26hr{from{opacity:0;translate:110px 0;scale:.9;filter:blur(10px) brightness(.5)}}
+@keyframes c26up{from{opacity:0;translate:0 44px}}
+@keyframes c26flash{0%{opacity:0;scale:.2}30%{opacity:1}100%{opacity:0;scale:1.7}}
+@keyframes c26puff{0%{opacity:0;scale:.5;rotate:-40deg}35%{opacity:.95}100%{opacity:0;scale:1.35;rotate:30deg}}
+/* cielo y escenario */
+#S0.c26 #n26scene .moon{animation:n26moon 9s ease-in-out infinite,c26in 1.1s .1s backwards}
+#S0.c26 #n26scene .cloud.c1{animation:n26drift 95s linear infinite,c26in 1.2s .35s backwards}
+#S0.c26 #n26scene .cloud.c2{animation:n26drift 135s -60s linear infinite,c26in 1.2s .5s backwards}
+#S0.c26 #n26scene .cloud.c3{animation:n26drift 170s -110s linear infinite,c26in 1.2s .65s backwards}
+#S0.c26 #n26scene .isle.i1{animation:n26bob 7s ease-in-out infinite,c26pop .9s .5s cubic-bezier(.2,.9,.25,1.2) backwards}
+#S0.c26 #n26scene .isle.i2{animation:n26bob 9s -3s ease-in-out infinite,c26pop .9s .7s cubic-bezier(.2,.9,.25,1.2) backwards}
+#S0.c26 #n26scene .temple{animation:c26in 1s .8s backwards}
+#S0.c26 #n26scene .tree.t1{animation:c26tl 1s .6s cubic-bezier(.2,.8,.2,1) backwards}
+#S0.c26 #n26scene .tree.t2{animation:c26tr 1s .75s cubic-bezier(.2,.8,.2,1) backwards}
+#S0.c26 #n26scene .lamp.l1{animation:n26lamp 3.4s ease-in-out infinite,c26in .8s 1s backwards}
+#S0.c26 #n26scene .lamp.l2{animation:n26lamp 3.4s -1.4s ease-in-out infinite,c26in .8s 1.1s backwards}
+/* logo con destello */
+#S0.c26 #m26 .m26-top{animation:c26logo 1s .6s cubic-bezier(.2,.9,.25,1.15) backwards}
+#S0.c26 #m26 .m26-orn,#S0.c26 #m26 .m26-kick{animation:c26in .7s 1.35s backwards}
+#m26 .c26-flash{position:absolute;left:50%;top:38%;width:min(84vw,540px);translate:-50% -50%;mix-blend-mode:screen;pointer-events:none;z-index:6;opacity:0;animation:c26flash 1.1s .85s ease-out both}
+/* ninjas */
+#S0.c26 #m26 .m26-hero:nth-child(1){animation:c26hl .9s 1.05s cubic-bezier(.2,.8,.2,1) backwards}
+#S0.c26 #m26 .m26-hero:nth-child(2){animation:c26hr .9s 1.25s cubic-bezier(.2,.8,.2,1) backwards}
+#m26 .m26-hero .c26-puff{position:absolute;left:50%;bottom:calc(clamp(40px,7vh,64px) + var(--hh)*.08);height:calc(var(--hh)*.95);width:auto;translate:-50% 0;mix-blend-mode:screen;pointer-events:none;z-index:3;opacity:0;animation:c26puff 1.3s 1.05s ease-out both}
+#m26 .m26-hero:nth-child(2) .c26-puff{animation-delay:1.25s;mix-blend-mode:normal}
+/* botones */
+#S0.c26 #m26 .m26-bottom{animation:c26up .8s 1.75s cubic-bezier(.2,.8,.2,1) backwards}
+#S0.c26 #m26 .m26-dock>*{animation:c26pop .5s cubic-bezier(.2,.9,.25,1.3) backwards}
+#S0.c26 #m26 .m26-dock>*:nth-child(1){animation-delay:2.05s}#S0.c26 #m26 .m26-dock>*:nth-child(2){animation-delay:2.12s}#S0.c26 #m26 .m26-dock>*:nth-child(3){animation-delay:2.19s}
+#S0.c26 #m26 .m26-dock>*:nth-child(4){animation-delay:2.26s}#S0.c26 #m26 .m26-dock>*:nth-child(5){animation-delay:2.33s}#S0.c26 #m26 .m26-dock>*:nth-child(6){animation-delay:2.4s}
+@media(prefers-reduced-motion:reduce){#S0.c26 *,#m26 .c26-flash,#m26 .c26-puff{animation:none!important}#m26 .c26-flash,#m26 .c26-puff{display:none}}

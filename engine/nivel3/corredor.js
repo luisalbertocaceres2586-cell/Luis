@@ -98,7 +98,11 @@
     const HM = heroe === 'kage' ? window.ANTAREZ_MANIFEST : window.SAKURA_EVE_MANIFEST;
     const fr = n => (HM && HM.animations && HM.animations[n] && HM.animations[n].frames) || [];
     if (HM) ['run', 'jump', 'slide', 'hurt', 'win'].forEach(n => fr(n).forEach(f => IMG(HM.base + f.file)));
-    const kHeroe = (fr('run')[0] ? CFG.ALTURA_HEROE / fr('run')[0].h : 1);
+    // Sakura se dibuja DE ESPALDA (cuadros nuevos); Kage conserva los cuadros de lado hasta tener los suyos
+    const HB = (heroe === 'sakura' && window.NIVEL3_SAKURA_ESPALDA) || null;
+    const fb = n => (HB && HB.animations[n] && HB.animations[n].frames) || [];
+    if (HB) Object.keys(HB.animations).forEach(n => fb(n).forEach(f => IMG(HB.base + f.file)));
+    const kHeroe = HB ? CFG.ALTURA_HEROE / HB.refH : (fr('run')[0] ? CFG.ALTURA_HEROE / fr('run')[0].h : 1);
 
     let S = null, raf = 0, ultimo = 0, vivo = true;
     const ov = document.createElement('div'); ov.id = 'ov'; marco.appendChild(ov);
@@ -137,7 +141,7 @@
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], toasts: [],
         racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [],
-        sp: { e: 0, r: 0, nextD: 34, fase: 'fila', extra: null, ultLane: -1, decoD: 8 }, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
+        sp: { e: 0, r: 0, nextD: 34, fase: 'fila', extra: null, ultLane: -1, decoD: 8, nextPat: 100 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
 
@@ -183,7 +187,9 @@
         } else {
           if (sp.r < CFG.FILAS_CAZA) filaCaza(e); else { sp.fase = 'portal'; continue; }
         }
-        obstaculos(d0, e); sp.r++; sp.nextD += CFG.GAP;
+        obstaculos(d0, e);
+        if (d0 > sp.nextPat && S.skate <= 0) { S.items.push({ k: 'pat', d: d0 + CFG.GAP * 0.27, lane: RI(0, 2), tomado: false }); sp.nextPat = d0 + RI(150, 210); }
+        sp.r++; sp.nextD += CFG.GAP;
       }
       // decorado a los lados (según el tema de la etapa que se está generando)
       while (sp.decoD < S.dist + ZMAX) {
@@ -227,9 +233,9 @@
     }
     function accion(a) {
       if (!S || !S.corriendo || S.pausa || S.fin || S.cae > 0) return;
-      if (a === 'izq') S.tl = Math.max(0, S.tl - 1);
-      else if (a === 'der') S.tl = Math.min(2, S.tl + 1);
-      else if (a === 'salta') { if (S.jh <= 1) { S.jv = 900; S.jt = 0; S.slide = 0; sfx.salto(); } }
+      if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
+      else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
+      else if (a === 'salta') { if (S.jh <= 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); } }
       else if (a === 'baja') { if (S.jh > 1) S.jv = -1500; else if (S.slide <= 0) { S.slide = 0.75; sfx.desliza(); } }
     }
 
@@ -237,12 +243,19 @@
     function paso(dt) {
       if (!S || !S.corriendo || S.pausa) return;
       dt = Math.min(dt, 0.05); S.t += dt;
-      if (S.fin) return;
+      if (S.fin) {
+        if (S.celeb != null) S.px += clamp(1 - S.px, -dt * 3, dt * 3);
+        for (const p of S.parts) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 700 * dt; } S.parts = S.parts.filter(p => p.t < p.life); for (const r of S.rings) r.t += dt; S.rings = S.rings.filter(r => r.t < r.dur);
+        if (S.celeb != null && S.t - S.celeb < 2.3) { S.confT = (S.confT || 0) - dt; if (S.confT <= 0) { S.confT = 0.22; const cx = W / 2 + (S.px - 1) * LW; chispas(cx + R(-60, 60), PY - 230, ['#ffe27a', '#ff9ad5', '#7dffb0', '#9ad7ff'][RI(0, 3)], 14); } }
+        return;
+      }
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(2, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
       else S.v = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.hudE * 1.4 + Math.max(0, S.racha - 4) * 0.02);
       S.dist += S.v * dt; S.tAnim += dt * (S.v / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
       if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { S.jh = 0; S.jv = 0; } }
+      if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
+      if (S.skate > 0) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
       S.hist.push({ t: S.t, px: S.px }); while (S.hist.length && S.hist[0].t < S.t - 1.4) S.hist.shift();
       efectos(dt); generar();
@@ -252,7 +265,9 @@
         if (it.k === 'orb' && !it.tomado && !it.row.res && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) recoge(it, W / 2 + (it.lane - 1) * LW, yz(0) - 120);
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
           const esquiva = it.tipo === 'bajo' ? S.jh > 70 : S.slide > 0;
-          if (!esquiva) { it.roto = true; golpe(); }
+          if (!esquiva) { it.roto = true; if (S.skate > 0) { S.puntos += 5; sfx.bien(2); chispas(W / 2 + (it.lane - 1) * LW, PY - 90, '#ff9ad5', 16); anillo(W / 2 + (it.lane - 1) * LW, PY - 90, '#ffb3e6', 0.8); toast('¡Crash!', '#ff9ad5', 0.7); } else golpe(); }
+        } else if (it.k === 'pat' && !it.tomado && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) {
+          it.tomado = true; S.skate = 8; S.puntos += 20; sfx.portal(); chispas(W / 2 + (it.lane - 1) * LW, PY - 100, '#ff9ad5', 26); anillo(W / 2 + (it.lane - 1) * LW, PY - 100, '#ffd35a', 1.3); toast('🛹 ¡Patineta ninja!', '#ff9ad5', 1.8);
         } else if (it.k === 'portal' && !it.pasado && z < 0) {
           it.pasado = true;
           if (it.final) { terminar(); } else { S.hudE = it.sigE; S.cadena = []; S.fallosSeg = 0; const e = ET[S.hudE]; ponBanner(e, 2.8); S.cazaBase = S.cazadas; S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
@@ -387,7 +402,41 @@
       const bw = wd * 0.8, bh = 46 * p * 1.6, by = y - ht - bh * 0.55; ctx.fillStyle = 'rgba(20,10,40,.88)'; rr(x - bw / 2, by, bw, bh, 12 * p); ctx.fill(); ctx.lineWidth = 3 * p; ctx.strokeStyle = '#ffe27a'; ctx.stroke();
       ctx.fillStyle = '#ffe27a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(34 * p) + 'px ' + FUENTE; ctx.fillText(it.txt, x, by + bh / 2); ctx.globalAlpha = 1;
     }
+    function patDib(it, z) {
+      if (it.tomado || z < -3) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z) - (46 + 10 * Math.sin(S.t * 5 + it.d)) * p;
+      ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.scale(p, p);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(0, 0, 4, 0, 0, 105); g.addColorStop(0, 'rgba(255,150,220,.65)'); g.addColorStop(1, 'rgba(255,150,220,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 105, 0, 7); ctx.fill(); ctx.restore();
+      ctx.rotate(-0.14 + 0.06 * Math.sin(S.t * 4 + it.d));
+      ctx.fillStyle = '#e2208f'; [-46, 46].forEach(wx => { ctx.beginPath(); ctx.arc(wx, 24, 12, 0, 7); ctx.fill(); ctx.strokeStyle = '#4a0b32'; ctx.lineWidth = 3; ctx.stroke(); });
+      ctx.fillStyle = '#241238'; rr(-72, -14, 144, 30, 15); ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = '#ffd35a'; ctx.stroke();
+      ctx.fillStyle = '#ff8fcf'; for (let i = 0; i < 5; i++) { const a2 = i * 1.2566; ctx.beginPath(); ctx.arc(Math.cos(a2) * 7, 1 + Math.sin(a2) * 7, 5, 0, 7); ctx.fill(); } ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.arc(0, 1, 3.4, 0, 7); ctx.fill();
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
+    function pintaHeroeE(x, y, k, estado, alpha) {
+      const clon = alpha != null && alpha < 1, sk = S.skate > 0 && !clon && estado !== 'hurt' && estado !== 'win'; let f, mir = false, inclina = true;
+      if (estado === 'win') {
+        const L = fb('celebra'), seq = [0, 1, 2, 3, 4, 5, 4, 5, 4, 5, 4, 5]; f = L[seq[Math.min(seq.length - 1, Math.floor((S.t - S.celeb) / 0.22))]]; inclina = false;
+      } else if (sk) { const L = fb('skate'); f = estado === 'jump' ? L[3] : estado === 'slide' ? L[5] : L[[0, 6, 4, 7][Math.floor(S.tAnim * 8) % 4]]; }
+      else if (estado === 'run' && !clon && S.cambio && S.cambio.t > 0 && fb('carril').length >= 4) {
+        const L = fb('carril'); f = L[[1, 2, 2, 3][Math.min(3, Math.floor((1 - S.cambio.t / 0.3) * 4))]]; mir = S.cambio.dir < 0; inclina = false; // las hojas se inclinan hacia la derecha; para la izquierda se voltean
+      } else {
+        const L = fb(estado === 'hurt' ? 'hurt' : estado === 'slide' ? 'roll' : estado === 'jump' ? 'jump' : 'run'), n = L.length; let i;
+        if (estado === 'hurt') i = Math.floor(clamp((0.55 - S.hurt) / 0.55, 0, 0.99) * n);
+        else if (estado === 'slide') i = Math.floor(clamp((0.75 - S.slide) / 0.75, 0, 0.99) * n);
+        else if (estado === 'jump') i = Math.floor(clamp(S.jt / 0.68, 0, 0.99) * n);
+        else i = Math.floor(S.tAnim * 10) % n;
+        f = L[i];
+      }
+      if (!f) return; const im = IMG(HB.base + f.file); if (!listo(im)) return;
+      ctx.save(); ctx.translate(x, y); ctx.globalAlpha = alpha == null ? 1 : alpha;
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill();
+      if (inclina) ctx.rotate(clamp((S.tl - S.px) * 0.16, -0.2, 0.2));
+      if (mir) ctx.scale(-1, 1);
+      ctx.drawImage(im, -f.ax * k, -f.ay * k, f.w * k, f.h * k);
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
     function pintaHeroe(x, y, k, estado, flip, alpha) {
+      if (HB) return pintaHeroeE(x, y, k, estado, alpha);
       ctx.save(); ctx.translate(x, y); ctx.globalAlpha = alpha == null ? 1 : alpha;
       ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill();
       let lista = estado === 'hurt' ? fr('hurt') : estado === 'slide' ? fr('slide') : estado === 'jump' ? fr('jump') : (estado === 'win' ? fr('win') : fr('run')), idx = 0;
@@ -402,7 +451,7 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
-      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = S.hurt > 0 ? 'hurt' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && Math.floor(S.t * 14) % 2 === 0;
+      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
       const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
@@ -458,6 +507,7 @@
       // abajo: sombras y racha
       const ci = IMG(ART.clon), nCl = Math.min(4, Math.floor(S.racha / 2)); ctx.globalAlpha = nCl ? 1 : 0.4; if (listo(ci)) ctx.drawImage(ci, 12, H - 66, 48, 48); ctx.globalAlpha = 1;
       ctx.textAlign = 'left'; ctx.font = 'bold 22px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const t3 = 'Racha ' + S.racha + (nCl ? '  ×' + nCl : ''); ctx.strokeText(t3, 68, H - 42); ctx.fillStyle = '#fff'; ctx.fillText(t3, 68, H - 42);
+      if (S.skate > 0) { const w = 150 * clamp(S.skate / 8, 0, 1); ctx.fillStyle = 'rgba(10,5,30,.72)'; rr(W - 196, H - 62, 176, 36, 18); ctx.fill(); ctx.fillStyle = (S.skate < 2 && Math.floor(S.t * 8) % 2) ? '#ff6a6a' : '#ff9ad5'; rr(W - 180, H - 53, Math.max(6, w), 18, 9); ctx.fill(); ctx.textAlign = 'left'; ctx.font = '26px serif'; ctx.fillStyle = '#fff'; ctx.fillText('🛹', W - 224, H - 42); }
       // avisos
       ctx.textAlign = 'center'; S.toasts.forEach((t, i) => { const a = clamp(t.t / 0.35, 0, 1) * clamp((t.t0 - t.t) / 0.1 + 0.2, 0, 1); ctx.globalAlpha = a; ctx.font = 'bold 36px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const ty = 330 + i * 48 - (t.t0 - t.t) * 22; ctx.strokeText(t.txt, W / 2, ty); ctx.fillStyle = t.color; ctx.fillText(t.txt, W / 2, ty); ctx.globalAlpha = 1; });
       // tarjeta animada de etapa
@@ -487,9 +537,9 @@
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
-      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'obs' ? obstaculo(it, z) : portalDib(it, z) }); });
+      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
-      cola.forEach(c => { if (!heroeHecho && c.z < 0) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
+      cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       dibAmb(); dibEfectos();
       ctx.restore(); vinetaDib(); hud();
     }
@@ -505,7 +555,7 @@
     function inicio() {
       S = nuevo(); S.cazaBase = 0;
       pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre hacia el fondo y recoge el farolillo con la <b>respuesta correcta</b> de las tablas del <b>7, 8 y 9</b>.</p>' +
-        '<div class="reglas"><span>⛓ Cadenas: 7 · 14 · 21 · ?</span><span>🎯 Caza: solo los múltiplos</span><span><img src="assets/ui/poderes/clone.png" alt="">La racha crea sombras</span><span>💛 Si fallas, solo se repasa</span></div>' +
+        '<div class="reglas"><span>⛓ Cadenas: 7 · 14 · 21 · ?</span><span>🎯 Caza: solo los múltiplos</span><span><img src="assets/ui/poderes/clone.png" alt="">La racha crea sombras</span><span>💛 Si fallas, solo se repasa</span><span>🛹 La patineta rompe obstáculos</span></div>' +
         '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos).' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · P pausa · M sonido.') + '</p>' +
         '<button id="go" type="button">▶ JUGAR</button>');
       document.getElementById('go').onclick = () => { intentarPantallaCompleta(); try { ac() && ac().resume && ac().resume(); } catch (e) {} pantalla(''); S.corriendo = true; ponBanner(ET[0], 2.8); vigilarGiro(); };
@@ -518,7 +568,12 @@
     }
     function salir() { vivo = false; cancelAnimationFrame(raf); if (o.onSalir) o.onSalir(); }
     function terminar() {
-      S.fin = true; sfx.gana(); const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
+      if (S.fin) return; S.fin = true; S.tl = 1; S.jh = 0; S.jv = 0; S.slide = 0; S.skate = 0; sfx.gana();
+      const conCel = !!(HB && fb('celebra').length);
+      if (conCel) { S.celeb = S.t; const cx = W / 2 + (S.px - 1) * LW; chispas(cx, PY - 200, '#ffe27a', 40); anillo(cx, PY - 160, '#fff3b0', 1.8); setTimeout(() => { if (vivo) mostrarFin(); }, 2700); } else mostrarFin();
+    }
+    function mostrarFin() {
+      const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
       const dificiles = Object.keys(S.fallos).sort((a, b) => S.fallos[b] - S.fallos[a]).slice(0, 4).map(k => k.replace('x', ' × '));
       if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel3 = p.nivel3 || {}; p.nivel3.completado = true; p.nivel3.mejor = Math.max(p.nivel3.mejor || 0, S.puntos); p.nivel3.estrellas = Math.max(p.nivel3.estrellas || 0, est); p.nivel3.intentos = (p.nivel3.intentos || 0) + 1; p.nivel3.fallos = S.fallos; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; }); } catch (e) {} }
       pantalla(retrato('radiante') + '<h1>¡NIVEL COMPLETADO!</h1>' + BARRA + '<div class="estrellas">' + '⭐'.repeat(est) + '<span style="opacity:.25">' + '⭐'.repeat(3 - est) + '</span></div>' +
