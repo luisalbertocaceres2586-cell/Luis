@@ -172,3 +172,10 @@
 }
 
 .mw-card[data-estado=completado] .mw-dif{display:none}
+
+/* botón de cerrar sesión */
+.mw-sesion{flex:none;display:flex;align-items:center;gap:7px;font:inherit;font-weight:bold;letter-spacing:.08em;font-size:clamp(10px,1.8vh,13px);color:#fff;cursor:pointer;
+  padding:clamp(7px,1.4vh,11px) 14px;border-radius:99px;border:2px solid #ffffff55;background:#2a0f3acc;backdrop-filter:blur(4px);transition:border-color .2s,background .2s,transform .15s}
+.mw-sesion:hover,.mw-sesion:focus-visible{border-color:#ff8a8a;background:#5a1a2ecc;transform:translateY(-1px);outline:none}
+.mw-sesion-i{font-size:1.25em}
+@media (max-width:640px){.mw-sesion-t{display:none}.mw-sesion{padding:8px 11px}}

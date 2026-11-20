@@ -244,6 +244,12 @@
     top.appendChild(tit);
     const pr = el('div', 'mw-prog', '🏯 <span><b>' + hechos + '</b> de ' + jugables.length + ' mundos</span><div class="mw-bar"><i></i></div>');
     top.appendChild(pr);
+    if (typeof opts.onCerrarSesion === 'function') {
+      const s = el('button', 'mw-sesion', '<span class="mw-sesion-i">🚪</span><span class="mw-sesion-t">CERRAR SESIÓN</span>');
+      s.type = 'button'; s.title = 'Cerrar sesión para que otra persona juegue'; s.setAttribute('aria-label', 'Cerrar sesión y cambiar de jugador');
+      s.onclick = e => { e.stopPropagation(); if (R && R.lanzando) return; const cb = opts.onCerrarSesion; cerrar(true); cb(perfil); };
+      top.appendChild(s);
+    }
     if (opts.cerrable) { const x = el('button', 'mw-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Cerrar'); x.onclick = () => cerrar(); top.appendChild(x); }
     rootEl.appendChild(top);
 
