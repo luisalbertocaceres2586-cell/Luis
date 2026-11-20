@@ -115,6 +115,13 @@
     // fotogramas del personaje corriendo (solo se usan con el vehículo "tabla")
     const SP = kage ? { run: 15, hurt: 6, idle: 6 } : { run: 14, jump: 4, hurt: 5, sprint: 5, idle: 6 }, IMG = {}, carpeta = 'assets/characters/' + hero + '/';
     Object.keys(SP).forEach(a => { IMG[a] = []; if (vehiculo !== 'tabla') return; for (let i = 0; i < SP[a]; i++) { const im = new Image(); im.src = carpeta + a + '_' + String(i).padStart(2, '0') + '.png'; IMG[a].push(im); } });
+    // Antarez (antes Kage): en modo "tabla" se dibuja con los fotogramas nuevos de assets/characters/antarez/ (manifiesto ANTAREZ_MANIFEST)
+    const ANT = kage && vehiculo === 'tabla' && window.ANTAREZ_MANIFEST ? window.ANTAREZ_MANIFEST : null;
+    if (ANT) {
+      const pick = (nombre, n) => { const fr = ANT.animations[nombre].frames, paso = Math.max(1, Math.floor(fr.length / n)), out = []; for (let i = 0; i < fr.length && out.length < n; i += paso) out.push(fr[i]); return out; };
+      const set = { run: pick('run', 12), hurt: ANT.animations.hurt.frames, jump: ANT.animations.jump.frames.slice(0, 4), sprint: ANT.animations.sprint.frames, idle: ANT.animations.idle.frames };
+      Object.keys(set).forEach(a => { IMG[a] = set[a].map(f => { const im = new Image(); im.src = ANT.base + f.file; im._ax = f.ax; im._ay = f.ay; return im; }); });
+    }
     const KCP = clave(o) + '_cp', KTUT = clave(o) + '_tut';
     const fallosPrev = (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.fallos) || {};
     const touch = tactil();
@@ -225,24 +232,29 @@
         addObs(x, l, tipo, tipo === 'roca' ? RI(0, 2) : RI(0, 1)); arcoGotas(x, l);
         x += RI(300, 380);
       }
-      if (!jefe) generarExtras(x0, amb);
+      if (!jefe) generarExtras(x0, largo, amb);
       // ≥ 600 px antes de la puerta sin obstáculos ni poderes: tiempo para pensar y elegir
       nuevaPuerta(x0 + largo, pregunta(S.fallos), S.errSeg >= CONFIG.PISTA_TRAS_ERRORES);
       if (CONFIG.CHECKS.includes(r + 1)) S.flags.push({ x: x0 + largo + 300, n: r + 1, tomada: false, puente: PUENTES.includes(r + 1) && !jefe });
       S.gen = x0 + largo + 520;
     }
     // poderes, curación, cofres, plataformas y decorado: SOLO en la primera parte de cada ronda (nunca en la zona de respuesta)
-    function generarExtras(x0, amb) {
-      const PODERES = ['poder_escarabajo', 'poder_reloj', 'poder_iman', 'poder_comodin'], X = () => x0 + RI(450, 1100);
-      if (Math.random() < .6) S.pows.push({ x: X(), l: RI(0, 2), tipo: pick(PODERES) });
-      if (S.vidas < CONFIG.VIDAS && Math.random() < .55) S.pows.push({ x: X(), l: RI(0, 2), tipo: 'onigiri' });
-      if (Math.random() < .35) S.pows.push({ x: X(), l: RI(0, 2), tipo: 'pergamino' });
-      if (Math.random() < .3) S.cofres.push({ x: X(), l: RI(0, 2), oscuro: S.racha >= 4, est: 0, t: 0 });
-      if (Math.random() < .5) {
-        const tra = Math.random() < .55, x = x0 + RI(450, 700), l = RI(0, 2); S.pads.push({ x, l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
-        if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(x + dx, l, y));
+    // Solo en el tramo libre: nunca dentro de la zona de respuesta (CONFIG.ZONA px antes de la puerta), para no romper el ritmo calmado.
+    function generarExtras(x0, largo, amb) {
+      const a = x0 + 160, b = x0 + largo - CONFIG.ZONA - 120;
+      const libre = (x, l) => !S.obs.some(ob => ob.l === l && Math.abs(ob.x - x) < 150) && !S.drops.some(g => g.l === l && !g.ok && Math.abs(g.x - x) < 60);
+      const lugar = tope => { for (let k = 0; k < 8; k++) { const x = RI(a, Math.max(a, tope || b)), l = RI(0, 2); if (libre(x, l)) return { x, l }; } return null; };
+      const PODERES = ['poder_escarabajo', 'poder_reloj', 'poder_iman', 'poder_comodin'];
+      let p;
+      if (Math.random() < .5 && (p = lugar())) S.pows.push({ x: p.x, l: p.l, tipo: pick(PODERES) });
+      if (S.vidas < CONFIG.VIDAS && Math.random() < .5 && (p = lugar())) S.pows.push({ x: p.x, l: p.l, tipo: 'onigiri' });
+      if (Math.random() < .3 && (p = lugar())) S.pows.push({ x: p.x, l: p.l, tipo: 'pergamino' });
+      if (Math.random() < .3 && (p = lugar())) S.cofres.push({ x: p.x, l: p.l, oscuro: S.racha >= 4, est: 0, t: 0 });
+      if (Math.random() < .4 && (p = lugar(b - 420))) {     // el trampolín lleva un arco de gotas de 400 px
+        const tra = Math.random() < .55; S.pads.push({ x: p.x, l: p.l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
+        if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(p.x + dx, p.l, y));
       }
-      for (let i = 0; i < 3; i++) S.decor.push({ x: x0 + RI(0, 1700), id: pick(DEC[amb || 'dunas']), alto: amb === 'cielo' ? RI(40, 64) : RI(54, 86), amb, dy: amb === 'cielo' ? -RI(30, 120) : 0 });
+      for (let k = 0; k < 3; k++) S.decor.push({ x: x0 + RI(0, largo), id: pick(DEC[amb || 'dunas']), alto: amb === 'cielo' ? RI(40, 64) : RI(54, 86), amb, dy: amb === 'cielo' ? -RI(30, 120) : 0 });
     }
     function recoger(p) {
       p.ok = true; beep(900, .08, 'sine'); const px = X_H, py = laneY(S.d, S.lane) - 150;
@@ -692,6 +704,7 @@
       if (!fr || !fr.length) return false;
       const i = a === 'jump' ? clamp(S.vz > 200 ? 0 : S.vz > 0 ? 1 : S.vz > -250 ? 2 : 3, 0, fr.length - 1) : Math.floor(S.t * 10) % fr.length, im = fr[i];
       if (!im || !im.complete || !im.naturalWidth) return false;
+      if (ANT && im._ay) { const k = 118 / 235; cx.drawImage(im, -im._ax * k, -im._ay * k + 6, im.naturalWidth * k, im.naturalHeight * k); return true; }   // Antarez: se alinea por su ancla (pies)
       const h = 118, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
     }
     function heroeEn(x, gy, z, ang, alfa) {     // el héroe parado/andando en cualquier punto (puente)
@@ -915,7 +928,7 @@
     }
     // modo: 'tut' (por defecto la primera vez), 'ruta' (sin tutorial) o 'continuar' (desde el último checkpoint)
     const hechoTut = leer(KTUT) || (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.tutorial);
-    if (o.debug || /[?&]debug/.test(location.search)) window.__n2 = () => S;
+    if (o.debug || /[?&]debug/.test(location.search)) { window.__n2 = () => S; window.__n2puente = puenteTapIdx; }   // ganchos de prueba
     nuevo(o.modo || (hechoTut || o.directo ? 'ruta' : 'tut')); raf = requestAnimationFrame(bucle);
   }
 

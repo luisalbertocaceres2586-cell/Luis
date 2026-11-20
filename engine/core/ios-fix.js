@@ -1,0 +1,245 @@
+/* engine/core — Mejoras para iPhone / iPad (Safari y app de pantalla de inicio)
+   Solo actúa en iOS/iPadOS; en Android y computador no hace nada. Para probar en otro equipo: ?ios=1. Para apagarlo: ?ios=0.
+
+   Qué arregla (todo lo que Safari de iPhone hace distinto a Android):
+   1) Safari NO tiene pantalla completa en iPhone (no existe requestFullscreen). Se aprovecha TODO el espacio visible,
+      se mide con visualViewport (no con innerHeight, que en iOS miente al girar o al mostrar/ocultar barras)
+      y se muestra un aviso discreto para instalar el juego en la pantalla de inicio (ahí sí abre a pantalla completa real).
+   2) Quita lo que "rompe" el juego en iOS: zoom con dos dedos, zoom con doble toque, rebote/arrastre de la página,
+      menú de copiar/lupa al mantener pulsado, zoom automático al tocar un campo de texto (<16px).
+   3) Respeta el notch / isla dinámica / barra de inicio en horizontal: pausa, marcador y controles quedan siempre dentro de la zona segura.
+   4) Audio: iOS solo activa el sonido tras un toque "real" y lo silencia con el interruptor de timbre; aquí se desbloquea
+      y se pone en modo "reproducción" (suena aunque el timbre esté en silencio, donde el sistema lo permite).
+   5) Botones táctiles: zona de toque un poco mayor que el dibujo (sin solaparse entre sí) y respuesta inmediata. */
+(function(){
+'use strict';
+const Q=location.search;
+if(/[?&]ios=0/.test(Q))return;
+const UA=navigator.userAgent||'';
+const iOS=/iP(hone|ad|od)/.test(UA)||(navigator.platform==='MacIntel'&&(navigator.maxTouchPoints||0)>1);
+if(!iOS&&!/[?&]ios=1/.test(Q))return;
+
+const root=document.documentElement;
+const standalone=()=>navigator.standalone===true||(window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches));
+root.classList.add('ios');
+if(standalone())root.classList.add('ios-app');
+
+/* ---------- CSS ---------- */
+const css=document.createElement('style');
+css.id='iosFixCss';
+css.textContent=`
+html.ios,html.ios body{
+  position:fixed;inset:0;width:100%;height:100%;overflow:hidden;background:#000;
+  overscroll-behavior:none;touch-action:manipulation;
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent}
+html.ios #c{touch-action:none}
+/* un campo de texto con letra menor de 16px hace que iOS acerque la pantalla y ya no vuelva a su tamaño */
+html.ios input,html.ios select,html.ios textarea{font-size:16px!important;-webkit-user-select:text;user-select:text}
+html.ios input[type=range]{font-size:inherit!important;touch-action:pan-x}
+/* nada de 100vh: en iOS incluye las barras de Safari y el contenido queda cortado */
+html.ios [style*="min-height:100vh"]{min-height:100%!important}
+@supports(height:100dvh){
+  html.ios .card,html.ios .lbcard,html.ios #S1 .lbcard,html.ios #S6 .lbcard{max-height:96dvh!important}
+  html.ios #reportRows{max-height:50dvh!important}
+}
+/* zona segura (notch / isla dinámica / barra de inicio) en horizontal */
+html.ios #pauseBtn{right:max(8px,calc(env(safe-area-inset-right,0px) + 6px))!important;top:max(5px,env(safe-area-inset-top,0px))!important}
+html.ios #tring{right:max(8px,calc(env(safe-area-inset-right,0px) + 6px))!important}
+html.ios #miniLB{right:max(8px,calc(env(safe-area-inset-right,0px) + 6px))!important}
+@media (max-height:560px) and (orientation:landscape){
+  /* en pantallas bajas el marcador se pasaba abajo a la derecha, justo encima de SALTAR y ATACAR: se sube a la esquina */
+  html.ios #miniLB{top:max(46px,calc(env(safe-area-inset-top,0px) + 42px))!important;bottom:auto!important}
+}
+html.ios #njUpd{top:max(8px,env(safe-area-inset-top,0px))}
+/* botones táctiles: zona de toque 5 px más grande por cada lado (el dibujo no cambia, y nunca se pisan) */
+html.ios #mctl .mbt::before,html.ios #mctl .mbx::before{content:"";position:absolute;inset:-5px;border-radius:50%}
+html.ios #mctl .mbt,html.ios #mctl .mbx{-webkit-tap-highlight-color:transparent;touch-action:none;transition:transform .05s,box-shadow .05s,background .05s,border-color .05s}
+/* aviso de pantalla completa */
+#iosHint{position:fixed;left:50%;top:max(8px,env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:19000;display:flex;align-items:center;gap:10px;
+  max-width:min(92vw,560px);padding:9px 12px 9px 14px;border-radius:16px;background:rgba(10,22,52,.96);border:2px solid #F0A91E;
+  box-shadow:0 8px 26px rgba(0,0,0,.55);font:700 12px/1.35 Inter,-apple-system,system-ui,sans-serif;color:#fff;
+  transition:transform .35s cubic-bezier(.2,.9,.3,1.1);pointer-events:auto}
+#iosHint.on{transform:translate(-50%,0)}
+#iosHint b{color:#FFD36B}
+#iosHint button{flex:none;min-width:40px;min-height:40px;border-radius:12px;border:2px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;font:800 16px/1 Inter,sans-serif;padding:0}
+`;
+(document.head||root).appendChild(css);
+
+/* ---------- Medida real de la pantalla (visualViewport) ---------- */
+let lastW=0,lastH=0;
+function medir(){
+  const vv=window.visualViewport;
+  return{w:Math.round(vv&&vv.width?vv.width:innerWidth),h:Math.round(vv&&vv.height?vv.height:innerHeight)};
+}
+function aplicarMedida(){
+  const m=medir();
+  root.style.setProperty('--app-h',m.h+'px');
+  root.style.setProperty('--app-w',m.w+'px');
+  root.style.setProperty('--vh',(m.h/100)+'px');
+  return m;
+}
+function sincronizar(){
+  const m=aplicarMedida();
+  if(Math.abs(m.w-lastW)<2&&Math.abs(m.h-lastH)<2)return;
+  lastW=m.w;lastH=m.h;
+  try{window.scrollTo(0,0);}catch(e){}
+  /* el resto del juego (lienzo, botones, aviso de girar) ya escucha 'resize': se le avisa con la medida correcta */
+  window.dispatchEvent(new Event('resize'));
+}
+/* iOS entrega la medida correcta un instante DESPUÉS de girar o de cargar: se revisa varias veces */
+function revisarVarias(){[60,200,450,900,1600].forEach(d=>setTimeout(sincronizar,d));}
+aplicarMedida();
+lastW=medir().w;lastH=medir().h;
+window.addEventListener('orientationchange',revisarVarias);
+window.addEventListener('pageshow',revisarVarias);
+window.addEventListener('load',revisarVarias);
+if(window.visualViewport){visualViewport.addEventListener('resize',sincronizar);}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)revisarVarias();});
+revisarVarias();
+
+/* ---------- Gestos que en iOS ignoran user-scalable=no ---------- */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+function desplazable(el){
+  while(el&&el!==document.body&&el!==root){
+    if(el.nodeType===1){
+      const s=getComputedStyle(el);
+      if((s.overflowY==='auto'||s.overflowY==='scroll')&&el.scrollHeight>el.clientHeight+1)return true;
+      if((s.overflowX==='auto'||s.overflowX==='scroll')&&el.scrollWidth>el.clientWidth+1)return true;
+    }
+    el=el.parentElement;
+  }
+  return false;
+}
+document.addEventListener('touchmove',e=>{
+  const t=e.target;
+  if(t&&t.type==='range')return;                                    // deslizadores de volumen/tamaño
+  if(e.touches.length>1||!desplazable(t))e.preventDefault();         // sin rebote ni arrastre de la página; los menús con scroll siguen funcionando
+},{passive:false});
+document.addEventListener('contextmenu',e=>{const t=e.target;if(!(t&&/^(INPUT|TEXTAREA)$/.test(t.tagName)))e.preventDefault();});
+
+/* ---------- Audio ---------- */
+function desbloquearAudio(){
+  try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback';}catch(e){}
+  try{
+    if(typeof AC!=='undefined'&&AC&&AC.state!=='running'&&!(typeof _muted!=='undefined'&&_muted))AC.resume();
+  }catch(e){}
+}
+['touchend','pointerup','click'].forEach(ev=>document.addEventListener(ev,desbloquearAudio,{passive:true,capture:true}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(desbloquearAudio,200);});
+
+/* ---------- Aviso discreto: instalar en pantalla de inicio (solo en Safari, no si ya es app) ---------- */
+function mostrarAviso(){
+  if(standalone())return;
+  const KEY='ninja_ios_hint_v1',TRES_DIAS=3*864e5;
+  try{const t=+localStorage.getItem(KEY)||0;if(Date.now()-t<TRES_DIAS)return;}catch(e){}
+  let el=document.getElementById('iosHint');
+  if(el)return;
+  el=document.createElement('div');el.id='iosHint';
+  el.setAttribute('role','status');
+  el.innerHTML='<span>📲 Para jugar a <b>pantalla completa</b>: toca <b>Compartir</b> ⬆︎ y luego <b>“Añadir a pantalla de inicio”</b>.</span><button type="button" aria-label="Cerrar">✕</button>';
+  document.body.appendChild(el);
+  const cerrar=()=>{el.classList.remove('on');try{localStorage.setItem(KEY,String(Date.now()));}catch(e){}setTimeout(()=>el.remove(),500);};
+  el.querySelector('button').addEventListener('click',cerrar);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));
+  setTimeout(cerrar,12000);
+}
+function programarAviso(){
+  let intentos=0;
+  const t=setInterval(()=>{
+    intentos++;
+    const jugando=typeof GS!=='undefined'&&GS&&GS.running;
+    const horizontal=innerWidth>innerHeight;
+    if(jugando||intentos>40){clearInterval(t);return;}
+    if(horizontal){clearInterval(t);mostrarAviso();}
+  },1500);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(programarAviso,4000));
+else setTimeout(programarAviso,4000);
+
+/* =====================  TANDA 2  ===================== */
+
+/* ---------- Deslizar el dedo entre ◀ y ▶ sin levantarlo ----------
+   Antes cada botón "se quedaba" con el dedo (setPointerCapture): para girar había que soltar y volver a tocar.
+   Aquí, si el dedo que empezó en ◀ cruza hacia ▶ (o al revés), se suelta uno y se pulsa el otro reutilizando
+   la lógica del juego (se le envían los mismos eventos de puntero), así que no se toca ningún código existente. */
+(function(){
+  const dedos=new Map();                 // pointerId -> 'mbL' | 'mbR'
+  document.addEventListener('pointerdown',e=>{
+    if(!e.isTrusted||e.pointerType!=='touch')return;
+    const t=e.target&&e.target.closest?e.target.closest('#mbL,#mbR'):null;
+    if(t)dedos.set(e.pointerId,t.id);
+  },true);
+  const soltar=e=>{if(e.isTrusted)dedos.delete(e.pointerId);};
+  document.addEventListener('pointerup',soltar,true);
+  document.addEventListener('pointercancel',soltar,true);
+  document.addEventListener('pointermove',e=>{
+    if(!e.isTrusted)return;
+    const cur=dedos.get(e.pointerId);if(!cur)return;
+    const box=document.getElementById('mctl');
+    if(!box||box.classList.contains('edit'))return;            // en modo MOVER no se cambia nada
+    const otroId=cur==='mbL'?'mbR':'mbL';
+    const a=document.getElementById(cur),o=document.getElementById(otroId);
+    if(!a||!o)return;
+    const ra=a.getBoundingClientRect(),ro=o.getBoundingClientRect();
+    const dA=Math.hypot(e.clientX-(ra.left+ra.width/2),e.clientY-(ra.top+ra.height/2));
+    const dO=Math.hypot(e.clientX-(ro.left+ro.width/2),e.clientY-(ro.top+ro.height/2));
+    if(dO<ro.width*0.6&&dO<dA){                                // el dedo ya está sobre el otro botón y más cerca de él
+      const init={pointerId:e.pointerId,pointerType:'touch',isPrimary:e.isPrimary,clientX:e.clientX,clientY:e.clientY,bubbles:true,cancelable:true,composed:true};
+      try{
+        a.dispatchEvent(new PointerEvent('pointerup',init));
+        o.dispatchEvent(new PointerEvent('pointerdown',init));
+        dedos.set(e.pointerId,otroId);
+      }catch(_){}
+    }
+  },true);
+})();
+
+/* ---------- Pausa automática al salir del juego ----------
+   Llamada, otra app, bloqueo de pantalla o gesto del sistema: el juego se pausa y se sueltan las teclas virtuales
+   (si no, el ninja seguía corriendo y el audio quedaba a medias). */
+function autoPausa(){
+  try{
+    if(typeof K!=='undefined'&&K){K.ArrowLeft=0;K.ArrowRight=0;K.ArrowUp=0;K.KeyX=0;}
+    if(typeof GS!=='undefined'&&GS&&GS.running&&typeof _paused!=='undefined'&&!_paused&&typeof togglePause==='function')togglePause();
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPausa();});
+window.addEventListener('pagehide',autoPausa);
+
+/* ---------- Pantalla encendida mientras se juega (iOS 16.4+) ---------- */
+let wl=null,pidiendoWL=false;
+async function pedirWL(){
+  if(wl||pidiendoWL||document.hidden||!('wakeLock' in navigator))return;
+  pidiendoWL=true;
+  try{wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null;});}catch(e){wl=null;}
+  pidiendoWL=false;
+}
+function soltarWL(){try{if(wl)wl.release();}catch(e){}wl=null;}
+
+/* ---------- Gesto "atrás" de Safari (deslizar desde el borde izquierdo) ----------
+   El botón ◀ está pegado a ese borde: un deslizamiento sacaba al jugador de la página. Mientras se juega se
+   guarda una entrada de historial; si el sistema intenta ir "atrás", se queda en el juego y se pausa. */
+let atrasArmado=false;
+function armarAtras(){
+  if(atrasArmado)return;
+  atrasArmado=true;
+  try{history.pushState({nj:1},'',location.href);}catch(e){}
+}
+window.addEventListener('popstate',()=>{
+  const jugando=typeof GS!=='undefined'&&GS&&GS.running;
+  if(jugando){try{history.pushState({nj:1},'',location.href);}catch(e){}autoPausa();}
+  else atrasArmado=false;           // en el menú el "atrás" funciona normal; se vuelve a proteger al empezar a jugar
+});
+
+/* ---------- Vigilante único (cada 1,5 s, muy liviano) ---------- */
+setInterval(()=>{
+  const jugando=typeof GS!=='undefined'&&GS&&GS.running;
+  if(jugando){armarAtras();pedirWL();}
+  else soltarWL();
+},1500);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&typeof GS!=='undefined'&&GS&&GS.running)setTimeout(pedirWL,300);});
+
+window.NinjaIOS={medir,sincronizar,standalone};
+})();
