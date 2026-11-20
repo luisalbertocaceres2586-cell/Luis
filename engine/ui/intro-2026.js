@@ -10,7 +10,8 @@ const Q=location.search;
 const boot=()=>{const b=document.getElementById('bootSplash');if(b){b.classList.add('off');setTimeout(()=>b.remove(),500);}};
 const S0=document.getElementById('S0');
 const oldCine=document.getElementById('cineIntro');if(oldCine)oldCine.click();      /* cierra la intro antigua (cancela sus temporizadores) */
-if(!S0||/[?&]intro=0/.test(Q)){boot();window.__introDone=true;window.IntroPro={replay(){},skip(){}};return;}
+let volviendo=false;try{volviendo=sessionStorage.getItem('ninja_abrir_mundos')==='1';}catch(e){}
+if(!S0||/[?&]intro=0/.test(Q)||/[?&]mundos=1/.test(Q)||volviendo){boot();window.__introDone=true;window.IntroPro={replay(){},skip(){}};return;}
 let hasSave=false;try{hasSave=!!(localStorage.getItem('mpl_v10_sv')||localStorage.getItem('ninja_perfiles_v1'));}catch(e){}
 const FORCE=/[?&]intro=full/.test(Q);
 const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;

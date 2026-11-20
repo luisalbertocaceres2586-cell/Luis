@@ -879,7 +879,7 @@
       }, gano ? 1800 : 0);
     }
 
-    function salir() { cancelAnimationFrame(raf); removeEventListener('keydown', kd); removeEventListener('keyup', ku); document.removeEventListener('visibilitychange', vis); root.remove(); (o.onSalir || (() => { location.href = 'index.html'; }))(); }
+    function salir() { cancelAnimationFrame(raf); removeEventListener('keydown', kd); removeEventListener('keyup', ku); document.removeEventListener('visibilitychange', vis); root.remove(); (o.onSalir || (() => { try { sessionStorage.setItem('ninja_abrir_mundos', '1'); } catch (e) {} location.href = 'index.html?mundos=1'; }))(); }
 
     // ───────────────────────── controles ─────────────────────────
     const lane = n => { if (S && S.est === 'play' && !S.pausa && S.fase !== 'puente') { S.lane = clamp(n, 0, 2); S.laneF = S.lane; } };
