@@ -421,8 +421,66 @@
       ctx.drawImage(cacheTema(ta), -60, -60); if (f > 0.01 && tb !== ta) { ctx.globalAlpha = f; ctx.drawImage(cacheTema(tb), -60, -60); ctx.globalAlpha = 1; }
       [[ta, 0.85], [tb, f * 0.85]].forEach(c => { if (c[1] <= 0.01 || (c[0] === ta && false)) return; const m = IMG(BG + TEMAS[c[0]].bg + '.png'); if (!listo(m)) return; const hh = 200, ww = hh * m.naturalWidth / m.naturalHeight, off = -((S.dist * 0.5 + (S.px - 1) * 30) % ww); ctx.globalAlpha = c[1]; for (let x = off - ww; x < W + 60; x += ww) ctx.drawImage(m, x, HOR - hh + 16, ww, hh); ctx.globalAlpha = 1; });
     }
+    // ───────────────────────── capas visuales extra (todo procedural, no necesita imágenes) ─────────────────────────
+    // adoquines con juntas escalonadas + detalle del suelo por mundo, nubes, rayos de luz, aurora (hielo), tormenta (trueno) y corrección de color
+    let adoR = null, nubesC = null, nubesO = null;
+    const GRADOS = [['#35d6b0', '#ffd36b'], ['#ff8fcf', '#ffd0a8'], ['#5a7bff', '#ffb86b'], ['#ff6a2a', '#ffd36b'], ['#6fe0ff', '#a8d0ff'], ['#8a6bff', '#ffe27a']].map(p => p.map(hexA));
+    function hash(n) { n = (n ^ 61) ^ (n >>> 16); n = (n + (n << 3)) | 0; n = n ^ (n >>> 4); n = Math.imul(n, 0x27d4eb2d); n = n ^ (n >>> 15); return (n >>> 0) / 4294967296; }
+    function adoquin(y, p, z, w, paso) {
+      const r = Math.floor((z + S.dist) / 2.2), mu = Math.min(TEMAS.length - 1, Math.round(S.temaF));
+      if (adoR !== null && adoR !== r) { ctx.fillStyle = 'rgba(0,0,0,.17)'; ctx.fillRect(W / 2 - w, y, w * 2, Math.max(1, 1.6 * p)); ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(W / 2 - w, y + Math.max(1, 1.6 * p), w * 2, Math.max(1, p)); }
+      ctx.fillStyle = 'rgba(0,0,0,.13)'; const st = (r & 1) * 0.275, jw = Math.max(1, 1.5 * p); if (p > 0.3) { ctx.beginPath(); for (let u = -1.65 + st; u < 1.7; u += 0.55) ctx.rect(W / 2 + u * LW * p - jw / 2, y, jw, paso + 1); ctx.fill(); }
+      if (adoR !== r && p > 0.2) {
+        const h = hash(r * 7 + 13), ux = (hash(r * 3 + 1) * 2 - 1) * RW * p * 0.8, x = W / 2 + ux;
+        if (mu === 3 && h < 0.3) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,120,30,.55)'; ctx.fillRect(x, y, (20 + hash(r + 5) * 40) * p, Math.max(1.5, 3 * p)); ctx.restore(); }
+        else if (mu === 4 && h < 0.4) { const a = 0.35 + 0.35 * Math.sin(S.t * 3 + r), s = 5 * p; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(220,245,255,' + a + ')'; ctx.fillRect(x - s, y, s * 2, Math.max(1, 1.4 * p)); ctx.fillRect(x - Math.max(.7, .7 * p), y - s * 0.8, Math.max(1.4, 1.4 * p), s * 1.6); ctx.restore(); }
+        else if (mu === 5 && h < 0.22) { ctx.fillStyle = 'rgba(150,170,255,.16)'; ctx.beginPath(); ctx.ellipse(x, y, 42 * p, 7 * p, 0, 0, 7); ctx.fill(); }
+        else if (mu === 1 && h < 0.35) { ctx.fillStyle = 'rgba(255,190,225,.55)'; ctx.beginPath(); ctx.ellipse(x, y, 7 * p, 3.5 * p, hash(r) * 3, 0, 7); ctx.fill(); }
+        else if (mu === 0 && h < 0.3) { ctx.fillStyle = 'rgba(90,200,120,.4)'; ctx.beginPath(); ctx.ellipse(x, y, 9 * p, 3 * p, hash(r) * 3, 0, 7); ctx.fill(); }
+        else if (mu === 2 && h < 0.18) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,210,120,.28)'; ctx.beginPath(); ctx.ellipse(x, y, 16 * p, 4 * p, 0, 0, 7); ctx.fill(); ctx.restore(); }
+      }
+      adoR = r;
+    }
+    function nubesCache(osc) {
+      const c = document.createElement('canvas'); c.width = 1080; c.height = 200; const x = c.getContext('2d');
+      for (let i = 0; i < 9; i++) { const cx = (i * 131 + 60) % 1080, cy = 40 + ((i * 57) % 110), s = 50 + ((i * 37) % 40);
+        for (let k = 0; k < 6; k++) { const ox = cx + (k - 2.5) * s * 0.5, oy = cy + Math.sin(k * 1.3 + i) * s * 0.2, r = s * (0.55 + ((k * 13 + i * 7) % 10) / 30), g = x.createRadialGradient(ox, oy, 0, ox, oy, r); g.addColorStop(0, osc ? 'rgba(15,10,35,.55)' : 'rgba(255,255,255,.5)'); g.addColorStop(1, osc ? 'rgba(15,10,35,0)' : 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(ox - r, oy - r, r * 2, r * 2); } }
+      return c;
+    }
+    function nubesDib() {
+      if (S.lite) return; const osc = S.temaF > 4.5, c = osc ? (nubesO || (nubesO = nubesCache(true))) : (nubesC || (nubesC = nubesCache(false))), off = -((S.t * 7 + S.dist * 0.12 + (S.px - 1) * 24) % 1080);
+      ctx.globalAlpha = osc ? 0.9 : 0.32; ctx.drawImage(c, off, 30); ctx.drawImage(c, off + 1080, 30); ctx.globalAlpha = 1;
+    }
+    function auroraDib() {
+      if (S.lite) return; const a = clamp(1 - Math.abs(S.temaF - 4), 0, 1); if (a <= 0.02) return; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < 3; k++) { const col = k === 0 ? '80,255,200' : k === 1 ? '120,200,255' : '200,140,255', g = ctx.createLinearGradient(0, 0, 0, 110); g.addColorStop(0, 'rgba(' + col + ',0)'); g.addColorStop(0.25, 'rgba(' + col + ',' + (0.26 * a) + ')'); g.addColorStop(1, 'rgba(' + col + ',0)'); ctx.fillStyle = g;
+        for (let x = -60; x < W + 60; x += 20) { const y = 70 + k * 34 + Math.sin(x * 0.011 + S.t * 0.55 + k * 1.7) * 24 + Math.sin(x * 0.027 - S.t * 0.3) * 8; ctx.translate(x, y); ctx.fillRect(0, 0, 21, 110); ctx.translate(-x, -y); } }
+      ctx.restore();
+    }
+    function rayosLuz(Tm) {
+      if (S.lite) return; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < 4; k++) { const x0 = 360 + k * 46 + Math.sin(S.t * 0.22 + k * 1.3) * 24, g = ctx.createLinearGradient(x0, 0, x0 - 300, H * 0.75); g.addColorStop(0, rgb(Tm.borde, 0.11)); g.addColorStop(1, rgb(Tm.borde, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x0, -20); ctx.lineTo(x0 + 52, -20); ctx.lineTo(x0 - 280, H * 0.75); ctx.lineTo(x0 - 370, H * 0.75); ctx.closePath(); ctx.fill(); }
+      ctx.restore();
+    }
+    function rayoDib() {
+      const a = clamp((S.temaF - 4.4) / 0.6, 0, 1); if (a <= 0 || S.pausa) return; const r = S.rayo || (S.rayo = { next: 2, t0: -9, pts: [] });
+      if (S.t > r.next) { r.t0 = S.t; r.next = S.t + R(3, 7); let x = R(80, W - 80), y = -10; r.pts = [[x, y]]; while (y < HOR + 10) { y += R(24, 46); x += R(-34, 34); r.pts.push([x, y]); } if (!mudo) tono(60, 0.8, 'sawtooth', 0.04, 0.25); }
+      const el = S.t - r.t0; if (el > 0.4) return; const k = clamp(1 - el / 0.4, 0, 1) * (0.6 + 0.4 * Math.sin(el * 60)) * a;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(210,225,255,' + (0.2 * k) + ')'; ctx.fillRect(-60, -60, W + 120, H + 120);
+      ctx.strokeStyle = 'rgba(230,240,255,' + k + ')'; ctx.lineWidth = 3; ctx.shadowColor = '#bcd0ff'; ctx.shadowBlur = 18; ctx.beginPath(); r.pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); ctx.stroke(); ctx.restore();
+    }
+    function lluviaDib() {
+      const a = clamp((S.temaF - 4.2) / 0.8, 0, 1); if (a <= 0 || S.lite) return; ctx.save(); ctx.strokeStyle = 'rgba(190,205,255,' + (0.28 * a) + ')'; ctx.lineWidth = 1.4; ctx.beginPath();
+      for (let i = 0; i < 70; i++) { const x = ((i * 97.3) + S.t * 70) % (W + 80) - 40, y = ((i * 131.7) + S.t * 950) % (H + 60) - 30; ctx.moveTo(x, y); ctx.lineTo(x - 7, y + 36); } ctx.stroke(); ctx.restore();
+    }
+    function gradoDib(ta, tb, f) {
+      if (S.lite) return;
+      const A = GRADOS[ta], B = GRADOS[tb], g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, rgb(mix(A[0], B[0], f))); g.addColorStop(1, rgb(mix(A[1], B[1], f)));
+      ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.globalAlpha = 0.38; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
+    }
+
     function camino(Tm) {
-      const paso = S.lite ? 6 : 4; let prev = null;
+      const paso = S.lite ? 6 : 4; let prev = null; adoR = null;
       for (let y = HOR + 8; y < H; y += paso) {
         const p = (y - HOR) / (PY - HOR); if (p <= 0.01) continue; const z = Z0 * (1 / p - 1), par = Math.floor((z + S.dist) / 5) % 2 === 0, w = RW * p, ff = clamp(1 - p * 1.9, 0, 0.7);
         ctx.fillStyle = rgb(mix(par ? Tm.c1 : Tm.c2, Tm.niebla, ff)); ctx.fillRect(W / 2 - w, y, w * 2, paso + 1);
@@ -430,7 +488,7 @@
         ctx.fillStyle = rgb(mix(par ? [150, 140, 170] : [118, 108, 140], Tm.niebla, ff)); ctx.fillRect(W / 2 - w - cw, y, cw, paso + 1); ctx.fillRect(W / 2 + w, y, cw, paso + 1);
         ctx.fillStyle = rgb(mix(Tm.borde, Tm.niebla, ff), 0.75); ctx.fillRect(W / 2 - w - cw, y, fino, paso + 1); ctx.fillRect(W / 2 + w + cw - fino, y, fino, paso + 1);
         if (prev !== null && prev !== par) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(W / 2 - w, y, w * 2, Math.max(1, 2.2 * p)); ctx.fillStyle = 'rgba(255,255,255,.07)'; ctx.fillRect(W / 2 - w, y + Math.max(1, 2.2 * p), w * 2, Math.max(1, 1.2 * p)); }
-        prev = par;
+        prev = par; if (!S.lite && p > 0.14) adoquin(y, p, z, w, paso);
         if (par) { ctx.fillStyle = 'rgba(255,255,255,' + (0.22 * (1 - ff)) + ')'; const lw = Math.max(1, 3 * p); ctx.fillRect(W / 2 - LW * p * 0.5 - lw / 2, y, lw, paso + 1); ctx.fillRect(W / 2 + LW * p * 0.5 - lw / 2, y, lw, paso + 1); }
       }
     }
@@ -649,15 +707,15 @@
       const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
       ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob);
       if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
-      fondoDib(ta, tb, f); camino(Tm); charcos(); niebla(Tm);
+      fondoDib(ta, tb, f); nubesDib(); auroraDib(); rayoDib(); camino(Tm); charcos(); niebla(Tm);
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
       S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
-      dibAmb(); dibEfectos();
-      ctx.restore(); vinetaDib(); hud();
+      dibAmb(); dibEfectos(); rayosLuz(Tm); lluviaDib();
+      ctx.restore(); gradoDib(ta, tb, f); vinetaDib(); hud();
     }
     function bucle(t) {
       if (!vivo) return; raf = requestAnimationFrame(bucle); const dt = (t - ultimo) / 1000; ultimo = t;
