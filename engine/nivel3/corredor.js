@@ -98,6 +98,7 @@
 
   // preguntas del nivel: 6 por tabla, de fácil a difícil, con 3 formatos (sin tiempo límite)
   function construir() {
+    const np = +(new URLSearchParams(location.search).get('n')); if (np >= 3 && np <= 9) CFG.PREG_TABLA = np;
     const out = [], tipos = ['mult', 'mult', 'sigue', 'mult', 'multiplo', 'sigue'];
     TABLAS.forEach(T => {
       const ns = mez([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, CFG.PREG_TABLA).sort((a, b) => a - b);
@@ -167,7 +168,7 @@
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], toasts: [],
         racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [], monedas: 0, mundo: 0, qpas: 0, zp: 0, cortes: [{ d: 0, m: 0 }],
-        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0,
+        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0, mAc: 0, mFa: 0, tutor: false,
         sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, cieloM: false, ultLane: -1, decoD: 8 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
@@ -236,6 +237,7 @@
     }
     function recoge(it, x, y) {
       const row = it.row; it.tomado = true; row.res = true; if (!row.repaso) S.qpas++;
+      if (!row.repaso) { if (it.ok) S.mAc++; else S.mFa++; }
       if (it.ok) {
         S.aciertos++; S.racha++; S.mejorRacha = Math.max(S.mejorRacha, S.racha); const gan = row.repaso ? 3 : 5 + Math.min(S.racha, 5);
         S.monedas += gan; S.puntos += 10 + Math.min(S.racha, 10) * 2; S.alegre = 1.1; S.alegreT = S.t; S.pista = null;
@@ -295,13 +297,14 @@
       if (!S.plaza) { if (S.iman > 0) S.iman -= dt; if (S.escudo > 0) S.escudo -= dt; }
       if (S.alegre > 0) S.alegre -= dt; if (S.pista) { S.pista.t -= dt; if (S.pista.t <= 0) S.pista = null; }
       S.hist.push({ t: S.t, px: S.px }); while (S.hist.length && S.hist[0].t < S.t - 1.4) S.hist.shift();
+      if (!S.tutor && S.t > 3.4) { S.tutor = true; toast(tactil() ? 'Desliza ← → para juntar monedas' : 'Usa ← → para juntar monedas', '#ffffff', 3); }
       efectos(dt); generar();
       const jugando = S.cae <= 0;
       for (const it of S.items) {
         const z = it.d - S.dist;
         if (it.k === 'orb' && !it.tomado && !it.row.res && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) recoge(it, W / 2 + (it.lane - 1) * LW, yz(0) - 120);
         else if (it.k === 'coin' && !it.tomada && jugando && Math.abs(z) < 1.1 && Math.abs(S.px - it.lane) < (S.iman > 0 ? 1.7 : 0.6) && (S.iman > 0 || Math.abs(S.jh - it.h) < 85)) {
-          it.tomada = true; S.monedas++; S.puntos++; sfx.moneda(S.monedas); chispas(W / 2 + (it.lane - 1) * LW, PY - 60 - it.h, '#ffd35a', 5);
+          it.tomada = true; { const g = S.racha >= 3 ? 2 : 1; S.monedas += g; S.puntos += g; } sfx.moneda(S.monedas); chispas(W / 2 + (it.lane - 1) * LW, PY - 60 - it.h, '#ffd35a', 5);
         }
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
           const esquiva = it.tipo === 'bajo' ? S.jh > 70 : S.slide > 0;
@@ -316,8 +319,11 @@
         } else if (it.k === 'portal' && !it.pasado && z < 0) {
           it.pasado = true;
           if (it.arco) { sfx.plaza(); chispas(W / 2, 330, '#9ad7ff', 14); }
-          else if (it.final) { terminar(); }
-          else { S.mundo = it.sigM; ponBanner(S.mundo, PREGS[Math.min(PREGS.length - 1, S.qpas)].T, 3); S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
+          else {
+            const est = S.mFa === 0 ? 3 : S.mFa === 1 ? 2 : 1, bono = 10 + est * 5; S.monedas += bono; S.puntos += bono * 2; S.mAc = 0; S.mFa = 0;
+            toast('🎁 ' + '⭐'.repeat(est) + ' +' + bono + ' 🪙', '#ffe27a', 2.6); chispas(W / 2, 420, '#ffe27a', 30);
+            if (it.final) { terminar(); return; }
+            S.mundo = it.sigM; ponBanner(S.mundo, PREGS[Math.min(PREGS.length - 1, S.qpas)].T, 3); S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
         }
       }
       // filas que pasaron sin que se recogiera nada
@@ -558,7 +564,7 @@
       if (listo(pi)) { ctx.save(); ctx.beginPath(); ctx.arc(53, 51, 34, 0, 7); ctx.clip(); ctx.drawImage(pi, 17, 15, 72, 72); ctx.restore(); } if (listo(mi)) ctx.drawImage(mi, 6, 4, 94, 94);
       const hi = IMG(ART.corazon); for (let i = 0; i < CFG.VIDAS; i++) { ctx.globalAlpha = i < S.vidas ? 1 : 0.22; if (listo(hi)) ctx.drawImage(hi, 0, 0, 200, 175, 108 + i * 44, 14, 40, 35); else { ctx.fillStyle = '#ff5a7a'; ctx.font = '34px serif'; ctx.fillText('♥', 108 + i * 44, 44); } } ctx.globalAlpha = 1;
       const mo = IMG(ART.moneda); if (listo(mo)) ctx.drawImage(mo, (Math.floor(S.t * 8) % 6) * 160, 0, 160, 160, 108, 56, 30, 30);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; ctx.strokeText(S.monedas, 144, 72); ctx.fillStyle = '#ffe27a'; ctx.fillText(S.monedas, 144, 72);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; { const mt = S.monedas + (S.racha >= 3 ? '  ×2' : ''); ctx.strokeText(mt, 144, 72); ctx.fillStyle = S.racha >= 3 ? '#fff3a0' : '#ffe27a'; ctx.fillText(mt, 144, 72); }
       // insignia con el número de la tabla
       const ins = IMG(ART.insignia); if (listo(ins)) ctx.drawImage(ins, 300, 6, 90, 90);
       ctx.textAlign = 'center'; ctx.font = 'bold 42px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.strokeText(e.T, 343, 48); ctx.fillStyle = '#fff'; ctx.fillText(e.T, 343, 48);
