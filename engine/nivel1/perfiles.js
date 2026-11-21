@@ -47,6 +47,19 @@
   }
   function obtener(id) { return leer().perfiles[id] || null; }
   function activo() { const d = leer(); return d.activo ? d.perfiles[d.activo] || null : null; }
+  /* Suma aciertos/errores por operación ("7x8": {a, e}) a la maestría del perfil. Lo usan los niveles 2 y 3
+     (el nivel 1 la maneja con su propio modelo). Misma regla de cajas: acierto +1, error −2, entre 0 y 4. */
+  function registrarHechos(id, hechos) {
+    if (!hechos) return null;
+    return actualizar(id, p => {
+      const m = p.maestria = p.maestria || {};
+      Object.keys(hechos).forEach(k => {
+        if (!/^\d+x\d+$/.test(k)) return;
+        const h = hechos[k] || {}, r = m[k] || (m[k] = { a: 0, e: 0, caja: 0, t: 0 });
+        r.a += h.a | 0; r.e += h.e | 0; r.caja = Math.max(0, Math.min(4, (r.caja | 0) + (h.a | 0) - 2 * (h.e | 0)));
+      });
+    });
+  }
   /* Cierra la sesión: nadie queda como jugador activo (los datos de los perfiles NO se borran). */
   function cerrarSesion() { const d = leer(); d.activo = null; return escribir(d); }
   function elegir(id) {
@@ -91,5 +104,5 @@
     } catch (e) { return { ok: false, error: 'Código no válido.' }; }
   }
 
-  return { crear, listar, obtener, activo, elegir, cerrarSesion, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
+  return { crear, listar, obtener, activo, elegir, cerrarSesion, registrarHechos, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
 });
