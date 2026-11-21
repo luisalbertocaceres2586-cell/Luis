@@ -697,7 +697,7 @@
         const f = p.nivel3.fallos || {}; Object.keys(S.hechos || {}).forEach(k => { const h = S.hechos[k], v = Math.max(0, (f[k] || 0) + h.e * 2 - h.a); if (v > 0) f[k] = v; else delete f[k]; });
         p.nivel3.fallos = f; m3 = Object.assign({}, f);
         p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores;
-      }); } catch (e) {}
+      }); if (Perfiles.registrarHechos) Perfiles.registrarHechos(o.perfil.id, S.hechos); } catch (e) {}
     }
     function mostrarFin() {
       const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
