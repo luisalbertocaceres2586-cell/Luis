@@ -11,4 +11,6 @@ Originales en `assets/_originales/nivel3_arte/`. Cada pieza está recortada, con
 | `zorro/` | run_1–4, salto, senala, celebra, espera | zorro compañero de espalda |
 | `mundos/` | pano_lava, pano_sakura, `lava/…` | fondo del Camino de Fuego y del Jardín de Sakura; obstáculos y decorado de lava |
 
-Sin usar todavía: `monedas/shuriken`, `potenciadores/reloj`, `efectos/iman`, `efectos/velocidad` (solo con patineta) y la hoja `sakura16` (repite el cambio de carril y la celebración de Sakura).
+Sin usar todavía: `efectos/velocidad` solo con patineta y la hoja `sakura16` (repite cambio de carril y celebración).
+
+Ahora también: `potenciadores/reloj` = «tiempo ninja» (la pista va a 62 % durante 8 s, sale de la caja sorpresa junto con imán y escudo), `monedas/shuriken` = shuriken giratorio en el zigzag (+3) y `efectos/iman` = destello al tomar el imán.
