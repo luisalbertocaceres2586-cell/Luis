@@ -133,7 +133,7 @@
       heroe: 'corre',
       particulas: 'brasas',
       fueraDeProgreso: true,
-      visible: p => !!(p && p.progreso && p.progreso.nivel > 0),
+      visible: p => !!(p && p.progreso && (p.progreso.nivel > 0 || p.progreso.puntos > 0)),
       progreso: () => ({ estado: 'en_curso', estrellas: 0 })
     },
     {

@@ -73,6 +73,31 @@
     try { const v = leerVisto(); v[pid] = Object.assign(v[pid] || {}, ids); root.localStorage.setItem(VISTO_KEY, JSON.stringify(v)); } catch (e) {}
   }
 
+  // ---------- racha diaria 🔥 (días seguidos practicando) ----------
+  const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  function hoyAyer() { const h = new Date(), a = new Date(h.getFullYear(), h.getMonth(), h.getDate() - 1); return { hoy: ymd(h), ayer: ymd(a) }; }
+  /** Estado de la racha para mostrarla: {dias, activa (ya jugó hoy), enPeligro (jugó ayer, falta hoy)} */
+  function estadoRacha(perfil) {
+    const r = (perfil && perfil.racha) || {}, f = hoyAyer(), dias = r.dias | 0;
+    if (!dias || !r.ultimo) return { dias: 0, activa: false, enPeligro: false, mejor: r.mejor | 0 };
+    if (r.ultimo === f.hoy) return { dias, activa: true, enPeligro: false, mejor: r.mejor | 0 };
+    if (r.ultimo === f.ayer) return { dias, activa: false, enPeligro: true, mejor: r.mejor | 0 };
+    return { dias: 0, activa: false, enPeligro: false, mejor: r.mejor | 0 };   // se rompió
+  }
+  /** Se llama al EMPEZAR a jugar un mundo: cuenta el día de práctica. */
+  function registrarPractica(perfil) {
+    if (!perfil || !root.Perfiles || !root.Perfiles.actualizar) return;
+    const f = hoyAyer();
+    try {
+      root.Perfiles.actualizar(perfil.id, q => {
+        const r = q.racha || {};
+        if (r.ultimo === f.hoy) return;
+        const dias = r.ultimo === f.ayer ? (r.dias | 0) + 1 : 1;
+        q.racha = { ultimo: f.hoy, dias, mejor: Math.max(r.mejor | 0, dias) };
+      });
+    } catch (e) {}
+  }
+
   // ---------- utilidades DOM ----------
   function el(tag, cls, html) { const e = doc.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function img(src, cls) { const i = doc.createElement('img'); i.src = src; i.alt = ''; i.draggable = false; if (cls) i.className = cls; return i; }
@@ -252,10 +277,39 @@
     if (t.dots) Array.prototype.forEach.call(t.dots.children, (d, k) => d.classList.toggle('on', k === t.fase));
   }
 
+  // ---------- precarga: las tarjetas aparecen ya completas (útil con internet lento) ----------
+  let precargado = false, LOAD = null;
+  function precargar(urls, max, alAvanzar) {
+    return new Promise(res => {
+      let n = 0; const total = urls.length; if (!total) return res();
+      const fin = () => { clearTimeout(tm); res(); };
+      const tm = setTimeout(res, max);
+      urls.forEach(u => { const i = new Image(); const ok = () => { n++; alAvanzar && alAvanzar(n / total); if (n >= total) fin(); }; i.onload = ok; i.onerror = ok; i.src = u; });
+    });
+  }
+  function urlsNecesarias(heroeId) {
+    const reg = (root.MundosRegistro && root.MundosRegistro.imagenes) ? root.MundosRegistro.imagenes() : [];
+    const h = HEROES[heroeId] || HEROES.sakura;
+    return reg.concat(h.idle, h.run, h.alfombra);
+  }
+
   // ---------- abrir / cerrar ----------
   function abrir(opts) {
     if (!doc) return; opts = opts || {};
     cerrar(true); asegurarCss();
+    if (!precargado && !opts._pre) {
+      quitarCarga();
+      const heroeP = (opts.perfil && opts.perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
+      const l = el('div', 'mw-root mw-ini', '<div class="mw-ini-c"><div class="mw-ini-s">✦</div><b>Preparando mundos…</b><div class="mw-bar"><i></i></div></div>');
+      doc.body.appendChild(l); LOAD = l;
+      const barra = l.querySelector('.mw-bar i');
+      precargar(urlsNecesarias(heroeP), 6000, f => { barra.style.width = Math.round(f * 100) + '%'; }).then(() => {
+        precargado = true; if (LOAD !== l) return;           // si ya se canceló, no se abre
+        quitarCarga(); abrir(Object.assign({}, opts, { _pre: true }));
+      });
+      return;
+    }
+    quitarCarga();
     const perfil = opts.perfil || null;
     const heroeId = (perfil && perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
     const items = estado(perfil), sig = siguiente(perfil);
@@ -268,9 +322,29 @@
 
     const jugables = items.filter(x => !x.mundo.bloqueado && !x.mundo.fueraDeProgreso), hechos = jugables.filter(x => x.prog.estado === 'completado').length;
     const top = el('header', 'mw-top');
-    const tit = el('div', 'mw-title', '<small>' + (perfil ? '👤 ' : '') + '<span class="mw-nom"></span></small><h1>' + (jugables.length && hechos === jugables.length ? '¡ERES UN MAESTRO NINJA!' : 'ELIGE TU MUNDO') + '</h1>');
+    const tit = el('div', 'mw-title', '<small>' + (perfil ? '<span class="mw-avatar"><img alt="" draggable="false"></span>' : '') + '<span class="mw-nom"></span></small><h1>' + (jugables.length && hechos === jugables.length ? '¡ERES UN MAESTRO NINJA!' : 'ELIGE TU MUNDO') + '</h1>');
+    const av = tit.querySelector('.mw-avatar img'); if (av) av.src = (HEROES[heroeId] || HEROES.sakura).idle[0];
     tit.querySelector('.mw-nom').textContent = perfil ? String(perfil.nombre || '').toUpperCase() : 'MUNDOS';
     top.appendChild(tit);
+    const maestro = jugables.length > 0 && hechos === jugables.length;
+    if (maestro) {
+      rootEl.classList.add('mw-maestro');
+      let ya = false; try { ya = root.sessionStorage.getItem('mw_maestro_' + pid) === '1'; root.sessionStorage.setItem('mw_maestro_' + pid, '1'); } catch (e) {}
+      if (!ya && !reducido()) {
+        const cf = el('div', 'mw-confeti'), cols = ['#ffe27a', '#ff9d4a', '#ff7aa8', '#7ad7ff', '#9dff9d', '#c9a3ff'], rr = rng(7);
+        for (let k = 0; k < 46; k++) { const c = el('i'); c.style.left = (rr() * 100) + '%'; c.style.background = cols[k % cols.length]; c.style.setProperty('--d', (2.8 + rr() * 2.6).toFixed(1) + 's'); c.style.setProperty('--w', (rr() * 1.6).toFixed(2) + 's'); c.style.setProperty('--r', Math.round(rr() * 720 - 360) + 'deg'); cf.appendChild(c); }
+        rootEl.appendChild(cf); setTimeout(() => cf.remove(), 7000);
+        setTimeout(() => { tono(523, .16, 'triangle', .05); tono(659, .16, 'triangle', .05, null, .15); tono(784, .16, 'triangle', .05, null, .3); tono(1047, .5, 'triangle', .06, null, .45); }, 500);
+      }
+    }
+    const rc = estadoRacha(perfil);
+    if (perfil) {
+      const chip = el('div', 'mw-racha' + (rc.activa ? ' activa' : rc.enPeligro ? ' peligro' : ''),
+        '<span class="mw-fuego">🔥</span><b>' + rc.dias + '</b><span class="mw-racha-t">' + (rc.dias === 1 ? ' día' : ' días') + '</span>');
+      chip.title = rc.activa ? '¡Racha activa! Ya practicaste hoy.' : rc.enPeligro ? '¡Juega hoy para no perder tu racha de ' + rc.dias + ' días!' : 'Juega cada día para armar tu racha';
+      if (!rc.dias) chip.querySelector('.mw-racha-t').textContent = ' Empieza tu racha';
+      top.appendChild(chip);
+    }
     const pr = el('div', 'mw-prog', '🏯 <span><b>' + hechos + '</b> de ' + jugables.length + ' mundos</span><div class="mw-bar"><i></i></div>');
     top.appendChild(pr);
     const mu = el('button', 'mw-mute', silenciado() ? '🔇' : '🔊'); mu.type = 'button'; mu.title = 'Sonido de los menús'; mu.setAttribute('aria-label', 'Activar o silenciar el sonido de los menús');
@@ -293,8 +367,17 @@
       b.onclick = e => { e.stopPropagation(); track.scrollBy({ left: dir * Math.max(200, tarjetas[0].card.offsetWidth + 20), behavior: reducido() ? 'auto' : 'smooth' }); }; rootEl.appendChild(b); return b; };
     const bIzq = nav(-1), bDer = nav(1);
     const actualizarNav = () => { const max = track.scrollWidth - track.clientWidth; bIzq.classList.toggle('on', max > 6 && track.scrollLeft > 6); bDer.classList.toggle('on', max > 6 && track.scrollLeft < max - 6); };
+    let arr = null, arrastro = false;
+    track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; arr = { x: e.clientX, sl: track.scrollLeft, mov: false }; });
+    root.addEventListener('pointermove', e => {
+      if (!arr) return; const dx = e.clientX - arr.x;
+      if (!arr.mov && Math.abs(dx) > 7) { arr.mov = true; track.classList.add('mw-arr'); }
+      if (arr.mov) track.scrollLeft = arr.sl - dx;
+    });
+    root.addEventListener('pointerup', () => { if (arr && arr.mov) { arrastro = true; setTimeout(() => { arrastro = false; }, 60); } arr = null; track.classList.remove('mw-arr'); });
+    track.addEventListener('click', e => { if (arrastro) { e.stopPropagation(); e.preventDefault(); } }, true);
     track.addEventListener('scroll', actualizarNav, { passive: true }); root.addEventListener('resize', actualizarNav); setTimeout(actualizarNav, 400);
-    rootEl.appendChild(el('footer', 'mw-pie', 'Elige el mundo que más te guste · puedes jugarlos en el orden que quieras · <kbd>←</kbd> <kbd>→</kbd> <kbd>Enter</kbd>'));
+    rootEl.appendChild(el('footer', 'mw-pie', 'Elige el mundo que más te guste · puedes jugarlos en el orden que quieras · <kbd>←</kbd> <kbd>→</kbd> <kbd>Enter</kbd> · <kbd>1</kbd>–<kbd>4</kbd>'));
     const iris = el('div', 'mw-iris', '<small>PREPÁRATE</small><h2></h2><div class="mw-carga"><i></i></div>'); rootEl.appendChild(iris);
 
     // el juego escucha el teclado en todo el documento: aquí las teclas son solo del selector
@@ -341,6 +424,7 @@
       else if (e.key === 'ArrowLeft') { e.preventDefault(); ir(idx < 0 ? 0 : idx - 1); }
       else if (e.key === 'Home') { e.preventDefault(); ir(0); } else if (e.key === 'End') { e.preventDefault(); ir(tarjetas.length - 1); }
       else if ((e.key === 'Enter' || e.key === ' ') && idx >= 0) { e.preventDefault(); elegir(tarjetas[idx]); }
+      else if (/^[1-9]$/.test(e.key) && tarjetas[+e.key - 1]) { e.preventDefault(); const t = tarjetas[+e.key - 1]; t.card.focus({ preventScroll: true }); elegir(t); }
       else if (e.key === 'Escape' && opts.cerrable) { e.preventDefault(); cerrar(); }
     };
     root.addEventListener('keydown', onKey, true);
@@ -350,6 +434,17 @@
     const foco = tarjetas[first >= 0 ? first : 0];
     setTimeout(() => { if (!R) return; try { foco.card.focus({ preventScroll: true }); foco.card.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) {} }, 60);
     R.raf = root.requestAnimationFrame(bucle);
+
+    // ayuda para la primera visita de cada jugador
+    const guiaKey = 'mw_guia_v1_' + pid; let vista = false; try { vista = root.localStorage.getItem(guiaKey) === '1'; } catch (e) {}
+    if (!vista && perfil && !reducido()) {
+      const objetivo = tarjetas[first >= 0 ? first : 0];
+      const g = el('div', 'mw-guia', '👆 Toca un mundo para jugar.<br><small>¡Puedes elegir el que más te guste!</small>');
+      objetivo.card.appendChild(g);
+      const quitar = () => { g.classList.add('fuera'); setTimeout(() => g.remove(), 400); try { root.localStorage.setItem(guiaKey, '1'); } catch (e) {} };
+      R.timers.push(root.setTimeout(quitar, 9000));
+      track.addEventListener('pointerdown', quitar, { once: true }); rootEl.addEventListener('keydown', quitar, { once: true });
+    }
 
     // sonido de hover solo después del arranque (evita el "tic" inicial) + sello con golpe y chispas
     setTimeout(() => { if (R) R.sonar = true; }, 900);
@@ -374,7 +469,7 @@
   function elegir(t) {
     if (!R || R.lanzando) return;
     if (t.m.bloqueado) { SND.bloqueado(); t.card.animate([{ translate: '0' }, { translate: '-7px' }, { translate: '7px' }, { translate: '-4px' }, { translate: '0' }], { duration: 320 }); return; }
-    R.lanzando = true; SND.elegir();
+    R.lanzando = true; SND.elegir(); registrarPractica(R.perfil);
     try { root.sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
     const rc = R.root.getBoundingClientRect(), b = t.card.getBoundingClientRect();
     const iris = R.root.querySelector('.mw-iris'); iris.style.setProperty('--ix', ((b.left + b.width / 2 - rc.left) / rc.width * 100).toFixed(1) + '%'); iris.style.setProperty('--iy', ((b.top + b.height / 2 - rc.top) / rc.height * 100).toFixed(1) + '%');
@@ -392,13 +487,15 @@
     }, espera);
   }
 
+  function quitarCarga() { if (LOAD) { LOAD.remove(); LOAD = null; } }
+
   function cerrar(silencioso) {
-    if (!R) return; const r = R; R = null;
+    if (!R) { quitarCarga(); return; } const r = R; R = null;
     root.cancelAnimationFrame(r.raf); if (r.onKey) root.removeEventListener('keydown', r.onKey, true); r.timers.forEach(i => root.clearInterval(i)); if (r.io) r.io.disconnect();
     r.tarjetas.forEach(t => t.anims.forEach(a => { try { a.cancel(); } catch (e) {} }));
     r.root.remove();
     if (!silencioso && r.opts.onCerrar) r.opts.onCerrar();
   }
 
-  return { abrir, cerrar, estado, siguiente, HEROES };
+  return { abrir, cerrar, estado, siguiente, estadoRacha, HEROES };
 });
