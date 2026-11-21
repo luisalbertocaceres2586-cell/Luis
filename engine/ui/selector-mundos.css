@@ -269,3 +269,7 @@
 .mw-panel{--acc:#ffb44a;--acc2:#e0752d}
 
 .mw-refuerzo{border-color:#ff9d9d!important;color:#ffd0d0;background:#c02a2a33!important}
+/* vista previa viva (mini-partida en canvas): al estar lista oculta la escena estática */
+.mw-demo{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .5s;pointer-events:none}
+.mw-card.demo-on .mw-demo{opacity:1}
+.mw-card.demo-on .mw-fase,.mw-card.demo-on .mw-sombra,.mw-card.demo-on .mw-spr,.mw-card.demo-on .mw-flota,.mw-card.demo-on .mw-part{visibility:hidden}

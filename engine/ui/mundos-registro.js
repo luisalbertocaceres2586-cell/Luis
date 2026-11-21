@@ -57,6 +57,7 @@
       ],
       extra: { img: N1 + 'enemigos/ninja_sombra.png', lado: 'izq', h: 40, y: 0 },
       heroe: 'corre',
+      demo: { tipo: 'lateral' },
       particulas: 'luciernagas',
       progreso: p => {
         const n = (p && p.nivel1) || {};
@@ -86,6 +87,7 @@
       ],
       extra: { frames: [0, 1, 2].map(i => N2 + 'companero/zorro_run_0' + i + '.png'), lado: 'der', h: 24, y: 0, fps: 9 },
       heroe: 'vuela',
+      demo: { tipo: 'vuelo' },
       particulas: 'arena',
       progreso: p => {
         const n = (p && p.nivel2) || {};
@@ -98,8 +100,8 @@
       id: 'farolillos',
       nombre: 'Carrera de los Farolillos',
       nivel: 'MUNDO 3',
-      lema: 'Corre de noche, esquiva barriles y sigue la cadena de múltiplos.',
-      tablas: 'Cadenas y múltiplos',
+      lema: 'Corre de noche, junta monedas, vuela en tabla de nube y elige con calma la respuesta.',
+      tablas: 'Tablas del 7, 8 y 9',
       duracion: '8–12 min',
       dificultad: 2,
       acento: '#ffd24a', acento2: '#e8892b',
@@ -113,6 +115,7 @@
         { img: EN + 'props/lights/hanging_lantern_c.png', x: 70, h: 40, capa: 'cerca', alto: true }
       ],
       heroe: 'corre',
+      demo: { tipo: 'carril', ruta: ['#4b3f7c', '#2b2152'] },
       particulas: 'farolillos',
       progreso: p => {
         const n = (p && p.nivel3) || {};
