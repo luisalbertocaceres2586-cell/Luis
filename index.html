@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <script src="engine/core/diagnostico.js?v=2"></script>
 <script src="engine/core/compat.js?v=1"></script>
+<script src="engine/core/orientacion.js?v=1"></script>
 <script src="engine/core/ios-fix.js?v=4"></script>
 <script src="engine/core/movil-comun.js?v=2"></script>
 <script src="engine/core/android-fix.js?v=1"></script>
@@ -398,6 +399,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <link rel="stylesheet" href="engine/ui/menu-2026.css?v=2">
 <link rel="stylesheet" href="engine/ui/perfil-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/paneles-2026.css?v=1">
+<link rel="stylesheet" href="engine/ui/logros-2026.css?v=1">
+<link rel="stylesheet" href="engine/ui/resultados-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/escena-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/ninjas-fx-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/carga-2026.css?v=1">
@@ -855,6 +858,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         ACIERTOS Y FALLOS POR TABLA — EN ESTE NAVEGADOR</div>
     </div>
     <div id="reportRows" style="border:1px solid rgba(0,180,255,.2);border-radius:8px;overflow:hidden;padding:8px;max-height:50vh;overflow-y:auto"></div>
+    <div id="reportPerfiles" style="border:1px solid rgba(255,200,80,.25);border-radius:8px;padding:8px;margin-top:6px;max-height:34vh;overflow-y:auto"></div>
     <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.1vw,8px);color:rgba(200,220,255,.5);text-align:center;padding:2px 6px">
       Se guarda automáticamente mientras juegan en este dispositivo/navegador. No se envía a ningún servidor.</div>
     <div class="brow" style="margin-top:4px">
@@ -8797,6 +8801,32 @@ function _reportRows(){
     return {t, c:s.c, w:s.w, total, pct};
   });
 }
+// ── Reporte por jugador (niveles 2 y 3): qué multiplicaciones le cuestan a cada niño ──
+function _reportePerfiles(){
+  const out=[];
+  try{
+    if(typeof Perfiles==='undefined') return out;
+    Perfiles.listar().forEach(p=>{
+      const n2=(p.nivel2&&p.nivel2.fallos)||{}, n3=(p.nivel3&&p.nivel3.fallos)||{}, tot={};
+      Object.keys(n2).forEach(k=>tot[k]=(tot[k]||0)+n2[k]); Object.keys(n3).forEach(k=>tot[k]=(tot[k]||0)+n3[k]);
+      const dificiles=Object.keys(tot).sort((a,b)=>tot[b]-tot[a]).slice(0,5).map(k=>[k.replace('x',' × '),tot[k]]);
+      const n=p.nivel3||{}, jugo=!!(n.intentos||n.monedas||dificiles.length||(p.nivel2&&(p.nivel2.intentos||p.nivel2.completado)));
+      if(jugo) out.push({nombre:p.nombre||p.id, estrellas:n.estrellas||0, monedas:n.monedas||0, intentos:n.intentos||0, n3ok:!!n.completado, dificiles});
+    });
+  }catch(e){}
+  return out;
+}
+function _pintarReportePerfiles(){
+  const el=document.getElementById('reportPerfiles'); if(!el) return; el.textContent='';
+  const h=document.createElement('div'); h.style.cssText="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,10px);color:#FFD27A;margin-bottom:6px;text-align:center"; h.textContent='🏮 POR JUGADOR · NIVELES 2 Y 3'; el.appendChild(h);
+  const rows=_reportePerfiles();
+  if(!rows.length){ const d=document.createElement('div'); d.style.cssText='font-size:12px;color:rgba(200,220,255,.6);text-align:center;padding:6px'; d.textContent='Aún no hay datos. Aparecen cuando los niños juegan con su perfil.'; el.appendChild(d); return; }
+  rows.forEach(r=>{
+    const d=document.createElement('div'); d.style.cssText='padding:6px 4px;border-bottom:1px solid rgba(255,200,80,.15);font-size:13px;color:#EAF4FF;line-height:1.5';
+    const a=document.createElement('div'); a.style.fontWeight='bold'; a.textContent='🥷 '+r.nombre+'  ·  '+(r.n3ok?'⭐'.repeat(r.estrellas||1)+' Nivel 3 completado':'Nivel 3 en curso')+'  ·  🪙 '+r.monedas; d.appendChild(a);
+    const b=document.createElement('div'); b.style.color=r.dificiles.length?'#FFB3A0':'#9DF2B6'; b.textContent=r.dificiles.length?'Para repasar: '+r.dificiles.map(x=>x[0]+' ('+x[1]+')').join(' · '):'Sin multiplicaciones difíciles por ahora ✔'; d.appendChild(b); el.appendChild(d);
+  });
+}
 function showReport(){
   const rows=_reportRows();
   const el=document.getElementById('reportRows');
@@ -8812,6 +8842,7 @@ function showReport(){
       <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,10px);color:#CCE8FF;width:110px;text-align:right">${label}</div>
     </div>`;
   }).join('');
+  _pintarReportePerfiles();
   showS(6);
 }
 function downloadReport(){
@@ -8825,6 +8856,8 @@ function downloadReport(){
   rows.forEach(r=>{
     lines.push(`×${r.t}  |  ${r.c}  |  ${r.w}  |  ${r.pct==null?'Sin datos':r.pct+'%'}`);
   });
+  const jug=_reportePerfiles();
+  if(jug.length){ lines.push('','POR JUGADOR (niveles 2 y 3) — multiplicaciones a repasar (entre paréntesis, nivel de dificultad):'); jug.forEach(r=>lines.push(`${r.nombre}: ${r.dificiles.length?r.dificiles.map(x=>x[0]+' ('+x[1]+')').join(', '):'sin dificultades'}  | Nivel 3: ${r.n3ok?r.estrellas+'★':'en curso'}  | Monedas: ${r.monedas}`)); }
   const blob=new Blob([lines.join('\n')],{type:'text/plain'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -9700,7 +9733,7 @@ function drawMiniPeach(canvasId){
 <script src="engine/ui/transicion-2026.js?v=1"></script>
 <script src="engine/ui/iconos-2026.js?v=1"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-21-j";</script>
+<script>window.NJ_BUILD="2026-11-21-k";</script>
 <script src="engine/core/version.js?v=1"></script>
 <script src="engine/core/dispositivo.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
@@ -9711,10 +9744,12 @@ function drawMiniPeach(canvasId){
 <script src="engine/ui/escena-2026.js?v=1"></script>
 <script src="engine/ui/ninjas-fx-2026.js?v=1"></script>
 <script src="engine/nivel1/perfiles.js?v=1"></script>
-<script src="engine/ui/mundos-registro.js?v=1"></script>
-<script src="engine/ui/selector-mundos.js?v=1"></script>
+<script src="assets/nivel3/heroe/manifest.js?v=2"></script>
+<script src="engine/ui/preview-mundos.js?v=1"></script>
+<script src="engine/ui/mundos-registro.js?v=2"></script>
+<script src="engine/ui/selector-mundos.js?v=2"></script>
 <script src="engine/nivel1/perfil-ui.js?v=14"></script>
-<script src="engine/ui/pantalla-movil.js?v=11"></script>
+<script src="engine/ui/pantalla-movil.js?v=12"></script>
 <script src="engine/ui/hud-nuevo.js?v=an2"></script>
 <script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
 <script src="engine/ui/barra-progreso.js?v=4"></script>

@@ -1,0 +1,24 @@
+/* Logros 2026: ventana y aviso con panel de cristal, marco dorado/sakura y medallones. Solo estilos; achievements.js no cambia. */
+.achievement-overlay{background:radial-gradient(ellipse at 50% 35%,rgba(26,20,70,.6),rgba(3,4,16,.88))!important;backdrop-filter:blur(9px) saturate(1.1);-webkit-backdrop-filter:blur(9px) saturate(1.1);animation:pf26bg .45s ease both}
+.achievement-overlay .achievement-card{border:30px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/panel_cristal.webp) 84 fill/30px stretch!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;padding:0 6px 6px!important;max-height:90vh;filter:drop-shadow(0 24px 44px rgba(0,0,0,.65)) drop-shadow(0 0 24px rgba(157,85,233,.35));animation:pf26in .6s cubic-bezier(.2,.9,.25,1.05) both}
+.achievement-card h2{color:#ffe18a!important;text-shadow:0 2px 0 rgba(60,20,0,.55),0 0 18px rgba(255,184,47,.35)}
+.achievement-progress{color:#c9d4f5!important}
+.achievement-row{border:1px solid rgba(157,85,233,.4)!important;background:rgba(8,13,44,.6)!important;border-radius:10px!important;transition:transform .2s,border-color .2s}
+.achievement-row:not(.locked):hover{transform:translateX(3px);border-color:rgba(255,184,47,.7)!important}
+.achievement-row.locked{opacity:.5!important;filter:grayscale(.85)!important}
+.achievement-row .badge{font-size:0!important;flex:0 0 40px;width:40px;height:40px;background:url(../../assets/intro-2026/interfaz/icono_estrella.webp) center/contain no-repeat;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+.achievement-row.locked .badge{background-image:url(../../assets/intro-2026/interfaz/icono_escudo.webp);opacity:.7}
+.achievement-card button{border:12px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/boton_secundario.webp) 55 90 55 70 fill/12px 21px 12px 17px stretch!important;border-radius:0!important;background:none!important;
+  color:#e8eeff!important;font-weight:900;min-width:150px;padding:6px 2px!important;filter:drop-shadow(0 6px 10px rgba(110,70,220,.35));transition:transform .18s,filter .18s}
+.achievement-card button:hover{transform:translateY(-2px) scale(1.04);filter:drop-shadow(0 8px 16px rgba(157,85,233,.6)) brightness(1.15)}
+.achievement-card button:active{transform:scale(.96)}
+/* aviso de logro desbloqueado */
+#achievementToast{border:18px solid transparent!important;border-image:url(../../assets/intro-2026/interfaz/panel_cristal.webp) 84 fill/18px stretch!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  padding:0 4px!important;filter:drop-shadow(0 8px 20px rgba(0,0,0,.6)) drop-shadow(0 0 16px rgba(255,184,47,.45))}
+#achievementToast .at-icon{font-size:0!important;flex:0 0 46px;width:46px;height:46px;background:url(../../assets/intro-2026/interfaz/icono_estrella.webp) center/contain no-repeat;animation:lg26star 1.6s ease-in-out infinite}
+@keyframes lg26star{50%{scale:1.12;filter:brightness(1.3)}}
+@media(max-width:520px){.achievement-overlay .achievement-card{border-width:22px!important;border-image-width:22px!important}}
+@media(prefers-reduced-motion:reduce){.achievement-overlay,.achievement-overlay .achievement-card,#achievementToast .at-icon{animation:none!important}}
+html.fx-low .achievement-overlay{backdrop-filter:none;background:rgba(3,4,16,.93)!important}
+html.fx-low .achievement-overlay .achievement-card,html.fx-low #achievementToast,html.fx-low .achievement-card button{filter:none!important}

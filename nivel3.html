@@ -5,6 +5,7 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <script src="engine/core/movil-niveles.js?v=1"></script>
+<script src="engine/core/orientacion.js?v=1"></script>
 <meta name="theme-color" content="#0a0618"><title>Nivel 3 · Carrera de los Farolillos</title>
 <style>
 html,body{margin:0;height:100%;background:#06031a;color:#fff;font-family:"Trebuchet MS",Verdana,ui-sans-serif,sans-serif;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
@@ -38,20 +39,26 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 #bPausa{right:calc(var(--u,1px)*10)}#bMudo{right:calc(var(--u,1px)*70)}
 #girar{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#06031a}
 #girar.on{display:flex}#girar h2{color:#ffe27a;margin:0;font-size:24px}#girar p{margin:0;color:#d7d4ee;max-width:360px}
+#girar button{font:inherit;font-weight:bold;font-size:17px;padding:13px 22px;border-radius:14px;border:2px solid #ffe27a;background:#ffe27a;color:#1a0f3a;cursor:pointer;touch-action:manipulation;min-width:230px}
+#girar button.sec{background:transparent;color:#d7d4ee;border-color:#ffffff55;font-size:14px;padding:10px 18px}
+#girar .ios{font-size:13px;color:#9fb0ff;display:none}
 #girar .tel{width:64px;height:110px;border:5px solid #ffe27a;border-radius:14px;animation:g 2.6s ease-in-out infinite}
 @keyframes g{0%,20%{transform:rotate(-90deg)}55%,85%{transform:rotate(0)}100%{transform:rotate(-90deg)}}
 </style></head><body>
 <div id="app">
  <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre, junta monedas y elige la respuesta correcta en cada plaza.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta barriles<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
  <div id="marco"><canvas id="cv"></canvas></div>
- <aside><h2>Cómo se juega</h2>🪙 <b>Corre y junta monedas</b>: salta los barriles (hay arcos de monedas en el aire) y deslízate bajo los arcos.<br><br>🤔 <b>En cada plaza</b> aparece una pregunta. No hay prisa: la pista se detiene y tú eliges el carril con la respuesta correcta.<br><br>💛 Si fallas no pasa nada: te damos una pista y la pregunta vuelve más adelante.<br><br>🛹 Cada <b>3 aciertos seguidos</b> aparece una patineta: rompe obstáculos y gana monedas.<br><br>❓ Las <b>cajas sorpresa</b> dan imán de monedas 🧲 o escudo 🛡.<br><br>☁️ En cada mundo hay un tramo de <b>tabla voladora</b> lleno de monedas en el aire.<br><br>🥷 Cada racha suma sombras.</aside>
+ <aside><h2>Cómo se juega</h2>🪙 <b>Corre y junta monedas</b>: salta los barriles (hay arcos de monedas en el aire) y deslízate bajo los arcos.<br><br>🤔 <b>En cada plaza</b> aparece una pregunta. No hay prisa: la pista se detiene y tú eliges el carril con la respuesta correcta.<br><br>💛 Si fallas no pasa nada: te damos una pista y la pregunta vuelve más adelante.<br><br>🛹 Cada <b>3 aciertos seguidos</b> aparece una patineta: rompe obstáculos y gana monedas.<br><br>❓ Las <b>cajas sorpresa</b> dan imán de monedas 🧲 o escudo 🛡.<br><br>☁️ En cada mundo hay un tramo de <b>tabla voladora</b> lleno de monedas en el aire.<br><br>🎁 Al final de cada mundo: <b>cofre con estrellas</b> ⭐ según tus aciertos.<br><br>✨ Con 3 aciertos seguidos las monedas valen <b>×2</b>.<br><br>💡 Si fallas dos seguidas, la puerta correcta se pone verde.<br><br>🔊 Tecla <b>V</b>: lee la pregunta en voz alta.<br><br>🥷 Cada racha suma sombras.</aside>
 </div>
-<div id="girar"><div class="tel"></div><h2>GIRA TU TELÉFONO</h2><p>Este nivel se juega en <b>vertical</b>, como una carrera hacia el fondo de la pantalla.</p></div>
+<div id="girar"><div class="tel"></div><h2>GIRA TU TELÉFONO</h2><p>Este nivel se juega en <b>vertical</b>, como una carrera hacia el fondo de la pantalla.</p>
+ <button id="girarAuto" type="button">🔄 Girar automáticamente</button>
+ <p class="ios" id="girarIos">En iPhone: abre el Centro de control y apaga el candado de rotación 🔒.</p>
+ <button id="girarAsi" type="button" class="sec">Jugar así de todos modos</button></div>
 <script src="engine/nivel1/perfiles.js?v=8"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
-<script src="engine/nivel3/corredor.js?v=8"></script>
+<script src="engine/nivel3/corredor.js?v=12x"></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search),perfil=null;
