@@ -200,7 +200,12 @@
     aplicar(p); listo = true; cerrar();
     SelectorMundos.abrir({
       perfil: Perfiles.obtener(p.id),
-      lanzar: { senda: q => jugarNivel1(q), viaje: q => nivel2Nuevo(q), farolillos: q => nivel3Nuevo(q), clasico: q => continuar(q) }
+      lanzar: { senda: q => jugarNivel1(q), viaje: q => nivel2Nuevo(q), farolillos: q => nivel3Nuevo(q), clasico: q => continuar(q) },
+      onCerrarSesion: () => {            // para que otra persona pueda jugar: el avance de cada perfil queda guardado
+        try { sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
+        if (Perfiles.cerrarSesion) Perfiles.cerrarSesion();
+        listo = false; actualizarChip(); abrir('lista');
+      }
     });
   }
   function jugarNuevo(p) { abrirMundos(p); }

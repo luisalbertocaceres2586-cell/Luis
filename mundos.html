@@ -21,6 +21,6 @@
     nivel2:demo==='2'?{completados:2,intentos:3,estrellas:3,mejor:900}:{intentos:1,tutorial:true},
     nivel3:demo==='2'?{completado:true,estrellas:2,intentos:1,mejor:400}:{}};}
   else if(!perfil&&q.get('heroe'))perfil={id:'',nombre:'',avatar:q.get('heroe')};
-  SelectorMundos.abrir({perfil:perfil,cerrable:false});
+  SelectorMundos.abrir({perfil:perfil,cerrable:false,onCerrarSesion:function(){alert('Aquí se abre la lista ¿Quién juega?');location.reload();}});
 })();
 </script></body></html>

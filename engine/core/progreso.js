@@ -110,8 +110,12 @@ css.textContent=
 '#njProg .ok{color:#7dff9a}#njProg .mal{color:#ff9a9a}'+
 '#njProg small{display:block;color:#a9a6c8;font-size:11.5px;line-height:1.35;margin-top:6px}'+
 '.m26-d.njProgBtn .m26-i{font-style:normal}'+
+/* mismo aspecto que el botón de Sonido del dock premium (círculo oscuro con borde dorado), sin imagen nueva */
+'html body #m26 .m26-dock .m26-d.njProgBtn .m26-i{width:42px;height:42px;font-size:20px;border-radius:50%;border:2px solid #ffb82f;box-sizing:border-box;background:radial-gradient(circle,#1a1450,#080d2c);box-shadow:0 3px 5px rgba(0,0,0,.45);filter:none}'+
+'html body #m26 .m26-dock .m26-d.njProgBtn:hover .m26-i{transform:translateY(-2px) scale(1.1);filter:drop-shadow(0 5px 10px rgba(255,190,70,.5)) brightness(1.12)}'+
+'@media (max-width:700px){html body #m26 .m26-dock{gap:6px}html body #m26 .m26-dock .m26-d.njProgBtn .m26-i{width:36px;height:36px;font-size:17px}}'+
 /* con 7 botones, en teléfonos estrechos (iPhone SE 1.ª gen, 568 px) el dock se salía de la pantalla: se compacta un poco */
-'@media (max-width:600px){html body #m26 .m26-dock{gap:2px}html body #m26 .m26-dock .m26-d .m26-i{width:34px;height:34px;font-size:15px}}';
+'@media (max-width:600px){html body #m26 .m26-dock{gap:2px}html body #m26 .m26-dock .m26-d .m26-i,html body #m26 .m26-dock .m26-d.njProgBtn .m26-i{width:34px;height:34px;font-size:15px}}';
 (document.head||document.documentElement).appendChild(css);
 
 var panel=null;

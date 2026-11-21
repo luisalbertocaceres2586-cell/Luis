@@ -47,6 +47,8 @@
   }
   function obtener(id) { return leer().perfiles[id] || null; }
   function activo() { const d = leer(); return d.activo ? d.perfiles[d.activo] || null : null; }
+  /* Cierra la sesión: nadie queda como jugador activo (los datos de los perfiles NO se borran). */
+  function cerrarSesion() { const d = leer(); d.activo = null; return escribir(d); }
   function elegir(id) {
     const d = leer(); if (!d.perfiles[id]) return null;
     d.activo = id; d.perfiles[id].ultimo = Date.now(); escribir(d); return d.perfiles[id];
@@ -89,5 +91,5 @@
     } catch (e) { return { ok: false, error: 'Código no válido.' }; }
   }
 
-  return { crear, listar, obtener, activo, elegir, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
+  return { crear, listar, obtener, activo, elegir, cerrarSesion, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
 });
