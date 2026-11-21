@@ -1,0 +1,16 @@
+/* Modo de bajo rendimiento: quita lo que más cuesta a la GPU (mezclas, sombras de color, desenfoques, capas extra) y deja lo esencial. */
+html.tab-hidden *,html.tab-hidden *:before,html.tab-hidden *:after{animation-play-state:paused!important}
+html.fx-low #n26scene img{filter:none!important;will-change:auto!important;transform:none!important}
+html.fx-low #n26scene .moon,html.fx-low #n26scene .lamp{animation:none!important}
+html.fx-low #n26scene .cloud.c2,html.fx-low #n26scene .cloud.c3,html.fx-low #n26scene .temple{display:none!important}
+html.fx-low #n26scene .petal:nth-of-type(n+6){display:none!important}
+html.fx-low #m26 .m26-hero .fx{mix-blend-mode:normal!important;filter:none!important;animation:none!important}
+html.fx-low #m26 .m26-hero .fx-aura,html.fx-low #m26 .m26-hero .fx-extra{display:none!important}
+html.fx-low #m26 .m26-spark,html.fx-low .fx26-hover,html.fx-low #m26 .c26-flash,html.fx-low #m26 .c26-puff{display:none!important}
+html.fx-low #m26 .m26-orn{filter:none!important}
+html.fx-low #pfOverlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(3,4,16,.93)!important}
+html.fx-low #pfOverlay .pf-card,html.fx-low #S1 .lbcard,html.fx-low #S6 .lbcard{filter:none!important}
+html.fx-low #pfOverlay .pf-btn,html.fx-low #S1 .pbtn,html.fx-low #S6 .pbtn,html.fx-low #pfOverlay .pf-name input{filter:none!important}
+html.fx-low #n26ld .ld26-spark,html.fx-low #n26ld .ld26-glow{display:none!important}
+html.fx-low #n26ld .n26logo{filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))!important}
+html.fx-low #n26ld .n26fill:after{display:none}

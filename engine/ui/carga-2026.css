@@ -13,7 +13,7 @@
 /* barra */
 #n26ld .n26bar{height:14px;border-radius:99px;overflow:visible;background:linear-gradient(#050818,#0c1238);border:2px solid #ffb82f;
   box-shadow:0 0 0 2px rgba(60,20,0,.7),0 0 18px rgba(255,184,47,.35),inset 0 2px 6px rgba(0,0,0,.7);width:min(64vw,420px)}
-#n26ld .n26bar:before,#n26ld .n26bar:after{content:"";position:absolute;top:50%;width:34px;height:34px;translate:0 -50%;background:url(../../assets/intro-2026/identidad/insignia_sakura.png) center/contain no-repeat;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));z-index:3;pointer-events:none}
+#n26ld .n26bar:before,#n26ld .n26bar:after{content:"";position:absolute;top:50%;width:34px;height:34px;translate:0 -50%;background:url(../../assets/intro-2026/identidad/insignia_sakura.webp) center/contain no-repeat;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));z-index:3;pointer-events:none}
 #n26ld .n26bar:before{left:-22px}#n26ld .n26bar:after{right:-22px;rotate:36deg}
 #n26ld .n26fill{position:absolute;left:0;top:1px;bottom:1px;border-radius:99px;background:linear-gradient(90deg,#34216f,#9d55e9 45%,#ec65b6 75%,#ffe18a);box-shadow:0 0 14px rgba(157,85,233,.8),0 0 6px rgba(255,225,138,.6) inset;overflow:hidden}
 #n26ld .n26fill:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);translate:-100% 0;animation:ld26shine 1.6s ease-in-out infinite}
