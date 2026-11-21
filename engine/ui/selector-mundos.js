@@ -9,12 +9,13 @@
  *   SelectorMundos.cerrar();   SelectorMundos.estado(perfil);   SelectorMundos.siguiente(perfil);
  *
  * El estado de cada mundo (nuevo / en curso / completado / estrellas) se DERIVA del perfil: los niveles ya lo guardan. */
-(function (root, factory) {
+(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(root);
   else root.SelectorMundos = factory(root);
-})(typeof self !== 'undefined' ? self : this, function (root) {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function (root) {
   'use strict';
-  const doc = typeof document !== 'undefined' ? document : null;
+  /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
+  const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
   const CSS_HREF = 'engine/ui/selector-mundos.css?v=1';
 
@@ -230,6 +231,7 @@
       const ch = el('div', 'mw-chips');
       ch.appendChild(el('span', '', '✖ ' + m.tablas)); ch.appendChild(el('span', '', '⏱ ' + m.duracion));
       if (p.mejor > 0) ch.appendChild(el('span', '', '🏆 ' + p.mejor));
+      if (m.id === 'senda' && ctx.debil) ch.appendChild(el('span', 'mw-refuerzo', '🎯 Refuerza el ×' + ctx.debil.t));
       if (ctx.ultimo === m.id) ch.appendChild(el('span', 'mw-ult', '🕘 Último'));
       ch.appendChild(el('span', 'mw-dif', '★'.repeat(m.dificultad) + '<u>' + '★'.repeat(Math.max(0, 3 - m.dificultad)) + '</u>'));
       info.appendChild(ch);
@@ -298,7 +300,7 @@
   // ---------- precarga: las tarjetas aparecen ya completas (útil con internet lento) ----------
   let precargado = false, LOAD = null;
   function precargar(urls, max, alAvanzar) {
-    return new Promise(res => {
+    return new Promise(/** @param {(v?: void) => void} res */ res => {
       let n = 0; const total = urls.length; if (!total) return res();
       const fin = () => { clearTimeout(tm); res(); };
       const tm = setTimeout(res, max);
@@ -332,7 +334,7 @@
     const heroeId = (perfil && perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
     const items = estado(perfil), sig = siguiente(perfil);
     const pid = (perfil && perfil.id) || '_', visto = (leerVisto()[pid]) || {};
-    const ctx = { heroe: heroeId, sig, visto, ultimo: perfil && perfil.mundos && perfil.mundos.ultimo };
+    const ctx = { debil: tablaDebil(perfil), heroe: heroeId, sig, visto, ultimo: perfil && perfil.mundos && perfil.mundos.ultimo };
 
     const rootEl = el('div', 'mw-root'); rootEl.setAttribute('role', 'dialog'); rootEl.setAttribute('aria-label', 'Elige tu mundo');
     const bg = el('div', 'mw-bg'); items.forEach((it, i) => { const b = el('i'); b.style.backgroundImage = 'url("' + it.mundo.fases[0].far + '")'; bg.appendChild(b); });
@@ -407,7 +409,7 @@
     ['keydown', 'keyup', 'keypress'].forEach(ev => rootEl.addEventListener(ev, e => e.stopPropagation()));
     doc.body.appendChild(rootEl);
 
-    R = { sonar: false, root: rootEl, track, tarjetas, perfil, opts, bg, ctx, timers: [], io: null, raf: 0, lanzando: false,
+    R = { sonar: false, root: rootEl, track, tarjetas, perfil, opts, bg, ctx, timers: /** @type {number[]} */ ([]), io: /** @type {IntersectionObserver | null} */ (null), raf: 0, lanzando: false, onKey: /** @type {((e: KeyboardEvent) => void) | null} */ (null),
       fondo(idx) { Array.prototype.forEach.call(bg.children, (b, k) => b.classList.toggle('on', k === idx)); } };
     const first = tarjetas.findIndex(t => t.m.id === sig); R.fondo(first >= 0 ? first : 0);
     root.requestAnimationFrame(() => { pr.querySelector('.mw-bar i').style.width = (jugables.length ? Math.round(hechos / jugables.length * 100) : 0) + '%'; });
@@ -490,6 +492,27 @@
     }
   }
 
+  /** Texto corto con el avance del jugador, listo para pegar en WhatsApp o un correo. */
+  function textoResumen(perfil) {
+    const items = estado(perfil), jug = items.filter(x => !x.mundo.bloqueado && !x.mundo.fueraDeProgreso), hechos = jug.filter(x => x.prog.estado === 'completado');
+    const rc = estadoRacha(perfil), res = resumenTablas(perfil), debil = tablaDebil(perfil);
+    const L = ['📒 Ninja Multiplicación — avance de ' + String((perfil && perfil.nombre) || 'jugador'), ''];
+    L.push('🌍 Mundos terminados: ' + hechos.length + ' de ' + jug.length + (hechos.length ? ' (' + hechos.map(x => x.mundo.nombre).join(', ') + ')' : ''));
+    L.push('🔥 Racha: ' + rc.dias + (rc.dias === 1 ? ' día' : ' días') + (rc.mejor > rc.dias ? ' (mejor: ' + rc.mejor + ')' : ''));
+    const con = res.filter(x => x.estado !== 'sin_datos');
+    if (con.length) {
+      L.push('', '📊 Tablas:');
+      con.forEach(x => L.push('  ×' + x.t + ': ' + Math.round(x.acc * 100) + '% de aciertos (' + x.a + ' bien, ' + x.e + ' mal) — ' + ({ dominada: 'dominada', casi: 'casi', practicar: 'a practicar' }[x.estado])));
+      if (debil) L.push('', '🎯 Conviene reforzar la tabla del ' + debil.t + '.');
+    } else L.push('', '📊 Todavía no hay respuestas registradas.');
+    return L.join('\n');
+  }
+  function copiarTexto(txt) {
+    const respaldo = () => { try { const t = doc.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;left:-9999px;top:0'; doc.body.appendChild(t); t.select(); const ok = doc.execCommand('copy'); t.remove(); return Promise.resolve(!!ok); } catch (e) { return Promise.resolve(false); } };
+    if (root.navigator && root.navigator.clipboard && root.navigator.clipboard.writeText) return root.navigator.clipboard.writeText(txt).then(() => true, respaldo);
+    return respaldo();
+  }
+
   function abrirPanelTablas() {
     if (!R || R.panel || R.lanzando) return;
     const perfil = R.perfil, res = resumenTablas(perfil), debil = tablaDebil(perfil), hay = res.some(x => x.estado !== 'sin_datos');
@@ -514,9 +537,12 @@
     const fila = el('div', 'mw-panel-b');
     const senda = R.tarjetas.find(t => t.m.id === 'senda');
     if (senda && (debil || !hay)) { const g = el('button', 'mw-go', hay ? '▶ PRACTICAR EN LA SENDA' : '▶ EMPEZAR EN LA SENDA'); g.type = 'button'; g.onclick = () => { cerrarPanel(); elegir(senda); }; fila.appendChild(g); }
+    const cp = el('button', 'mw-go sec', '📋 COPIAR RESUMEN'); cp.type = 'button';
+    cp.onclick = () => copiarTexto(textoResumen(perfil)).then(ok => { cp.textContent = ok ? '✔ ¡COPIADO!' : 'No se pudo copiar'; setTimeout(() => { cp.textContent = '📋 COPIAR RESUMEN'; }, 2200); });
+    fila.appendChild(cp);
     const c = el('button', 'mw-go sec', 'CERRAR'); c.type = 'button'; c.onclick = cerrarPanel; fila.appendChild(c);
     caja.appendChild(fila);
-    caja.appendChild(el('small', 'mw-panel-f', 'Basado en tus respuestas en La Senda del Aprendiz.'));
+    caja.appendChild(el('small', 'mw-panel-f', 'Cuenta tus respuestas en todos los mundos.'));
     p.appendChild(caja); p.addEventListener('click', e => { if (e.target === p) cerrarPanel(); });
     R.root.appendChild(p); R.panel = p; SND.mover();
     setTimeout(() => { const f = p.querySelector('button'); if (f) f.focus({ preventScroll: true }); }, 50);
@@ -554,5 +580,5 @@
     if (!silencioso && r.opts.onCerrar) r.opts.onCerrar();
   }
 
-  return { abrir, cerrar, estado, siguiente, estadoRacha, resumenTablas, tablaDebil, HEROES };
+  return { abrir, cerrar, estado, siguiente, estadoRacha, resumenTablas, tablaDebil, textoResumen, HEROES };
 });

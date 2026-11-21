@@ -267,3 +267,5 @@
 .mw-panel-f{display:block;margin-top:10px;color:#a9a2d0;font-size:11px}
 @media (prefers-reduced-motion:reduce){.mw-tb-v i{transition:none}.mw-panel{animation:none}}
 .mw-panel{--acc:#ffb44a;--acc2:#e0752d}
+
+.mw-refuerzo{border-color:#ff9d9d!important;color:#ffd0d0;background:#c02a2a33!important}
