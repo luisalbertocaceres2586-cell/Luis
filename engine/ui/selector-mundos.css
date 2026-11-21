@@ -243,3 +243,27 @@
 @keyframes mwGuia{from{opacity:0;transform:translateY(10px) scale(.85)}to{opacity:1;transform:none}}
 @keyframes mwGuiaSube{from{translate:-50% 0}to{translate:-50% 6px}}
 @media (prefers-reduced-motion:reduce){.mw-guia,.mw-racha.activa .mw-fuego,.mw-racha.peligro{animation:none}}
+
+/* panel "Mis tablas" */
+.mw-panel{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:14px;background:#06041ccc;backdrop-filter:blur(6px);animation:mwIn .25s ease both;transition:opacity .2s}
+.mw-panel.fuera{opacity:0}
+.mw-panel-c{width:min(560px,100%);max-height:100%;overflow:auto;padding:clamp(12px,2.4vh,22px) clamp(14px,3vw,26px);border-radius:20px;border:2px solid #ffffff44;background:linear-gradient(#251255f2,#120a30f2);box-shadow:0 20px 50px #000c;text-align:center}
+.mw-panel-c h3{margin:0 0 10px;font-size:clamp(16px,3vh,22px);letter-spacing:.12em;color:#ffe27a}
+.mw-tbl{display:flex;gap:clamp(4px,1.4vw,10px);justify-content:center;align-items:flex-end;height:clamp(110px,26vh,170px)}
+.mw-tb{flex:1;max-width:48px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;font-size:clamp(10px,1.8vh,13px)}
+.mw-tb-p{font-size:.85em;color:#e6e1ff;min-height:1.1em}
+.mw-tb-v{width:100%;flex:1;display:flex;align-items:flex-end;border-radius:8px;background:#ffffff14;overflow:hidden}
+.mw-tb-v i{display:block;width:100%;border-radius:8px 8px 0 0;background:#7a7a9a;transition:height .8s cubic-bezier(.2,.8,.2,1)}
+.mw-tb.dominada .mw-tb-v i{background:linear-gradient(#7dff9d,#25b25a)}
+.mw-tb.casi .mw-tb-v i{background:linear-gradient(#ffe27a,#e0a02d)}
+.mw-tb.practicar .mw-tb-v i{background:linear-gradient(#ff8f8f,#d13d3d)}
+.mw-tb b{color:#fff}
+.mw-ley{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;margin:12px 0 4px;font-size:clamp(10px,1.7vh,12px)}
+.mw-ley .dominada{color:#7dff9d}.mw-ley .casi{color:#ffe27a}.mw-ley .practicar{color:#ff8f8f}.mw-ley .sin_datos{color:#a4a4c4}
+.mw-panel-m{margin:10px 0;font-size:clamp(12px,2vh,15px);line-height:1.35;color:#ece8ff}
+.mw-panel-b{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.mw-panel-b .mw-go{padding:9px 18px}
+.mw-go.sec{background:#ffffff1f;color:#fff;border-color:#ffffff55}
+.mw-panel-f{display:block;margin-top:10px;color:#a9a2d0;font-size:11px}
+@media (prefers-reduced-motion:reduce){.mw-tb-v i{transition:none}.mw-panel{animation:none}}
+.mw-panel{--acc:#ffb44a;--acc2:#e0752d}

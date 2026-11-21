@@ -98,6 +98,24 @@
     } catch (e) {}
   }
 
+  // ---------- dominio por tabla (a partir de perfil.maestria: claves "TxB" → {a, e, caja}) ----------
+  /** Resumen de las tablas 2..10: aciertos, errores, % de acierto y estado (sin_datos | practicar | casi | dominada). */
+  function resumenTablas(perfil) {
+    const m = (perfil && perfil.maestria) || {}, out = [];
+    for (let t = 2; t <= 10; t++) {
+      let a = 0, e = 0, vistos = 0;
+      Object.keys(m).forEach(k => { const p = k.split('x'); if (+p[0] === t && m[k]) { a += m[k].a | 0; e += m[k].e | 0; vistos++; } });
+      const n = a + e, acc = n ? a / n : 0;
+      out.push({ t, a, e, n, vistos, acc, estado: n < 4 ? 'sin_datos' : acc >= .85 ? 'dominada' : acc >= .6 ? 'casi' : 'practicar' });
+    }
+    return out;
+  }
+  /** La tabla con más fallos que ya tiene datos suficientes (o null si no hay ninguna por reforzar). */
+  function tablaDebil(perfil) {
+    const r = resumenTablas(perfil).filter(x => x.estado === 'practicar' || x.estado === 'casi');
+    r.sort((x, y) => x.acc - y.acc || y.e - x.e); return r[0] || null;
+  }
+
   // ---------- utilidades DOM ----------
   function el(tag, cls, html) { const e = doc.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function img(src, cls) { const i = doc.createElement('img'); i.src = src; i.alt = ''; i.draggable = false; if (cls) i.className = cls; return i; }
@@ -347,6 +365,11 @@
     }
     const pr = el('div', 'mw-prog', '🏯 <span><b>' + hechos + '</b> de ' + jugables.length + ' mundos</span><div class="mw-bar"><i></i></div>');
     top.appendChild(pr);
+    if (perfil) {
+      const tb = el('button', 'mw-mute mw-tablas', '📊'); tb.type = 'button'; tb.title = 'Mis tablas'; tb.setAttribute('aria-label', 'Ver cómo voy en cada tabla');
+      tb.onclick = e => { e.stopPropagation(); R.ultimoFoco = doc.activeElement; abrirPanelTablas(); };
+      top.appendChild(tb);
+    }
     const mu = el('button', 'mw-mute', silenciado() ? '🔇' : '🔊'); mu.type = 'button'; mu.title = 'Sonido de los menús'; mu.setAttribute('aria-label', 'Activar o silenciar el sonido de los menús');
     mu.onclick = e => { e.stopPropagation(); const quiere = !silenciado(); try { root.localStorage.setItem(MUTE_KEY, quiere ? '1' : '0'); } catch (er) {} mu.textContent = quiere ? '🔇' : '🔊'; if (!quiere) SND.mover(); };
     top.appendChild(mu);
@@ -417,6 +440,7 @@
 
     const onKey = e => {
       if (!R || R.root !== rootEl) return;
+      if (R.panel) { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); cerrarPanel(); return; } if (e.key !== 'Tab') { e.stopImmediatePropagation(); if (e.key === 'Enter' || e.key === ' ') return; e.preventDefault(); return; } return; }
       e.stopImmediatePropagation();   // el juego no debe reaccionar a teclas mientras el selector está abierto
       const idx = tarjetas.findIndex(t => t.card === doc.activeElement);
       const ir = k => { const t = tarjetas[Math.max(0, Math.min(tarjetas.length - 1, k))]; t.card.focus({ preventScroll: true }); t.card.scrollIntoView({ behavior: reducido() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' }); };
@@ -466,6 +490,39 @@
     }
   }
 
+  function abrirPanelTablas() {
+    if (!R || R.panel || R.lanzando) return;
+    const perfil = R.perfil, res = resumenTablas(perfil), debil = tablaDebil(perfil), hay = res.some(x => x.estado !== 'sin_datos');
+    const NOM = { sin_datos: 'Sin practicar', practicar: 'A practicar', casi: 'Casi la dominas', dominada: '¡Dominada!' };
+    const p = el('div', 'mw-panel'); p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Mis tablas');
+    const caja = el('div', 'mw-panel-c');
+    caja.appendChild(el('h3', '', '📊 MIS TABLAS'));
+    const barras = el('div', 'mw-tbl');
+    res.forEach(x => {
+      const b = el('div', 'mw-tb ' + x.estado); b.title = x.t + ' × — ' + NOM[x.estado] + (x.n ? ' (' + x.a + ' bien, ' + x.e + ' mal)' : '');
+      b.innerHTML = '<span class="mw-tb-p">' + (x.n >= 4 ? Math.round(x.acc * 100) + '%' : '') + '</span><div class="mw-tb-v"><i style="height:' + (x.n >= 4 ? Math.max(6, Math.round(x.acc * 100)) : 6) + '%"></i></div><b>×' + x.t + '</b>';
+      barras.appendChild(b);
+    });
+    caja.appendChild(barras);
+    const leyenda = el('div', 'mw-ley', '<span class="dominada">● Dominada</span><span class="casi">● Casi</span><span class="practicar">● A practicar</span><span class="sin_datos">● Sin datos</span>');
+    caja.appendChild(leyenda);
+    const msg = el('p', 'mw-panel-m');
+    if (!hay) msg.textContent = 'Aún no hay datos. Juega La Senda del Aprendiz y aquí verás cómo vas en cada tabla.';
+    else if (debil) msg.innerHTML = 'Te conviene reforzar la <b>tabla del ' + debil.t + '</b> (' + Math.round(debil.acc * 100) + '% de aciertos). La Senda del Aprendiz pone más preguntas de lo que más te cuesta.';
+    else msg.textContent = '¡Muy bien! Dominas las tablas que has practicado. Sigue explorando mundos.';
+    caja.appendChild(msg);
+    const fila = el('div', 'mw-panel-b');
+    const senda = R.tarjetas.find(t => t.m.id === 'senda');
+    if (senda && (debil || !hay)) { const g = el('button', 'mw-go', hay ? '▶ PRACTICAR EN LA SENDA' : '▶ EMPEZAR EN LA SENDA'); g.type = 'button'; g.onclick = () => { cerrarPanel(); elegir(senda); }; fila.appendChild(g); }
+    const c = el('button', 'mw-go sec', 'CERRAR'); c.type = 'button'; c.onclick = cerrarPanel; fila.appendChild(c);
+    caja.appendChild(fila);
+    caja.appendChild(el('small', 'mw-panel-f', 'Basado en tus respuestas en La Senda del Aprendiz.'));
+    p.appendChild(caja); p.addEventListener('click', e => { if (e.target === p) cerrarPanel(); });
+    R.root.appendChild(p); R.panel = p; SND.mover();
+    setTimeout(() => { const f = p.querySelector('button'); if (f) f.focus({ preventScroll: true }); }, 50);
+  }
+  function cerrarPanel() { if (!R || !R.panel) return; const p = R.panel; R.panel = null; p.classList.add('fuera'); setTimeout(() => p.remove(), 220); const t = R.tarjetas.find(x => x.card === R.ultimoFoco); if (t) t.card.focus({ preventScroll: true }); }
+
   function elegir(t) {
     if (!R || R.lanzando) return;
     if (t.m.bloqueado) { SND.bloqueado(); t.card.animate([{ translate: '0' }, { translate: '-7px' }, { translate: '7px' }, { translate: '-4px' }, { translate: '0' }], { duration: 320 }); return; }
@@ -497,5 +554,5 @@
     if (!silencioso && r.opts.onCerrar) r.opts.onCerrar();
   }
 
-  return { abrir, cerrar, estado, siguiente, estadoRacha, HEROES };
+  return { abrir, cerrar, estado, siguiente, estadoRacha, resumenTablas, tablaDebil, HEROES };
 });
