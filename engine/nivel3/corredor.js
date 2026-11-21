@@ -156,18 +156,31 @@
       cv.width = Math.round(W * q); cv.height = Math.round(H * q);
       cv.style.width = '100%'; cv.style.height = '100%';
     }
+    // El aviso "GIRA TU TELÉFONO" ya no atrapa al jugador: se quita solo al girar, ofrece girar automáticamente (NinjaOrient bloquea la
+    // orientación aunque el teléfono tenga el bloqueo de rotación activado) y deja "Jugar así" (columna centrada) como salida.
+    let jugarAsi = false;
     function vigilarGiro() {
-      const mal = tactil() && innerWidth > innerHeight && innerHeight < 640;
+      const mal = !jugarAsi && tactil() && innerWidth > innerHeight && innerHeight < 640;
       const g = document.getElementById('girar'); if (g) g.classList.toggle('on', mal);
-      if (mal && S && S.corriendo && !S.pausa) pausar(true);
+      try { if (mal && S && S.corriendo && !S.pausa) pausar(true); } catch (e) { }
       return mal;
     }
-    window.addEventListener('resize', () => { ajustar(); vigilarGiro(); });
-    window.addEventListener('orientationchange', () => setTimeout(() => { ajustar(); vigilarGiro(); }, 250));
-    ajustar();
+    const refrescarGiro = () => { ajustar(); vigilarGiro(); };
+    window.addEventListener('resize', refrescarGiro);
+    window.addEventListener('orientationchange', () => setTimeout(refrescarGiro, 250));
+    document.addEventListener('ninja-orient', refrescarGiro);
+    ajustar(); vigilarGiro();
+    (() => {
+      const bA = document.getElementById('girarAuto'), bS = document.getElementById('girarAsi'), ios = document.getElementById('girarIos');
+      if (bA) bA.onclick = () => { if (window.NinjaOrient) NinjaOrient.forzar('portrait'); };
+      if (bS) bS.onclick = () => { jugarAsi = true; refrescarGiro(); };
+      if (ios && window.NinjaOrient && NinjaOrient.iOS) { ios.style.display = 'block'; if (bA) bA.style.display = 'none'; }   // iOS no deja forzar la orientación
+      if (window.NinjaOrient) NinjaOrient.querer('portrait');
+    })();
 
     function intentarPantallaCompleta() {
       if (!tactil()) return;
+      if (window.NinjaOrient) { NinjaOrient.forzar('portrait'); return; }
       const el = document.documentElement, rf = el.requestFullscreen || el.webkitRequestFullscreen;
       const lock = () => { try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(() => {}); } catch (e) {} };
       try { if (rf && !document.fullscreenElement) { const p = rf.call(el, { navigationUI: 'hide' }); if (p && p.then) p.then(lock).catch(lock); else lock(); } else lock(); } catch (e) { lock(); }

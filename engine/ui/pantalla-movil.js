@@ -41,6 +41,8 @@ NinjaMods.register({id:'pantalla-movil',carpeta:'ui',nombre:'Pantalla de teléfo
   #rotarAviso{position:fixed;inset:0;z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:24px;
     background:radial-gradient(ellipse at 50% 40%,#2a0f5e 0%,#0b0426 60%,#04010f 100%);font-family:'Press Start 2P',monospace;color:#fff}
   #rotarAviso.on{display:flex}
+  #rotarAviso button{font:inherit;font-size:clamp(9px,2.8vw,13px);padding:12px 20px;border-radius:12px;border:2px solid #FFE08A;background:#FFD54A;color:#1a0f3a;cursor:pointer;touch-action:manipulation;line-height:1.4}
+  #rotarAviso button.ra-asi{background:transparent;color:#DCE3FF;border-color:#ffffff55;font-size:clamp(7px,2.2vw,10px);padding:9px 14px}
   #rotarAviso .ra-tel{width:78px;height:132px;border:6px solid #FFE08A;border-radius:16px;position:relative;box-shadow:0 0 28px rgba(255,200,80,.6),inset 0 0 18px rgba(120,80,255,.5);
     background:linear-gradient(160deg,#35208f,#120a3a);animation:raGira 2.6s ease-in-out infinite}
   #rotarAviso .ra-tel::before{content:'';position:absolute;left:50%;top:7px;width:22px;height:4px;border-radius:2px;background:#FFE08A;transform:translateX(-50%)}
@@ -57,18 +59,27 @@ NinjaMods.register({id:'pantalla-movil',carpeta:'ui',nombre:'Pantalla de teléfo
   const av=document.createElement('div');av.id='rotarAviso';
   const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   av.innerHTML='<div style="display:flex;align-items:center;gap:18px"><div class="ra-tel"></div><div class="ra-flecha">⟳</div></div><h2>GIRA TU TELÉFONO</h2><p>Ninja Multiplicación se juega en horizontal para que tengas más espacio y mejores botones.</p>'+
-    (ios?'<p class="ra-ios" style="display:block">En iPhone: toca Compartir ⬆ y “Añadir a pantalla de inicio” para jugar a pantalla completa.</p>':'');
+    (ios?'<p class="ra-ios" style="display:block">En iPhone: apaga el candado de rotación en el Centro de control 🔒 o toca Compartir ⬆ y “Añadir a pantalla de inicio”.</p>':'<button class="ra-auto" type="button">🔄 GIRAR AUTOMÁTICAMENTE</button>')+
+    '<button class="ra-asi" type="button">Jugar así de todos modos</button>';
   document.body.appendChild(av);
+  // El aviso ya no atrapa al jugador: se quita solo al girar, puede girar automáticamente (NinjaOrient) y deja "Jugar así".
+  let asi=false;
   function vigilar(){
-    const vertical=touch&&innerHeight>innerWidth&&innerWidth<900;
+    const vertical=touch&&!asi&&innerHeight>innerWidth&&innerWidth<900;
     av.classList.toggle('on',vertical);
     NinjaMods.pausaMundo=vertical;
   }
   vigilar();window.addEventListener('resize',vigilar);window.addEventListener('orientationchange',()=>setTimeout(vigilar,250));
   try{matchMedia('(orientation:portrait)').addEventListener('change',vigilar);}catch(e){}
+  {const a=av.querySelector('.ra-auto'),s=av.querySelector('.ra-asi');
+   if(a)a.onclick=()=>{if(window.NinjaOrient)NinjaOrient.forzar('landscape');};
+   if(s)s.onclick=()=>{asi=true;vigilar();setTimeout(aplicar,50);};}
 
   /* ---------- PANTALLA COMPLETA + BLOQUEO HORIZONTAL (primer toque) ---------- */
-  if(touch){
+  if(touch&&window.NinjaOrient){
+    NinjaOrient.querer('landscape');
+    document.addEventListener('ninja-orient',()=>{aplicar();vigilar();});
+  }else if(touch){
     let hecho=false;
     const intentar=()=>{
       if(hecho)return;hecho=true;
