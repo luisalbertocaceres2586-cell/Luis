@@ -8,7 +8,7 @@ function decorar(){
   const logo=ld.querySelector('.n26logo');if(!logo)return;ld.dataset.c26='1';
   const wrap=document.createElement('div');wrap.className='ld26-wrap';
   const glow=document.createElement('div');glow.className='ld26-glow';
-  ld.insertBefore(wrap,logo);wrap.append(glow,mk('efectos/particulas.png','ld26-spark'),logo,mk('identidad/divisor.png','ld26-orn'));
+  ld.insertBefore(wrap,logo);wrap.append(glow,mk('efectos/particulas.webp','ld26-spark'),logo,mk('identidad/divisor.webp','ld26-orn'));
 }
 decorar();
 new MutationObserver(decorar).observe(document.documentElement,{childList:true,subtree:true});
