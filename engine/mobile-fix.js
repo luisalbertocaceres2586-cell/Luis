@@ -62,12 +62,11 @@ window.doJump=function(){
 };
 /* El botón ⬆ actual ya presiona la flecha ↑ (salto solo desde el suelo). Aquí solo se garantiza una pulsación mínima de
    ~190 ms (11 cuadros = todo el impulso extra) para que un toque rápido dé el salto completo (el salto variable corta el salto al soltar el botón). */
-addEventListener('pointerdown',e=>{if(e.target&&e.target.id==='mbJ')touchJump();},true);
 function release(){
   if(!held)return;const wait=Math.max(0,190-(performance.now()-downAt));   /* mínimo ~9 cuadros (un toque = salto casi completo) para que la física vea el toque */
   clearTimeout(relT);relT=setTimeout(()=>{K['Space']=0;held=false;},wait);
 }
-['pointerup','pointercancel','lostpointercapture'].forEach(ev=>addEventListener(ev,e=>{if(e.target&&e.target.id==='mbJ')release();},true));
+window.NinjaTouchJump={down:touchJump,up:release};   // los llama el controlador de botones (engine/core/tactil.js decide qué dedo pulsa qué)
 addEventListener('blur',()=>{K['Space']=0;held=false;});
 /* El tamaño de los botones lo controla ahora engine/ui/controles-tactiles-extra.js (🧩 MEJORAS → tamaño). */
 })();
