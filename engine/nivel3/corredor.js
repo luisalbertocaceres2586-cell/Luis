@@ -97,11 +97,14 @@
   }
 
   // preguntas del nivel: 6 por tabla, de fácil a difícil, con 3 formatos (sin tiempo límite)
-  function construir() {
+  // las multiplicaciones que al niño le cuestan salen con más probabilidad (pesos 1 + 3·fallos del nivel 3 + 1.5·fallos del nivel 2),
+  // siempre ordenadas de fácil a difícil dentro de cada tabla; si no hay historial, es al azar como antes
+  function construir(m3, m2) {
     const out = [], tipos = ['mult', 'mult', 'sigue', 'mult', 'multiplo', 'sigue'];
     TABLAS.forEach(T => {
-      const ns = mez([2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, CFG.PREG_TABLA).sort((a, b) => a - b);
-      ns.forEach((n, i) => out.push({ T, n, tipo: tipos[i % tipos.length], inv: Math.random() < 0.4 }));
+      const pool = [2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => ({ n, w: 1 + 3 * ((m3 && m3[T + 'x' + n]) || 0) + 1.5 * ((m2 && m2[T + 'x' + n]) || 0) })), ns = [];
+      for (let k = 0; k < CFG.PREG_TABLA && pool.length; k++) { let r = Math.random() * pool.reduce((a, x) => a + x.w, 0), idx = 0; while (idx < pool.length - 1 && (r -= pool[idx].w) > 0) idx++; ns.push(pool.splice(idx, 1)[0].n); }
+      ns.sort((a, b) => a - b).forEach((n, i) => out.push({ T, n, tipo: tipos[i % tipos.length], inv: Math.random() < 0.4 }));
     });
     return out;
   }
@@ -118,7 +121,8 @@
   function iniciar(o) {
     o = o || {};
     precargar();
-    const PREGS = construir();
+    let m3 = Object.assign({}, (o.perfil && o.perfil.nivel3 && o.perfil.nivel3.fallos) || {}); const m2 = (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.fallos) || {};
+    let PREGS = construir(m3, m2);
     const marco = document.getElementById('marco'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
     const heroe = o.heroe === 'kage' ? 'kage' : 'sakura';
     const HM = heroe === 'kage' ? window.ANTAREZ_MANIFEST : window.SAKURA_EVE_MANIFEST;
@@ -231,12 +235,13 @@
     function toast(txt, color, t) { S.toasts.push({ txt, color: color || '#fff', t: t || 1.3, t0: t || 1.3 }); if (S.toasts.length > 3) S.toasts.shift(); }
     function chispas(x, y, col, n) { for (let i = 0; i < n; i++) S.parts.push({ x, y, vx: R(-220, 220), vy: R(-300, 60), life: R(0.4, 0.9), t: 0, c: col, r: R(3, 7) }); }
     function guardaFallo(row) {
-      const k = row.T + 'x' + row.n; S.fallos[k] = (S.fallos[k] || 0) + 1;
+      const k = row.T + 'x' + row.n; S.fallos[k] = (S.fallos[k] || 0) + 1; const h = (S.hechos = S.hechos || {}); (h[k] = h[k] || { a: 0, e: 0 }).e++;
       if (!row.repaso && !S.repasos.some(x => x.q.T === row.T && x.q.n === row.n)) S.repasos.push({ q: row.q0, espera: 1 });
     }
     function recoge(it, x, y) {
       const row = it.row; it.tomado = true; row.res = true; if (!row.repaso) S.qpas++;
       if (it.ok) {
+        { const k = row.T + 'x' + row.n, h = (S.hechos = S.hechos || {}); (h[k] = h[k] || { a: 0, e: 0 }).a++; }
         S.aciertos++; S.racha++; S.mejorRacha = Math.max(S.mejorRacha, S.racha); const gan = row.repaso ? 3 : 5 + Math.min(S.racha, 5);
         S.monedas += gan; S.puntos += 10 + Math.min(S.racha, 10) * 2; S.alegre = 1.1; S.alegreT = S.t; S.pista = null;
         sfx.bien(S.racha - 1); chispas(x, y, '#ffe27a', 28); chispas(x, y, '#ffffff', 10); anillo(x, y, '#ffd35a', 1.3); S.flashB = Math.max(S.flashB, 0.12);
@@ -639,7 +644,7 @@
     const retrato = est => '<div class="retrato"><img class="ret" src="' + UI + 'retratos/' + (heroe === 'kage' ? 'antarez' : 'sakura') + '_' + (est || 'normal') + '.png" alt=""><img class="mar" src="' + UI + 'marcos/medallon_marco.png" alt=""></div>';
     const BARRA = '<img class="barra" src="' + UI + 'extras/barra_ornamental_azul_dorada.png" alt="">';
     function inicio() {
-      S = nuevo(); S.cazaBase = 0;
+      S = nuevo(); S.cazaBase = 0; PREGS = construir(m3, m2);
       pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre por <b>6 mundos</b>, junta <b>monedas</b> 🪙 y, en cada <b>plaza</b>, elige con calma la respuesta de las tablas del <b>7, 8 y 9</b>.</p>' +
         '<div class="reglas"><span>🪙 Junta monedas saltando y deslizando</span><span>🤔 En la plaza no hay prisa</span><span>💛 Si fallas, te damos una pista</span><span>🛹 Cada 3 aciertos seguidos: ¡premio!</span><span>☁️ Cajas ? y tabla voladora</span></div>' +
         '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido.') + '</p>' +
@@ -652,16 +657,27 @@
       document.getElementById('seg').onclick = () => { if (!vigilarGiro()) { S.pausa = false; pantalla(''); } };
       document.getElementById('sal').onclick = () => salir();
     }
-    function salir() { vivo = false; cancelAnimationFrame(raf); if (o.onSalir) o.onSalir(); }
+    function salir() { if (S && !S.fin && S.corriendo) guardar(false); vivo = false; cancelAnimationFrame(raf); if (o.onSalir) o.onSalir(); }
     function terminar() {
       if (S.fin) return; S.fin = true; S.tl = 1; S.jh = 0; S.jv = 0; S.slide = 0; S.skate = 0; sfx.gana();
       const conCel = !!(HB && fb('celebra').length);
       if (conCel) { S.celeb = S.t; const cx = W / 2 + (S.px - 1) * LW; chispas(cx, PY - 200, '#ffe27a', 40); anillo(cx, PY - 160, '#fff3b0', 1.8); setTimeout(() => { if (vivo) mostrarFin(); }, 2700); } else mostrarFin();
     }
+    // guarda en el perfil: monedas, estadísticas y el «mapa de dificultad» (cada error suma 2, cada acierto resta 1; llega a 0 y se olvida)
+    function guardar(completo, est) {
+      if (!S || S.guardado || !o.perfil || !window.Perfiles) return; S.guardado = true;
+      try { Perfiles.actualizar(o.perfil.id, p => {
+        p.nivel3 = p.nivel3 || {}; p.nivel3.monedas = (p.nivel3.monedas || 0) + S.monedas;
+        if (completo) { p.nivel3.completado = true; p.nivel3.mejor = Math.max(p.nivel3.mejor || 0, S.puntos); p.nivel3.estrellas = Math.max(p.nivel3.estrellas || 0, est || 1); p.nivel3.intentos = (p.nivel3.intentos || 0) + 1; }
+        const f = p.nivel3.fallos || {}; Object.keys(S.hechos || {}).forEach(k => { const h = S.hechos[k], v = Math.max(0, (f[k] || 0) + h.e * 2 - h.a); if (v > 0) f[k] = v; else delete f[k]; });
+        p.nivel3.fallos = f; m3 = Object.assign({}, f);
+        p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores;
+      }); } catch (e) {}
+    }
     function mostrarFin() {
       const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
       const dificiles = Object.keys(S.fallos).sort((a, b) => S.fallos[b] - S.fallos[a]).slice(0, 4).map(k => k.replace('x', ' × '));
-      if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel3 = p.nivel3 || {}; p.nivel3.completado = true; p.nivel3.monedas = (p.nivel3.monedas || 0) + S.monedas; p.nivel3.mejor = Math.max(p.nivel3.mejor || 0, S.puntos); p.nivel3.estrellas = Math.max(p.nivel3.estrellas || 0, est); p.nivel3.intentos = (p.nivel3.intentos || 0) + 1; p.nivel3.fallos = S.fallos; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; }); } catch (e) {} }
+      guardar(true, est);
       pantalla(retrato('radiante') + '<h1>¡NIVEL COMPLETADO!</h1>' + BARRA + '<div class="estrellas">' + '⭐'.repeat(est) + '<span style="opacity:.25">' + '⭐'.repeat(3 - est) + '</span></div>' +
         '<p>Monedas: <b>' + S.monedas + ' 🪙</b> · Puntos: <b>' + S.puntos + '</b> · Aciertos: <b>' + S.aciertos + '</b> · Mejor racha: <b>' + S.mejorRacha + '</b></p>' + (dificiles.length ? '<p>Para repasar: <b>' + dificiles.join(' · ') + '</b></p>' : '<p>¡Sin tablas difíciles! 🏆</p>') +
         '<button id="otra" type="button">↻ JUGAR OTRA VEZ</button><button id="sal2" type="button" class="sec">⟵ SALIR</button>', 'fin');
@@ -686,9 +702,10 @@
     function alternarSonido() { mudo = !mudo; bMudo.textContent = mudo ? '🔇' : '🔊'; }
     bPausa.onclick = () => pausar(); bMudo.onclick = alternarSonido;
     document.addEventListener('visibilitychange', () => { if (document.hidden) pausar(true); });
+    window.addEventListener('pagehide', () => { if (S && !S.fin && S.corriendo) guardar(false); });
 
     inicio(); vigilarGiro(); raf = requestAnimationFrame(bucle);
-    return { paso, accion, estado: () => S, dibuja, CFG, ET: PREGS };
+    return { paso, accion, estado: () => S, dibuja, CFG, ET: PREGS, preguntas: () => PREGS, guardar };
   }
 
   window.Nivel3 = { iniciar };
