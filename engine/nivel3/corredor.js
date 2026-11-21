@@ -764,11 +764,7 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
-<<<<<<< HEAD
-      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh - (S.escal || 0), est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : (S.espera && HB && S.skate <= 0 && S.jh <= 1) ? 'espera' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
-=======
-const hx = W / 2 + (S.px - 1) * LW + (S.escX || 0), hy = PY - S.jh - (S.escal || 0) - (S.escHop || 0), est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
->>>>>>> 81756e2 (Nivel 3: la Sakura sube la escalera del portal (pisa cada peldano, salto corto, cuerpo que se achica al subir, frenado suave, se acomoda sobre la escalera) y el suelo del portal se dibuja antes que ella)
+      const hx = W / 2 + (S.px - 1) * LW + (S.escX || 0), hy = PY - S.jh - (S.escal || 0) - (S.escHop || 0), est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : (S.espera && HB && S.skate <= 0 && S.jh <= 1) ? 'espera' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
       S._fx = null; const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
@@ -882,11 +878,7 @@ const hx = W / 2 + (S.px - 1) * LW + (S.escX || 0), hy = PY - S.jh - (S.escal ||
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
-<<<<<<< HEAD
-      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'tramp' ? trampDib(it, z) : it.k === 'vida' ? vidaDib(it, z) : it.k === 'cofre' ? cofreDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
-=======
-      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : (z < 0 ? portalDib(it, z, 'alto') : portalDib(it, z)) }); if (it.k === 'portal' && z < 0 && z > -4) cola.push({ z: 0.0001, f: () => portalDib(it, z, 'suelo') }); });
->>>>>>> 81756e2 (Nivel 3: la Sakura sube la escalera del portal (pisa cada peldano, salto corto, cuerpo que se achica al subir, frenado suave, se acomoda sobre la escalera) y el suelo del portal se dibuja antes que ella)
+      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'tramp' ? trampDib(it, z) : it.k === 'vida' ? vidaDib(it, z) : it.k === 'cofre' ? cofreDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : (z < 0 ? portalDib(it, z, 'alto') : portalDib(it, z)) }); if (it.k === 'portal' && z < 0 && z > -4) cola.push({ z: 0.0001, f: () => portalDib(it, z, 'suelo') }); });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       dibAmb(); dibEfectos(); rayosLuz(Tm); lluviaDib();
