@@ -17,10 +17,10 @@
  *   bloqueado            true = tarjeta "Próximamente"
  *   visible(perfil)      false = no se muestra (opcional)
  */
-(function (root, factory) {
+(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.MundosRegistro = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const A = 'assets/';
   const EN = A + 'environment/';
@@ -33,6 +33,7 @@
   }
   function numero(v) { return typeof v === 'number' && isFinite(v) ? v : 0; }
 
+  /** @type {Mundo[]} */
   const lista = [
     {
       id: 'senda',

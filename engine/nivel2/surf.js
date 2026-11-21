@@ -398,9 +398,11 @@
 
     // ───────────────────────── reglas ─────────────────────────
     // primer error de una puerta: no quita corazón, enseña la cuenta y la misma tabla vuelve a salir un poco más adelante
+    // aciertos/errores por operación ("7x8"): al terminar la partida se suman a la maestría del perfil
+    function hecho(k, ok) { if (!S) return; const h = (S.hechos = S.hechos || {}); (h[k] = h[k] || { a: 0, e: 0 })[ok ? 'a' : 'e']++; }
     function segundaOportunidad(g, gx, gy) {
       const [a, b] = g.q.key.split('x').map(Number), nx = S.d + 1150, lej = x => x < S.d - 60 || x > nx + 150;
-      S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; S.zorro = { est: 'alerta', t: 2 };
+      S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; hecho(g.q.key, false); S.zorro = { est: 'alerta', t: 2 };
       chispas(gx, gy, 16, ['#ffb347', '#ffe27a'], 220, .8); msg('¡Casi! ' + a + ' × ' + b + ' = ' + a * b + ' · ¡otra oportunidad!', 2.8); beep(300, .18, 'triangle');
       S.obs = S.obs.filter(ob => lej(ob.x)); S.drops = S.drops.filter(d => lej(d.x)); S.pows = S.pows.filter(p => lej(p.x)); S.cofres = S.cofres.filter(c => lej(c.x)); S.pads = S.pads.filter(p => lej(p.x)); S.balas = [];
       const ng = nuevaPuerta(nx, pregunta(S.fallos, false, [a, b]), true); ng.reint = true; ng.amb = g.amb; S.gates.sort((u, v) => u.x - v.x);
@@ -414,14 +416,14 @@
       if (!ok && CONFIG.SEGUNDA && !g.reint) return segundaOportunidad(g, gx, gy);
       S.respondidas++;
       if (ok) {
-        S.aci++; S.racha++; S.errSeg = 0; const pts = 100 + Math.min(S.racha, 6) * 25; S.punt += pts; S.boost = .9; S.flash = .22; S.zorro = { est: 'celebra', t: 1.3 };
+        S.aci++; hecho(g.q.key, true); S.racha++; S.errSeg = 0; const pts = 100 + Math.min(S.racha, 6) * 25; S.punt += pts; S.boost = .9; S.flash = .22; S.zorro = { est: 'celebra', t: 1.3 };
         chispas(gx, gy, 34, ['#53e08a', '#ffe27a', '#fff', '#6fd6ff'], 320, 1.1); pop('+' + pts, gx, gy - 40, '#53e08a', 34); sonidoOk();
         msg(S.racha >= 3 ? '¡RACHA ×' + S.racha + '!' : '¡CORRECTO! ' + g.q.txt.replace('?', g.q.ans), 1.6);
         if (CONFIG.RACHA_VIDA && S.racha % 3 === 0 && S.vidas < CONFIG.VIDAS) { S.vidas++; msg('¡RACHA ×' + S.racha + '! +1 corazón', 2.2); pop('+1 ♥', gx, gy - 80, '#ff6f8f', 34); }
         if (S.jefe) { S.jefe.hp--; S.jefe.golpe = 1; S.jefe.atq = null; S.shake = .5; if (S.jefe.hp <= 0) return terminar(true); }
       } else {
         const [a, b] = g.q.key.split('x').map(Number);
-        S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; S.zorro = { est: 'alerta', t: 1.8 };
+        S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; hecho(g.q.key, false); S.zorro = { est: 'alerta', t: 1.8 };
         chispas(gx, gy, 18, ['#ff5a5a', '#ffb0a0'], 240, .8); msg('¡Era ' + a + ' × ' + b + ' = ' + a * b + '!', 2.4);
         daño(); if (S.errSeg === CONFIG.PISTA_TRAS_ERRORES) setTimeout(() => S && S.est === 'play' && msg('Zorrito te ayudará con una pista ✨', 2.2), 1400);
       }
@@ -866,6 +868,7 @@
       if (S.est !== 'play') return; S.est = gano ? 'gano' : 'perdio'; if (gano) ganadasSesion++; beep(gano ? 988 : 120, .6, gano ? 'sine' : 'sawtooth');
       if (gano) { guardar(KCP, null); S.zorro = { est: 'celebra', t: 9 }; chispas(W / 2, 220, 60, ['#ffe27a', '#53e08a', '#fff', '#ff7fae'], 420, 1.6); }
       const estr = !gano ? 0 : S.caidas > 0 ? (S.err <= 5 ? 2 : 1) : S.err <= 1 ? 3 : S.err <= 4 ? 2 : 1;
+      if (o.perfil && window.Perfiles && Perfiles.registrarHechos) { try { Perfiles.registrarHechos(o.perfil.id, S.hechos); } catch (e) {} }
       if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel2 = p.nivel2 || {}; p.nivel2.fallos = S.fallos; p.nivel2.mejor = Math.max(p.nivel2.mejor || 0, S.punt); p.nivel2.intentos = (p.nivel2.intentos || 0) + 1; p.nivel2.estrellas = Math.max(p.nivel2.estrellas || 0, estr); if (gano) p.nivel2.completados = (p.nivel2.completados || 0) + 1; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aci; p.estadisticas.errores += S.err; p.estadisticas.minutos += Math.round(S.t / 6) / 10; }); } catch (e) {} }
       setTimeout(() => {
         const p = document.createElement('div'); p.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000000b0;color:#fff;text-align:center;padding:20px';
