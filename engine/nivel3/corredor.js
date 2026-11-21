@@ -120,6 +120,10 @@
     o = o || {};
     precargar();
     const PREGS = construir();
+    // voz opcional: nivel3.html?voz=1 (o tecla V). Lee la pregunta al llegar a la plaza.
+    let voz = /[?&]voz=1/.test(location.search || '');
+    function textoVoz(r) { const T = r.T, n = r.n; return r.tipo === 'sigue' ? 'Qué número sigue. ' + [T * (n - 3), T * (n - 2), T * (n - 1)].join(', ') : r.tipo === 'multiplo' ? 'Cuál es múltiplo de ' + T : 'Cuánto es ' + (r.q0.inv ? n + ' por ' + T : T + ' por ' + n); }
+    function hablar(r) { try { if (!voz || !window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(textoVoz(r)); u.lang = 'es-CO'; u.rate = 0.9; speechSynthesis.speak(u); } catch (e) { } }
     const marco = document.getElementById('marco'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
     const heroe = o.heroe === 'kage' ? 'kage' : 'sakura';
     const HM = heroe === 'kage' ? window.ANTAREZ_MANIFEST : window.SAKURA_EVE_MANIFEST;
@@ -168,7 +172,7 @@
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], toasts: [],
         racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [], monedas: 0, mundo: 0, qpas: 0, zp: 0, cortes: [{ d: 0, m: 0 }],
-        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0, mAc: 0, mFa: 0, tutor: false,
+        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0, mAc: 0, mFa: 0, tutor: false, malSeg: 0,
         sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, cieloM: false, ultLane: -1, decoD: 8 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
@@ -238,6 +242,7 @@
     function recoge(it, x, y) {
       const row = it.row; it.tomado = true; row.res = true; if (!row.repaso) S.qpas++;
       if (!row.repaso) { if (it.ok) S.mAc++; else S.mFa++; }
+      S.malSeg = it.ok ? 0 : S.malSeg + 1;
       if (it.ok) {
         S.aciertos++; S.racha++; S.mejorRacha = Math.max(S.mejorRacha, S.racha); const gan = row.repaso ? 3 : 5 + Math.min(S.racha, 5);
         S.monedas += gan; S.puntos += 10 + Math.min(S.racha, 10) * 2; S.alegre = 1.1; S.alegreT = S.t; S.pista = null;
@@ -280,8 +285,9 @@
       }
       // la pista se frena sola al llegar a la plaza de pregunta y espera (sin reloj) hasta que el niño decida
       const fila = S.filas.find(f => !f.res && !f.pasada), dz = fila ? fila.d - S.dist : 999;
-      if (fila !== S.filaAct) { S.filaAct = fila; S.listo = false; }
+      if (fila !== S.filaAct) { S.filaAct = fila; S.listo = false; if (fila && S.malSeg >= 2 && !fila.hint) { fila.hint = true; toast('💡 Mira la puerta verde', '#bff5d0', 2.2); } }
       S.plaza = !!fila && dz < CFG.RAMPA; S.espera = S.plaza && dz <= CFG.ESPERA + 0.3 && !S.listo;
+      if (S.plaza && fila && !fila.habl) { fila.habl = true; hablar(fila); }
       S.zp += ((S.plaza ? 1 : 0) - S.zp) * Math.min(1, dt * 3);
       const base = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.mundo + Math.max(0, S.racha - 4) * 0.02); let vObj = base;
       if (S.plaza) { const k = clamp((dz - CFG.ESPERA) / (CFG.RAMPA - CFG.ESPERA), 0, 1); vObj = CFG.VPLAZA + (base - CFG.VPLAZA) * k; if (dz <= CFG.ESPERA + 0.3) vObj = S.listo ? CFG.VPLAZA + 1.4 : 0; }
@@ -630,7 +636,7 @@
       S = nuevo(); S.cazaBase = 0;
       pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre por <b>6 mundos</b>, junta <b>monedas</b> 🪙 y, en cada <b>plaza</b>, elige con calma la respuesta de las tablas del <b>7, 8 y 9</b>.</p>' +
         '<div class="reglas"><span>🪙 Junta monedas saltando y deslizando</span><span>🤔 En la plaza no hay prisa</span><span>💛 Si fallas, te damos una pista</span><span>🛹 Cada 3 aciertos seguidos: ¡premio!</span><span>☁️ Cajas ? y tabla voladora</span></div>' +
-        '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido.') + '</p>' +
+        '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido · V voz.') + '</p>' +
         '<button id="go" type="button">▶ JUGAR</button>');
       document.getElementById('go').onclick = () => { intentarPantallaCompleta(); try { ac() && ac().resume && ac().resume(); } catch (e) {} pantalla(''); S.corriendo = true; ponBanner(0, PREGS[0].T, 3); vigilarGiro(); };
     }
@@ -662,7 +668,7 @@
       const k = e.key; if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].indexOf(k) >= 0) e.preventDefault();
       if (k === 'ArrowLeft' || k === 'a' || k === 'A') accion('izq'); else if (k === 'ArrowRight' || k === 'd' || k === 'D') accion('der');
       else if (k === 'ArrowUp' || k === 'w' || k === 'W' || k === ' ') accion('salta'); else if (k === 'ArrowDown' || k === 's' || k === 'S') accion('baja');
-      else if (k === 'Enter') accion('listo'); else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') alternarSonido();
+      else if (k === 'Enter') accion('listo'); else if (k === 'v' || k === 'V') { voz = !voz; toast(voz ? '🔊 Voz activada' : '🔇 Voz apagada', '#ffffff', 1.3); if (voz && S.filaAct && S.plaza) hablar(S.filaAct); } else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') alternarSonido();
     });
     let t0 = null;
     marco.addEventListener('touchstart', e => { if (e.target.closest('button')) return; const t = e.changedTouches[0]; t0 = { x: t.clientX, y: t.clientY, hecho: false, ts: Date.now() }; e.preventDefault(); }, { passive: false });
