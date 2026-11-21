@@ -185,12 +185,32 @@
     aplicar(p); listo = true; cerrar();
     cargarNivel1().then(() => {
       const fresco = Perfiles.obtener(p.id);
-      Nivel1.iniciar({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: fresco, onSalir: () => actualizarChip(), onSiguiente: () => nivel2Nuevo(Perfiles.obtener(p.id)) });
+      Nivel1.iniciar({ heroe: p.avatar, dispositivo: p.dispositivo, perfil: fresco, onSalir: () => abrirMundos(Perfiles.obtener(p.id)), onSiguiente: () => abrirMundos(Perfiles.obtener(p.id)) });
     }).catch(e => { alert('No se pudo abrir el Nivel 1: ' + e.message); });
   }
-  function jugarNuevo(p) { jugarNivel1(p); }
+  function nivel3Nuevo(p) {
+    if (!p) return;
+    location.href = 'nivel3.html?' + new URLSearchParams({ heroe: p.avatar, perfil: p.id }).toString();
+  }
+  /* Selector de mundos: el jugador elige con cuál empezar y, al terminar o salir, vuelve aquí. */
+  function abrirMundos(p) {
+    p = p || Perfiles.activo();
+    if (!p) return abrir('auto');
+    if (!window.SelectorMundos) return jugarNivel1(p);   // por si el selector no cargó
+    aplicar(p); listo = true; cerrar();
+    SelectorMundos.abrir({
+      perfil: Perfiles.obtener(p.id),
+      lanzar: { senda: q => jugarNivel1(q), viaje: q => nivel2Nuevo(q), farolillos: q => nivel3Nuevo(q), clasico: q => continuar(q) },
+      onCerrarSesion: () => {            // para que otra persona pueda jugar: el avance de cada perfil queda guardado
+        try { sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
+        if (Perfiles.cerrarSesion) Perfiles.cerrarSesion();
+        listo = false; actualizarChip(); abrir('lista');
+      }
+    });
+  }
+  function jugarNuevo(p) { abrirMundos(p); }
   function continuar(p) {
-    if ((p.progreso.nivel || 0) === 0) return jugarNivel1(p);
+    if ((p.progreso.nivel || 0) === 0) return abrirMundos(p);
     aplicar(p); listo = true; cerrar();
     try {
       GS.phase = p.progreso.fase || 'easy'; GS.level = p.progreso.nivel || 0; GS.totalScore = p.progreso.puntos || 0;
@@ -205,11 +225,11 @@
     card.appendChild(el('p', { class: 'pf-sub', text: 'Elige tu jugador para seguir tu partida.' }));
     const lista = el('div', { class: 'pf-lista' });
     ps.forEach(p => {
-      const tiene = p.progreso && (p.progreso.puntos > 0 || p.progreso.nivel > 0);
+      const tiene = p.progreso && (p.progreso.puntos > 0 || p.progreso.nivel > 0 || (p.nivel1 && p.nivel1.intentos > 0) || (p.nivel2 && p.nivel2.intentos > 0) || (p.nivel3 && p.nivel3.intentos > 0));
       const reiniciar = () => { if (confirm('¿Empezar de nuevo desde el nivel 1? Se conserva tu nombre pero se borra tu avance.')) { Perfiles.actualizar(p.id, q => { q.progreso = { fase: 'easy', nivel: 0, puntos: 0 }; q.nivel1 = { intentos: 0, semilla: null, plan: null, estado: null, completados: 0 }; }); jugarNuevo(Perfiles.obtener(p.id)); } };
       const borrar = () => { if (confirm('¿Borrar a ' + p.nombre + ' y todo su avance?')) { Perfiles.borrar(p.id); render(); } };
       const acc = el('div', { class: 'pf-acc' }, [
-        tiene ? el('button', { class: 'pf-btn', text: '▶ CONTINUAR', onclick: () => continuar(p) }) : el('button', { class: 'pf-btn', text: '▶ JUGAR', onclick: () => jugarNuevo(p) })
+        tiene ? el('button', { class: 'pf-btn', text: '🌍 ELEGIR MUNDO', onclick: () => abrirMundos(p) }) : el('button', { class: 'pf-btn', text: '▶ JUGAR', onclick: () => jugarNuevo(p) })
       ]);
       if (tiene) acc.appendChild(el('button', { class: 'pf-ic', text: '↺', title: 'Empezar de nuevo desde el nivel 1', 'aria-label': 'Empezar de nuevo', onclick: reiniciar }));
       acc.appendChild(el('button', { class: 'pf-ic', text: '🗑', title: 'Borrar jugador', 'aria-label': 'Borrar jugador', onclick: borrar }));
@@ -310,7 +330,10 @@
       try { const a = Perfiles.activo(); if (a) Perfiles.actualizar(a.id, p => { p.progreso = { fase: GS.phase, nivel: GS.level, puntos: GS.totalScore || 0 }; }); } catch (e) {}
     };
     actualizarChip();
+    // los niveles 2 y 3 regresan con ?mundos=1: se vuelve directo al selector con el jugador activo
+    let flag = false; try { flag = sessionStorage.getItem('ninja_abrir_mundos') === '1'; } catch (e) {}
+    if (flag || /[?&]mundos=1/.test(location.search)) { const a = Perfiles.activo(); if (a) setTimeout(() => abrirMundos(a), 0); }
   }
-  window.PerfilUI = { abrir, aplicar, actualizarChip };
+  window.PerfilUI = { abrir, aplicar, actualizarChip, abrirMundos };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();

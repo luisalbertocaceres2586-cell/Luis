@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
+<script src="engine/core/diagnostico.js?v=1"></script>
+<script src="engine/core/compat.js?v=1"></script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <script src="engine/core/movil-niveles.js?v=1"></script>
 <meta name="theme-color" content="#0a0618"><title>Nivel 3 · Carrera de los Farolillos</title>
@@ -19,9 +22,19 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 #ov .reglas{display:flex;flex-wrap:wrap;gap:calc(var(--u,1px)*8);justify-content:center}
 #ov .reglas span{background:#ffffff14;border:1px solid #ffffff30;border-radius:calc(var(--u,1px)*14);padding:calc(var(--u,1px)*8) calc(var(--u,1px)*12);font-size:calc(var(--u,1px)*20)}
 #ov .estrellas{font-size:calc(var(--u,1px)*70)}
-#ov button{font:inherit;font-weight:bold;font-size:calc(var(--u,1px)*28);padding:calc(var(--u,1px)*14) calc(var(--u,1px)*34);border-radius:calc(var(--u,1px)*14);border:1px solid #ffe27a;background:linear-gradient(#ffe27a,#ffad58);color:#281532;cursor:pointer}
-#ov button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;font-size:calc(var(--u,1px)*22)}
+#ov button{font:inherit;font-weight:bold;font-size:calc(var(--u,1px)*28);padding:calc(var(--u,1px)*14) calc(var(--u,1px)*38);border-radius:calc(var(--u,1px)*40);border:calc(var(--u,1px)*4) solid #ffc93c;background:linear-gradient(#3f78e0,#12307a);color:#fff;text-shadow:0 2px 0 #0a1c52;box-shadow:0 calc(var(--u,1px)*5) 0 #7a5200,0 0 calc(var(--u,1px)*22) #ffc93c66;cursor:pointer;transition:transform .12s}
+#ov button:hover{transform:scale(1.05)}#ov button:active{transform:scale(.97)}
+#ov button.sec{background:linear-gradient(#4a4466,#262040);border-color:#c9b86a;font-size:calc(var(--u,1px)*22);box-shadow:0 calc(var(--u,1px)*4) 0 #4b3e12}
+.retrato{position:relative;width:calc(var(--u,1px)*150);height:calc(var(--u,1px)*150);flex:none;animation:flota 3s ease-in-out infinite}
+.retrato .ret{position:absolute;left:14%;top:14%;width:72%;height:72%;border-radius:50%;object-fit:cover}
+.retrato .mar{position:absolute;inset:0;width:100%;height:100%}
+.barra{width:78%;height:auto;margin:calc(var(--u,1px)*-4) 0}
+#ov .reglas img{height:calc(var(--u,1px)*26);vertical-align:middle;margin-right:calc(var(--u,1px)*6)}
+@keyframes flota{50%{transform:translateY(calc(var(--u,1px)*-6))}}
+#ov>*{animation:entra .5s both}#ov>*:nth-child(2){animation-delay:.08s}#ov>*:nth-child(3){animation-delay:.16s}#ov>*:nth-child(4){animation-delay:.24s}#ov>*:nth-child(5){animation-delay:.32s}
+@keyframes entra{from{opacity:0;transform:translateY(calc(var(--u,1px)*16)) scale(.96)}to{opacity:1;transform:none}}
 #bPausa,#bMudo{position:absolute;top:calc(var(--u,1px)*10);width:calc(var(--u,1px)*52);height:calc(var(--u,1px)*52);border-radius:50%;border:2px solid #ffffff66;background:#0f0828cc;color:#fff;font-size:calc(var(--u,1px)*26);cursor:pointer;padding:0;z-index:5}
+#bPausa{border:0;background:url(assets/ui/hud/marcos/boton_pausa.png) center/contain no-repeat}
 #bPausa{right:calc(var(--u,1px)*10)}#bMudo{right:calc(var(--u,1px)*70)}
 #girar{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#06031a}
 #girar.on{display:flex}#girar h2{color:#ffe27a;margin:0;font-size:24px}#girar p{margin:0;color:#d7d4ee;max-width:360px}
@@ -29,20 +42,21 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 @keyframes g{0%,20%{transform:rotate(-90deg)}55%,85%{transform:rotate(0)}100%{transform:rotate(-90deg)}}
 </style></head><body>
 <div id="app">
- <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre y recoge la respuesta correcta.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta barriles<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
+ <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre, junta monedas y elige la respuesta correcta en cada plaza.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta barriles<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
  <div id="marco"><canvas id="cv"></canvas></div>
- <aside><h2>Cómo se juega</h2>⛓ <b>Cadena</b>: recoge el número que sigue (7 · 14 · 21 · ?).<br><br>🎯 <b>Caza</b>: recoge solo los múltiplos.<br><br>🥷 Cada racha suma sombras.<br><br>💛 Si fallas no pasa nada: la pregunta vuelve más adelante.</aside>
+ <aside><h2>Cómo se juega</h2>🪙 <b>Corre y junta monedas</b>: salta los barriles (hay arcos de monedas en el aire) y deslízate bajo los arcos.<br><br>🤔 <b>En cada plaza</b> aparece una pregunta. No hay prisa: la pista se detiene y tú eliges el carril con la respuesta correcta.<br><br>💛 Si fallas no pasa nada: te damos una pista y la pregunta vuelve más adelante.<br><br>🛹 Cada <b>3 aciertos seguidos</b> aparece una patineta: rompe obstáculos y gana monedas.<br><br>❓ Las <b>cajas sorpresa</b> dan imán de monedas 🧲 o escudo 🛡.<br><br>☁️ En cada mundo hay un tramo de <b>tabla voladora</b> lleno de monedas en el aire.<br><br>🥷 Cada racha suma sombras.</aside>
 </div>
 <div id="girar"><div class="tel"></div><h2>GIRA TU TELÉFONO</h2><p>Este nivel se juega en <b>vertical</b>, como una carrera hacia el fondo de la pantalla.</p></div>
 <script src="engine/nivel1/perfiles.js?v=8"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
-<script src="engine/nivel3/corredor.js?v=1"></script>
+<script src="assets/nivel3/heroe/manifest.js?v=2"></script>
+<script src="engine/nivel3/corredor.js?v=8"></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search),perfil=null;
   try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
   var heroe=(perfil&&perfil.avatar)||q.get('heroe')||'sakura'; if(heroe!=='kage')heroe='sakura';
-  Nivel3.iniciar({heroe:heroe,perfil:perfil||null,onSalir:function(){location.href='index.html';}});
+  Nivel3.iniciar({heroe:heroe,perfil:perfil||null,onSalir:function(){try{sessionStorage.setItem('ninja_abrir_mundos','1');}catch(e){}location.href='index.html?mundos=1';}});
 })();
 </script></body></html>

@@ -1,0 +1,24 @@
+/* Pantalla de carga 2026: logo con entrada cinematográfica, destellos, divisor ornamental y barra de progreso con marco dorado y brillo. Solo estilos y capas; la lógica de carga (intro-2026.js) no cambia. */
+#n26ld .n26logo{position:relative;z-index:2;animation:ld26in 1.1s cubic-bezier(.16,.9,.25,1) both,n26float 5s ease-in-out 1.1s infinite;
+  filter:drop-shadow(0 0 30px rgba(255,150,30,.55)) drop-shadow(0 0 70px rgba(157,85,233,.35)) drop-shadow(0 8px 14px rgba(0,0,0,.65))}
+@keyframes ld26in{0%{opacity:0;transform:scale(1.7) translateY(-10px);filter:blur(14px) brightness(2.2)}55%{opacity:1}100%{transform:none}}
+#n26ld .ld26-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:clamp(10px,2.4vh,20px)}
+#n26ld .ld26-glow{position:absolute;left:50%;top:38%;width:min(92vw,720px);aspect-ratio:1.9;translate:-50% -50%;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,190,70,.28),rgba(157,85,233,.2) 55%,transparent 75%);animation:ld26glow 4s ease-in-out infinite;pointer-events:none}
+@keyframes ld26glow{50%{scale:1.12;opacity:.7}}
+#n26ld .ld26-spark{position:absolute;left:50%;top:38%;width:min(76vw,460px);translate:-50% -50%;opacity:0;mix-blend-mode:screen;pointer-events:none;animation:ld26tw 3.6s ease-in-out 1s infinite}
+@keyframes ld26tw{0%,100%{opacity:.1}50%{opacity:.42}}
+#n26ld .ld26-orn{width:min(40vw,230px);height:auto;opacity:0;animation:ld26orn .9s ease .7s both;filter:drop-shadow(0 0 10px rgba(255,190,80,.4));pointer-events:none}
+@keyframes ld26orn{from{opacity:0;transform:scaleX(.3)}to{opacity:.95;transform:none}}
+/* barra */
+#n26ld .n26bar{height:14px;border-radius:99px;overflow:visible;background:linear-gradient(#050818,#0c1238);border:2px solid #ffb82f;
+  box-shadow:0 0 0 2px rgba(60,20,0,.7),0 0 18px rgba(255,184,47,.35),inset 0 2px 6px rgba(0,0,0,.7);width:min(64vw,420px)}
+#n26ld .n26bar:before,#n26ld .n26bar:after{content:"";position:absolute;top:50%;width:34px;height:34px;translate:0 -50%;background:url(../../assets/intro-2026/identidad/insignia_sakura.webp) center/contain no-repeat;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7));z-index:3;pointer-events:none}
+#n26ld .n26bar:before{left:-22px}#n26ld .n26bar:after{right:-22px;rotate:36deg}
+#n26ld .n26fill{position:absolute;left:0;top:1px;bottom:1px;border-radius:99px;background:linear-gradient(90deg,#34216f,#9d55e9 45%,#ec65b6 75%,#ffe18a);box-shadow:0 0 14px rgba(157,85,233,.8),0 0 6px rgba(255,225,138,.6) inset;overflow:hidden}
+#n26ld .n26fill:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);translate:-100% 0;animation:ld26shine 1.6s ease-in-out infinite}
+@keyframes ld26shine{to{translate:100% 0}}
+#n26ld .n26pct{color:#ffe18a;text-shadow:0 0 10px rgba(255,184,47,.5)}
+@media(max-width:640px){#n26ld .n26bar{width:70vw}#n26ld .ld26-orn{width:46vw}}
+@media(max-height:480px){#n26ld .ld26-orn,#n26ld .ld26-spark{display:none}#n26ld .n26bar{height:11px}}
+@media(prefers-reduced-motion:reduce){#n26ld .n26logo,#n26ld .ld26-glow,#n26ld .ld26-spark,#n26ld .ld26-orn,#n26ld .n26fill:after{animation:none!important;opacity:1}#n26ld .ld26-spark{opacity:.3}}

@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
+<script src="engine/core/diagnostico.js?v=1"></script>
+<script src="engine/core/compat.js?v=1"></script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <script src="engine/core/movil-niveles.js?v=1"></script>
 <meta name="theme-color" content="#090b24"><title>Nivel 2 · Viaje por 4 mundos</title>
@@ -65,7 +68,7 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
   var q=new URLSearchParams(location.search),perfil=null;
   try{perfil=q.get('perfil')?Perfiles.obtener(q.get('perfil')):Perfiles.activo();}catch(e){}
   var heroe=(perfil&&perfil.avatar)||q.get('heroe')||'sakura'; if(heroe!=='kage')heroe='sakura';
-  var base={heroe:heroe,perfil:perfil||null,jefe:q.get('jefe')||undefined,directo:q.get('directo')||undefined,onSalir:function(){location.href='index.html';}};
+  var base={heroe:heroe,perfil:perfil||null,jefe:q.get('jefe')||undefined,directo:q.get('directo')||undefined,onSalir:function(){try{sessionStorage.setItem('ninja_abrir_mundos','1');}catch(e){}location.href='index.html?mundos=1';}};
   /* vehículo y diseño de tabla (se recuerdan en este equipo) */
   var cfg={};try{cfg=JSON.parse(localStorage.getItem('n2cfg')||'{}')||{};}catch(e){}
   cfg.vehiculo=q.get('vehiculo')||cfg.vehiculo||'alfombra'; cfg.tabla=q.get('tabla')||cfg.tabla||'tabla_clasica'; cfg.dificultad=q.get('dificultad')||cfg.dificultad||'tranquilo';
