@@ -74,6 +74,7 @@
     casi() { tono(262, 0.25, 'triangle', 0.1); tono(220, 0.3, 'triangle', 0.08, 0.1); },
     golpe() { tono(140, 0.25, 'sawtooth', 0.12); tono(90, 0.3, 'square', 0.08, 0.05); },
     salto() { tono(380, 0.16, 'sine', 0.08); tono(560, 0.14, 'sine', 0.06, 0.07); },
+    aterriza(f) { tono(95, 0.14, 'triangle', 0.05 + 0.05 * f); tono(60, 0.18, 'sine', 0.05 * f, 0.02); },
     desliza() { tono(300, 0.18, 'sawtooth', 0.04); },
     moneda(r) { tono(988 + (r % 6) * 90, 0.09, 'triangle', 0.07); },
     plaza() { tono(660, 0.25, 'sine', 0.08); tono(880, 0.3, 'sine', 0.06, 0.1); },
@@ -288,7 +289,7 @@
       if (S.vuelo > 0 && a !== 'izq' && a !== 'der') return;
       if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
       else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
-      else if (a === 'salta') { if (S.jh <= 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); } }
+      else if (a === 'salta') { if (S.jh <= 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); S.sj = S.t; S.sq = null; despega(); } }
       else if (a === 'baja') { if (S.jh > 1) S.jv = -1500; else if (S.slide <= 0) { S.slide = 0.75; sfx.desliza(); } }
     }
 
@@ -315,7 +316,7 @@
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
-      else if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { S.jh = 0; S.jv = 0; } }
+      else if (S.jh > 0 || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= 0) { const vi = -S.jv; S.jh = 0; S.jv = 0; aterriza(vi); } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
       if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
@@ -380,6 +381,23 @@
       if (S.espera && i % 2) return; // en la plaza de pregunta suena más tranquila
       tono(sc[PAT[i]], 0.28, 'triangle', 0.03); if (i % 4 === 0) tono(sc[0] / 2, 0.5, 'sine', 0.05); if (i === 6) tono(sc[4] * 2, 0.2, 'sine', 0.018);
     }
+    // ───────────────────────── física visual: despegue, aterrizaje, escalones ─────────────────────────
+    function despega() {
+      const hx = W / 2 + (S.px - 1) * LW; for (let i = 0; i < 5; i++) { const lado = i % 2 ? 1 : -1; S.polvo.push({ x: hx + lado * R(8, 22), y: PY - 2, vx: lado * R(40, 120), vy: R(-70, -20), life: R(0.25, 0.45), t: 0, r: R(5, 9) }); }
+      (S.ondas = S.ondas || []).push({ x: hx, y: PY + 2, t: 0, f: 0.4 });
+    }
+    function aterriza(vi) {
+      if (vi < 250) return; const f = clamp(vi / 1300, 0.25, 1), hx = W / 2 + (S.px - 1) * LW; S.sq = { t0: S.t, f }; S.bump = Math.max(S.bump || 0, f);
+      for (let i = 0; i < 6 + Math.round(8 * f); i++) { const lado = i % 2 ? 1 : -1; S.polvo.push({ x: hx + lado * R(10, 30), y: PY - 2 - (S.escal || 0), vx: lado * R(70, 230) * (0.5 + f), vy: R(-110, -30), life: R(0.35, 0.65), t: 0, r: R(7, 13) }); }
+      (S.ondas = S.ondas || []).push({ x: hx, y: PY + 2 - (S.escal || 0), t: 0, f }); if (vi > 500) sfx.aterriza(f);
+    }
+    // el suelo sube unos escalones al cruzar un portal o una plaza: la Sakura los pisa uno a uno
+    function escalones(dt) {
+      let tgt = 0; for (const it of S.items) if (it.k === 'portal') { const z = it.d - S.dist; if (z < 3 && z > -2.8) tgt = z > 2.4 ? 0 : z > 1.8 ? 9 : z > 1.2 ? 18 : z > -1.0 ? 26 : z > -1.7 ? 18 : z > -2.3 ? 9 : 0; }
+      const prev = S.escal || 0, antes = S._tgtE || 0; S.escal = prev + (tgt - prev) * Math.min(1, dt * 22);
+      if (Math.abs(tgt - antes) > 0.1 && S.jh <= 1 && S.cae <= 0) { const hx = W / 2 + (S.px - 1) * LW; for (let i = 0; i < 3; i++) S.polvo.push({ x: hx + R(-18, 18), y: PY - 2 - S.escal, vx: R(-50, 50), vy: R(-50, -15), life: R(0.2, 0.35), t: 0, r: R(4, 7) }); }
+      S._tgtE = tgt;
+    }
     // ───────────────────────── efectos y atmósfera ─────────────────────────
     const cacheBg = []; let vineta = null;
     const UI = 'assets/ui/hud/';
@@ -403,7 +421,7 @@
         if (p.t > p.life || p.y < -30 || p.y > H + 30 || p.x < -30 || p.x > W + 30 || (p.tipo !== TEMAS[ob].amb && p.t > 1.5)) nuevaAmb(p, false);
       }
       S.polvoT -= dt; if (S.polvoT <= 0 && S.cae <= 0 && S.jh <= 1) { S.polvoT = S.slide > 0 ? 0.025 : 0.07; const hx = W / 2 + (S.px - 1) * LW; S.polvo.push({ x: hx + R(-16, 16), y: PY - 2 + R(-3, 3), vx: R(-35, 35), vy: R(-70, -25), life: R(0.35, 0.6), t: 0, r: R(6, 12) }); }
-      for (const p of S.polvo) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt * 14; } S.polvo = S.polvo.filter(p => p.t < p.life);
+      for (const p of S.polvo) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt * 14; } S.polvo = S.polvo.filter(p => p.t < p.life); S.ondas = (S.ondas || []).filter(o => (o.t += dt) < 0.45); S.bump = Math.max(0, (S.bump || 0) - dt * 3.5); escalones(dt);
       for (const r of S.rings) r.t += dt; S.rings = S.rings.filter(r => r.t < r.dur);
       const n2 = S.lite ? 0 : 16; while (S.lineas.length < n2) S.lineas.push({ a: 0, r: R(60, 900), l: 100, reset: true }); if (S.lineas.length > n2) S.lineas.length = n2;
       for (const l of S.lineas) { if (l.reset || l.r > 1100) { l.a = Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * R(0.42, 1.1); l.r = R(80, 260); l.l = R(70, 170); l.reset = false; } l.r += (650 + S.v * 80) * dt; }
@@ -532,11 +550,26 @@
       ctx.fillStyle = '#3a1d05'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(r * (String(it.val).length > 2 ? 0.66 : 0.8)) + 'px ' + FUENTE; ctx.fillText(it.val, x, y + r * 0.04);
       ctx.restore();
     }
+    // Puerta baja: abertura libre de 165 px (la Sakura de pie mide ~215, deslizándose ~110) con vigas rojas, placa dorada y tejadillo
+    function puerta(x, y, p, a) {
+      const w = LW * 0.5, H1 = 165;
+      ctx.save(); ctx.translate(x, y); ctx.scale(p, p); ctx.globalAlpha = a;
+      [-1, 1].forEach(sg => { const px = sg * w, g = ctx.createLinearGradient(px - 9, 0, px + 9, 0); g.addColorStop(0, '#e24a3a'); g.addColorStop(0.5, '#b3261e'); g.addColorStop(1, '#7a1612');
+        ctx.fillStyle = '#4a4455'; ctx.fillRect(px - 17, -22, 34, 22); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(px - 17, -22, 34, 4);
+        ctx.fillStyle = g; ctx.fillRect(px - 9, -222, 18, 200); ctx.fillStyle = '#ffd35a'; ctx.fillRect(px - 10, -62, 20, 4); ctx.fillRect(px - 10, -150, 20, 3); });
+      ctx.fillStyle = '#c0281f'; ctx.fillRect(-w - 14, -H1 - 18, 2 * w + 28, 18); ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(-w - 14, -H1 - 4, 2 * w + 28, 4); ctx.fillStyle = '#ffd35a'; ctx.fillRect(-w - 14, -H1 - 18, 2 * w + 28, 3);
+      ctx.fillStyle = '#3a1218'; ctx.fillRect(-26, -H1 - 52, 52, 30); ctx.strokeStyle = '#ffd35a'; ctx.lineWidth = 3; ctx.strokeRect(-26, -H1 - 52, 52, 30); ctx.fillStyle = '#ffd35a'; ctx.beginPath(); ctx.arc(0, -H1 - 37, 6, 0, 7); ctx.fill();
+      ctx.fillStyle = '#c0281f'; ctx.fillRect(-w - 24, -H1 - 76, 2 * w + 48, 22);
+      ctx.fillStyle = '#2b1a24'; ctx.beginPath(); ctx.moveTo(-w - 52, -H1 - 78); ctx.lineTo(w + 52, -H1 - 78); ctx.lineTo(w + 34, -H1 - 104); ctx.lineTo(-w - 34, -H1 - 104); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffd35a'; ctx.fillRect(-w - 52, -H1 - 80, 2 * w + 104, 3);
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(-w + 9, -H1, 2 * w - 18, 14);
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
     function obstaculo(it, z) {
-      if (it.roto) return; const p = pz(z), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z);
+      if (it.roto) return; const p = pz(z), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z), a = clamp((ZMAX - z) / 26, 0, 1);
       ctx.fillStyle = 'rgba(0,0,0,.33)'; ctx.beginPath(); ctx.ellipse(x, y, LW * 0.42 * p, 12 * p, 0, 0, 7); ctx.fill();
       if (it.tipo === 'bajo') { spr(IMG(it.skin === 'barril' ? ART.barril : ART.caja), it.lane - 1, z, 120); if (z < 40 && z > 2) { ctx.fillStyle = '#ffe27a'; ctx.font = 'bold ' + Math.round(40 * p) + 'px ' + FUENTE; ctx.textAlign = 'center'; ctx.fillText('⬆', x, y - 150 * p); } }
-      else { const im = IMG(ART.torii); if (listo(im)) { const ht = 215 * p, wd = LW * 1.05 * p; ctx.globalAlpha = clamp((ZMAX - z) / 26, 0, 1); ctx.drawImage(im, x - wd / 2, y - ht, wd, ht); ctx.globalAlpha = 1; } if (z < 40 && z > 2) { ctx.fillStyle = '#7fe3ff'; ctx.font = 'bold ' + Math.round(40 * p) + 'px ' + FUENTE; ctx.textAlign = 'center'; ctx.fillText('⬇', x, y - 235 * p); } }
+      else { puerta(x, y, p, a); if (z < 40 && z > 2) { ctx.fillStyle = '#7fe3ff'; ctx.font = 'bold ' + Math.round(40 * p) + 'px ' + FUENTE; ctx.textAlign = 'center'; ctx.fillText('⬇', x, y - 290 * p); } }
     }
     function portalDib(it, z) {
       const p = pz(z), im = IMG(ART.portal), y = yz(z); if (!listo(im) || z < -3) return;
@@ -594,8 +627,9 @@
       }
       if (!f) return; const im = IMG(HB.base + f.file); if (!listo(im)) return;
       ctx.save(); ctx.translate(x, y); ctx.globalAlpha = alpha == null ? 1 : alpha;
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill();
+      if (!S._fx || (alpha != null && alpha < 1)) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill(); }
       if (inclina) ctx.rotate(clamp((S.tl - S.px) * 0.16, -0.2, 0.2));
+      if (S._fx && !clon) { ctx.translate(0, S._fx.oy); ctx.scale(S._fx.sx, S._fx.sy); }
       if (mir) ctx.scale(-1, 1);
       ctx.drawImage(im, -f.ax * k, -f.ay * k, f.w * k, f.h * k);
       ctx.restore(); ctx.globalAlpha = 1;
@@ -603,7 +637,8 @@
     function pintaHeroe(x, y, k, estado, flip, alpha) {
       if (HB) return pintaHeroeE(x, y, k, estado, alpha);
       ctx.save(); ctx.translate(x, y); ctx.globalAlpha = alpha == null ? 1 : alpha;
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill();
+      if (!S._fx || (alpha != null && alpha < 1)) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 4, 54 * k / kHeroe * 0.35 + 30, 11, 0, 0, 7); ctx.fill(); }
+      if (S._fx && !(alpha != null && alpha < 1)) { ctx.translate(0, S._fx.oy); ctx.scale(S._fx.sx, S._fx.sy); }
       let lista = estado === 'hurt' ? fr('hurt') : estado === 'slide' ? fr('slide') : estado === 'jump' ? fr('jump') : (estado === 'win' ? fr('win') : fr('run')), idx = 0;
       if (!lista.length) lista = fr('run');
       if (lista.length) {
@@ -616,14 +651,24 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
-      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh, est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
-      const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
+      const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh - (S.escal || 0), est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
+      S._fx = null; const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
         pintaHeroe(W / 2 + (pxc - 1) * LW + lado * (46 + 22 * Math.floor(i / 2)), PY - 6 - 10 * i, kHeroe * (0.8 - 0.03 * i), 'run', flip, 0.4);
       }
       if (S.vuelo > 0) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(hx, PY + 4, 46, 9, 0, 0, 7); ctx.fill(); brillo(hx, hy + 6, 110, '150,215,255', 0.5); ctx.fillStyle = 'rgba(255,255,255,.95)'; for (let k = -2; k <= 2; k++) { ctx.beginPath(); ctx.arc(hx + k * 24, hy + 6 + (k % 2 ? 6 : 0), 22 - Math.abs(k) * 3, 0, 7); ctx.fill(); } }
+      { // sombra en el suelo (se encoge y aclara con la altura) + estela al cambiar de carril
+        const alt = clamp(S.jh / 260, 0, 1); if (S.vuelo <= 0) { ctx.fillStyle = 'rgba(0,0,0,' + (0.38 * (1 - 0.65 * alt)) + ')'; ctx.beginPath(); ctx.ellipse(hx, PY + 4 - (S.escal || 0), 49 * (1 - 0.35 * alt), 11 * (1 - 0.35 * alt), 0, 0, 7); ctx.fill(); }
+        if (!S.lite && Math.abs(S.tl - S.px) > 0.2 && S.celeb == null) for (let g = 2; g >= 1; g--) { const h = S.hist.find(e => e.t >= S.t - 0.05 * g) || S.hist[0]; if (h) pintaHeroe(W / 2 + (h.px - 1) * LW, hy, kHeroe, est, flip, 0.16 * (3 - g)); }
+        let sx = 1, sy = 1, oy = 0;
+        if (S.jh > 1 || S.vuelo > 0) { const st = S.vuelo > 0 ? 0 : clamp(Math.abs(S.jv) / 1200, 0, 1); sy = 1 + 0.16 * st; sx = 1 - 0.1 * st; if (S.sj != null && S.t - S.sj < 0.18) { const k = (S.t - S.sj) / 0.18; sy += 0.12 * (1 - k); sx -= 0.08 * (1 - k); } }
+        else if (S.slide <= 0) { const n = Math.max(2, fb('run').length || 8), b = Math.abs(Math.sin(S.tAnim * 10 / (n / 2) * Math.PI)); oy = -3 * b; sy = 1 + 0.018 * b; sx = 1 - 0.01 * b; }
+        if (S.sq && S.t - S.sq.t0 < 0.3) { const k = (S.t - S.sq.t0) / 0.3, sp = Math.exp(-4.2 * k) * Math.cos(12 * k) * S.sq.f; sy *= 1 - 0.28 * sp; sx *= 1 + 0.22 * sp; }
+        S._fx = { sx, sy, oy };
+      }
       if (!parpadeo) pintaHeroe(hx, hy, kHeroe, est, flip, 1);
+      S._fx = null;
       if (S.escudo > 0) { ctx.save(); ctx.fillStyle = 'rgba(120,200,255,.16)'; ctx.strokeStyle = 'rgba(160,225,255,' + (S.escudo < 3 && Math.floor(S.t * 8) % 2 ? 0.3 : 0.85) + ')'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(hx, hy - 100, 100 + 4 * Math.sin(S.t * 6), 0, 7); ctx.fill(); ctx.stroke(); ctx.restore(); }
     }
     function dibAmb() {
@@ -637,6 +682,7 @@
       ctx.restore();
     }
     function dibEfectos() {
+      for (const o of (S.ondas || [])) { const k = o.t / 0.45, r = 30 + 120 * k * (0.6 + o.f); ctx.globalAlpha = (1 - k) * 0.45 * o.f + 0.05 * (1 - k); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 5 * (1 - k) + 1; ctx.beginPath(); ctx.ellipse(o.x, o.y, r, r * 0.25, 0, 0, 7); ctx.stroke(); } ctx.globalAlpha = 1;
       for (const p of S.polvo) { ctx.globalAlpha = 0.28 * (1 - p.t / p.life); ctx.fillStyle = '#d9c9a8'; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); } ctx.globalAlpha = 1;
       S.parts.forEach(p => { ctx.globalAlpha = clamp(1 - p.t / p.life, 0, 1); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
@@ -705,7 +751,7 @@
       const Tm = { c1: mix(A.rc1, B.rc1, f), c2: mix(A.rc2, B.rc2, f), borde: mix(A.rb, B.rb, f), niebla: mix(A.rn, B.rn, f) };
       ctx.save();
       const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
-      ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob);
+      ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob + (S.bump || 0) * 12);
       if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
       fondoDib(ta, tb, f); nubesDib(); auroraDib(); rayoDib(); camino(Tm); charcos(); niebla(Tm);
       const cola = [];
