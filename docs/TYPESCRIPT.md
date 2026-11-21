@@ -17,8 +17,10 @@ TypeScript se usa como **revisor**: lee los `.js` + anotaciones JSDoc (`/** @typ
 ## Archivos ya migrados (estrictos: `strict: true`)
 - `engine/nivel1/perfiles.js` · `engine/ui/mundos-registro.js` · `engine/ui/selector-mundos.js`
 
-Resultado de la primera revisión: de **207 avisos** (código sin tipos) a **0**, tras describir los datos y corregir
-19 puntos reales (por ejemplo, usos de `document`/`localStorage` sin comprobar que existan).
+Resultado de la primera revisión: con la regla más estricta (`noImplicitAny` activado) había **207 avisos**, casi todos
+por parámetros sin tipo. En esta primera fase esa regla está **desactivada** a propósito (ver hoja de ruta, punto 2) y,
+describiendo los datos en `types/juego.d.ts`, quedaron **19 hallazgos reales** (por ejemplo, usos de `document` o
+`localStorage` sin comprobar que existan). Los 19 están corregidos y hoy `npm run typecheck` pasa limpio.
 
 ## Cómo sumar otro archivo (receta de 4 pasos)
 1. Agrégalo a `"include"` en `tsconfig.json`.
