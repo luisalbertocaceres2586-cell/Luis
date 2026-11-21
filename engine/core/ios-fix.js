@@ -140,7 +140,18 @@ function mostrarAviso(){
   el.setAttribute('role','status');
   el.innerHTML='<span>📲 Para jugar a <b>pantalla completa</b>: toca <b>Compartir</b> ⬆︎ y luego <b>“Añadir a pantalla de inicio”</b>.</span><button type="button" aria-label="Cerrar">✕</button>';
   document.body.appendChild(el);
-  const cerrar=()=>{el.classList.remove('on');try{localStorage.setItem(KEY,String(Date.now()));}catch(e){}setTimeout(()=>el.remove(),500);};
+  /* si el juego muestra su aviso de "versión nueva" arriba, este cartel se coloca justo debajo para que no se tapen */
+  const acomodar=()=>{
+    let top=Math.max(8,parseFloat(getComputedStyle(root).getPropertyValue('--sat'))||0);
+    const u=document.getElementById('njUpd');
+    if(u){
+      const cs=getComputedStyle(u),r=u.getBoundingClientRect();
+      if(cs.display!=='none'&&cs.visibility!=='hidden'&&parseFloat(cs.opacity)>0.05&&r.height>0&&r.bottom>0)top=Math.max(top,Math.round(r.bottom+6));
+    }
+    el.style.top=top+'px';
+  };
+  acomodar();const vigia=setInterval(acomodar,400);
+  const cerrar=()=>{clearInterval(vigia);el.classList.remove('on');try{localStorage.setItem(KEY,String(Date.now()));}catch(e){}setTimeout(()=>el.remove(),500);};
   el.querySelector('button').addEventListener('click',cerrar);
   requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('on')));
   setTimeout(cerrar,12000);
