@@ -320,6 +320,7 @@
           else { S.mundo = it.sigM; ponBanner(S.mundo, PREGS[Math.min(PREGS.length - 1, S.qpas)].T, 3); S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
         }
       }
+      { const tu = S.tuto || (S.tuto = {}); for (const it of S.items) if (it.k === 'obs' && !it.cont && it.d - S.dist < -1) { it.cont = true; tu[it.tipo] = (tu[it.tipo] || 0) + 1; } }
       // filas que pasaron sin que se recogiera nada
       for (const f of S.filas) {
         if (!f.pasada && f.d - S.dist < -1.8) {
@@ -340,6 +341,15 @@
       const x = W / 2 + off * LW * p - (S.px - 1) * LW * p * 0.0, y = yz(z), ht = hh * p, wd = ht * img.naturalWidth / img.naturalHeight;
       ctx.globalAlpha = (alpha == null ? 1 : alpha) * clamp((ZMAX - z) / 26, 0, 1); ctx.drawImage(img, x - wd / 2, y - ht, wd, ht); ctx.globalAlpha = 1;
     }
+    // ───────────────────────── música de fondo (sencilla, cambia con el mundo; M la silencia) ─────────────────────────
+    const mus = { t: 0, paso: 0 };
+    const NOTAS = [[220, 261.63, 293.66, 329.63, 392], [293.66, 329.63, 369.99, 440, 493.88], [196, 233.08, 261.63, 293.66, 349.23], [329.63, 392, 440, 493.88, 587.33], [261.63, 293.66, 329.63, 392, 440], [246.94, 293.66, 329.63, 370, 440]], PAT = [0, 2, 4, 2, 3, 2, 4, 1];
+    function musica(dt) {
+      if (mudo || !AC || S.fin || S.pausa) return; mus.t -= dt; if (mus.t < -1) mus.t = 0; if (mus.t > 0) return;
+      mus.t += 60 / (150 + S.mundo * 3) / 2; const sc = NOTAS[Math.min(NOTAS.length - 1, S.mundo)], i = mus.paso++ % 8;
+      if (S.espera && i % 2) return; // en la plaza de pregunta suena más tranquila
+      tono(sc[PAT[i]], 0.28, 'triangle', 0.03); if (i % 4 === 0) tono(sc[0] / 2, 0.5, 'sine', 0.05); if (i === 6) tono(sc[4] * 2, 0.2, 'sine', 0.018);
+    }
     // ───────────────────────── efectos y atmósfera ─────────────────────────
     const cacheBg = []; let vineta = null;
     const UI = 'assets/ui/hud/';
@@ -354,6 +364,7 @@
       else { p.x = R(0, W); p.y = inicial ? R(HOR, H) : H + 10; p.vx = R(-14, 14); p.vy = -R(40, 110); p.r = R(1.6, 3.2); }
     }
     function efectos(dt) {
+      musica(dt);
       S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5) S.lite = true;
       const ob = temaIdx(); S.temaF += clamp(ob - S.temaF, -dt * 0.45, dt * 0.45); if (S.flashB > 0) S.flashB -= dt;
       const n = S.lite ? 10 : 26; while (S.amb.length < n) { const p = {}; nuevaAmb(p, true); S.amb.push(p); } if (S.amb.length > n) S.amb.length = n;
@@ -576,6 +587,13 @@
       ctx.textAlign = 'left'; ctx.font = 'bold 22px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const t3 = 'Racha ' + S.racha + (nCl ? '  ×' + nCl : ''); ctx.strokeText(t3, 68, H - 42); ctx.fillStyle = '#fff'; ctx.fillText(t3, 68, H - 42);
       if (S.skate > 0) { const w = 150 * clamp(S.skate / 8, 0, 1); ctx.fillStyle = 'rgba(10,5,30,.72)'; rr(W - 196, H - 62, 176, 36, 18); ctx.fill(); ctx.fillStyle = (S.skate < 2 && Math.floor(S.t * 8) % 2) ? '#ff6a6a' : '#ff9ad5'; rr(W - 180, H - 53, Math.max(6, w), 18, 9); ctx.fill(); ctx.textAlign = 'left'; ctx.font = '26px serif'; ctx.fillStyle = '#fff'; ctx.fillText('🛹', W - 224, H - 42); }
       { let yy = H - 112; ctx.textAlign = 'left'; ctx.font = 'bold 24px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; [['🧲 ', S.iman, '#e0c8ff'], ['🛡 ', S.escudo, '#9ad7ff']].forEach(c => { if (c[1] > 0) { const tx = c[0] + Math.ceil(c[1]) + ' s'; ctx.strokeText(tx, 14, yy); ctx.fillStyle = c[2]; ctx.fillText(tx, 14, yy); yy -= 34; } }); }
+      // ayudas para aprender los controles (solo las primeras veces)
+      if (!S.pausa && !S.fin && S.cae <= 0 && !S.plaza && S.vuelo <= 0) {
+        const tu = S.tuto || {}; let ayuda = S.t < 6 ? (tactil() ? '←  Desliza para elegir carril  →' : '←  Usa las flechas para elegir carril  →') : null;
+        const ob = S.items.find(i => i.k === 'obs' && !i.roto && i.d - S.dist > 3 && i.d - S.dist < 17 && (tu[i.tipo] || 0) < 2);
+        if (ob && S.skate <= 0) ayuda = ob.tipo === 'bajo' ? (tactil() ? '⬆  Desliza hacia arriba: ¡salta!' : '⬆  ¡Salta con la flecha ↑!') : (tactil() ? '⬇  Desliza hacia abajo: ¡agáchate!' : '⬇  ¡Agáchate con la flecha ↓!');
+        if (ayuda) { ctx.globalAlpha = 0.75 + 0.25 * Math.sin(S.t * 6); ctx.textAlign = 'center'; ctx.font = 'bold 23px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.92)'; ctx.strokeText(ayuda, W / 2, 872); ctx.fillStyle = '#fff6c2'; ctx.fillText(ayuda, W / 2, 872); ctx.globalAlpha = 1; }
+      }
       // avisos
       ctx.textAlign = 'center'; S.toasts.forEach((t, i) => { const a = clamp(t.t / 0.35, 0, 1) * clamp((t.t0 - t.t) / 0.1 + 0.2, 0, 1); ctx.globalAlpha = a; ctx.font = 'bold 36px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const ty = 330 + i * 48 - (t.t0 - t.t) * 22; ctx.strokeText(t.txt, W / 2, ty); ctx.fillStyle = t.color; ctx.fillText(t.txt, W / 2, ty); ctx.globalAlpha = 1; });
       // tarjeta animada de etapa
