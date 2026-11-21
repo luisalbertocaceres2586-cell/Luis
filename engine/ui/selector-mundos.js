@@ -9,12 +9,13 @@
  *   SelectorMundos.cerrar();   SelectorMundos.estado(perfil);   SelectorMundos.siguiente(perfil);
  *
  * El estado de cada mundo (nuevo / en curso / completado / estrellas) se DERIVA del perfil: los niveles ya lo guardan. */
-(function (root, factory) {
+(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(root);
   else root.SelectorMundos = factory(root);
-})(typeof self !== 'undefined' ? self : this, function (root) {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function (root) {
   'use strict';
-  const doc = typeof document !== 'undefined' ? document : null;
+  /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
+  const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
   const CSS_HREF = 'engine/ui/selector-mundos.css?v=1';
 
@@ -299,7 +300,7 @@
   // ---------- precarga: las tarjetas aparecen ya completas (útil con internet lento) ----------
   let precargado = false, LOAD = null;
   function precargar(urls, max, alAvanzar) {
-    return new Promise(res => {
+    return new Promise(/** @param {(v?: void) => void} res */ res => {
       let n = 0; const total = urls.length; if (!total) return res();
       const fin = () => { clearTimeout(tm); res(); };
       const tm = setTimeout(res, max);
@@ -408,7 +409,7 @@
     ['keydown', 'keyup', 'keypress'].forEach(ev => rootEl.addEventListener(ev, e => e.stopPropagation()));
     doc.body.appendChild(rootEl);
 
-    R = { sonar: false, root: rootEl, track, tarjetas, perfil, opts, bg, ctx, timers: [], io: null, raf: 0, lanzando: false,
+    R = { sonar: false, root: rootEl, track, tarjetas, perfil, opts, bg, ctx, timers: /** @type {number[]} */ ([]), io: /** @type {IntersectionObserver | null} */ (null), raf: 0, lanzando: false, onKey: /** @type {((e: KeyboardEvent) => void) | null} */ (null),
       fondo(idx) { Array.prototype.forEach.call(bg.children, (b, k) => b.classList.toggle('on', k === idx)); } };
     const first = tarjetas.findIndex(t => t.m.id === sig); R.fondo(first >= 0 ? first : 0);
     root.requestAnimationFrame(() => { pr.querySelector('.mw-bar i').style.width = (jugables.length ? Math.round(hechos / jugables.length * 100) : 0) + '%'; });

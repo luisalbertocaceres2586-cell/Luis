@@ -2,19 +2,21 @@
  * Varios jugadores en el mismo computador, cada uno con su nombre, avatar, dispositivo y progreso.
  * Todo se guarda en localStorage (clave ninja_perfiles_v1). También se puede exportar/importar con un código
  * para pasar la partida a otro computador. Funciona en navegador y en Node (para las pruebas). */
-(function (root, factory) {
+(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Perfiles = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   const KEY = 'ninja_perfiles_v1';
+  /** @type {Storage | {getItem(k: string): string | null, setItem(k: string, v: string): void, removeItem(k: string): void} | null} */
   let store = (typeof localStorage !== 'undefined') ? localStorage : null;
 
   function usarAlmacen(s) { store = s; }
   function leer() {
+    if (!store) return { v: 1, activo: null, perfiles: {} };
     try { const d = JSON.parse(store.getItem(KEY) || 'null'); if (d && d.v === 1 && d.perfiles) return d; } catch (e) {}
     return { v: 1, activo: null, perfiles: {} };
   }
-  function escribir(d) { try { store.setItem(KEY, JSON.stringify(d)); return true; } catch (e) { return false; } }
+  function escribir(d) { if (!store) return false; try { store.setItem(KEY, JSON.stringify(d)); return true; } catch (e) { return false; } }
   function limpiarNombre(n) { return String(n == null ? '' : n).replace(/[<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14); }
   function idDe(nombre) { return limpiarNombre(nombre).toLowerCase().replace(/[^a-z0-9áéíóúñü]+/g, '-'); }
 
