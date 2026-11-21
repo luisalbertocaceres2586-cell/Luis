@@ -252,10 +252,39 @@
     if (t.dots) Array.prototype.forEach.call(t.dots.children, (d, k) => d.classList.toggle('on', k === t.fase));
   }
 
+  // ---------- precarga: las tarjetas aparecen ya completas (útil con internet lento) ----------
+  let precargado = false, LOAD = null;
+  function precargar(urls, max, alAvanzar) {
+    return new Promise(res => {
+      let n = 0; const total = urls.length; if (!total) return res();
+      const fin = () => { clearTimeout(tm); res(); };
+      const tm = setTimeout(res, max);
+      urls.forEach(u => { const i = new Image(); const ok = () => { n++; alAvanzar && alAvanzar(n / total); if (n >= total) fin(); }; i.onload = ok; i.onerror = ok; i.src = u; });
+    });
+  }
+  function urlsNecesarias(heroeId) {
+    const reg = (root.MundosRegistro && root.MundosRegistro.imagenes) ? root.MundosRegistro.imagenes() : [];
+    const h = HEROES[heroeId] || HEROES.sakura;
+    return reg.concat(h.idle, h.run, h.alfombra);
+  }
+
   // ---------- abrir / cerrar ----------
   function abrir(opts) {
     if (!doc) return; opts = opts || {};
     cerrar(true); asegurarCss();
+    if (!precargado && !opts._pre) {
+      quitarCarga();
+      const heroeP = (opts.perfil && opts.perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
+      const l = el('div', 'mw-root mw-ini', '<div class="mw-ini-c"><div class="mw-ini-s">✦</div><b>Preparando mundos…</b><div class="mw-bar"><i></i></div></div>');
+      doc.body.appendChild(l); LOAD = l;
+      const barra = l.querySelector('.mw-bar i');
+      precargar(urlsNecesarias(heroeP), 6000, f => { barra.style.width = Math.round(f * 100) + '%'; }).then(() => {
+        precargado = true; if (LOAD !== l) return;           // si ya se canceló, no se abre
+        quitarCarga(); abrir(Object.assign({}, opts, { _pre: true }));
+      });
+      return;
+    }
+    quitarCarga();
     const perfil = opts.perfil || null;
     const heroeId = (perfil && perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
     const items = estado(perfil), sig = siguiente(perfil);
@@ -268,9 +297,21 @@
 
     const jugables = items.filter(x => !x.mundo.bloqueado && !x.mundo.fueraDeProgreso), hechos = jugables.filter(x => x.prog.estado === 'completado').length;
     const top = el('header', 'mw-top');
-    const tit = el('div', 'mw-title', '<small>' + (perfil ? '👤 ' : '') + '<span class="mw-nom"></span></small><h1>' + (jugables.length && hechos === jugables.length ? '¡ERES UN MAESTRO NINJA!' : 'ELIGE TU MUNDO') + '</h1>');
+    const tit = el('div', 'mw-title', '<small>' + (perfil ? '<span class="mw-avatar"><img alt="" draggable="false"></span>' : '') + '<span class="mw-nom"></span></small><h1>' + (jugables.length && hechos === jugables.length ? '¡ERES UN MAESTRO NINJA!' : 'ELIGE TU MUNDO') + '</h1>');
+    const av = tit.querySelector('.mw-avatar img'); if (av) av.src = (HEROES[heroeId] || HEROES.sakura).idle[0];
     tit.querySelector('.mw-nom').textContent = perfil ? String(perfil.nombre || '').toUpperCase() : 'MUNDOS';
     top.appendChild(tit);
+    const maestro = jugables.length > 0 && hechos === jugables.length;
+    if (maestro) {
+      rootEl.classList.add('mw-maestro');
+      let ya = false; try { ya = root.sessionStorage.getItem('mw_maestro_' + pid) === '1'; root.sessionStorage.setItem('mw_maestro_' + pid, '1'); } catch (e) {}
+      if (!ya && !reducido()) {
+        const cf = el('div', 'mw-confeti'), cols = ['#ffe27a', '#ff9d4a', '#ff7aa8', '#7ad7ff', '#9dff9d', '#c9a3ff'], rr = rng(7);
+        for (let k = 0; k < 46; k++) { const c = el('i'); c.style.left = (rr() * 100) + '%'; c.style.background = cols[k % cols.length]; c.style.setProperty('--d', (2.8 + rr() * 2.6).toFixed(1) + 's'); c.style.setProperty('--w', (rr() * 1.6).toFixed(2) + 's'); c.style.setProperty('--r', Math.round(rr() * 720 - 360) + 'deg'); cf.appendChild(c); }
+        rootEl.appendChild(cf); setTimeout(() => cf.remove(), 7000);
+        setTimeout(() => { tono(523, .16, 'triangle', .05); tono(659, .16, 'triangle', .05, null, .15); tono(784, .16, 'triangle', .05, null, .3); tono(1047, .5, 'triangle', .06, null, .45); }, 500);
+      }
+    }
     const pr = el('div', 'mw-prog', '🏯 <span><b>' + hechos + '</b> de ' + jugables.length + ' mundos</span><div class="mw-bar"><i></i></div>');
     top.appendChild(pr);
     const mu = el('button', 'mw-mute', silenciado() ? '🔇' : '🔊'); mu.type = 'button'; mu.title = 'Sonido de los menús'; mu.setAttribute('aria-label', 'Activar o silenciar el sonido de los menús');
@@ -293,6 +334,15 @@
       b.onclick = e => { e.stopPropagation(); track.scrollBy({ left: dir * Math.max(200, tarjetas[0].card.offsetWidth + 20), behavior: reducido() ? 'auto' : 'smooth' }); }; rootEl.appendChild(b); return b; };
     const bIzq = nav(-1), bDer = nav(1);
     const actualizarNav = () => { const max = track.scrollWidth - track.clientWidth; bIzq.classList.toggle('on', max > 6 && track.scrollLeft > 6); bDer.classList.toggle('on', max > 6 && track.scrollLeft < max - 6); };
+    let arr = null, arrastro = false;
+    track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; arr = { x: e.clientX, sl: track.scrollLeft, mov: false }; });
+    root.addEventListener('pointermove', e => {
+      if (!arr) return; const dx = e.clientX - arr.x;
+      if (!arr.mov && Math.abs(dx) > 7) { arr.mov = true; track.classList.add('mw-arr'); }
+      if (arr.mov) track.scrollLeft = arr.sl - dx;
+    });
+    root.addEventListener('pointerup', () => { if (arr && arr.mov) { arrastro = true; setTimeout(() => { arrastro = false; }, 60); } arr = null; track.classList.remove('mw-arr'); });
+    track.addEventListener('click', e => { if (arrastro) { e.stopPropagation(); e.preventDefault(); } }, true);
     track.addEventListener('scroll', actualizarNav, { passive: true }); root.addEventListener('resize', actualizarNav); setTimeout(actualizarNav, 400);
     rootEl.appendChild(el('footer', 'mw-pie', 'Elige el mundo que más te guste · puedes jugarlos en el orden que quieras · <kbd>←</kbd> <kbd>→</kbd> <kbd>Enter</kbd>'));
     const iris = el('div', 'mw-iris', '<small>PREPÁRATE</small><h2></h2><div class="mw-carga"><i></i></div>'); rootEl.appendChild(iris);
@@ -392,8 +442,10 @@
     }, espera);
   }
 
+  function quitarCarga() { if (LOAD) { LOAD.remove(); LOAD = null; } }
+
   function cerrar(silencioso) {
-    if (!R) return; const r = R; R = null;
+    if (!R) { quitarCarga(); return; } const r = R; R = null;
     root.cancelAnimationFrame(r.raf); if (r.onKey) root.removeEventListener('keydown', r.onKey, true); r.timers.forEach(i => root.clearInterval(i)); if (r.io) r.io.disconnect();
     r.tarjetas.forEach(t => t.anims.forEach(a => { try { a.cancel(); } catch (e) {} }));
     r.root.remove();
