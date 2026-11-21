@@ -209,13 +209,19 @@
     });
   }
   function jugarNuevo(p) { abrirMundos(p); }
+  let pasarClasico = false;   // deja pasar el clic de JUGAR cuando el selector lanza el torneo clásico
   function continuar(p) {
-    if ((p.progreso.nivel || 0) === 0) return abrirMundos(p);
+    if ((p.progreso.nivel || 0) === 0) {          // torneo clásico desde cero (con el jugador ya identificado)
+      aplicar(p); listo = true; cerrar();
+      const b = document.getElementById('btnStart'); if (!b) return abrirMundos(p);
+      pasarClasico = true; try { b.click(); } finally { pasarClasico = false; }
+      return;
+    }
     aplicar(p); listo = true; cerrar();
     try {
       GS.phase = p.progreso.fase || 'easy'; GS.level = p.progreso.nivel || 0; GS.totalScore = p.progreso.puntos || 0;
       startLevel(GS.level, GS.phase);
-    } catch (e) { const b = document.getElementById('btnStart'); if (b) b.click(); }
+    } catch (e) { const b = document.getElementById('btnStart'); if (b) { pasarClasico = true; try { b.click(); } finally { pasarClasico = false; } } }
   }
 
   function vistaLista(card) {
@@ -319,7 +325,10 @@
     document.head.appendChild(el('style', { text: css }));
     const b = document.getElementById('btnStart'); if (!b) return;
     // 1) JUGAR exige elegir jugador primero
-    b.addEventListener('click', e => { if (!listo) { e.stopImmediatePropagation(); e.preventDefault(); abrir(Perfiles.listar().length ? 'lista' : 'crear'); } }, true);
+    b.addEventListener('click', e => {
+      if (!listo) { e.stopImmediatePropagation(); e.preventDefault(); abrir(Perfiles.listar().length ? 'lista' : 'crear'); }
+      else if (!pasarClasico && Perfiles.activo()) { e.stopImmediatePropagation(); e.preventDefault(); abrirMundos(Perfiles.activo()); }   // JUGAR = elegir mundo
+    }, true);
     // 2) tras el arranque normal, el marcador usa el nombre real del jugador
     b.addEventListener('click', () => { const a = Perfiles.activo(); if (a && listo) { try { GS.name = a.nombre.toUpperCase(); } catch (e) {} } });
     const old = document.getElementById('btnCont'); if (old) old.style.setProperty('display', 'none', 'important');
