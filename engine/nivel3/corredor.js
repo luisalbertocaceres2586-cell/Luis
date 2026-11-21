@@ -99,7 +99,9 @@
   // preguntas del nivel: 6 por tabla, de fácil a difícil, con 3 formatos (sin tiempo límite)
   // las multiplicaciones que al niño le cuestan salen con más probabilidad (pesos 1 + 3·fallos del nivel 3 + 1.5·fallos del nivel 2),
   // siempre ordenadas de fácil a difícil dentro de cada tabla; si no hay historial, es al azar como antes
+  // largo del nivel: nivel3.html?n=4 (de 3 a 9 preguntas por tabla; por defecto 6)
   function construir(m3, m2) {
+    const np = +(new URLSearchParams(location.search).get('n')); if (np >= 3 && np <= 9) CFG.PREG_TABLA = np;
     const out = [], tipos = ['mult', 'mult', 'sigue', 'mult', 'multiplo', 'sigue'];
     TABLAS.forEach(T => {
       const pool = [2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => ({ n, w: 1 + 3 * ((m3 && m3[T + 'x' + n]) || 0) + 1.5 * ((m2 && m2[T + 'x' + n]) || 0) })), ns = [];
@@ -123,6 +125,10 @@
     precargar();
     let m3 = Object.assign({}, (o.perfil && o.perfil.nivel3 && o.perfil.nivel3.fallos) || {}); const m2 = (o.perfil && o.perfil.nivel2 && o.perfil.nivel2.fallos) || {};
     let PREGS = construir(m3, m2);
+    // voz opcional: nivel3.html?voz=1 (o tecla V). Lee la pregunta al llegar a la plaza.
+    let voz = /[?&]voz=1/.test(location.search || '');
+    function textoVoz(r) { const T = r.T, n = r.n; return r.tipo === 'sigue' ? 'Qué número sigue. ' + [T * (n - 3), T * (n - 2), T * (n - 1)].join(', ') : r.tipo === 'multiplo' ? 'Cuál es múltiplo de ' + T : 'Cuánto es ' + (r.q0.inv ? n + ' por ' + T : T + ' por ' + n); }
+    function hablar(r) { try { if (!voz || !window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(textoVoz(r)); u.lang = 'es-CO'; u.rate = 0.9; speechSynthesis.speak(u); } catch (e) { } }
     const marco = document.getElementById('marco'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
     const heroe = o.heroe === 'kage' ? 'kage' : 'sakura';
     const HM = heroe === 'kage' ? window.ANTAREZ_MANIFEST : window.SAKURA_EVE_MANIFEST;
@@ -171,7 +177,7 @@
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], toasts: [],
         racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [], monedas: 0, mundo: 0, qpas: 0, zp: 0, cortes: [{ d: 0, m: 0 }],
-        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0,
+        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0, mAc: 0, mFa: 0, tutor: false, malSeg: 0,
         sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, cieloM: false, ultLane: -1, decoD: 8 }, skate: 0, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
@@ -240,6 +246,8 @@
     }
     function recoge(it, x, y) {
       const row = it.row; it.tomado = true; row.res = true; if (!row.repaso) S.qpas++;
+      if (!row.repaso) { if (it.ok) S.mAc++; else S.mFa++; }
+      S.malSeg = it.ok ? 0 : S.malSeg + 1;
       if (it.ok) {
         { const k = row.T + 'x' + row.n, h = (S.hechos = S.hechos || {}); (h[k] = h[k] || { a: 0, e: 0 }).a++; }
         S.aciertos++; S.racha++; S.mejorRacha = Math.max(S.mejorRacha, S.racha); const gan = row.repaso ? 3 : 5 + Math.min(S.racha, 5);
@@ -283,8 +291,9 @@
       }
       // la pista se frena sola al llegar a la plaza de pregunta y espera (sin reloj) hasta que el niño decida
       const fila = S.filas.find(f => !f.res && !f.pasada), dz = fila ? fila.d - S.dist : 999;
-      if (fila !== S.filaAct) { S.filaAct = fila; S.listo = false; }
+      if (fila !== S.filaAct) { S.filaAct = fila; S.listo = false; if (fila && S.malSeg >= 2 && !fila.hint) { fila.hint = true; toast('💡 Mira la puerta verde', '#bff5d0', 2.2); } }
       S.plaza = !!fila && dz < CFG.RAMPA; S.espera = S.plaza && dz <= CFG.ESPERA + 0.3 && !S.listo;
+      if (S.plaza && fila && !fila.habl) { fila.habl = true; hablar(fila); }
       S.zp += ((S.plaza ? 1 : 0) - S.zp) * Math.min(1, dt * 3);
       const base = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.mundo + Math.max(0, S.racha - 4) * 0.02); let vObj = base;
       if (S.plaza) { const k = clamp((dz - CFG.ESPERA) / (CFG.RAMPA - CFG.ESPERA), 0, 1); vObj = CFG.VPLAZA + (base - CFG.VPLAZA) * k; if (dz <= CFG.ESPERA + 0.3) vObj = S.listo ? CFG.VPLAZA + 1.4 : 0; }
@@ -306,7 +315,7 @@
         const z = it.d - S.dist;
         if (it.k === 'orb' && !it.tomado && !it.row.res && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) recoge(it, W / 2 + (it.lane - 1) * LW, yz(0) - 120);
         else if (it.k === 'coin' && !it.tomada && jugando && Math.abs(z) < 1.1 && Math.abs(S.px - it.lane) < (S.iman > 0 ? 1.7 : 0.6) && (S.iman > 0 || Math.abs(S.jh - it.h) < 85)) {
-          it.tomada = true; S.monedas++; S.puntos++; sfx.moneda(S.monedas); chispas(W / 2 + (it.lane - 1) * LW, PY - 60 - it.h, '#ffd35a', 5);
+          it.tomada = true; { const g = S.racha >= 3 ? 2 : 1; S.monedas += g; S.puntos += g; } sfx.moneda(S.monedas); chispas(W / 2 + (it.lane - 1) * LW, PY - 60 - it.h, '#ffd35a', 5);
         }
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
           const esquiva = it.tipo === 'bajo' ? S.jh > 70 : S.slide > 0;
@@ -321,8 +330,11 @@
         } else if (it.k === 'portal' && !it.pasado && z < 0) {
           it.pasado = true;
           if (it.arco) { sfx.plaza(); chispas(W / 2, 330, '#9ad7ff', 14); }
-          else if (it.final) { terminar(); }
-          else { S.mundo = it.sigM; ponBanner(S.mundo, PREGS[Math.min(PREGS.length - 1, S.qpas)].T, 3); S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
+          else {
+            const est = S.mFa === 0 ? 3 : S.mFa === 1 ? 2 : 1, bono = 10 + est * 5; S.monedas += bono; S.puntos += bono * 2; S.mAc = 0; S.mFa = 0;
+            toast('🎁 ' + '⭐'.repeat(est) + ' +' + bono + ' 🪙', '#ffe27a', 2.6); chispas(W / 2, 420, '#ffe27a', 30);
+            if (it.final) { terminar(); return; }
+            S.mundo = it.sigM; ponBanner(S.mundo, PREGS[Math.min(PREGS.length - 1, S.qpas)].T, 3); S.puntos += 50; S.flashB = 0.5; sfx.portal(); chispas(W / 2, 330, '#ffe27a', 30); anillo(W / 2, 420, '#fff3b0', 1.6); }
         }
       }
       { const tu = S.tuto || (S.tuto = {}); for (const it of S.items) if (it.k === 'obs' && !it.cont && it.d - S.dist < -1) { it.cont = true; tu[it.tipo] = (tu[it.tipo] || 0) + 1; } }
@@ -574,7 +586,7 @@
       if (listo(pi)) { ctx.save(); ctx.beginPath(); ctx.arc(53, 51, 34, 0, 7); ctx.clip(); ctx.drawImage(pi, 17, 15, 72, 72); ctx.restore(); } if (listo(mi)) ctx.drawImage(mi, 6, 4, 94, 94);
       const hi = IMG(ART.corazon); for (let i = 0; i < CFG.VIDAS; i++) { ctx.globalAlpha = i < S.vidas ? 1 : 0.22; if (listo(hi)) ctx.drawImage(hi, 0, 0, 200, 175, 108 + i * 44, 14, 40, 35); else { ctx.fillStyle = '#ff5a7a'; ctx.font = '34px serif'; ctx.fillText('♥', 108 + i * 44, 44); } } ctx.globalAlpha = 1;
       const mo = IMG(ART.moneda); if (listo(mo)) ctx.drawImage(mo, (Math.floor(S.t * 8) % 6) * 160, 0, 160, 160, 108, 56, 30, 30);
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; ctx.strokeText(S.monedas, 144, 72); ctx.fillStyle = '#ffe27a'; ctx.fillText(S.monedas, 144, 72);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; { const mt = S.monedas + (S.racha >= 3 ? '  ×2' : ''); ctx.strokeText(mt, 144, 72); ctx.fillStyle = S.racha >= 3 ? '#fff3a0' : '#ffe27a'; ctx.fillText(mt, 144, 72); }
       // insignia con el número de la tabla
       const ins = IMG(ART.insignia); if (listo(ins)) ctx.drawImage(ins, 300, 6, 90, 90);
       ctx.textAlign = 'center'; ctx.font = 'bold 42px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.strokeText(e.T, 343, 48); ctx.fillStyle = '#fff'; ctx.fillText(e.T, 343, 48);
@@ -647,7 +659,7 @@
       S = nuevo(); S.cazaBase = 0; PREGS = construir(m3, m2);
       pantalla(retrato('normal') + '<h1>CARRERA DE LOS FAROLILLOS</h1>' + BARRA + '<p>Corre por <b>6 mundos</b>, junta <b>monedas</b> 🪙 y, en cada <b>plaza</b>, elige con calma la respuesta de las tablas del <b>7, 8 y 9</b>.</p>' +
         '<div class="reglas"><span>🪙 Junta monedas saltando y deslizando</span><span>🤔 En la plaza no hay prisa</span><span>💛 Si fallas, te damos una pista</span><span>🛹 Cada 3 aciertos seguidos: ¡premio!</span><span>☁️ Cajas ? y tabla voladora</span></div>' +
-        '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido.') + '</p>' +
+        '<p class="ctl">' + (tactil() ? 'Desliza ← → para cambiar de carril, ↑ para saltar (barriles), ↓ para deslizarte (arcos). En la plaza, toca para seguir.' : 'Flechas ← → cambian de carril · ↑ salta los barriles · ↓ te desliza bajo los arcos · Espacio sigue en la plaza · P pausa · M sonido · V voz.') + '</p>' +
         '<button id="go" type="button">▶ JUGAR</button>');
       document.getElementById('go').onclick = () => { intentarPantallaCompleta(); try { ac() && ac().resume && ac().resume(); } catch (e) {} pantalla(''); S.corriendo = true; ponBanner(0, PREGS[0].T, 3); vigilarGiro(); };
     }
@@ -690,7 +702,7 @@
       const k = e.key; if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].indexOf(k) >= 0) e.preventDefault();
       if (k === 'ArrowLeft' || k === 'a' || k === 'A') accion('izq'); else if (k === 'ArrowRight' || k === 'd' || k === 'D') accion('der');
       else if (k === 'ArrowUp' || k === 'w' || k === 'W' || k === ' ') accion('salta'); else if (k === 'ArrowDown' || k === 's' || k === 'S') accion('baja');
-      else if (k === 'Enter') accion('listo'); else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') alternarSonido();
+      else if (k === 'Enter') accion('listo'); else if (k === 'v' || k === 'V') { voz = !voz; toast(voz ? '🔊 Voz activada' : '🔇 Voz apagada', '#ffffff', 1.3); if (voz && S.filaAct && S.plaza) hablar(S.filaAct); } else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') alternarSonido();
     });
     let t0 = null;
     marco.addEventListener('touchstart', e => { if (e.target.closest('button')) return; const t = e.changedTouches[0]; t0 = { x: t.clientX, y: t.clientY, hecho: false, ts: Date.now() }; e.preventDefault(); }, { passive: false });
