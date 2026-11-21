@@ -1,0 +1,9 @@
+/* Transición de salida del menú 2026: portal violeta que se expande mientras cambia la pantalla. Es solo visual (pointer-events:none) y no retrasa el juego. */
+#t26{position:fixed;inset:0;z-index:100002;pointer-events:none;overflow:hidden;animation:t26bg .95s ease-out forwards;background:radial-gradient(circle at 50% 50%,rgba(157,85,233,.55),rgba(8,13,44,.0) 60%)}
+#t26 img{position:absolute;left:50%;top:50%;width:min(120vmin,900px);max-width:none;translate:-50% -50%;mix-blend-mode:screen;animation:t26portal .95s cubic-bezier(.3,.7,.2,1) forwards}
+#t26 img+img{width:min(70vmin,520px);animation:t26flash .95s ease-out forwards}
+@keyframes t26bg{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+@keyframes t26portal{0%{opacity:0;scale:.15;rotate:-40deg}35%{opacity:1;scale:1}100%{opacity:0;scale:3.2;rotate:60deg}}
+@keyframes t26flash{0%{opacity:0;scale:.2}40%{opacity:1}100%{opacity:0;scale:1.8}}
+@media(prefers-reduced-motion:reduce){#t26{display:none}}
+html.fx-low #t26{display:none}
