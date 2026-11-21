@@ -18,6 +18,8 @@
   const R = (a, b) => a + Math.random() * (b - a), RI = (a, b) => Math.floor(R(a, b + 1));
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const mez = a => { for (let i = a.length - 1; i > 0; i--) { const j = RI(0, i); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+  // geometría del sprite torii_lanterns_a.png (371×328): centro de la escalera, corte suelo/alto, borde frontal y punto de apoyo de cada peldaño (de delante hacia atrás)
+  const PORT = { w: 371, h: 328, cx: 224, corte: 272, medio: 54, frentes: [323, 315, 303, 289, 276], apoyos: [319.5, 312, 299.5, 286, 274], tope: 270.5 };
   const pz = z => 1 / (1 + z / Z0);
   const yz = z => HOR + (PY - HOR) * pz(z);
   const tactil = () => { try { return matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window; } catch (e) { return false; } };
@@ -330,7 +332,7 @@
       const base = Math.min(CFG.VEL_MAX, CFG.VEL0 + CFG.VEL_SUBE * S.mundo + Math.max(0, S.racha - 4) * 0.02); let vObj = base;
       if (S.plaza) { const k = clamp((dz - CFG.ESPERA) / (CFG.RAMPA - CFG.ESPERA), 0, 1); vObj = CFG.VPLAZA + (base - CFG.VPLAZA) * k; if (dz <= CFG.ESPERA + 0.3) vObj = S.listo ? CFG.VPLAZA + 1.4 : 0; }
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(0, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
-      else S.v += clamp(vObj - S.v, -16 * dt, 7 * dt);
+      else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj *= 1 - 0.4 * es.lento; } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
@@ -416,12 +418,35 @@
       for (let i = 0; i < 6 + Math.round(8 * f); i++) { const lado = i % 2 ? 1 : -1; S.polvo.push({ x: hx + lado * R(10, 30), y: PY - 2 - (S.escal || 0), vx: lado * R(70, 230) * (0.5 + f), vy: R(-110, -30), life: R(0.35, 0.65), t: 0, r: R(7, 13) }); }
       (S.ondas = S.ondas || []).push({ x: hx, y: PY + 2 - (S.escal || 0), t: 0, f }); if (vi > 500) sfx.aterriza(f);
     }
-    // el suelo sube unos escalones al cruzar un portal o una plaza: la Sakura los pisa uno a uno
+    // ESCALERA DEL PORTAL. Con la geometría real del sprite (PORT) se calcula en qué peldaño está la Sakura según la distancia al portal:
+    //  · sus pies se apoyan en cada peldaño (no lo atraviesan), pegando un saltito con estiramiento y polvito al subir al siguiente,
+    //  · el cuerpo se achica un poco al subir (se aleja) y recupera su tamaño arriba,
+    //  · la carrera se frena un poco en la escalera para que se vea que la sube, y se recupera sola al salir.
+    function escaleraInfo() {
+      const im = IMG(ART.portal); if (!listo(im)) return null;
+      let z = null; for (const it of S.items) if (it.k === 'portal') { const d = it.d - S.dist; if (d < 3.6 && d > -3.4 && (z === null || Math.abs(d) < Math.abs(z))) z = d; }
+      if (z === null) return null;
+      const K = RW * 2.05 * pz(z) / PORT.w, yb = yz(z), ys = PORT.h - (yb - PY) / K;      // ys: dónde cae el pie dentro del sprite (coordenadas del sprite)
+      const dx = Math.abs((S.px - 1) * LW), c = clamp(1 - (dx - PORT.medio * K * 0.85) / (0.45 * LW), 0, 1);   // 1 = en el carril de la escalera, 0 = en un carril lateral
+      let idx = 0; for (let j = 0; j < PORT.frentes.length; j++) if (ys <= PORT.frentes[j]) idx = j + 1;
+      if (ys < PORT.tope) idx = PORT.frentes.length + 1;                                   // ya pasó el último peldaño: suelo llano
+      const alt = idx >= 1 && idx <= PORT.frentes.length ? PY - (yb - (PORT.h - PORT.apoyos[idx - 1]) * K) : 0;
+      const ramp = z > 1.2 ? clamp((3.4 - z) / 2.2, 0, 1) : z > -2.6 ? 1 : clamp((z + 3.2) / 0.6, 0, 1);
+      const wIn = z > 2.6 ? 0 : z > 1.2 ? (2.6 - z) / 1.4 : z > -2.6 ? 1 : clamp((z + 3.1) / 0.5, 0, 1), off = (PORT.cx - PORT.w / 2) * K * c * wIn;   // la escalera del sprite queda a la derecha del centro del arco
+      return { z, idx, c, off, alt: alt * c, prog: clamp((PORT.frentes[0] - ys) / (PORT.frentes[0] - PORT.tope), 0, 1), lento: c * ramp };
+    }
     function escalones(dt) {
-      let tgt = 0; for (const it of S.items) if (it.k === 'portal') { const z = it.d - S.dist; if (z < 3 && z > -2.8) tgt = z > 2.4 ? 0 : z > 1.8 ? 9 : z > 1.2 ? 18 : z > -1.0 ? 26 : z > -1.7 ? 18 : z > -2.3 ? 9 : 0; }
-      const prev = S.escal || 0, antes = S._tgtE || 0; S.escal = prev + (tgt - prev) * Math.min(1, dt * 22);
-      if (Math.abs(tgt - antes) > 0.1 && S.jh <= 1 && S.cae <= 0) { const hx = W / 2 + (S.px - 1) * LW; for (let i = 0; i < 3; i++) S.polvo.push({ x: hx + R(-18, 18), y: PY - 2 - S.escal, vx: R(-50, 50), vy: R(-50, -15), life: R(0.2, 0.35), t: 0, r: R(4, 7) }); }
-      S._tgtE = tgt;
+      const e = (S.vuelo > 0 || S.skate > 0) ? null : escaleraInfo(), tgt = e ? e.alt : 0, prev = S.escal || 0;
+      S.escal = prev + (tgt - prev) * Math.min(1, dt * 26); S.escX = (S.escX || 0) + ((e ? e.off : 0) - (S.escX || 0)) * Math.min(1, dt * 12);
+      const idx = e && e.c > 0.5 ? e.idx : 0;
+      if (idx >= 1 && idx <= PORT.frentes.length && idx > (S._idxE || 0) && S.jh <= 1 && S.cae <= 0) {
+        S.hop = { t0: S.t }; const hx = W / 2 + (S.px - 1) * LW;
+        for (let i = 0; i < 4; i++) S.polvo.push({ x: hx + R(-22, 22), y: PY - 2 - S.escal, vx: R(-60, 60), vy: R(-55, -18), life: R(0.22, 0.4), t: 0, r: R(4, 8) });
+      }
+      S._idxE = idx;
+      S.escHop = S.hop && S.t - S.hop.t0 < 0.2 ? 9 * Math.sin(Math.PI * (S.t - S.hop.t0) / 0.2) : 0;
+      const kT = e && e.idx >= 1 && e.idx <= PORT.frentes.length ? 1 - 0.07 * e.prog * e.c : 1;
+      S.escK = (S.escK || 1) + (kT - (S.escK || 1)) * Math.min(1, dt * 8);
     }
     // ───────────────────────── efectos y atmósfera ─────────────────────────
     const cacheBg = []; let vineta = null;
@@ -619,14 +644,20 @@
         if (z < 40 && z > 2) { ctx.fillStyle = '#7fe3ff'; ctx.font = 'bold ' + Math.round(40 * p) + 'px ' + FUENTE; ctx.textAlign = 'center'; ctx.fillText('⬇', x, y - top * p); }
       }
     }
-    function portalDib(it, z) {
-      const p = pz(z), im = IMG(ART.portal), y = yz(z); if (!listo(im) || z < -3) return;
+    // El portal se dibuja en dos partes: 'alto' (arco, pilares, rótulo) y 'suelo' (escalera, rocas, plantas). Así la Sakura pisa los peldaños (suelo va ANTES que ella)
+    // y pasa por debajo del arco (alto va DESPUÉS). La escalera no está centrada en el sprite: es la heroína quien se acomoda sobre ella (ver escaleraInfo).
+    function portalDib(it, z, parte) {
+      const p = pz(z), im = IMG(ART.portal), y = yz(z); if (!listo(im) || z < -3) return; parte = parte || 'todo';
       const wd = RW * 2.05 * p, ht = wd * im.naturalHeight / im.naturalWidth, x = W / 2, a = clamp((ZMAX - z) / 26, 0, 1), col = it.final ? '255,226,120' : '170,230,255';
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; const gs = ctx.createRadialGradient(x, y, 0, x, y, wd * 0.6); gs.addColorStop(0, 'rgba(' + col + ',' + (0.5 * a) + ')'); gs.addColorStop(1, 'rgba(' + col + ',0)');
       ctx.save(); ctx.translate(0, 0); ctx.scale(1, 0.28); ctx.translate(0, y / 0.28 - y); ctx.fillStyle = gs; ctx.beginPath(); ctx.arc(x, y, wd * 0.6, 0, 7); ctx.fill(); ctx.restore();
       const pul = 0.75 + 0.25 * Math.sin(S.t * 3), gb = ctx.createLinearGradient(0, y - ht, 0, 0); gb.addColorStop(0, 'rgba(' + col + ',' + (0.4 * a * pul) + ')'); gb.addColorStop(1, 'rgba(' + col + ',0)');
       ctx.fillStyle = gb; ctx.fillRect(x - wd * 0.28, 0, wd * 0.56, y - ht + 4); ctx.restore();
-      ctx.globalAlpha = a; ctx.drawImage(im, x - wd / 2, y - ht, wd, ht);
+      ctx.globalAlpha = a;
+      { const nw = im.naturalWidth, nh = im.naturalHeight, sc = wd / nw, corte = Math.round(nh * PORT.corte / PORT.h), dx = 0;
+        if (parte !== 'suelo') ctx.drawImage(im, 0, 0, nw, corte, x - wd / 2, y - ht, wd, corte * sc);
+        if (parte !== 'alto') ctx.drawImage(im, 0, corte, nw, nh - corte, x - wd / 2 + dx, y - ht + corte * sc, wd, (nh - corte) * sc); }
+      if (parte === 'suelo') { ctx.globalAlpha = 1; return; }
       const bw = wd * 0.8, bh = 46 * p * 1.6, by = y - ht - bh * 0.55; ctx.fillStyle = 'rgba(20,10,40,.88)'; rr(x - bw / 2, by, bw, bh, 12 * p); ctx.fill(); ctx.lineWidth = 3 * p; ctx.strokeStyle = '#ffe27a'; ctx.stroke();
       ctx.fillStyle = '#ffe27a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(34 * p) + 'px ' + FUENTE; ctx.fillText(it.txt, x, by + bh / 2); ctx.globalAlpha = 1;
     }
@@ -733,7 +764,11 @@
       ctx.restore(); ctx.globalAlpha = 1;
     }
     function dibujaHeroes() {
+<<<<<<< HEAD
       const hx = W / 2 + (S.px - 1) * LW, hy = PY - S.jh - (S.escal || 0), est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : (S.espera && HB && S.skate <= 0 && S.jh <= 1) ? 'espera' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
+=======
+const hx = W / 2 + (S.px - 1) * LW + (S.escX || 0), hy = PY - S.jh - (S.escal || 0) - (S.escHop || 0), est = (S.celeb != null && HB) ? 'win' : S.hurt > 0 ? 'hurt' : S.vuelo > 0 ? 'vuelo' : (S.alegre > 0 && HB && S.jh <= 1) ? 'win' : S.jh > 1 ? 'jump' : S.slide > 0 ? 'slide' : 'run', flip = S.tl < S.px - 0.15, parpadeo = S.inv > 0 && S.celeb == null && Math.floor(S.t * 14) % 2 === 0;
+>>>>>>> 81756e2 (Nivel 3: la Sakura sube la escalera del portal (pisa cada peldano, salto corto, cuerpo que se achica al subir, frenado suave, se acomoda sobre la escalera) y el suelo del portal se dibuja antes que ella)
       S._fx = null; const nClones = Math.min(4, Math.floor(S.racha / 2)); if (S.racha >= 4) brillo(hx, hy - 100, 150, '255,200,90', 0.22 + 0.06 * Math.sin(S.t * 6));
       for (let i = nClones; i >= 1; i--) {
         const h = S.hist.find(e => e.t >= S.t - 0.16 * i - 0.05) || S.hist[0], pxc = h ? h.px : S.px, lado = i % 2 ? -1 : 1;
@@ -749,9 +784,10 @@
         if (S.jh > 1 || S.vuelo > 0) { const st = S.vuelo > 0 ? 0 : clamp(Math.abs(S.jv) / 1200, 0, 1); sy = 1 + 0.16 * st; sx = 1 - 0.1 * st; if (S.sj != null && S.t - S.sj < 0.18) { const k = (S.t - S.sj) / 0.18; sy += 0.12 * (1 - k); sx -= 0.08 * (1 - k); } }
         else if (S.slide <= 0) { const n = Math.max(2, fb('run').length || 8), b = Math.abs(Math.sin(S.tAnim * 10 / (n / 2) * Math.PI)); oy = -3 * b; sy = 1 + 0.018 * b; sx = 1 - 0.01 * b; }
         if (S.sq && S.t - S.sq.t0 < 0.3) { const k = (S.t - S.sq.t0) / 0.3, sp = Math.exp(-4.2 * k) * Math.cos(12 * k) * S.sq.f; sy *= 1 - 0.28 * sp; sx *= 1 + 0.22 * sp; }
+        if (S.hop && S.t - S.hop.t0 < 0.2 && S.jh <= 1) { const q = Math.sin(Math.PI * (S.t - S.hop.t0) / 0.2); sy *= 1 + 0.1 * q; sx *= 1 - 0.06 * q; }
         S._fx = { sx, sy, oy };
       }
-      if (!parpadeo) pintaHeroe(hx, hy, kHeroe, est, flip, 1);
+      if (!parpadeo) pintaHeroe(hx, hy, kHeroe * (S.escK || 1), est, flip, 1);
       S._fx = null;
       if (S.hurt > 0) { const ie = IMG(ART.fx_estr); if (listo(ie)) { const ww = 112, hh2 = ww * ie.naturalHeight / ie.naturalWidth; ctx.save(); ctx.globalAlpha = clamp(S.hurt / 0.4, 0, 1); ctx.translate(hx, hy - 212); ctx.rotate(S.t * 5); ctx.drawImage(ie, -ww / 2, -hh2 / 2, ww, hh2); ctx.restore(); } }
       if (S.escudo > 0) { const ib = IMG(ART.fx_burb), al = (S.escudo < 3 && Math.floor(S.t * 8) % 2) ? 0.3 : 0.72; ctx.save(); ctx.globalAlpha = al;
@@ -846,7 +882,11 @@
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
+<<<<<<< HEAD
       S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'tramp' ? trampDib(it, z) : it.k === 'vida' ? vidaDib(it, z) : it.k === 'cofre' ? cofreDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : portalDib(it, z) }); });
+=======
+      S.items.forEach(it => { const z = it.d - S.dist; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'pat' ? patDib(it, z) : (z < 0 ? portalDib(it, z, 'alto') : portalDib(it, z)) }); if (it.k === 'portal' && z < 0 && z > -4) cola.push({ z: 0.0001, f: () => portalDib(it, z, 'suelo') }); });
+>>>>>>> 81756e2 (Nivel 3: la Sakura sube la escalera del portal (pisa cada peldano, salto corto, cuerpo que se achica al subir, frenado suave, se acomoda sobre la escalera) y el suelo del portal se dibuja antes que ella)
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       dibAmb(); dibEfectos(); rayosLuz(Tm); lluviaDib();
