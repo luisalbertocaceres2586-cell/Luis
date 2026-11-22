@@ -23,6 +23,9 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 #ov .reglas{display:flex;flex-wrap:wrap;gap:calc(var(--u,1px)*8);justify-content:center}
 #ov .reglas span{background:#ffffff14;border:1px solid #ffffff30;border-radius:calc(var(--u,1px)*14);padding:calc(var(--u,1px)*8) calc(var(--u,1px)*12);font-size:calc(var(--u,1px)*20)}
 #ov .estrellas{font-size:calc(var(--u,1px)*70)}
+#ov .estrellas .st{display:inline-block;animation:stPop .7s cubic-bezier(.2,1.7,.4,1) both;filter:drop-shadow(0 0 12px rgba(255,210,90,.85))}
+#ov .estrellas .st0{display:inline-block;opacity:.22}
+@keyframes stPop{0%{transform:scale(0) rotate(-140deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 #ov button{font:inherit;font-weight:bold;font-size:calc(var(--u,1px)*28);padding:calc(var(--u,1px)*14) calc(var(--u,1px)*38);border-radius:calc(var(--u,1px)*40);border:calc(var(--u,1px)*4) solid #ffc93c;background:linear-gradient(#3f78e0,#12307a);color:#fff;text-shadow:0 2px 0 #0a1c52;box-shadow:0 calc(var(--u,1px)*5) 0 #7a5200,0 0 calc(var(--u,1px)*22) #ffc93c66;cursor:pointer;transition:transform .12s}
 #ov button:hover{transform:scale(1.05)}#ov button:active{transform:scale(.97)}
 #ov button.sec{background:linear-gradient(#4a4466,#262040);border-color:#c9b86a;font-size:calc(var(--u,1px)*22);box-shadow:0 calc(var(--u,1px)*4) 0 #4b3e12}
@@ -61,7 +64,7 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
 <script src="assets/characters/villain/manifest.js"></script>
-<script src="engine/nivel3/corredor.js?v=16"></script>
+<script src="engine/nivel3/corredor.js?v=17"></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search),perfil=null;
