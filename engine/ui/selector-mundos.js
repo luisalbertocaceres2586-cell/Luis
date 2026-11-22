@@ -17,7 +17,7 @@
   /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
   const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
-  const CSS_HREF = 'engine/ui/selector-mundos.css?v=3';
+  const CSS_HREF = 'engine/ui/selector-mundos.css?v=4';
 
   const pad = (n, w) => String(n).padStart(w || 2, '0');
   const rango = (pre, a, b, suf, w) => { const r = []; for (let i = a; i <= b; i++) r.push(pre + pad(i, w) + suf); return r; };
@@ -128,7 +128,9 @@
   const ANIM_KEY = 'ninja_mundos_anim_v1';
   const prefAnim = () => { try { return root.localStorage.getItem(ANIM_KEY); } catch (e) { return null; } };
   const osReducido = () => !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const reducido = () => { const p = prefAnim(); return p === '1' ? false : p === '0' ? true : osReducido(); };
+  // Las tarjetas se animan SIEMPRE, aunque el sistema pida «menos movimiento» (en muchos PC de colegio ese ajuste viene activado sin que nadie lo sepa).
+  // Solo se apagan si la persona toca el botón 🎞 (queda guardado). El resto de la accesibilidad del juego no cambia.
+  const reducido = () => prefAnim() === '0';
   const sinHover = () => root.matchMedia && root.matchMedia('(hover: none)').matches;
 
   // ---------- partículas ----------

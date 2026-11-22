@@ -276,7 +276,7 @@
       v.t += Math.min(dt, .1);
       const cv = v.cv, r = Math.min(root.devicePixelRatio || 1, bajo ? 1 : 1.5), w = Math.round(cv.clientWidth * r), h = Math.round(cv.clientHeight * r);
       if (!w || !h) return; if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-      try { v.demo.dibujar(v.c, w, h, v.t); if (!v.on && v.demo.listo()) { v.on = true; v.tarjeta.classList.add('demo-on'); } } catch (e) { v.vis = false; v.tarjeta.classList.remove('demo-on'); }
+      try { v.demo.dibujar(v.c, w, h, v.t); if (!v.on && v.demo.listo()) { v.on = true; v.tarjeta.classList.add('demo-on'); } } catch (e) { v.vis = false; v.error = String(e && e.stack || e); v.tarjeta.classList.remove('demo-on'); if (root.console) root.console.warn('[vista previa] se detuvo:', e); }
     });
   }
   function montar(esc, tarjeta, m, heroe, op) {
@@ -289,5 +289,10 @@
     vivos.push(v); if (!raf) { ult = 0; raf = root.requestAnimationFrame(bucle); }
     return { visible(b) { v.vis = !!b; }, destruir() { const i = vivos.indexOf(v); if (i >= 0) vivos.splice(i, 1); cv.remove(); tarjeta.classList.remove('demo-on'); if (!vivos.length && raf) { root.cancelAnimationFrame(raf); raf = 0; } } };
   }
-  return { montar, crearCarril, crearLateral, crearVuelo, _cache: cache, _hash: hash };
+  // Si una tarjeta no se anima: en la consola del navegador (F12) escribir  PreviewMundos.diagnostico()
+  function diagnostico() {
+    return vivos.map(v => ({ mundo: v.tarjeta.getAttribute('data-id') || v.tarjeta.className, visible: v.vis, pausada: !!(v.pausa && v.pausa()), enMarcha: v.on, tamano: v.cv.clientWidth + 'x' + v.cv.clientHeight,
+      imagenListo: (function () { try { return v.demo.listo(); } catch (e) { return String(e); } })(), error: v.error || null, segundos: Math.round(v.t * 10) / 10 }));
+  }
+  return { diagnostico, montar, crearCarril, crearLateral, crearVuelo, _cache: cache, _hash: hash };
 });
