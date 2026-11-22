@@ -262,7 +262,7 @@
   }
   const anchoCache = new Map();
   function baseW(im) {   // ancho de la base de un sprite (para que dos poses del mismo objeto queden alineadas)
-    if (anchoCache.has(im)) return anchoCache.get(im); const w = Math.min(200, im.width), h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.drawImage(im, 0, 0, w, h);
+    if (anchoCache.has(im)) return anchoCache.get(im); const w = Math.min(200, im.width), h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = h; const g = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')); g.drawImage(im, 0, 0, w, h);
     const d = g.getImageData(0, Math.floor(h * .86), w, Math.floor(h * .1) || 1).data; let mn = w, mx = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 80) { const px = (i / 4) % w; if (px < mn) mn = px; if (px > mx) mx = px; }
     const r = Math.max(10, (mx - mn)) / w * im.width; anchoCache.set(im, r); return r;
   }

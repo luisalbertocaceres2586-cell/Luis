@@ -12,10 +12,10 @@
  * La parte "pura" (umbrales, argollas, física de la cuerda) no usa el navegador y se prueba en Node.
  * Las habilidades NO son obligatorias: el nivel se puede terminar sin ninguna; sirven para ir más rápido,
  * alcanzar tesoros (chimeneas de bambú) y tener más control sobre lo que pasa. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api; else root.N1hab = api;
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const G = 560;
 

@@ -18,10 +18,10 @@
  *
  * Este archivo trae decisión, efectos y dibujo. motor.js solo llama a unos ganchos (N1dir.paso, fondo, mundo, encima, hud, luces...)
  * y lee los modificadores S.mod (gravedad, fricción, viento, noche). La parte "pura" se prueba en Node. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api; else root.N1dir = api;
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const G = 560, W = 1280, H = 720;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;

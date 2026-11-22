@@ -10,7 +10,8 @@ NinjaMods.register({id:'jefe-cine',carpeta:'combate',nombre:'Cinemática del jef
  desc:'Entrada dramática del Rey del Caos al acercarte, aturdimiento al golpearlo y desintegración al derrotarlo.',
  init(){
   const NAME=window.VILLAIN_NAME||'REY DEL CAOS',VB=()=>window.VillainBoss&&VillainBoss.last;
-  let seen=0,cine=null,dis=null,ref=null,pEnc=false,pHp=0;
+  /** @type {any} */ let cine=null;
+  let seen=0,dis=null,ref=null,pEnc=false,pHp=0;
   const final=()=>typeof curLV==='function'&&curLV()&&curLV().goalType==='throne'&&typeof bossFight!=='undefined'&&bossFight;
   /* ---------- estilos y DOM ---------- */
   const st=document.createElement('style');st.textContent=`

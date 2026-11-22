@@ -207,7 +207,7 @@ function buildCues(){cues=[
  {t:8.2,f:()=>{lightning();flash=1;}},{t:10.2,f:hideCap},
  {t:11.2,f:()=>say('Solo dos ninjas pueden recuperarlas…')},{t:13.6,f:()=>say('¡y necesitan tu ayuda!')},
  {t:14.7,f:hideCap},{t:15.0,f:()=>{flash=1;shake=1;ring(VW/2,VH*.46,1.1,VW*.7,'rgba(255,214,120,1)');ring(VW/2,VH*.46,1.5,VW*.95,'rgba(120,190,255,1)');root.classList.remove('cin');}},
- {t:18.4,f:()=>startOut(true)}];}
+ {t:18.4,f:()=>startOut()}];}
 
 function drawStory(){
   const t=T;cx.save();const sh=shake*shake*12;if(sh>.1)cx.translate(rnd(-sh,sh),rnd(-sh,sh));

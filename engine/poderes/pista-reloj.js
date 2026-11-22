@@ -8,7 +8,10 @@ const U=()=>NinjaMods.util;
 NinjaMods.register({id:'pista-reloj',carpeta:'poderes',nombre:'Pista del sensei 💡 y Reloj de arena ⏳',
  desc:'Objetos flotantes que ayudan a responder: la pista tacha 2 respuestas malas y el reloj congela el tiempo de la pregunta.',
  init(){
-  const inv={pista:0,reloj:0};let items=[],nivelVisto=-1,freezeId=null,colocado=false;
+  const inv={pista:0,reloj:0};
+  /** @type {any} */
+  let nivelVisto=-1;
+  let items=[],freezeId=null,colocado=false;
   const ICON={pista:'💡',reloj:'⏳'},COL={pista:'#FFE066',reloj:'#7FD7FF'};
   NinjaMods._items=()=>items;NinjaMods._inv=inv;
   function chips(){
@@ -18,7 +21,7 @@ NinjaMods.register({id:'pista-reloj',carpeta:'poderes',nombre:'Pista del sensei 
   function colocar(){
     items=[];const f=U().fijas();
     const fx=(typeof flagX!=='undefined'&&flagX)?flagX:5000;
-    [['pista',.30],['reloj',.62]].forEach(([tipo,frac],i)=>{
+    /** @type {[string, number][]} */ ([['pista',.30],['reloj',.62]]).forEach(([tipo,frac],i)=>{
       // a nivel del suelo y entre plataformas, para no chocar con las flores secretas que flotan sobre ellas
       const x=fx*frac,y=(typeof groundYAt==='function'?groundYAt(x):groundY())-58;
       items.push({tipo,x,y,taken:false,ph:i*1.7});

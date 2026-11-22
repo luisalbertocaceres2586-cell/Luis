@@ -9,7 +9,7 @@
  *   SelectorMundos.cerrar();   SelectorMundos.estado(perfil);   SelectorMundos.siguiente(perfil);
  *
  * El estado de cada mundo (nuevo / en curso / completado / estrellas) se DERIVA del perfil: los niveles ya lo guardan. */
-(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(root);
   else root.SelectorMundos = factory(root);
 })(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function (root) {

@@ -65,7 +65,7 @@ function montar(){
   box.appendChild(p);
   var rs=document.getElementById('njCtlS'),ro=document.getElementById('njCtlO'),vs=document.getElementById('njCtlSv'),vo=document.getElementById('njCtlOv');
   var bz=document.getElementById('njCtlZ');
-  function pintar(){rs.value=cfg.s;ro.value=cfg.o;vs.textContent=cfg.s+'%';vo.textContent=cfg.o+'%';
+  function pintar(){rs.value=String(cfg.s);ro.value=String(cfg.o);vs.textContent=cfg.s+'%';vo.textContent=cfg.o+'%';
     bz.setAttribute('aria-pressed',cfg.z?'true':'false');bz.textContent=cfg.z?'🖐 Modo zurdo: SÍ  (toca para volver)':'🖐 Modo zurdo: NO  (toca para cambiar)';}
   pintar();
   /* aplica el nuevo lado: el ↺ del juego devuelve los botones a su sitio por defecto, que ahora sale ya reflejado */

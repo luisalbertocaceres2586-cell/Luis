@@ -12,7 +12,7 @@
  *  - Recuperar la clave: código de rescate (XXXX-XXXX-XXXX) que se muestra al crear la cuenta.
  *
  * Funciona en navegador y en Node (para las pruebas: Nube.crear({ store, fetch })). */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Nube = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {

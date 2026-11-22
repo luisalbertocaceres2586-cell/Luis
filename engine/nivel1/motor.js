@@ -424,7 +424,7 @@
     if (!S.nivel2) Ruta.terminarActo(S.plan, {});
     if (S.perfil && window.Perfiles) Perfiles.actualizar(S.perfil.id, p => {
       p.maestria = S.maestria.estado; p.tutoriales = S.tutoVisto;
-      const progresoNivel = S.nivel2 ? (p.nivel2 = p.nivel2 || {}) : (p.nivel1 = p.nivel1 || {});
+      const progresoNivel = /** @type {Nivel1Datos & Nivel2Datos} */ (S.nivel2 ? (p.nivel2 = p.nivel2 || {}) : (p.nivel1 = p.nivel1 || {}));
       progresoNivel.plan = S.plan; progresoNivel.semilla = S.plan.semilla; progresoNivel.intentos = (progresoNivel.intentos || 0) + 1; progresoNivel.completados = (progresoNivel.completados || 0) + 1;
       p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; p.estadisticas.minutos += Math.round(seg / 6) / 10;
       p.progreso = p.progreso || { fase: 'easy', nivel: 0, puntos: 0 }; p.progreso.puntos += S.pergaminos * 10 + S.aciertos * 50;
