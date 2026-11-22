@@ -46,9 +46,9 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 @keyframes g{0%,20%{transform:rotate(-90deg)}55%,85%{transform:rotate(0)}100%{transform:rotate(-90deg)}}
 </style></head><body>
 <div id="app">
- <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre, junta monedas y elige la respuesta correcta en cada plaza.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta barriles<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
+ <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre, junta monedas y elige la respuesta correcta en cada plaza.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta vallas, barriles y nubes<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
  <div id="marco"><canvas id="cv"></canvas></div>
- <aside><h2>Cómo se juega</h2>🪙 <b>Corre y junta monedas</b>: salta los barriles (hay arcos de monedas en el aire) y deslízate bajo los arcos.<br><br>🤔 <b>En cada plaza</b> aparece una pregunta. No hay prisa: la pista se detiene y tú eliges el carril con la respuesta correcta.<br><br>💛 Si fallas no pasa nada: te damos una pista y la pregunta vuelve más adelante.<br><br>🛹 Cada <b>3 aciertos seguidos</b> aparece una patineta: rompe obstáculos y gana monedas.<br><br>❓ Las <b>cajas sorpresa</b> dan imán de monedas 🧲 o escudo 🛡.<br><br>☁️ En cada mundo hay un tramo de <b>tabla voladora</b> lleno de monedas en el aire.<br><br>🎁 Al final de cada mundo: <b>cofre con estrellas</b> ⭐ según tus aciertos.<br><br>✨ Con 3 aciertos seguidos las monedas valen <b>×2</b>.<br><br>💡 Si fallas dos seguidas, la puerta correcta se pone verde.<br><br>🔊 Tecla <b>V</b>: lee la pregunta en voz alta.<br><br>🥷 Cada racha suma sombras.</aside>
+ <aside><h2>Cómo se juega</h2>🪙 <b>Corre y junta monedas</b>: salta los barriles (hay arcos de monedas en el aire) y deslízate bajo los arcos.<br><br>🤔 <b>En cada plaza</b> aparece una pregunta. No hay prisa: la pista se detiene y tú eliges el carril con la respuesta correcta.<br><br>💛 Si fallas no pasa nada: te damos una pista y la pregunta vuelve más adelante.<br><br>🛹 Cada <b>3 aciertos seguidos</b> aparece una patineta: rompe obstáculos y gana monedas.<br><br>❓ Las <b>cajas sorpresa</b> dan imán de monedas 🧲 o escudo 🛡.<br><br>☁️ <b>Nubes-plataforma</b>: salta para subirte y corre por un tercer nivel lleno de monedas. Con <kbd>↓</kbd> bajas.<br><br>⚡ <b>Portales de poder</b>: elige la respuesta y gana <b>dash ninja</b>, imán o escudo.<br><br>🧱 Vallas, muros con hueco, shurikens que cruzan y vigas que caen (¡cambia de carril!).<br><br>🌪🔄🌙🌸 Eventos: viento, carriles invertidos, tramo oscuro y lluvia de monedas.<br><br>🔥 <b>Combo</b>: monedas seguidas suben el multiplicador (×2 … ×5).<br><br>☁️ En cada mundo hay un tramo de <b>tabla voladora</b> lleno de monedas en el aire.<br><br>🎁 Al final de cada mundo: <b>cofre con estrellas</b> ⭐ según tus aciertos.<br><br>✨ Con 3 aciertos seguidos las monedas valen <b>×2</b>.<br><br>💡 Si fallas dos seguidas, la puerta correcta se pone verde.<br><br>🔊 Tecla <b>V</b>: lee la pregunta en voz alta.<br><br>🥷 Cada racha suma sombras.</aside>
 </div>
 <div id="girar"><div class="tel"></div><h2>GIRA TU TELÉFONO</h2><p>Este nivel se juega en <b>vertical</b>, como una carrera hacia el fondo de la pantalla.</p>
  <button id="girarAuto" type="button">🔄 Girar automáticamente</button>
@@ -58,7 +58,8 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
-<script src="engine/nivel3/corredor.js?v=12x"></script>
+<script src="assets/characters/villain/manifest.js"></script>
+<script src="engine/nivel3/corredor.js?v=13x"></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search),perfil=null;
