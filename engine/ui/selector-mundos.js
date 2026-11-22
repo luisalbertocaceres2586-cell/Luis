@@ -17,7 +17,7 @@
   /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
   const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
-  const CSS_HREF = 'engine/ui/selector-mundos.css?v=1';
+  const CSS_HREF = 'engine/ui/selector-mundos.css?v=2';
 
   const pad = (n, w) => String(n).padStart(w || 2, '0');
   const rango = (pre, a, b, suf, w) => { const r = []; for (let i = a; i <= b; i++) r.push(pre + pad(i, w) + suf); return r; };
@@ -125,7 +125,10 @@
     const l = doc.createElement('link'); l.rel = 'stylesheet'; l.href = CSS_HREF; l.setAttribute('data-mw-css', '1'); doc.head.appendChild(l);
   }
   function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-  const reducido = () => root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ANIM_KEY = 'ninja_mundos_anim_v1';
+  const prefAnim = () => { try { return root.localStorage.getItem(ANIM_KEY); } catch (e) { return null; } };
+  const osReducido = () => !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const reducido = () => { const p = prefAnim(); return p === '1' ? false : p === '0' ? true : osReducido(); };
   const sinHover = () => root.matchMedia && root.matchMedia('(hover: none)').matches;
 
   // ---------- partículas ----------
@@ -241,7 +244,9 @@
     go.type = 'button'; go.tabIndex = -1; info.appendChild(go);
     card.appendChild(info);
 
-    return { m, p, card, esc, heroe, sprites, fasesBack, fasesFront, fasenom, dots: info.querySelector('.mw-dots'), fase: 0, anims: [], vis: true, activo: false, bgIdx: i };
+    const tj = { m, p, card, esc, heroe, sprites, fasesBack, fasesFront, fasenom, dots: info.querySelector('.mw-dots'), fase: 0, anims: [], vis: true, activo: false, bgIdx: i };
+    if (!m.bloqueado && root.PreviewMundos && m.demo) tj.demo = root.PreviewMundos.montar(esc, card, m, ctx.heroe, { pausa: reducido });
+    return tj;
   }
 
   // ---------- animaciones (Web Animations API: se aceleran con playbackRate) ----------
@@ -264,7 +269,7 @@
     });
     fijarRitmo(t);
   }
-  function fijarRitmo(t) { const r = t.activo ? 4 : 1; t.anims.forEach(a => { try { a.updatePlaybackRate(r); } catch (e) {} }); }
+  function fijarRitmo(t) { const r = t.activo ? 4 : (sinHover() ? 1 : 3); t.anims.forEach(a => { try { a.updatePlaybackRate(r); } catch (e) {} }); }
   function activar(t, on) {
     if (t.activo === on) return; t.activo = on; t.card.classList.toggle('mw-act', on && sinHover());
     fijarRitmo(t);
@@ -279,7 +284,7 @@
       R.tarjetas.forEach(t => {
         if (!t.vis) return;
         t.sprites.forEach(s => {
-          const lista = t.activo ? s.activo : s.reposo, fps = t.activo ? s.fpsA : s.fpsR;
+          const act = t.activo || !sinHover(), lista = act ? s.activo : s.reposo, fps = act ? s.fpsA : s.fpsR;
           if (lista.length < 2) return;
           s.t += dt * fps; const f = lista[Math.floor(s.t) % lista.length];
           if (s.last !== f) { s.last = f; s.el.src = f; }
@@ -372,6 +377,10 @@
       tb.onclick = e => { e.stopPropagation(); R.ultimoFoco = doc.activeElement; abrirPanelTablas(); };
       top.appendChild(tb);
     }
+    // botón de animaciones: si el sistema pide «menos movimiento», aquí el niño o el profe puede activarlas (se recuerda)
+    const an = el('button', 'mw-mute mw-anim', reducido() ? '⏸' : '🎞'); an.type = 'button'; an.title = reducido() ? 'Animaciones apagadas: tocar para activarlas' : 'Animaciones activadas: tocar para apagarlas'; an.setAttribute('aria-label', 'Activar o apagar las animaciones de las tarjetas');
+    an.onclick = e => { e.stopPropagation(); try { root.localStorage.setItem(ANIM_KEY, reducido() ? '1' : '0'); } catch (x) {} const o = R && R.opts; cerrar(true); if (o) abrir(o); };
+    top.appendChild(an);
     const mu = el('button', 'mw-mute', silenciado() ? '🔇' : '🔊'); mu.type = 'button'; mu.title = 'Sonido de los menús'; mu.setAttribute('aria-label', 'Activar o silenciar el sonido de los menús');
     mu.onclick = e => { e.stopPropagation(); const quiere = !silenciado(); try { root.localStorage.setItem(MUTE_KEY, quiere ? '1' : '0'); } catch (er) {} mu.textContent = quiere ? '🔇' : '🔊'; if (!quiere) SND.mover(); };
     top.appendChild(mu);
@@ -434,7 +443,7 @@
     if ('IntersectionObserver' in root) {
       R.io = new IntersectionObserver(es => es.forEach(en => {
         const t = tarjetas.find(x => x.card === en.target); if (!t) return;
-        t.vis = en.isIntersecting; t.anims.forEach(a => { try { t.vis ? a.play() : a.pause(); } catch (e) {} });
+        t.vis = en.isIntersecting; if (t.demo) t.demo.visible(t.vis); t.anims.forEach(a => { try { t.vis ? a.play() : a.pause(); } catch (e) {} });
         if (sinHover()) activar(t, en.intersectionRatio > .7 && !t.m.bloqueado);
       }), { root: track, threshold: [0, .7] });
       tarjetas.forEach(t => R.io.observe(t.card));
@@ -575,7 +584,7 @@
   function cerrar(silencioso) {
     if (!R) { quitarCarga(); return; } const r = R; R = null;
     root.cancelAnimationFrame(r.raf); if (r.onKey) root.removeEventListener('keydown', r.onKey, true); r.timers.forEach(i => root.clearInterval(i)); if (r.io) r.io.disconnect();
-    r.tarjetas.forEach(t => t.anims.forEach(a => { try { a.cancel(); } catch (e) {} }));
+    r.tarjetas.forEach(t => { t.anims.forEach(a => { try { a.cancel(); } catch (e) {} }); if (t.demo) t.demo.destruir(); });
     r.root.remove();
     if (!silencioso && r.opts.onCerrar) r.opts.onCerrar();
   }

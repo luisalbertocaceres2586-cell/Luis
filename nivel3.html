@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
-<script src="engine/core/diagnostico.js?v=1"></script>
+<script src="engine/core/diagnostico.js?v=2"></script>
 <script src="engine/core/compat.js?v=1"></script>
 
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
@@ -54,11 +54,13 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
  <button id="girarAuto" type="button">🔄 Girar automáticamente</button>
  <p class="ios" id="girarIos">En iPhone: abre el Centro de control y apaga el candado de rotación 🔒.</p>
  <button id="girarAsi" type="button" class="sec">Jugar así de todos modos</button></div>
+<script>window.NUBE_SIN_UI=1;</script>
+<script src="engine/nube.js?v=1"></script>
 <script src="engine/nivel1/perfiles.js?v=8"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
-<script src="engine/nivel3/corredor.js?v=11"></script>
+<script src="engine/nivel3/corredor.js?v=13"></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search),perfil=null;
