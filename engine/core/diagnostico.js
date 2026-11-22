@@ -116,12 +116,28 @@ function informe(){
   L.push('FPS: '+fps+' | táctil: '+(navigator.maxTouchPoints||0)+' puntos | vibración: '+(navigator.vibrate?'sí':'no')+' | wakeLock: '+(('wakeLock' in navigator)?'sí':'no'));
   L.push('compat activos: '+((window.NinjaCompat&&NinjaCompat.activos.length)?NinjaCompat.activos.join(', '):'ninguno (navegador moderno)'));
   L.push('clases <html>: '+document.documentElement.className);
+  try{
+    var rs=performance.getEntriesByType('resource'),tot=0,cach=0,n=0;
+    rs.forEach(function(e){if(e.name.indexOf(location.origin)===0){n++;tot+=(e.encodedBodySize||0);if(e.transferSize===0&&(e.encodedBodySize||0)>0)cach++;}});
+    L.push('carga: '+n+' archivos del juego · '+(tot/1048576).toFixed(1)+' MB · '+cach+' salieron de la caché sin descargar');
+  }catch(e){}
+  L.push('sin internet (service worker): '+((navigator.serviceWorker&&navigator.serviceWorker.controller)?'ACTIVO ✔':'inactivo')+(window.NinjaSWdatos?' · '+window.NinjaSWdatos:''));
   L.push('errores ('+contar()+'):');
   for(var i=Math.max(0,errores.length-25);i<errores.length;i++){var e=errores[i];L.push(' '+e.h+' ['+e.tipo+'] '+e.msg+(e.donde?'  @ '+e.donde:''));}
   if(!errores.length)L.push(' ninguno ✔');
   return L.join('\n');
 }
 var pildora=null,panel=null;
+function datosSW(){
+  try{
+    if(!window.caches)return;
+    Promise.all([caches.has('ninja-assets-v1').then(function(h){return h?caches.open('ninja-assets-v1').then(function(c){return c.keys();}):[];}),
+                 (navigator.storage&&navigator.storage.estimate)?navigator.storage.estimate():Promise.resolve({})]).then(function(r){
+      var q=r[1]||{};
+      window.NinjaSWdatos=r[0].length+' archivos guardados'+(q.usage?(' · '+(q.usage/1048576).toFixed(0)+' MB usados de '+((q.quota||0)/1048576).toFixed(0)+' MB'):'');
+    }).catch(function(){});
+  }catch(e){}
+}
 function contar(){var n=0;for(var i=0;i<errores.length;i++)if(errores[i].tipo!=='aviso')n++;return n;}
 function pintarPildora(){if(pildora)pildora.textContent='🐞 '+contar();}
 function copiar(txt,ta){
@@ -137,7 +153,9 @@ function montarPanel(){
     if(panel){panel.remove();panel=null;return;}
     panel=document.createElement('div');panel.id='njDbgPanel';
     panel.style.cssText='position:fixed;left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));top:max(8px,env(safe-area-inset-top));bottom:max(8px,env(safe-area-inset-bottom));z-index:2147483400;background:rgba(4,6,28,.96);border:2px solid #7fd0ff;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;color:#d8f1ff;-webkit-user-select:text;user-select:text';
+    datosSW();
     var ta=document.createElement('textarea');ta.readOnly=true;ta.value=informe();
+    setTimeout(function(){if(panel&&ta)ta.value=informe();},700);
     ta.style.cssText='flex:1;min-height:0;width:100%;box-sizing:border-box;background:#02041a;color:#bfe9ff;border:1px solid #3a5b8c;border-radius:8px;padding:8px;font:11px/1.35 ui-monospace,Menlo,monospace;resize:none;-webkit-user-select:text;user-select:text';
     var fila=document.createElement('div');fila.style.cssText='display:flex;gap:8px';
     function b(t,fn){var x=document.createElement('button');x.type='button';x.textContent=t;x.style.cssText='flex:1;min-height:44px;border-radius:10px;border:2px solid #7fd0ff;background:#10205a;color:#fff;font:700 14px/1 -apple-system,system-ui,sans-serif;touch-action:manipulation';x.addEventListener('click',fn);return x;}

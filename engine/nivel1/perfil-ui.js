@@ -155,6 +155,12 @@
   function esTactil() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
   // El dispositivo ya no se elige: se detecta solo cada vez que se juega (un mismo jugador puede abrir desde PC y desde el celular).
   function dispo() { return window.NinjaDevice ? NinjaDevice.tipo() : (esTactil() ? 'movil' : 'pc'); }
+  /* Con cuenta iniciada (☁️) el jugador es el apodo de la cuenta: no se pide el nombre ni se elige jugador. */
+  function cuentaNick() { try { return (window.Nube && Nube.nickActivo && Nube.nickActivo()) || null; } catch (e) { return null; } }
+  function perfilCuenta() {
+    const nick = cuentaNick(); if (!nick) return null;
+    try { return Perfiles.paraCuenta(nick, heroeActual(), dispo()); } catch (e) { return null; }
+  }
   function heroeActual() { try { return _char === 'peach' ? 'kage' : 'sakura'; } catch (e) { return 'sakura'; } }
 
   function aplicar(p) {
@@ -202,6 +208,7 @@
       perfil: Perfiles.obtener(p.id),
       lanzar: { senda: q => jugarNivel1(q), viaje: q => nivel2Nuevo(q), farolillos: q => nivel3Nuevo(q), clasico: q => continuar(q) },
       onCerrarSesion: () => {            // para que otra persona pueda jugar: el avance de cada perfil queda guardado
+        if (cuentaNick() && window.Nube && Nube.abrir) { Nube.abrir(); return; }   // con cuenta: se cierra desde ☁️ Cuenta
         try { sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
         if (Perfiles.cerrarSesion) Perfiles.cerrarSesion();
         listo = false; actualizarChip(); abrir('lista');
@@ -259,7 +266,7 @@
     borrador.dispositivo = dispo();
     card.appendChild(el('h2', { text: '¿CÓMO TE LLAMAS?' }));
     card.appendChild(el('p', { class: 'pf-sub', text: 'Con tu nombre guardamos tu avance. Jugarás con ' + AV[borrador.avatar].nombre + '.' }));
-    const inp = el('input', { type: 'text', maxlength: '14', placeholder: 'TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
+    const inp = el('input', { type: 'text', maxlength: '16', placeholder: 'TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
     inp.addEventListener('input', () => { borrador.nombre = inp.value; });
     card.appendChild(el('div', { class: 'pf-campo pf-name' }, [inp]));
     const err = el('div', { class: 'pf-err' });
@@ -316,9 +323,10 @@
     const a = Perfiles.activo(); let c = document.getElementById('pfChip');
     if (!c) {
       const b = document.getElementById('btnStart'); if (!b || !b.parentNode) return;
-      c = el('div', { id: 'pfChip', onclick: () => abrir('lista') }); b.parentNode.insertBefore(c, b);
+      c = el('div', { id: 'pfChip', onclick: () => { if (cuentaNick() && window.Nube && Nube.abrir) Nube.abrir(); else abrir('lista'); } }); b.parentNode.insertBefore(c, b);
     }
-    c.textContent = a ? '👤 ' + a.nombre.toUpperCase() + ' · CAMBIAR' : '👤 ¿QUIÉN JUEGA?';
+    const nk = cuentaNick();
+    c.textContent = nk ? '👤 ' + nk.toUpperCase() + ' · CUENTA' : a ? '👤 ' + a.nombre.toUpperCase() + ' · CAMBIAR' : '👤 ¿QUIÉN JUEGA?';
   }
 
   function iniciar() {
@@ -326,6 +334,8 @@
     const b = document.getElementById('btnStart'); if (!b) return;
     // 1) JUGAR exige elegir jugador primero
     b.addEventListener('click', e => {
+      const pc = pasarClasico ? null : perfilCuenta();
+      if (pc) { e.stopImmediatePropagation(); e.preventDefault(); abrirMundos(pc); return; }   // con cuenta: directo a los mundos
       if (!listo) { e.stopImmediatePropagation(); e.preventDefault(); abrir(Perfiles.listar().length ? 'lista' : 'crear'); }
       else if (!pasarClasico && Perfiles.activo()) { e.stopImmediatePropagation(); e.preventDefault(); abrirMundos(Perfiles.activo()); }   // JUGAR = elegir mundo
     }, true);
@@ -338,6 +348,13 @@
       try { if (orig) orig.apply(this, arguments); } catch (e) {}
       try { const a = Perfiles.activo(); if (a) Perfiles.actualizar(a.id, p => { p.progreso = { fase: GS.phase, nivel: GS.level, puntos: GS.totalScore || 0 }; }); } catch (e) {}
     };
+    // Entra o sale una cuenta: se crea/elige el jugador con el apodo (o se suelta al salir)
+    if (window.Nube && Nube.alCambiarSesion) Nube.alCambiarSesion((nick, motivo) => {
+      if (nick) { perfilCuenta(); }
+      else if (motivo === 'salir') { try { if (Perfiles.cerrarSesion) Perfiles.cerrarSesion(); } catch (e) {} listo = false; }
+      actualizarChip();
+    });
+    if (cuentaNick()) perfilCuenta();
     actualizarChip();
     // los niveles 2 y 3 regresan con ?mundos=1: se vuelve directo al selector con el jugador activo
     let flag = false; try { flag = sessionStorage.getItem('ninja_abrir_mundos') === '1'; } catch (e) {}

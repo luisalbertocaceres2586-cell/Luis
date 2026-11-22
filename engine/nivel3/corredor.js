@@ -74,7 +74,7 @@
   const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
   const rgb = (c, a) => a == null ? 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')' : 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + a + ')';
   TEMAS.forEach(t => { t.rc1 = hexA(t.c1); t.rc2 = hexA(t.c2); t.rb = hexA(t.borde); t.rn = hexA(t.niebla); });
-  TEMAS[1].pano = NA + 'mundos/pano_sakura.jpg'; TEMAS[3].pano = NA + 'mundos/pano_lava.jpg'; // fondos completos (reemplazan la franja de montañas)
+  TEMAS[1].pano = NA + 'mundos/pano_sakura.jpg'; TEMAS[3].pano = NA + 'mundos/pano_lava.jpg'; TEMAS[0].pano = NA + 'mundos/pano_bambu.jpg'; TEMAS[2].pano = NA + 'mundos/pano_aldea.jpg'; TEMAS[4].pano = NA + 'mundos/pano_hielo.jpg'; TEMAS[5].pano = NA + 'mundos/pano_trueno.jpg'; // fondos completos (reemplazan la franja de montañas)
 
   // ───────────────────────── sonido (sencillo, se puede silenciar) ─────────────────────────
   let AC = null, mudo = false;
