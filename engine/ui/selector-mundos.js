@@ -17,7 +17,7 @@
   /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
   const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
-  const CSS_HREF = 'engine/ui/selector-mundos.css?v=2';
+  const CSS_HREF = 'engine/ui/selector-mundos.css?v=3';
 
   const pad = (n, w) => String(n).padStart(w || 2, '0');
   const rango = (pre, a, b, suf, w) => { const r = []; for (let i = a; i <= b; i++) r.push(pre + pad(i, w) + suf); return r; };
@@ -378,7 +378,7 @@
       top.appendChild(tb);
     }
     // botón de animaciones: si el sistema pide «menos movimiento», aquí el niño o el profe puede activarlas (se recuerda)
-    const an = el('button', 'mw-mute mw-anim', reducido() ? '⏸' : '🎞'); an.type = 'button'; an.title = reducido() ? 'Animaciones apagadas: tocar para activarlas' : 'Animaciones activadas: tocar para apagarlas'; an.setAttribute('aria-label', 'Activar o apagar las animaciones de las tarjetas');
+    const an = el('button', 'mw-mute mw-anim' + (reducido() ? ' mw-anim-off' : ''), reducido() ? '⏸ Activar animaciones' : '🎞'); an.type = 'button'; an.title = reducido() ? 'Animaciones apagadas: tocar para activarlas' : 'Animaciones activadas: tocar para apagarlas'; an.setAttribute('aria-label', 'Activar o apagar las animaciones de las tarjetas');
     an.onclick = e => { e.stopPropagation(); try { root.localStorage.setItem(ANIM_KEY, reducido() ? '1' : '0'); } catch (x) {} const o = R && R.opts; cerrar(true); if (o) abrir(o); };
     top.appendChild(an);
     const mu = el('button', 'mw-mute', silenciado() ? '🔇' : '🔊'); mu.type = 'button'; mu.title = 'Sonido de los menús'; mu.setAttribute('aria-label', 'Activar o silenciar el sonido de los menús');
