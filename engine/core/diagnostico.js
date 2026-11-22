@@ -117,7 +117,7 @@ function informe(){
   L.push('compat activos: '+((window.NinjaCompat&&NinjaCompat.activos.length)?NinjaCompat.activos.join(', '):'ninguno (navegador moderno)'));
   L.push('clases <html>: '+document.documentElement.className);
   try{
-    var rs=performance.getEntriesByType('resource'),tot=0,cach=0,n=0;
+    var rs=/** @type {PerformanceResourceTiming[]} */ (performance.getEntriesByType('resource')),tot=0,cach=0,n=0;
     rs.forEach(function(e){if(e.name.indexOf(location.origin)===0){n++;tot+=(e.encodedBodySize||0);if(e.transferSize===0&&(e.encodedBodySize||0)>0)cach++;}});
     L.push('carga: '+n+' archivos del juego · '+(tot/1048576).toFixed(1)+' MB · '+cach+' salieron de la caché sin descargar');
   }catch(e){}
@@ -133,6 +133,7 @@ function datosSW(){
     if(!window.caches)return;
     Promise.all([caches.has('ninja-assets-v1').then(function(h){return h?caches.open('ninja-assets-v1').then(function(c){return c.keys();}):[];}),
                  (navigator.storage&&navigator.storage.estimate)?navigator.storage.estimate():Promise.resolve({})]).then(function(r){
+      /** @type {{usage?: number, quota?: number}} */
       var q=r[1]||{};
       window.NinjaSWdatos=r[0].length+' archivos guardados'+(q.usage?(' · '+(q.usage/1048576).toFixed(0)+' MB usados de '+((q.quota||0)/1048576).toFixed(0)+' MB'):'');
     }).catch(function(){});

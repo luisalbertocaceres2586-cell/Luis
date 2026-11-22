@@ -6,7 +6,7 @@
  *   PreviewMundos.montar(escena, tarjeta, mundo, heroe, { pausa: () => bool }) → { visible(bool), destruir() } | null
  *   El mundo debe traer  demo: { tipo: 'carril' | 'lateral' | 'vuelo' }  (ver mundos-registro.js).
  * Cuando la primera imagen ya está lista, la tarjeta recibe la clase .demo-on (el CSS oculta entonces la escena estática). */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(root);
   else root.PreviewMundos = factory(root);
 })(typeof self !== 'undefined' ? self : this, function (root) {
@@ -117,6 +117,7 @@
       c.strokeStyle = 'rgba(255,255,255,.3)';
       [.5, 1.5].forEach(lb => { for (let k = 0; k < 16; k++) { const z0 = k * 6 - mod(dn, 6), z1 = z0 + 2.6; if (z1 < zn || z0 > zf) continue; const a = Math.max(z0, zn), b = Math.min(z1, zf); c.lineWidth = Math.max(1, 3 * u * (pz(a) + pz(b))); c.beginPath(); c.moveTo(xz(lb, a), yz(a)); c.lineTo(xz(lb, b), yz(b)); c.stroke(); } });
 
+      /** @type {[number, () => void][]} */
       const L = [], la = lane(tl), hx = W / 2 + (la.l - 1) * LW;
       // decorado a los lados
       if (DEC.length) for (let n = Math.floor(dn / 5.5) - 3; n < Math.floor((dn + ZMAX) / 5.5) + 1; n++) {
@@ -182,6 +183,7 @@
   function crearLateral(m, heroeId) {
     const T = 11.5, f0 = m.fases[0], props = f0.props || m.props || [], H = HEROES[heroeId] || HEROES.sakura;
     const ORBE = N1 + 'items_jefe/orbe_energia.png', ROCA = N1 + 'enemigos/roca_gigante.png', NINJA = N1 + 'enemigos/ninja_sombra.png', BANDERA = N1 + 'decorado/estandarte_colgante.png', TORII = N1 + 'decorado/torii_activo.png';
+    /** @type {any[][]} */
     const EV = [[.9, 'orbe'], [1.2, 'orbe'], [1.5, 'orbe'], [2.8, 'roca'], [5.4, 'ninja'], [7.6, 'bandera'], [9.7, 'torii']];
     const arc = [0, .07, .12, .14, .12, .07, 0];
     const imgs = [f0.far, ORBE, ROCA, NINJA, BANDERA, TORII].concat(props.map(p => p.img), H.run, H.jump, H.slide || [], H.melee || []);

@@ -51,7 +51,8 @@ Archivos en nivel 1 (estricto): `perfiles`, `ruta`, `acertijos`, `director`, `el
 | **`index.html` (≈9 700 líneas de JS inline)** | Es el corazón del juego (estado `GS`, `render`, `update`…) y TypeScript **no puede revisarlo** mientras viva dentro del HTML. Siguiente gran paso: extraerlo a `engine/*.js` por partes. |
 | `noImplicitAny` | Está en `false` en ambos niveles. Activarlo exige tipar cada parámetro: hacerlo archivo por archivo, empezando por los del nivel 1. |
 | Objetos "bolsa" tipados como `any` | `FX` (fx-engine), `NinjaMods` (modulos), `cine` (jefe-cinematica), `P`/`GS` parcialmente. Buscar `TODO` en el código. |
-| 43 archivos solo en nivel 2 | `surf.js`, `corredor.js`, `motor.js`, `fx-engine.js`, `hero-pro.js`, … |
+| ~45 archivos solo en nivel 2 (incluye `nube.js`, `preview-mundos.js`) | `surf.js`, `corredor.js`, `motor.js`, `fx-engine.js`, `hero-pro.js`, … |
+| `sw.js` (service worker) | Vive en otro entorno (`WorkerGlobalScope`); necesitaría su propio `tsconfig` con `lib: ["WebWorker"]`. |
 | Conversión a `.ts` real | Solo cuando el equipo crezca; requeriría un paso de compilación (esbuild) que genere los `.js`. |
 
 ## Convenciones

@@ -50,6 +50,9 @@ declare global {
   interface ExtraMundo { img?: string; frames?: string[]; lado: 'izq' | 'der'; h: number; y?: number; fps?: number }
   type TipoParticulas = 'luciernagas' | 'arena' | 'cristales' | 'petalos' | 'farolillos' | 'brasas';
 
+  /** Mini-partida en bucle que se dibuja dentro de la tarjeta (engine/ui/preview-mundos.js). */
+  interface DemoMundo { tipo: 'lateral' | 'vuelo' | 'carril'; ruta?: [string, string]; [opcion: string]: unknown }
+
   interface Mundo {
     id: string;
     nombre: string;
@@ -66,6 +69,7 @@ declare global {
     flota?: string;
     extra?: ExtraMundo;
     heroe: 'corre' | 'vuela';
+    demo?: DemoMundo;
     particulas?: TipoParticulas;
     bloqueado?: boolean;
     fueraDeProgreso?: boolean;
