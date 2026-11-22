@@ -403,7 +403,7 @@
       if (S.invCtrl && !S.plaza) { if (a === 'izq') a = 'der'; else if (a === 'der') a = 'izq'; }   // evento: carriles invertidos
       if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
       else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
-      else if (a === 'salta') { if (S.jh <= S.base + 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); S.sj = S.t; S.sq = null; despega(); } }
+      else if (a === 'salta') { if (S.jh > S.base + 1) S.salBuf = 0.12; if (S.jh <= S.base + 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); S.sj = S.t; S.sq = null; despega(); } }
       else if (a === 'baja') { if (S.jh > S.base + 1) S.jv = -1500; else if (S.sobre) { S.soltada = S.sobre; S.sobre = null; S.base = 0; S.jv = -250; S.jt = 0.3; sfx.desliza(); } else if (S.slide <= 0) { S.slide = 0.75; sfx.desliza(); } }
     }
 
@@ -497,9 +497,9 @@
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(0, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
       else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj = Math.min(vObj, Math.max(vObj * (1 - 0.4 * es.lento), 5.2)); } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
-      S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
+      { const w0 = 26; S.pxv = (S.pxv || 0) + (w0 * w0 * (S.tl - S.px) - 2 * w0 * (S.pxv || 0)) * dt; S.pxv = clamp(S.pxv, -14, 14); S.px += S.pxv * dt; if (Math.abs(S.tl - S.px) < 0.002 && Math.abs(S.pxv) < 0.05) { S.px = S.tl; S.pxv = 0; } }   // resorte amortiguado: arranca suave, frena sin golpe
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
-      else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= 2700 * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
+      else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= (S.jv > 0 ? 2700 : 3500) * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
       if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
@@ -639,6 +639,7 @@
       else { p.x = R(0, W); p.y = inicial ? R(HOR, H) : H + 10; p.vx = R(-14, 14); p.vy = -R(40, 110); p.r = R(1.6, 3.2); }
     }
     function efectos(dt) {
+      if (S.salBuf > 0) { S.salBuf -= dt; if (S.jh <= S.base + 1 && S.cae <= 0 && !S.plaza) { S.salBuf = 0; accion('salta'); } }   // salto «guardado» 0,12 s: tocar justo antes de aterrizar no se pierde
       musica(dt);
       S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5) S.lite = true;
       const ob = temaIdx(); S.temaF += clamp(ob - S.temaF, -dt * 0.45, dt * 0.45); if (S.flashB > 0) S.flashB -= dt;
