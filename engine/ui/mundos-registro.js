@@ -17,7 +17,7 @@
  *   bloqueado            true = tarjeta "Próximamente"
  *   visible(perfil)      false = no se muestra (opcional)
  */
-(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.MundosRegistro = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {

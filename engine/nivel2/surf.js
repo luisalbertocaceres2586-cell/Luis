@@ -572,7 +572,7 @@
       cx.fillStyle = '#ffe9a8'; cx.beginPath(); cx.arc(800, 92, 38, 0, 7); cx.fill(); cx.fillStyle = '#2a1f55'; cx.beginPath(); cx.arc(815, 84, 34, 0, 7); cx.fill();
       cieloExtra(cam);
       cx.fillStyle = '#3a2a63'; const pc = -cam * .08 % 700; for (let i = -1; i < 3; i++) { const px = pc + i * 700 + 300; cx.beginPath(); cx.moveTo(px - 70, 262); cx.lineTo(px, 182); cx.lineTo(px + 70, 262); cx.fill(); }
-      [[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]].forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
+      /** @type {any[][]} */ ([[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]]).forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
     }
     function fondoAmb(amb, cam) {
       if (amb === 'dunas') return fondoDunas(cam);
@@ -583,7 +583,7 @@
         const x0 = k * w - off; if (x0 > W || x0 + w < 0) continue;
         cx.save(); if (k & 1) { cx.translate(x0 + w, 0); cx.scale(-1, 1); cx.drawImage(m, 0, 0, w, alto); } else cx.drawImage(m, x0, 0, w, alto); cx.restore();
       }
-      if (amb === 'cielo') [['nube_a', 0, 70, 52, .35], ['nube_b', 520, 150, 44, .5], ['nube_a', 1040, 215, 40, .65], ['nube_b', 1560, 105, 56, .4]].forEach(([id, ix, iy, al, pp]) => { const per = 2100, x = ((ix - cam * pp) % per + per) % per - 260; spr(id, 0, x, iy + al + Math.sin(S.t * .6 + ix) * 4, al, false, .8); });
+      if (amb === 'cielo') /** @type {any[][]} */ ([['nube_a', 0, 70, 52, .35], ['nube_b', 520, 150, 44, .5], ['nube_a', 1040, 215, 40, .65], ['nube_b', 1560, 105, 56, .4]]).forEach(([id, ix, iy, al, pp]) => { const per = 2100, x = ((ix - cam * pp) % per + per) % per - 260; spr(id, 0, x, iy + al + Math.sin(S.t * .6 + ix) * 4, al, false, .8); });
     }
     function fondo(cam) {
       if (S.ambT > 0 && S.ambPrev) { fondoAmb(S.ambPrev, cam); cx.globalAlpha = 1 - S.ambT; fondoAmb(S.amb, cam); cx.globalAlpha = 1; } else fondoAmb(S.amb, cam);
@@ -597,7 +597,7 @@
     // islas flotantes, puentes lejanos y dragón de origami en el cielo (parallax lento)
     function cieloExtra(cam) {
       const per = 1700, px = ix => ((ix - cam * .05) % per + per) % per - 160;
-      [['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]].forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
+      /** @type {any[][]} */ ([['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]]).forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
       spr('enredadera', 0, px(1180), 184 + Math.sin(S.t * .8 + 1180) * 6 + 30, 34, false, .85); spr('puente_colgante', 0, px(280), 205, 30, false, .7); spr('puente_piedra', 0, px(1020), 215, 34, false, .7);
       if (S.dragon) spr('dragon_origami', 0, S.dragon.x, S.dragon.y + 70 + Math.sin(S.t * 2) * 8, 70, true);
     }
@@ -900,7 +900,7 @@
     const vis = () => { if (document.hidden && S && S.est === 'play') S.pausa = true; };
     document.addEventListener('visibilitychange', vis);
     if (touch) {
-      [['▲', 'right:14px;bottom:124px;width:76px;height:76px', () => { if (S.vuelo) S.hold.up = 1; else lane(S.lane - 1); }], ['▼', 'right:14px;bottom:40px;width:76px;height:76px', () => { if (S.vuelo) S.hold.down = 1; else lane(S.lane + 1); }], ['SALTAR', 'right:104px;bottom:40px;width:120px;height:76px', () => { if (S) S.inputs.salto = true; }]].forEach(([t, pos, fn]) => {
+      /** @type {[string, string, () => void][]} */ ([['▲', 'right:14px;bottom:124px;width:76px;height:76px', () => { if (S.vuelo) S.hold.up = 1; else lane(S.lane - 1); }], ['▼', 'right:14px;bottom:40px;width:76px;height:76px', () => { if (S.vuelo) S.hold.down = 1; else lane(S.lane + 1); }], ['SALTAR', 'right:104px;bottom:40px;width:120px;height:76px', () => { if (S) S.inputs.salto = true; }]]).forEach(([t, pos, fn]) => {
         const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'position:absolute;' + pos + ';border-radius:38px;border:2px solid #ffe27a;background:#ffffff26;color:#fff;font:bold 18px ' + FUENTE + ';touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none';
         b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, () => { if (S) S.hold = { up: 0, down: 0 }; })); root.appendChild(b);
       });

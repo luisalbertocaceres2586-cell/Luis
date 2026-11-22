@@ -20,7 +20,7 @@ const start=menu.querySelector('#btnStart');if(start)start.insertAdjacentElement
 const labels={mario:'SAKURA EVE · NINJA DEL VIENTO',peach:'KAGE · NINJA DE LA SOMBRA'};
 function reflectSelection(id){const name=labels[id]||labels.mario;hint.textContent=name+'  ·  ¡LISTO PARA JUGAR!';cards.forEach(card=>{const selected=card.dataset.c===id;card.setAttribute('aria-checked',String(selected));card.setAttribute('tabindex','0');});}
 function sync(){const active=cards.find(c=>c.classList.contains('on'));if(active)reflectSelection(active.dataset.c);}
-cards.forEach(card=>{card.addEventListener('click',()=>requestAnimationFrame(sync));card.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();card.click();}});});
+cards.forEach(card=>{card.addEventListener('click',()=>requestAnimationFrame(sync));card.addEventListener('keydown',(/** @type {KeyboardEvent} */ ev)=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();/** @type {HTMLElement} */ (card).click();}});});
 sync();
 if(!reduced&&window.matchMedia('(pointer:fine)').matches){let raf=0;menu.addEventListener('pointermove',ev=>{if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const r=menu.getBoundingClientRect();const x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;heroPick.style.transform='translateZ(24px) rotateY('+(x*5).toFixed(2)+'deg) rotateX('+(y*-4).toFixed(2)+'deg)';});});menu.addEventListener('pointerleave',()=>{heroPick.style.transform='translateZ(24px) rotateY(0) rotateX(0)';});}
 menu.querySelectorAll('button').forEach(btn=>btn.addEventListener('pointerdown',()=>{btn.classList.add('np-pressed');window.setTimeout(()=>btn.classList.remove('np-pressed'),180);},{passive:true}));

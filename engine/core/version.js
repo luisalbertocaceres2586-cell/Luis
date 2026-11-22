@@ -17,7 +17,7 @@ function revisar(){
   if(document.hidden)return;
   fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
     if(!j||!j.v||j.v===MIA||MIA==='?')return;
-    ban.querySelector('button').onclick=()=>recargar(j.v);
+    const bt=/** @type {HTMLButtonElement|null} */ (ban.querySelector('button'));if(bt)bt.onclick=()=>recargar(j.v);
     let ya='';try{ya=sessionStorage.getItem('njRecarga')||'';}catch(e){}
     const menu=s0&&s0.classList.contains('on')&&ya!==j.v;     // protección: nunca recarga dos veces por la misma versión
     if(menu){setTimeout(()=>recargar(j.v),1200);}else ban.classList.add('on');

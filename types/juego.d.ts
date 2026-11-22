@@ -18,7 +18,7 @@ declare global {
   interface ProgresoClasico { fase: string; nivel: number; puntos: number }
 
   interface Nivel1Datos { intentos?: number; completados?: number; plan?: unknown; estado?: unknown; semilla?: unknown }
-  interface Nivel2Datos { intentos?: number; completados?: number; estrellas?: number; mejor?: number; tutorial?: boolean; fallos?: Record<string, number> }
+  interface Nivel2Datos { plan?: unknown; semilla?: unknown; intentos?: number; completados?: number; estrellas?: number; mejor?: number; tutorial?: boolean; fallos?: Record<string, number> }
   interface Nivel3Datos { intentos?: number; completado?: boolean; estrellas?: number; mejor?: number; fallos?: Record<string, number> }
 
   type Avatar = 'sakura' | 'kage';
@@ -37,6 +37,7 @@ declare global {
     maestria?: Maestria;
     racha?: Racha;
     mundos?: { ultimo?: string };
+    tutoriales?: unknown;
     estadisticas?: { aciertos: number; errores: number; minutos: number };
   }
 
@@ -115,12 +116,18 @@ declare global {
     cerrarSesion(): unknown;
     registrarHechos(id: string, hechos: Record<string, { a: number; e: number }> | null | undefined): Perfil | null;
     actualizar(id: string, fn: (p: Perfil) => void): Perfil | null;
+    actualizarActivo(fn: (p: Perfil) => void): Perfil | null;
+    borrar(id: string): boolean;
+    exportar(id: string): string | null;
+    importar(codigo: string): { ok: boolean; error?: string; perfil?: Perfil };
+    usarAlmacen(almacen: unknown): void;
+    limpiarNombre(nombre: unknown): string;
+    KEY: string;
   }
 
   interface Window {
     Perfiles: PerfilesAPI;
     MundosRegistro: MundosRegistroAPI;
     SelectorMundos: SelectorMundosAPI;
-    webkitAudioContext?: typeof AudioContext;
   }
 }

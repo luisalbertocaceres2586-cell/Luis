@@ -151,7 +151,7 @@
     (kids || []).forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
     return e;
   }
-  function imgAvatar(av) { const i = document.querySelector('.hcard[data-c="' + AV[av].char + '"] img'); return i ? i.src : ''; }
+  function imgAvatar(av) { const i = document.querySelector('.hcard[data-c="' + AV[av].char + '"] img'); return i ? /** @type {HTMLImageElement} */ (i).src : ''; }
   function esTactil() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
   // El dispositivo ya no se elige: se detecta solo cada vez que se juega (un mismo jugador puede abrir desde PC y desde el celular).
   function dispo() { return window.NinjaDevice ? NinjaDevice.tipo() : (esTactil() ? 'movil' : 'pc'); }
@@ -173,7 +173,7 @@
     if (window.Nivel1) return Promise.resolve();
     if (cargaN1) return cargaN1;
     const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos', 'habilidades', 'director'];
-    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=11'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
+    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=11'; s.onload = () => ok(); s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
     return cargaN1;
   }
   function nivel2Nuevo(p) {

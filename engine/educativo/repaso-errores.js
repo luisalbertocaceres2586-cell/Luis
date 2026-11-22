@@ -23,7 +23,7 @@ NinjaMods.register({id:'repaso-errores',carpeta:'educativo',nombre:'Repaso de er
     if(n!==3&&n!==4)return;
     const scr=document.getElementById('S'+n);if(!scr)return;const brow=scr.querySelector('.brow');if(!brow)return;
     const d=box('repasoBox'+n);
-    if(nivel.length){d.innerHTML='📚 REPASA ESTAS:<br>'+nivel.slice(0,6).join('&nbsp;&nbsp;·&nbsp;&nbsp;');brow.parentNode.insertBefore(d,brow);}
+    if(nivel.length){d.innerHTML='📚 REPASA ESTAS:<br>'+nivel.slice(0,6).join('&nbsp;&nbsp;·&nbsp;&nbsp;');if(brow.parentNode)brow.parentNode.insertBefore(d,brow);}
     else if(d.parentNode)d.parentNode.removeChild(d);
   });
  }});

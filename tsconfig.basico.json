@@ -1,0 +1,30 @@
+// REVISIÓN BÁSICA (nivel 2). Cubre TODO engine/ más los .js de la raíz con reglas más permisivas
+// (sin strictNullChecks ni noImplicitAny) y con la tolerancia de types/legacy-dom.d.ts.
+// Detecta: nombres inexistentes, métodos/propiedades mal escritos, argumentos de más o de menos, tipos incompatibles.
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": [],
+    "strictNullChecks": false
+  },
+  "include": [
+    "types/**/*.d.ts",
+    "engine/**/*.js",
+    "manifest.js",
+    "intro-premium.js"
+  ]
+}

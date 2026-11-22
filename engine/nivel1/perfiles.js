@@ -2,7 +2,7 @@
  * Varios jugadores en el mismo computador, cada uno con su nombre, avatar, dispositivo y progreso.
  * Todo se guarda en localStorage (clave ninja_perfiles_v1). También se puede exportar/importar con un código
  * para pasar la partida a otro computador. Funciona en navegador y en Node (para las pruebas). */
-(/** @param {any} root @param {(root?: any) => any} factory */ function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Perfiles = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {

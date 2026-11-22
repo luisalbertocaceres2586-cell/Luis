@@ -102,7 +102,7 @@ NinjaMods.register({id:'fondos-tema',carpeta:'escenario',nombre:'Fondos de nivel
     // 1) cielo
     const g=CX.createLinearGradient(0,0,0,GYv);g.addColorStop(0,T.sky[0]);g.addColorStop(.55,T.sky[1]);g.addColorStop(1,T.sky[2]);
     CX.fillStyle=g;CX.fillRect(0,0,W,H);
-    if(T.nebula){[['#ff4fd8',.18,.3,.5],['#5a6bff',.16,.7,.4],['#b052ff',.15,.5,.7]].forEach(([c,a,fx,fy],i)=>{const x=W*fx+Math.sin(t/6000+i*2)*40,y=H*fy*.7;const r=Math.max(W,H)*.45;const gg=CX.createRadialGradient(x,y,0,x,y,r);gg.addColorStop(0,c+'55');gg.addColorStop(1,c+'00');CX.fillStyle=gg;CX.fillRect(0,0,W,H);});}
+    if(T.nebula){/** @type {any[][]} */ ([['#ff4fd8',.18,.3,.5],['#5a6bff',.16,.7,.4],['#b052ff',.15,.5,.7]]).forEach(([c,a,fx,fy],i)=>{const x=W*fx+Math.sin(t/6000+i*2)*40,y=H*fy*.7;const r=Math.max(W,H)*.45;const gg=CX.createRadialGradient(x,y,0,x,y,r);gg.addColorStop(0,c+'55');gg.addColorStop(1,c+'00');CX.fillStyle=gg;CX.fillRect(0,0,W,H);});}
     if(T.horizonte){const gg=CX.createLinearGradient(0,GYv*.55,0,GYv);gg.addColorStop(0,'rgba(255,100,20,0)');gg.addColorStop(1,T.horizonte+'88');CX.fillStyle=gg;CX.fillRect(0,GYv*.55,W,GYv*.45);}
     // 2) estrellas
     if(T.stars){CX.fillStyle='#fff';const n=lite?Math.floor(T.stars*.5):T.stars;for(let i=0;i<n;i++){const s=P.st[i%P.st.length];if(!s)continue;CX.globalAlpha=.35+.65*Math.abs(Math.sin(t/900+s[3]*5));CX.fillRect(((s[0]*W-camX*.01)%W+W)%W,s[1]*GYv,s[2],s[2]);}CX.globalAlpha=1;}

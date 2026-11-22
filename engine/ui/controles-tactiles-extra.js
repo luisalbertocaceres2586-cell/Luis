@@ -43,6 +43,6 @@ NinjaMods.register({id:'botones-extra',carpeta:'ui',nombre:'Botones táctiles ex
  panel(el){
   const cur=parseInt(localStorage.getItem(SK)||'0',10)||58;
   el.innerHTML='<span>Tamaño de los botones: <b id="bsv" style="display:inline;color:#00E5FF">'+cur+' px</b></span><input type="range" id="bsr" min="36" max="100" value="'+cur+'">';
-  document.getElementById('bsr').oninput=e=>{const v=+e.target.value;document.getElementById('bsv').textContent=v+' px';try{localStorage.setItem(SK,v);}catch(_){}applySize(v);};
+  document.getElementById('bsr').oninput=e=>{const v=+e.target.value;document.getElementById('bsv').textContent=v+' px';try{localStorage.setItem(SK,String(v));}catch(_){}applySize(v);};
  }});
 })();
