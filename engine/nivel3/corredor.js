@@ -495,11 +495,11 @@
       if (S.plaza) { const k = clamp((dz - CFG.ESPERA) / (CFG.RAMPA - CFG.ESPERA), 0, 1); vObj = CFG.VPLAZA + (base - CFG.VPLAZA) * k; if (dz <= CFG.ESPERA + 0.3) vObj = S.listo ? CFG.VPLAZA + 1.4 : 0; }
       if (S.tiempo > 0 && !S.plaza) vObj *= 0.62;
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(0, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
-      else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj *= 1 - 0.4 * es.lento; } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
+      else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj = Math.min(vObj, Math.max(vObj * (1 - 0.4 * es.lento), 5.2)); } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
       S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
-      else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= 2700 * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
+      else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= 2700 * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
       if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
@@ -521,7 +521,7 @@
           if (esp) { sfx.bien(3); chispas(cx, cy, '#ffe27a', 22); fx('fx_dest', cx, cy, 0.55, 90, 210); toast('+' + val + ' 🪙', '#ffe27a', 0.9); } else { sfx.moneda(S.combo); chispas(cx, cy, it.tipo === 'oro' ? '#fff2a0' : S.mult > 1 ? '#ffb347' : '#ffd35a', 4); fx('fx_dest', cx, cy, 0.32, 46, 92); }
         }
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
-          const esquiva = (it.tipo === 'bajo' || it.tipo === 'fuego') ? S.jh > 70 : it.tipo === 'muro' ? S.jh > 140 : S.slide > 0;
+          const esquiva = it.tipo === 'bajo' ? S.jh > altoObs(it) * 0.78 : it.tipo === 'fuego' ? S.jh > 70 : it.tipo === 'muro' ? S.jh > 140 : S.slide > 0;
           if (!esquiva) { it.roto = true; if (S.dash > 0) rompe(it, true); else if (S.skate > 0) { S.puntos += 5; S.monedas += 2; sfx.bien(2); fx('fx_choque', W / 2 + (it.lane - 1) * LW, PY - 90, 0.45, 90, 210); chispas(W / 2 + (it.lane - 1) * LW, PY - 90, '#ff9ad5', 16); anillo(W / 2 + (it.lane - 1) * LW, PY - 90, '#ffb3e6', 0.8); toast('¡Crash! +2 🪙', '#ff9ad5', 0.7); } else golpe(); }
         } else if (it.k === 'pat' && !it.tomado && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) {
           it.tomado = true; S.skate = 8; S.puntos += 20; sfx.portal(); fx('fx_remo', W / 2 + (it.lane - 1) * LW, PY - 90, 0.8, 90, 250); chispas(W / 2 + (it.lane - 1) * LW, PY - 100, '#ff9ad5', 26); anillo(W / 2 + (it.lane - 1) * LW, PY - 100, '#ffd35a', 1.3); toast('🛹 ¡Patineta ninja!', '#ff9ad5', 1.8);
@@ -587,6 +587,13 @@
       if (vi < 250) return; const f = clamp(vi / 1300, 0.25, 1), hx = W / 2 + (S.px - 1) * LW; S.sq = { t0: S.t, f }; S.bump = Math.max(S.bump || 0, f);
       for (let i = 0; i < 6 + Math.round(8 * f); i++) { const lado = i % 2 ? 1 : -1; S.polvo.push({ x: hx + lado * R(10, 30), y: PY - 2 - (S.escal || 0), vx: lado * R(70, 230) * (0.5 + f), vy: R(-110, -30), life: R(0.35, 0.65), t: 0, r: R(7, 13) }); }
       (S.ondas = S.ondas || []).push({ x: hx, y: PY + 2 - (S.escal || 0), t: 0, f }); if (vi > 500) sfx.aterriza(f);
+    }
+    // Obstáculo bajo (barril, caja, valla…) de su carril que está justo debajo: se mide con su altura real dibujada, no con un número fijo,
+    // así los pies pasan POR ENCIMA y no a través. Mientras está sobre uno, la gravedad es más suave (más tiempo en el aire por encima).
+    function altoObs(it) { return (SKIN[it.skin] || SKIN.barril).h; }
+    function sobreObstaculo() {
+      for (const it of S.items) { if (it.k !== 'obs' || it.tipo !== 'bajo' || it.roto) continue; const z = it.d - S.dist; if (z < 2.4 && z > -0.7 && Math.abs(S.px - it.lane) < 0.6) return true; }
+      return false;
     }
     // ESCALERA DEL PORTAL. Con la geometría real del sprite (PORT) se calcula en qué peldaño está la Sakura según la distancia al portal:
     //  · sus pies se apoyan en cada peldaño (no lo atraviesan), pegando un saltito con estiramiento y polvito al subir al siguiente,
@@ -1154,7 +1161,7 @@
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
-      S.items.forEach(it => { const z = it.d - S.dist; if (it.k === 'plat' || it.k === 'oro') { const zB = it.hasta - S.dist; if (zB > -3 && z < ZMAX) cola.push({ z: it.k === 'plat' ? Math.max(zB, 0.2) : zB, f: () => it.k === 'plat' ? platDib(it) : oroDib(it) }); return; } if (it.k === 'zona' || it.k === 'jefe') return; if (z > -4 && z < ZMAX) cola.push({ z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'tramp' ? trampDib(it, z) : it.k === 'vida' ? vidaDib(it, z) : it.k === 'cofre' ? cofreDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'shu' ? shuDib(it, z) : it.k === 'viga' ? vigaDib(it, z) : it.k === 'pat' ? patDib(it, z) : (z < 0 ? portalDib(it, z, 'alto') : portalDib(it, z)) }); if (it.k === 'portal' && z < 0 && z > -4) cola.push({ z: 0.0001, f: () => portalDib(it, z, 'suelo') }); });
+      S.items.forEach(it => { const z = it.d - S.dist; if (it.k === 'plat' || it.k === 'oro') { const zB = it.hasta - S.dist; if (zB > -3 && z < ZMAX) cola.push({ z: it.k === 'plat' ? Math.max(zB, 0.2) : zB, f: () => it.k === 'plat' ? platDib(it) : oroDib(it) }); return; } if (it.k === 'zona' || it.k === 'jefe') return; if (z > -4 && z < ZMAX) cola.push({ z: (it.k === 'obs' && it.tipo === 'bajo' && z < 0 && z > -1.2 && S.jh > altoObs(it) * 0.55) ? 0.0002 : z, f: () => it.k === 'orb' ? orbe(it, z) : it.k === 'coin' ? monedaDib(it, z) : it.k === 'caja' ? cajaDib(it, z) : it.k === 'tramp' ? trampDib(it, z) : it.k === 'vida' ? vidaDib(it, z) : it.k === 'cofre' ? cofreDib(it, z) : it.k === 'nube' ? nubeDib(it, z) : it.k === 'obs' ? obstaculo(it, z) : it.k === 'shu' ? shuDib(it, z) : it.k === 'viga' ? vigaDib(it, z) : it.k === 'pat' ? patDib(it, z) : (z < 0 ? portalDib(it, z, 'alto') : portalDib(it, z)) }); if (it.k === 'portal' && z < 0 && z > -4) cola.push({ z: 0.0001, f: () => portalDib(it, z, 'suelo') }); });
       if (S.jefeVis && !S.fin) cola.push({ z: 40, f: jefeDib });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
