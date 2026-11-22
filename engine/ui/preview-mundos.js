@@ -103,7 +103,7 @@
     if (heroeId !== 'kage') ['run', 'jump', 'roll', 'carril', 'celebra'].forEach(n => { for (let i = 1; i <= 8; i++) imgs.push(B3 + n + '_' + pad(i) + '.png'); });
 
     function dibujar(c, W, Hh, t) {
-      const tl = mod(t, T), dn = dist(t), u = Hh / 960, hor = .215 * Hh, Py = .6 * Hh, LW = .27 * W; let s;
+      const tl = mod(t, T), dn = dist(t), u = Hh / 960, hor = .19 * Hh, Py = .5 * Hh, LW = .27 * W; let s;
       const pz = z => 1 / (1 + z / Z0), yz = z => hor + (Py - hor) * pz(z), xz = (l, z) => W / 2 + (l - 1) * LW * pz(z);
       let g = c.createLinearGradient(0, 0, 0, hor + 4); g.addColorStop(0, m.cielo[0]); g.addColorStop(1, m.cielo[1]); c.fillStyle = g; c.fillRect(0, 0, W, hor + 4);
       const mt = IM(FAR);
@@ -122,24 +122,24 @@
       // decorado a los lados
       if (DEC.length) for (let n = Math.floor(dn / 5.5) - 3; n < Math.floor((dn + ZMAX) / 5.5) + 1; n++) {
         const h = hash(n), z = n * 5.5 - dn, lado_ = (h & 1) ? 1 : -1, off = 1 + lado_ * (1.2 + .6 + ((h >> 4) & 3) * .28) + 0, img = DEC[(h >> 6) % DEC.length], hf = .9 + ((h >> 9) & 3) * .08;
-        L.push([z, () => { const p = pz(z), x = xz(off, z), hh = .3 * Hh * p * hf; if (!imagen(c, img, x, yz(z), hh)) return; brillo(c, x, yz(z) - hh * .62, hh * .55, '255,185,80', .32 * clamp((ZMAX - z) / 26, 0, 1)); }]);
+        L.push([z, () => { const p = pz(z), x = xz(off, z), hh = .25 * Hh * p * hf; if (!imagen(c, img, x, yz(z), hh)) return; brillo(c, x, yz(z) - hh * .62, hh * .55, '255,185,80', .32 * clamp((ZMAX - z) / 26, 0, 1)); }]);
       }
       // objetos de la pista (en tres vueltas, para que el bucle no se note)
       [-1, 0, 1].forEach(k => items.forEach(o => {
         const z = o.D + k * Dl - dn; if (z < -4 || z > ZMAX) return; const tp = t - (o.tA + k * T), p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1);
         L.push([z, () => {
           const x = xz(o.lane == null ? 1 : o.lane, z), y = yz(z);
-          if (o.k === 'moneda') { if (z < .4) { chispas(c, x, y - 46 * u * p * 1.3, tp, 5, .6, '#ffd35a', o.tA * 10 | 0); return; } const yy = y - (46 + (o.h || 0)) * u * p * 1.3; brillo(c, x, yy, .07 * Hh * p, '255,210,90', .4 * a); c.globalAlpha = a; moneda(c, x, yy, .036 * Hh * p, t + o.tA); c.globalAlpha = 1; }
-          else if (o.k === 'barril') imagen(c, BARRIL, x, y, .15 * Hh * p, a);
-          else if (o.k === 'torii') imagen(c, TORII, x, y, .26 * Hh * p, a);
-          else if (o.k === 'arco') { const hh = .42 * Hh * p; imagen(c, ARCO, W / 2, y, hh, a); }
+          if (o.k === 'moneda') { if (z < .4) { chispas(c, x, y - 46 * u * p * 1.3, tp, 5, .6, '#ffd35a', o.tA * 10 | 0); return; } const yy = y - (46 + (o.h || 0)) * u * p * 1.3; brillo(c, x, yy, .058 * Hh * p, '255,210,90', .4 * a); c.globalAlpha = a; moneda(c, x, yy, .03 * Hh * p, t + o.tA); c.globalAlpha = 1; }
+          else if (o.k === 'barril') imagen(c, BARRIL, x, y, .12 * Hh * p, a);
+          else if (o.k === 'torii') imagen(c, TORII, x, y, .21 * Hh * p, a);
+          else if (o.k === 'arco') { const hh = .34 * Hh * p; imagen(c, ARCO, W / 2, y, hh, a); }
           else if (o.k === 'caja') {
             if (z < .4) { chispas(c, x, y - 50 * u * p * 1.3, tp, 12, .7, '#c9a0ff', 7); return; }
-            const r = .034 * Hh * p, yy = y - (50 + 8 * Math.sin(t * 4)) * u * p * 1.3; brillo(c, x, yy, r * 2.6, '190,140,255', .6 * a); c.globalAlpha = a; c.fillStyle = '#7a3fd0'; c.strokeStyle = '#ffd35a'; c.lineWidth = Math.max(1.5, 3 * p); rr(c, x - r, yy - r, r * 2, r * 2, r * .22); c.fill(); c.stroke(); c.fillStyle = '#ffd35a'; c.fillRect(x - r * .14, yy - r, r * .28, r * 2); c.globalAlpha = 1; texto(c, '?', x, yy + r * .06, r * 1.2, '#fff');
+            const r = .028 * Hh * p, yy = y - (50 + 8 * Math.sin(t * 4)) * u * p * 1.3; brillo(c, x, yy, r * 2.6, '190,140,255', .6 * a); c.globalAlpha = a; c.fillStyle = '#7a3fd0'; c.strokeStyle = '#ffd35a'; c.lineWidth = Math.max(1.5, 3 * p); rr(c, x - r, yy - r, r * 2, r * 2, r * .22); c.fill(); c.stroke(); c.fillStyle = '#ffd35a'; c.fillRect(x - r * .14, yy - r, r * .28, r * 2); c.globalAlpha = 1; texto(c, '?', x, yy + r * .06, r * 1.2, '#fff');
           } else if (o.k === 'puerta') {
             const vals = [24, 32, 28], elegido = tp > -.02;
             for (let l = 0; l < 3; l++) {
-              const x2 = xz(l, z), r = .062 * Hh * p, yy = y - 100 * u * p * 1.25, bob = Math.sin(t * 3 + l * 1.7) * 6 * u * p;
+              const x2 = xz(l, z), r = .05 * Hh * p, yy = y - 100 * u * p * 1.1, bob = Math.sin(t * 3 + l * 1.7) * 6 * u * p;
               if (elegido && l === 2) { if (tp < .5) chispas(c, x2, yy, tp, 22, 1, '#ffe27a', 11); continue; }
               const fade = elegido ? clamp(1 - tp * 2.2, 0, 1) * .3 : 1; if (fade <= .01 || z < -.3) continue;
               c.globalAlpha = a * fade; brillo(c, x2, y, r * 1.9, '110,190,255', .32);
@@ -153,18 +153,18 @@
       // Sakura
       L.push([0, () => {
         let jh = 0, est = 'run', idx = Math.floor(t * 10) % 8;
-        if ((s = (tl - 3.64) / .72) >= 0 && s <= 1) { est = 'jump'; idx = Math.min(7, Math.floor(s * 8)); jh = 150 * u * 4 * s * (1 - s); }
+        if ((s = (tl - 3.64) / .72) >= 0 && s <= 1) { est = 'jump'; idx = Math.min(7, Math.floor(s * 8)); jh = 120 * u * 4 * s * (1 - s); }
         else if ((s = (tl - 5.85) / .9) >= 0 && s <= 1) { est = 'roll'; idx = Math.min(7, Math.floor(s * 8)); }
         else if ((s = (tl - (tD - .05)) / 1.3) >= 0 && s <= 1) { est = 'celebra'; idx = Math.min(7, Math.floor(s * 8)); }
         else if (la.cambia) { est = 'carril'; idx = Math.min(3, Math.floor(la.s * 4)) + (la.der ? 4 : 0); }
         else if (tl > 10.9 && tl < 12.0) idx = Math.floor(t * 8) % 8;
         const y = Py - jh;
-        c.fillStyle = 'rgba(0,0,0,.38)'; c.beginPath(); c.ellipse(hx, Py + 3 * u, 60 * u * (1 - jh / (400 * u)), 11 * u, 0, 0, 7); c.fill();
+        c.fillStyle = 'rgba(0,0,0,.38)'; c.beginPath(); c.ellipse(hx, Py + 3 * u, 48 * u * (1 - jh / (400 * u)), 11 * u, 0, 0, 7); c.fill();
         const M = espalda();
-        if (M && M.animations[est]) { const fr = M.animations[est].frames[idx % M.animations[est].frames.length], im = IM(B3 + fr.file), sc = .245 * Hh / M.refH; if (ok(im)) c.drawImage(im, hx - fr.ax * sc, y - fr.ay * sc, fr.w * sc, fr.h * sc); }
-        else { lado(c, est === 'jump' ? H.jump : H.run, est === 'jump' ? s * H.jump.length : t * 14, hx, y, .26 * Hh); }
+        if (M && M.animations[est]) { const fr = M.animations[est].frames[idx % M.animations[est].frames.length], im = IM(B3 + fr.file), sc = .2 * Hh / M.refH; if (ok(im)) c.drawImage(im, hx - fr.ax * sc, y - fr.ay * sc, fr.w * sc, fr.h * sc); }
+        else { lado(c, est === 'jump' ? H.jump : H.run, est === 'jump' ? s * H.jump.length : t * 14, hx, y, .22 * Hh); }
         const sh = clamp(Math.min(tl - (tD + 2.0), T - .5 - tl) / .4, 0, 1); // escudo de la caja sorpresa
-        if (sh > 0) { c.globalAlpha = sh; c.fillStyle = 'rgba(120,200,255,.16)'; c.strokeStyle = 'rgba(160,225,255,.85)'; c.lineWidth = 3; c.beginPath(); c.arc(hx, y - .115 * Hh, .13 * Hh + 3 * Math.sin(t * 6), 0, 7); c.fill(); c.stroke(); c.globalAlpha = 1; }
+        if (sh > 0) { c.globalAlpha = sh; c.fillStyle = 'rgba(120,200,255,.16)'; c.strokeStyle = 'rgba(160,225,255,.85)'; c.lineWidth = 3; c.beginPath(); c.arc(hx, y - .095 * Hh, .105 * Hh + 3 * Math.sin(t * 6), 0, 7); c.fill(); c.stroke(); c.globalAlpha = 1; }
       }]);
       L.sort((a, b) => b[0] - a[0]); L.forEach(f => f[1]());
       // texto en pantalla (igual que en el juego)
@@ -185,34 +185,34 @@
     const ORBE = N1 + 'items_jefe/orbe_energia.png', ROCA = N1 + 'enemigos/roca_gigante.png', NINJA = N1 + 'enemigos/ninja_sombra.png', BANDERA = N1 + 'decorado/estandarte_colgante.png', TORII = N1 + 'decorado/torii_activo.png';
     /** @type {any[][]} */
     const EV = [[.9, 'orbe'], [1.2, 'orbe'], [1.5, 'orbe'], [2.8, 'roca'], [5.4, 'ninja'], [7.6, 'bandera'], [9.7, 'torii']];
-    const arc = [0, .07, .12, .14, .12, .07, 0];
+    const arc = [0, .055, .1, .115, .1, .055, 0];
     const imgs = [f0.far, ORBE, ROCA, NINJA, BANDERA, TORII].concat(props.map(p => p.img), H.run, H.jump, H.slide || [], H.melee || []);
     function dibujar(c, W, Hh, t) {
-      const tl = mod(t, T), kk = Math.floor(t / T), gy = .58 * Hh, pies = .6 * Hh, hx = .27 * W, sp = .55 * W;
+      const tl = mod(t, T), kk = Math.floor(t / T), gy = .47 * Hh, pies = .5 * Hh, hx = .27 * W, sp = .55 * W;
       let g = c.createLinearGradient(0, 0, 0, Hh); g.addColorStop(0, m.cielo[0]); g.addColorStop(1, m.cielo[1]); c.fillStyle = g; c.fillRect(0, 0, W, Hh);
-      const far = IM(f0.far); if (ok(far)) { const hh = .46 * Hh, ww = hh * iw(far) / ih(far); for (let x = -mod(t * sp * .06, ww); x < W + 4; x += ww) c.drawImage(far, x, .6 * Hh - hh, ww, hh); }
+      const far = IM(f0.far); if (ok(far)) { const hh = .38 * Hh, ww = hh * iw(far) / ih(far); for (let x = -mod(t * sp * .06, ww); x < W + 4; x += ww) c.drawImage(far, x, .5 * Hh - hh, ww, hh); }
       g = c.createLinearGradient(0, gy, 0, Hh); g.addColorStop(0, f0.suelo[0]); g.addColorStop(1, f0.suelo[1]); c.fillStyle = g; c.fillRect(0, gy, W, Hh - gy);
       c.fillStyle = 'rgba(255,255,255,.18)'; c.fillRect(0, gy, W, 2);
       const capa = (lista, vel, base, alto) => lista.forEach(p => { const tile = W * 1.25, X = mod(p.x / 100 * tile - t * sp * vel, tile) - .15 * tile; [X, X - tile].forEach(x => imagen(c, p.img, x, base, alto * p.h / 100)); });
-      capa(props.filter(p => p.capa !== 'cerca'), .3, .59 * Hh, .62 * Hh);
-      capa(props.filter(p => p.capa === 'cerca'), 1, .62 * Hh, .5 * Hh);
+      capa(props.filter(p => p.capa !== 'cerca'), .3, .49 * Hh, .5 * Hh);
+      capa(props.filter(p => p.capa === 'cerca'), 1, .52 * Hh, .42 * Hh);
       const ev = (k, fn) => EV.forEach(e => { const te = e[0] + k * T, x = hx + (te - t) * sp; if (x > -.3 * W && x < 1.3 * W) fn(e, x, t - te); });
       // objetos que vienen
       [kk, kk + 1].forEach(k => ev(k, (e, x, tp) => {
         const tg = e[1];
-        if (tg === 'orbe') { if (x < hx + .03 * W) { chispas(c, x, gy - .08 * Hh, tp, 6, .7, '#9ad7ff', e[0] * 10 | 0); return; } brillo(c, x, pies - .08 * Hh, .07 * Hh, '150,210,255', .5); imagen(c, ORBE, x, pies - .045 * Hh, .075 * Hh); }
-        else if (tg === 'roca') { imagen(c, ROCA, x, pies, .15 * Hh); [0, 1, 2, 3, 4, 5, 6].forEach(i => { const xx = x + (i - 3) * .035 * W - .0 * W, h = arc[i] * Hh; if (xx < hx + .03 * W) return; imagen(c, ORBE, xx, pies - .06 * Hh - h, .05 * Hh); }); }
-        else if (tg === 'ninja') { if (tp > .05) { const f = clamp(1 - (tp - .05) * 3, 0, 1); chispas(c, x, pies - .12 * Hh, tp, 22, 1, '#d9b3ff', 5); if (f > 0) imagen(c, NINJA, x, pies, .3 * Hh, f, true); return; } imagen(c, NINJA, x + Math.sin(t * 9) * 1.5, pies, .3 * Hh, 1, true); }
-        else if (tg === 'bandera') { const top = pies - .4 * Hh; imagen(c, BANDERA, x, top + .26 * Hh, .26 * Hh); }
-        else if (tg === 'torii') { brillo(c, x, pies - .2 * Hh, .3 * Hh, '255,210,90', .35); imagen(c, TORII, x, pies, .44 * Hh); if (tp > -.1) chispas(c, hx + .05 * W, pies - .2 * Hh, tp + .1, 26, 1.1, '#ffe27a', 9); }
+        if (tg === 'orbe') { if (x < hx + .03 * W) { chispas(c, x, gy - .08 * Hh, tp, 6, .7, '#9ad7ff', e[0] * 10 | 0); return; } brillo(c, x, pies - .065 * Hh, .06 * Hh, '150,210,255', .5); imagen(c, ORBE, x, pies - .04 * Hh, .06 * Hh); }
+        else if (tg === 'roca') { imagen(c, ROCA, x, pies, .125 * Hh); [0, 1, 2, 3, 4, 5, 6].forEach(i => { const xx = x + (i - 3) * .035 * W, h = arc[i] * Hh; if (xx < hx + .03 * W) return; imagen(c, ORBE, xx, pies - .05 * Hh - h, .042 * Hh); }); }
+        else if (tg === 'ninja') { if (tp > .05) { const f = clamp(1 - (tp - .05) * 3, 0, 1); chispas(c, x, pies - .12 * Hh, tp, 22, 1, '#d9b3ff', 5); if (f > 0) imagen(c, NINJA, x, pies, .25 * Hh, f, true); return; } imagen(c, NINJA, x + Math.sin(t * 9) * 1.5, pies, .25 * Hh, 1, true); }
+        else if (tg === 'bandera') { const top = pies - .33 * Hh; imagen(c, BANDERA, x, top + .21 * Hh, .21 * Hh); }
+        else if (tg === 'torii') { brillo(c, x, pies - .2 * Hh, .3 * Hh, '255,210,90', .35); imagen(c, TORII, x, pies, .36 * Hh); if (tp > -.1) chispas(c, hx + .05 * W, pies - .2 * Hh, tp + .1, 26, 1.1, '#ffe27a', 9); }
       }));
       // Sakura
       let jh = 0, set = H.run, idx = t * 14, s, yy = 0;
-      if ((s = (tl - 2.45) / .7) >= 0 && s <= 1) { set = H.jump; idx = Math.min(.999, s) * H.jump.length; jh = .24 * Hh * 4 * s * (1 - s); }
+      if ((s = (tl - 2.45) / .7) >= 0 && s <= 1) { set = H.jump; idx = Math.min(.999, s) * H.jump.length; jh = .2 * Hh * 4 * s * (1 - s); }
       else if ((s = (tl - 4.95) / .6) >= 0 && s <= 1) { set = H.melee; idx = Math.min(.999, s) * H.melee.length; }
       else if ((s = (tl - 7.25) / .75) >= 0 && s <= 1) { set = H.slide || H.run; idx = H.slide ? Math.min(.999, s) * H.slide.length : t * 14; yy = H.slide ? 0 : 0; }
       c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(hx, pies + 2, .1 * W * (1 - jh / (.5 * Hh)), .016 * Hh, 0, 0, 7); c.fill();
-      lado(c, set, idx, hx, pies - jh + yy, .36 * Hh);
+      lado(c, set, idx, hx, pies - jh + yy, .3 * Hh);
     }
     return { dur: T, imgs, dibujar, listo: () => ok(IM(f0.far)) && ok(IM(H.run[0])) };
   }
@@ -227,35 +227,35 @@
     const fr = (m.extra && m.extra.frames) || [];
     const imgs = [G0, G1].concat(H.alf, [H.sube, H.baja], fr, fases.map(f => f.far), fases.reduce((a, f) => a.concat((f.props || []).map(p => p.img)), []));
     function fondo(c, W, Hh, f, t, alfa) {
-      c.globalAlpha = alfa; const far = IM(f.far), gy = .58 * Hh;
+      c.globalAlpha = alfa; const far = IM(f.far), gy = .5 * Hh;
       if (ok(far)) {
-        const hh = (f.completo ? .76 : .46) * Hh, ww = hh * iw(far) / ih(far), base = (f.completo ? .63 : .6) * Hh, off = ww > W ? -(ww - W) * (.5 + .5 * Math.sin(t * .3)) : -mod(t * W * .05, ww);
+        const hh = (f.completo ? .66 : .38) * Hh, ww = hh * iw(far) / ih(far), base = (f.completo ? .53 : .5) * Hh, off = ww > W ? -(ww - W) * (.5 + .5 * Math.sin(t * .3)) : -mod(t * W * .05, ww);
         for (let x = off; x < W + 2; x += ww) c.drawImage(far, x, base - hh, ww, hh);
       }
-      const g = c.createLinearGradient(0, gy, 0, Hh); g.addColorStop(0, f.suelo[0]); g.addColorStop(1, f.suelo[1]); c.fillStyle = g; c.fillRect(0, f.completo ? .63 * Hh : gy, W, Hh);
-      (f.props || []).forEach(p => { const tile = W * 1.25, X = mod(p.x / 100 * tile - t * W * (p.capa === 'cerca' ? .55 : .2), tile) - .15 * tile; [X, X - tile].forEach(x => imagen(c, p.img, x, (p.capa === 'cerca' ? .65 : .59) * Hh, (p.capa === 'cerca' ? .84 : .62) * Hh * p.h / 100)); });
+      const g = c.createLinearGradient(0, gy, 0, Hh); g.addColorStop(0, f.suelo[0]); g.addColorStop(1, f.suelo[1]); c.fillStyle = g; c.fillRect(0, f.completo ? .53 * Hh : gy, W, Hh);
+      (f.props || []).forEach(p => { const tile = W * 1.25, X = mod(p.x / 100 * tile - t * W * (p.capa === 'cerca' ? .55 : .2), tile) - .15 * tile; [X, X - tile].forEach(x => imagen(c, p.img, x, (p.capa === 'cerca' ? .55 : .49) * Hh, (p.capa === 'cerca' ? .7 : .5) * Hh * p.h / 100)); });
       c.globalAlpha = 1;
     }
     function dibujar(c, W, Hh, t) {
       const tl = mod(t, T), ph = Math.min(fases.length - 1, Math.floor(tl / PL)), tau = tl - ph * PL, nxt = (ph + 1) % fases.length;
       let g = c.createLinearGradient(0, 0, 0, Hh); g.addColorStop(0, m.cielo[0]); g.addColorStop(1, m.cielo[1]); c.fillStyle = g; c.fillRect(0, 0, W, Hh);
       fondo(c, W, Hh, fases[ph], t, 1); const fd = suave((tau - (PL - .7)) / .7); if (fd > 0) fondo(c, W, Hh, fases[nxt], t + 3, fd);
-      const q = Q[ph % Q.length], hx = .3 * W, sp = .52 * W, gc = [.33, .46, .59].map(v => v * Hh), base = .4 * Hh, gh = .125 * Hh;
+      const q = Q[ph % Q.length], hx = .3 * W, sp = .52 * W, gc = [.3, .41, .52].map(v => v * Hh), base = .35 * Hh, gh = .105 * Hh;
       const yOf = tt => base + (gc[q.ok] - base) * (suave((tt - .7) / .8) - suave((tt - 2.5) / .8));
       const y = yOf(tau), dy = yOf(tau + .06) - yOf(tau - .06) + Math.sin(t * 2.2) * .0, gx = W * 1.15 - (tau - .3) * sp, paso = tau > 1.93;
       // zorro compañero (corre por el suelo, detrás de las compuertas)
-      if (fr.length) imagen(c, fr[Math.floor(t * 9) % fr.length], .74 * W, .62 * Hh, .22 * Hh);
+      if (fr.length) imagen(c, fr[Math.floor(t * 9) % fr.length], .74 * W, .52 * Hh, .18 * Hh);
       // compuertas
       if (gx > -.2 * W) for (let i = 0; i < 3; i++) {
         const esOk = i === q.ok, usada = paso && esOk; c.globalAlpha = paso && !esOk ? .35 : 1;
         if (usada) brillo(c, gx, gc[i], gh * .9, '120,255,170', .55);
-        imagen(c, usada ? G1 : G0, gx, gc[i] + gh / 2, gh); texto(c, String(q.a[i]), gx, gc[i] + .005 * Hh, .05 * Hh, '#fff6c2'); c.globalAlpha = 1;
+        imagen(c, usada ? G1 : G0, gx, gc[i] + gh / 2, gh); texto(c, String(q.a[i]), gx, gc[i] + .004 * Hh, .042 * Hh, '#fff6c2'); c.globalAlpha = 1;
       }
       if (paso && tau < 2.8) { chispas(c, hx + .08 * W, gc[q.ok], tau - 1.93, 24, 1.1, '#9fffc4', 21); c.globalAlpha = clamp(1 - (tau - 1.93) * 1.2, 0, 1); texto(c, '¡Muy bien! +5', W / 2, .285 * Hh - (tau - 1.93) * .03 * Hh, .046 * Hh, '#7dffb0'); c.globalAlpha = 1; }
       // alfombra voladora
       const al = dy < -.002 * Hh ? H.sube : dy > .002 * Hh ? H.baja : H.alf[Math.floor(t * 8) % 2];
-      c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(hx, .62 * Hh, .08 * W, .013 * Hh, 0, 0, 7); c.fill();
-      imagen(c, al, hx, y + Math.sin(t * 3) * .006 * Hh + .09 * Hh, .22 * Hh);
+      c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(hx, .52 * Hh, .08 * W, .011 * Hh, 0, 0, 7); c.fill();
+      imagen(c, al, hx, y + Math.sin(t * 3) * .005 * Hh + .075 * Hh, .185 * Hh);
       const hayQ = tau > .2 && tau < 2.9; pastilla(c, hayQ ? '¿Cuánto es ' + q.q + '?' : '¡Cruza la puerta correcta!', W / 2, .2 * Hh, W * .72, .06 * Hh, m.acento || '#ffb44a', .036 * Hh);
     }
     return { dur: T, imgs, dibujar, listo: () => ok(IM(fases[0].far)) && ok(IM(H.alf[0])) };
