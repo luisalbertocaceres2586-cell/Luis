@@ -244,8 +244,8 @@
       if (!suave && ev !== 'oscuro') A.push(['nube', 13]);
       if (!calma && M >= 1) A.push(['muro', 9], ['shu', 8]);
       if (!calma && M >= 2) A.push(['viga', 8]);
-      let tot = 0; A.forEach(a => { if (a[0] === S.sp.ultP) a[1] *= 0.25; tot += a[1]; });
-      let r = Math.random() * tot, k = A[0][0]; for (const a of A) { r -= a[1]; if (r <= 0) { k = a[0]; break; } }
+      let tot = 0; A.forEach(a => { if (a[0] === S.sp.ultP) a[1] = +a[1] * 0.25; tot += +a[1]; });
+      let r = Math.random() * tot, k = A[0][0]; for (const a of A) { r -= +a[1]; if (r <= 0) { k = a[0]; break; } }
       S.sp.ultP = k;
       switch (k) {
         case 'arco': { const H = [0, 60, 105, 130, 105, 60, 0]; for (let i = 0; i < 7; i++) moneda(d + i * 2.4, lane, H[i], i === 3 ? 'racha' : undefined); return 18; }
@@ -1229,7 +1229,7 @@
         '<button id="otra" type="button">↻ JUGAR OTRA VEZ</button><button id="sal2" type="button" class="sec">⟵ SALIR</button>', 'fin');
       document.getElementById('otra').onclick = () => { inicio(); };
       document.getElementById('sal2').onclick = () => salir();
-      const cu = (id, a, ms) => { const el = document.getElementById(id); if (!el) return; const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / ms); el.textContent = Math.round(a * (1 - Math.pow(1 - k, 3))); if (k < 1 && document.body.contains(el)) requestAnimationFrame(f); })(t0); };
+      const cu = (id, a, ms) => { const el = document.getElementById(id); if (!el) return; const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / ms); el.textContent = String(Math.round(a * (1 - Math.pow(1 - k, 3)))); if (k < 1 && document.body.contains(el)) requestAnimationFrame(f); })(t0); };
       cu('cnM', S.monedas, 1400); cu('cnP', S.puntos, 1600);
       for (let i = 0; i < est; i++) setTimeout(() => { if (S.fin) { sfx.bien(i + 2); chispas(W / 2 + (i - 1) * 90, 300, '#ffe27a', 16); } }, 480 + i * 400);
     }
