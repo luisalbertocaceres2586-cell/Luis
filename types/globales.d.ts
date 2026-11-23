@@ -55,6 +55,8 @@ declare global {
   var MundosRegistro: MundosRegistroAPI;
   var NinjaMods: any; var NinjaOrient: any; var NinjaCompat: any; var NinjaDevice: any;
   var IntroPro: any; var VillainBoss: any;
+  /** Módulos nuevos de engine/ (TODO: describir su API). */
+  var FisicaVisual: any; var PreviewMundos: any;
   var Nivel1: any; var N1hab: any; var N1elem: any; var N1dir: any; var Ruta: any; var Acertijos: any; var GenNivel: any;
 
   // ---------- cosas que los scripts cuelgan de `window` / APIs no estándar del navegador ----------
