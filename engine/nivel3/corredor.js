@@ -752,6 +752,28 @@
         if (par) { ctx.fillStyle = 'rgba(255,255,255,' + (0.22 * (1 - ff)) + ')'; const lw = Math.max(1, 3 * p); ctx.fillRect(W / 2 - LW * p * 0.5 - lw / 2, y, lw, paso + 1); ctx.fillRect(W / 2 + LW * p * 0.5 - lw / 2, y, lw, paso + 1); }
       }
     }
+    // Marcas sobre el suelo propias de cada mundo (hojas, pétalos, reflejos, grietas, destellos, charcos)
+    const hz = n => { const v = Math.sin(n * 12.9898) * 43758.5453; return v - Math.floor(v); };
+    function marcasCamino(ta, tb, f) {
+      if (S.lite) return;
+      const dib = (m, al) => {
+        if (al <= 0.02) return; ctx.save(); ctx.globalAlpha = al;
+        for (let k = Math.floor((S.dist - 2) / 3); k * 3 - S.dist < 60; k++) {
+          const z = k * 3 - S.dist; if (z < 0.4 || hz(k * 2.1) > 0.72) continue;
+          const h2 = hz(k * 3.7 + 1), h3 = hz(k * 5.3 + 2), p = pz(z) * 1.35, x = W / 2 + (h2 * 2 - 1) * RW * 0.88 * p, y = yz(z), a = clamp((ZMAX - z) / 30, 0, 1);
+          ctx.save(); ctx.translate(x, y); ctx.globalAlpha = al * a;
+          if (m === 0) { ctx.rotate(h3 * 3.14); ctx.scale(1, 0.55); ctx.fillStyle = h3 > 0.5 ? 'rgba(130,205,110,.8)' : 'rgba(80,160,90,.8)'; ctx.beginPath(); ctx.ellipse(0, 0, 11 * p, 3.6 * p, 0, 0, 7); ctx.fill(); }
+          else if (m === 1) { ctx.rotate(h3 * 6); ctx.scale(1, 0.55); ctx.fillStyle = h3 > 0.5 ? 'rgba(255,175,210,.9)' : 'rgba(255,205,225,.9)'; ctx.beginPath(); ctx.ellipse(0, 0, 7 * p, 3.4 * p, 0, 0, 7); ctx.fill(); }
+          else if (m === 2) { ctx.scale(1, 0.32); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 46 * p); g.addColorStop(0, 'rgba(255,200,100,' + (0.34 + 0.08 * Math.sin(S.t * 4 + k)) + ')'); g.addColorStop(1, 'rgba(255,150,60,0)'); ctx.fillStyle = g; ctx.fillRect(-46 * p, -46 * p, 92 * p, 92 * p); }
+          else if (m === 3) { ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,' + (120 + Math.round(60 * h3)) + ',40,' + (0.75 + 0.2 * Math.sin(S.t * 5 + k)).toFixed(2) + ')'; ctx.lineWidth = Math.max(1, 3.2 * p); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-26 * p, 0); ctx.lineTo(-8 * p, -5 * p * (0.6 + h3)); ctx.lineTo(6 * p, 3 * p); ctx.lineTo(24 * p, -4 * p); ctx.stroke(); ctx.lineWidth = Math.max(1, 1.4 * p); ctx.strokeStyle = 'rgba(255,240,170,.9)'; ctx.stroke(); }
+          else if (m === 4) { const tw = 0.4 + 0.6 * Math.abs(Math.sin(S.t * 2.4 + k * 1.7)); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(200,240,255,' + (0.85 * tw).toFixed(2) + ')'; const r = 13 * p * tw; ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r * 0.22, -r * 0.22); ctx.lineTo(r, 0); ctx.lineTo(r * 0.22, r * 0.22); ctx.lineTo(0, r); ctx.lineTo(-r * 0.22, r * 0.22); ctx.lineTo(-r, 0); ctx.lineTo(-r * 0.22, -r * 0.22); ctx.closePath(); ctx.fill(); }
+          else { ctx.scale(1, 0.3); ctx.fillStyle = 'rgba(40,30,90,.45)'; ctx.beginPath(); ctx.arc(0, 0, 36 * p, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(190,175,255,.55)'; ctx.lineWidth = Math.max(1, 2 * p * 3); const rp = ((S.t * 0.9 + h3) % 1); ctx.globalAlpha *= 1 - rp; ctx.beginPath(); ctx.arc(0, 0, (8 + 26 * rp) * p, 0, 7); ctx.stroke(); }
+          ctx.restore();
+        }
+        ctx.restore();
+      };
+      dib(ta, 1 - f); if (tb !== ta) dib(tb, f);
+    }
     function charcos() {
       if (S.lite) return; ctx.save(); ctx.globalCompositeOperation = 'lighter';
       for (const d of S.deco) {
@@ -1176,7 +1198,7 @@
       const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
       ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob + (S.bump || 0) * 12);
       if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
-      fondoDib(ta, tb, f); nubesDib(); auroraDib(); rayoDib(); camino(Tm); charcos(); niebla(Tm);
+      fondoDib(ta, tb, f); nubesDib(); auroraDib(); rayoDib(); camino(Tm); marcasCamino(ta, tb, f); charcos(); niebla(Tm);
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
