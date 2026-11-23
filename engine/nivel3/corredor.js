@@ -343,6 +343,12 @@
 
     // ───────────────────────── reglas ─────────────────────────
     function toast(txt, color, t) { S.toasts.push({ txt, color: color || '#fff', t: t || 1.3, t0: t || 1.3 }); if (S.toasts.length > 3) S.toasts.shift(); }
+    function volarMoneda(x, y, n) { S.vuelan = S.vuelan || []; for (let i = 0; i < n; i++) S.vuelan.push({ x: x + R(-10, 10), y, t0: S.t, dl: i * 0.07, s: R(-1, 1) }); if (S.vuelan.length > 14) S.vuelan.splice(0, S.vuelan.length - 14); }
+    function monedasVuelan() {
+      if (!S.vuelan || !S.vuelan.length) return; S.vuelan = S.vuelan.filter(v => S.t - v.t0 - v.dl < 0.62);
+      for (const v of S.vuelan) { const k = (S.t - v.t0 - v.dl) / 0.55; if (k < 0 || k > 1) continue; const e = k * k * (3 - 2 * k), im = IMG(ART.coin[Math.floor(S.t * 14) % 4]); if (!listo(im)) continue;
+        const x = v.x + (123 - v.x) * e + Math.sin(k * Math.PI) * 46 * v.s, y = v.y + (70 - v.y) * e - Math.sin(k * Math.PI) * 70, hh = 36 - 12 * e, ww = hh * im.naturalWidth / im.naturalHeight; brillo(x, y, hh * 0.9, '255,215,100', 0.5); ctx.drawImage(im, x - ww / 2, y - hh / 2, ww, hh); }
+    }
     function fx(k, x, y, dur, s0, s1, o) { S.fx.push(Object.assign({ k, x, y, t: 0, dur, s0, s1 }, o)); if (S.fx.length > 36) S.fx.shift(); }
     function chispas(x, y, col, n) { for (let i = 0; i < n; i++) S.parts.push({ x, y, vx: R(-220, 220), vy: R(-300, 60), life: R(0.4, 0.9), t: 0, c: col, r: R(3, 7) }); }
     function guardaFallo(row) {
@@ -502,6 +508,7 @@
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
       else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= (S.jv > 0 ? 2700 : 3500) * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
+      if (S.mult > 1 && !S.plaza && !S.lite && Math.random() < dt * (5 + S.mult * 4)) chispas(W / 2 + (S.px - 1) * LW + R(-34, 34), PY - R(10, 170), Math.random() < 0.5 ? '#ffb347' : '#ffe27a', 1);
       if (S.skate > 0 && !S.plaza && Math.random() < dt * 30) chispas(W / 2 + (S.px - 1) * LW + R(-16, 16), PY - 4, Math.random() < 0.5 ? '#ffd35a' : '#ff9ad5', 2);
       if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
@@ -520,6 +527,7 @@
         if (it.k === 'orb' && !it.tomado && !it.row.res && jugando && Math.abs(z) < 1.2 && Math.abs(S.px - it.lane) < 0.6) recoge(it, W / 2 + (it.lane - 1) * LW, yz(0) - 120);
         else if (it.k === 'coin' && !it.tomada && jugando && Math.abs(z) < 1.1 && Math.abs(S.px - it.lane) < (S.iman > 0 ? 1.7 : 0.6) && (S.iman > 0 || Math.abs(S.jh - it.h) < 85)) {
           it.tomada = true; const g = comboMoneda() + (S.racha >= 3 ? 1 : 0), esp = it.tipo === 'gema' || it.tipo === 'bolsa' || it.tipo === 'racha' || it.tipo === 'shuriken', val = it.tipo === 'gema' ? 10 : it.tipo === 'bolsa' ? 15 : it.tipo === 'racha' || it.tipo === 'shuriken' ? 3 : it.tipo === 'oro' ? g + 2 : g, cx = W / 2 + (it.lane - 1) * LW, cy = PY - 60 - it.h; S.monedas += val; S.puntos += val;
+          volarMoneda(cx, cy, esp ? 3 : 1);
           if (esp) { sfx.bien(3); chispas(cx, cy, '#ffe27a', 22); fx('fx_dest', cx, cy, 0.55, 90, 210); toast('+' + val + ' 🪙', '#ffe27a', 0.9); } else { sfx.moneda(S.combo); chispas(cx, cy, it.tipo === 'oro' ? '#fff2a0' : S.mult > 1 ? '#ffb347' : '#ffd35a', 4); fx('fx_dest', cx, cy, 0.32, 46, 92); }
         }
         else if (it.k === 'obs' && !it.roto && jugando && Math.abs(z) < 0.6 && Math.abs(S.px - it.lane) < 0.55) {
@@ -1006,6 +1014,7 @@
       const im = IMG(tp === 'shuriken' ? ART.shuriken : tp === 'gema' ? ART.gema : tp === 'bolsa' ? ART.bolsa : tp === 'racha' ? ART.coinRacha : ART.coin[Math.floor(S.t * 8 + it.d * 0.7) % 4]);
       brillo(x, y, r * (tp === 'oro' ? 2.4 : 1.9), tp === 'gema' ? '190,120,255' : tp === 'oro' ? '255,236,130' : '255,210,90', (tp === 'oro' ? 0.7 : 0.45) * a); ctx.globalAlpha = a;
       if (listo(im)) { const hh = r * 2, ww = hh * im.naturalWidth / im.naturalHeight; if (tp === 'shuriken') { ctx.save(); ctx.translate(x, y); ctx.rotate(S.t * 6 + it.d); ctx.drawImage(im, -ww / 2, -hh / 2, ww, hh); ctx.restore(); } else ctx.drawImage(im, x - ww / 2, y - hh / 2, ww, hh); } else { ctx.fillStyle = '#ffd35a'; ctx.beginPath(); ctx.arc(x, y, r * 0.8, 0, 7); ctx.fill(); }
+      const gl = (S.t * 0.55 + it.d * 0.137) % 1; if (!tp && !S.lite && gl < 0.14) { const k = Math.sin(gl / 0.14 * Math.PI), sr = r * 0.85 * k, gx = x - r * 0.28, gy = y - r * 0.34; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); ctx.moveTo(gx, gy - sr); ctx.lineTo(gx + sr * 0.2, gy - sr * 0.2); ctx.lineTo(gx + sr, gy); ctx.lineTo(gx + sr * 0.2, gy + sr * 0.2); ctx.lineTo(gx, gy + sr); ctx.lineTo(gx - sr * 0.2, gy + sr * 0.2); ctx.lineTo(gx - sr, gy); ctx.lineTo(gx - sr * 0.2, gy - sr * 0.2); ctx.closePath(); ctx.fill(); ctx.restore(); }
       ctx.globalAlpha = 1;
     }
     function patDib(it, z) {
@@ -1080,6 +1089,7 @@
         for (let i = 3; i >= 1; i--) { const h = S.hist.find(e => e.t >= S.t - 0.075 * i) || S.hist[0]; if (h) pintaHeroe(W / 2 + (h.px - 1) * LW, PY - h.jh - (S.escal || 0), kHeroe * (S.escK || 1), est, flip, 0.34 - i * 0.07); }
       }
       if (S.vuelo > 0) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(hx, PY + 4, 46, 9, 0, 0, 7); ctx.fill(); brillo(hx, hy + 6, 110, '150,215,255', 0.5); ctx.fillStyle = 'rgba(255,255,255,.95)'; for (let k = -2; k <= 2; k++) { ctx.beginPath(); ctx.arc(hx + k * 24, hy + 6 + (k % 2 ? 6 : 0), 22 - Math.abs(k) * 3, 0, 7); ctx.fill(); } }
+      if (S.mult > 1 && !S.lite) brillo(hx, hy - 100, 130 + 22 * S.mult, '255,160,50', 0.14 + 0.05 * S.mult + 0.03 * Math.sin(S.t * 8));
       pintaZorro(hx);
       if (S.skate > 0 && HB) { const iv = IMG(ART.fx_vel); if (listo(iv)) { [-1, 1].forEach(sg => { ctx.save(); ctx.globalAlpha = 0.5 + 0.2 * Math.sin(S.t * 18 + sg); ctx.translate(hx + sg * 88, hy - 70); ctx.rotate(Math.PI / 2 * sg); const ww = 150, hh2 = ww * iv.naturalHeight / iv.naturalWidth; ctx.drawImage(iv, -ww / 2, -hh2 / 2, ww, hh2); ctx.restore(); }); } }
       { // sombra en el suelo (se encoge y aclara con la altura) + estela al cambiar de carril
@@ -1139,6 +1149,7 @@
       const nom = heroe === 'kage' ? 'antarez' : 'sakura', est = (S.hurt > 0 || S.vidas <= 1) ? 'herido' : (S.racha >= 4 ? 'radiante' : 'normal'), pi = IMG(UI + 'retratos/' + nom + '_' + est + '.png'), mi = IMG(ART.medallon);
       if (listo(pi)) { ctx.save(); ctx.beginPath(); ctx.arc(53, 51, 34, 0, 7); ctx.clip(); ctx.drawImage(pi, 17, 15, 72, 72); ctx.restore(); } if (listo(mi)) ctx.drawImage(mi, 6, 4, 94, 94);
       const hi = IMG(ART.corazon); for (let i = 0; i < CFG.VIDAS; i++) { ctx.globalAlpha = i < S.vidas ? 1 : 0.22; if (listo(hi)) ctx.drawImage(hi, 0, 0, 200, 175, 108 + i * 44, 14, 40, 35); else { ctx.fillStyle = '#ff5a7a'; ctx.font = '34px serif'; ctx.fillText('♥', 108 + i * 44, 44); } } ctx.globalAlpha = 1;
+      monedasVuelan();
       const mo = IMG(ART.coin[Math.floor(S.t * 6) % 4]); if (listo(mo)) { const hh = 30, ww = hh * mo.naturalWidth / mo.naturalHeight; ctx.drawImage(mo, 123 - ww / 2, 56, ww, hh); }
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; { const mt = S.monedas + (S.racha >= 3 ? '  ×2' : '');
         if (S._mPrev == null) S._mPrev = S.monedas; if (S.monedas > S._mPrev) { S.mBump = S.t; S.mFlot = S.mFlot || []; S.mFlot.push({ t: S.t, v: S.monedas - S._mPrev }); if (S.mFlot.length > 4) S.mFlot.shift(); } S._mPrev = S.monedas;
