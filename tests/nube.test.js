@@ -15,6 +15,8 @@ function fakeStore() {
 // Servidor simulado con las mismas reglas del Code.gs (v2.1)
 function fakeServer() {
   const users = {}; let n = 0, c = 0; const llamadas = [];
+  const clases = { K7M24P: { nombre: '3A', activa: true }, OFF222: { nombre: 'Vieja', activa: false } };
+  const cuentaDe = u => ({ clase: u.clase ? { codigo: u.clase, nombre: clases[u.clase].nombre } : null, ranking: !u.oculto });
   const cod = () => 'COD' + (++c) + '-AAAA-BBBB';
   const fetch = async (url, init) => {
     const q = JSON.parse(init.body); llamadas.push(q.action);
@@ -25,11 +27,12 @@ function fakeServer() {
       case 'check': r = /^[A-Za-z0-9_]{3,16}$/.test(nick) ? { ok: true, available: !u } : { ok: false, error: 'nick_invalido' }; break;
       case 'register':
         if (u) r = { ok: false, error: 'nick_en_uso' };
-        else { const tk = 't' + (++n), rc = cod(); users[low] = { nick, pass: q.pass, tokens: [tk], progress: q.progress || {}, rescate: rc }; r = { ok: true, token: tk, progress: q.progress, rescate: rc, tieneRescate: true }; }
+        else if (q.clase && !(clases[String(q.clase).toUpperCase()] || {}).activa) r = { ok: false, error: 'clase_invalida' };
+        else { const tk = 't' + (++n), rc = cod(); users[low] = { nick, pass: q.pass, tokens: [tk], progress: q.progress || {}, rescate: rc, clase: q.clase ? String(q.clase).toUpperCase() : '' }; r = { ok: true, token: tk, progress: q.progress, rescate: rc, tieneRescate: true, cuenta: cuentaDe(users[low]) }; }
         break;
       case 'login':
         if (!u || u.pass !== q.pass) r = { ok: false, error: 'credenciales' };
-        else { const tk = 't' + (++n); u.tokens.push(tk); r = { ok: true, token: tk, nick: u.nick, progress: u.progress, tieneRescate: !!u.rescate }; }
+        else { const tk = 't' + (++n); u.tokens.push(tk); r = { ok: true, token: tk, nick: u.nick, progress: u.progress, tieneRescate: !!u.rescate, cuenta: cuentaDe(u) }; }
         break;
       case 'recover':
         if (!u || !u.rescate) r = { ok: false, error: u ? 'sin_codigo' : 'codigo_invalido' };
@@ -46,7 +49,20 @@ function fakeServer() {
         else if (u.pass !== q.pass) r = { ok: false, error: 'credenciales' };
         else { u.rescate = cod(); r = { ok: true, rescate: u.rescate }; }
         break;
-      case 'load': r = ok(q.token) ? { ok: true, progress: u.progress } : { ok: false, error: 'sesion' }; break;
+      case 'load': r = ok(q.token) ? { ok: true, progress: u.progress, cuenta: cuentaDe(u) } : { ok: false, error: 'sesion' }; break;
+      case 'checkclass': { const k = clases[String(q.codigo).toUpperCase()]; r = { ok: true, valid: !!(k && k.activa), nombre: k && k.activa ? k.nombre : '' }; break; }
+      case 'joinclass':
+        if (!ok(q.token)) r = { ok: false, error: 'sesion' };
+        else if (!q.codigo) { u.clase = ''; r = { ok: true, cuenta: cuentaDe(u) }; }
+        else if (!(clases[String(q.codigo).toUpperCase()] || {}).activa) r = { ok: false, error: 'clase_invalida' };
+        else { u.clase = String(q.codigo).toUpperCase(); r = { ok: true, cuenta: cuentaDe(u) }; }
+        break;
+      case 'setranking': if (!ok(q.token)) r = { ok: false, error: 'sesion' }; else { u.oculto = !q.visible; r = { ok: true, cuenta: cuentaDe(u) }; } break;
+      case 'top':
+        if (!ok(q.token)) r = { ok: false, error: 'sesion' };
+        else if (q.ambito === 'clase' && !u.clase) r = { ok: false, error: 'sin_clase' };
+        else { const l = Object.values(users).filter(x => !x.oculto && (q.ambito !== 'clase' || x.clase === u.clase)).map((x, i) => ({ pos: i + 1, nick: x.nick, puntaje: 100 - i, yo: x === u })); r = { ok: true, ambito: q.ambito, top: l, total: l.length, yo: u.oculto ? null : { pos: 1, puntaje: 100 }, oculto: !!u.oculto }; }
+        break;
       case 'save': if (!ok(q.token)) r = { ok: false, error: 'sesion' }; else { u.progress = q.progress; r = { ok: true }; } break;
       default: r = { ok: false, error: 'accion_invalida' };
     }
@@ -192,6 +208,38 @@ const lista = d => Object.keys(JSON.parse(d.store.getItem('ninja_perfiles_v1') |
   D.jugar('mpl_v10_sv', '{"level":8}'); await espera(40);
   assert.ok(D.eventos.includes('expirada')); assert.deepStrictEqual(D.sesiones.pop(), [null, 'expirada']);
   assert.strictEqual(D.store.getItem('mpl_v10_sv'), '{"level":8}');
+
+  // CLASES Y RANKING
+  const G = dispositivo(srv, 300000);
+  assert.deepStrictEqual(await G.nube.verificarClase('k7m24p'), { ok: true, valid: true, nombre: '3A' });
+  assert.strictEqual((await G.nube.verificarClase('OFF222')).valid, false, 'una clase desactivada no cuenta');
+  assert.strictEqual((await G.nube.verificarClase('')).valid, false);
+  assert.strictEqual((await G.nube.registrar('alumno_1', 'clave1', 'MALA99')).error, 'clase_invalida');
+  assert.strictEqual((await G.nube.disponible('alumno_1')).available, true, 'con clase mala no se crea la cuenta');
+  assert.ok((await G.nube.registrar('alumno_1', 'clave1', ' k7m24p ')).ok);
+  assert.deepStrictEqual(G.nube.cuenta(), { clase: { codigo: 'K7M24P', nombre: '3A' }, ranking: true }, 'la clase queda guardada en el dispositivo');
+  const H = dispositivo(srv, 310000);                                    // otro alumno, sin clase
+  await H.nube.registrar('alumno_2', 'clave2');
+  assert.deepStrictEqual(H.nube.cuenta(), { clase: null, ranking: true });
+  assert.strictEqual((await H.nube.ranking('clase')).error, 'sin_clase');
+  assert.strictEqual((await H.nube.unirseClase('MALA99')).error, 'clase_invalida');
+  assert.ok((await H.nube.unirseClase('K7M24P')).ok && H.nube.cuenta().clase.nombre === '3A');
+  const rk = await H.nube.ranking('clase');
+  assert.ok(rk.ok && rk.top.length === 2 && rk.top.some(x => x.nick === 'alumno_2' && x.yo));
+  assert.ok((await H.nube.unirseClase('')).ok && H.nube.cuenta().clase === null, 'salir de la clase');
+  assert.ok((await H.nube.verEnRanking(false)).ok && H.nube.cuenta().ranking === false);
+  assert.strictEqual((await H.nube.ranking('todos')).oculto, true);
+  assert.ok((await H.nube.verEnRanking(true)).ok && H.nube.cuenta().ranking === true);
+  // pedir el ranking sube antes el avance pendiente (para que el puntaje propio esté al día)
+  H.jugar('mpl_v10_sv', '{"level":3}'); const saves1 = srv.llamadas.filter(x => x === 'save').length;
+  await H.nube.ranking('todos'); assert.strictEqual(srv.llamadas.filter(x => x === 'save').length, saves1 + 1);
+  // iniciar sesión en otro dispositivo trae la clase; cerrar sesión la olvida
+  const I = dispositivo(srv, 320000); await I.nube.entrar('alumno_1', 'clave1');
+  assert.strictEqual(I.nube.cuenta().clase.codigo, 'K7M24P');
+  await I.nube.salir(); assert.deepStrictEqual(I.nube.cuenta(), { clase: null, ranking: true });
+  // sesión vencida: ranking/clase avisan
+  srv.users['alumno_1'].tokens = [];
+  assert.strictEqual((await G.nube.ranking('todos')).error, 'sesion'); assert.deepStrictEqual(G.sesiones.pop(), [null, 'expirada']);
 
   // sin red
   const E = dispositivo({ fetch: async () => { throw new Error('offline'); } });
