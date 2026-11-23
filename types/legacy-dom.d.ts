@@ -23,8 +23,9 @@ declare global {
     disabled?: boolean; checked?: boolean; type?: string; content?: string; src?: string; href?: string; value?: string;
     offsetWidth?: number; getContext?(id: string, ...args: any[]): any; width?: number; height?: number;
     webkitRequestFullscreen?(): Promise<void>;
+    click?(): void;
   }
-  interface HTMLElement { getContext?(id: string, ...args: any[]): any; width?: number; height?: number; _x?: any; }
+  interface HTMLElement { _lastKey?: any; getContext?(id: string, ...args: any[]): any; width?: number; height?: number; _x?: any; }
   interface Document { webkitFullscreenElement?: Element | null; webkitExitFullscreen?(): Promise<void> }
   interface Navigator { connection?: any; deviceMemory?: number }
   interface HTMLImageElement { _ax?: number; _ay?: number }

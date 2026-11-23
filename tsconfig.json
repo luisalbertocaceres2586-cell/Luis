@@ -36,6 +36,7 @@
     "engine/combate/racha.js",
     "engine/core/dispositivo.js",
     "engine/core/version.js",
-    "engine/educativo/repaso-errores.js"
+    "engine/educativo/repaso-errores.js",
+    "types/globales-estricto.d.ts"
   ]
 }
