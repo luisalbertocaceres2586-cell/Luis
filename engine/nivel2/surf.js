@@ -49,9 +49,10 @@
   const ambPorRonda = r => r < 2 ? 'dunas' : r < 4 ? 'mina' : r < 6 ? 'cielo' : 'templo';
   const BAND = { dunas: ['#b9764f', '#cf8a58', '#e3a066'], mina: ['#141a4a', '#1a2260', '#222c78'], cielo: ['rgba(88,52,190,.55)', 'rgba(108,68,206,.5)', 'rgba(130,86,224,.45)'], templo: ['#7a4a3c', '#93593f', '#ad6c46'] };
   const GATE = { mina: { compuerta_neutral: 'palanca_verde', compuerta_correcta: 'palanca_verde', compuerta_incorrecta: 'palanca_roja', compuerta_usada: 'palanca_roja' }, cielo: { compuerta_neutral: 'anillo_neutro', compuerta_correcta: 'anillo_ok', compuerta_incorrecta: 'anillo_mal', compuerta_usada: 'anillo_neutro' } };
-  const ga = (g, id) => (GATE[g.amb] && GATE[g.amb][id]) || id, gAlto = g => g.amb === 'cielo' ? 128 : g.amb === 'mina' ? 104 : 98;
+  const ga = (g, id) => (GATE[g.amb] && GATE[g.amb][id]) || id, gAlto = g => (g.amb === 'cielo' ? 128 : g.amb === 'mina' ? 104 : 98) * ESC_H;
   const DEC = { dunas: ['cristales_azules', 'vagoneta_oro', 'tambor_taiko', 'piedra_agrietada'], mina: ['cristales_azules', 'cristales_azules', 'vagoneta_oro', 'caballete_madera'], cielo: ['nube_a', 'nube_b', 'isla_hierba', 'isla_cristal'], templo: ['tambor_taiko', 'piedra_agrietada', 'tambor_taiko'] };
 
+  const ESC_H = 1.25, ESC_O = 1.15;   // héroe+vehículo ×1.25 (antes ~122 px se veía pequeño) y obstáculos/puertas/adornos a su escala
   const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1500, GR_CAIDA = 2000, VSALTO = 666;   // mismo salto de ~148 px, pero se sube más ágil y se cae más rápido (antes flotaba ~0,95 s; ahora ~0,83 s)
   const COL = ['#3fe0cf', '#ffd35a', '#ff7fae'];
   const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
@@ -204,7 +205,7 @@
     // ───────────────────────── generación del recorrido ─────────────────────────
     function addObs(x, l, tipo, v) {
       const h = ({ cac: v ? 44 : 68, roca: v === 2 ? 56 : v ? 30 : 52, rueda: 46, ser: 26, esc: 30, pin: 24, sie: 46, can: 44, oni: 64, cri: 40, nube: 54 })[tipo];
-      const alto = ({ cac: v ? 68 : 112, roca: v === 2 ? 92 : v ? 46 : 80, rueda: 74, ser: 34, esc: 58, pin: 46, sie: 72, can: 76, oni: 124, cri: 78, nube: 96 })[tipo];
+      const alto = Math.round(({ cac: v ? 68 : 112, roca: v === 2 ? 92 : v ? 46 : 80, rueda: 74, ser: 34, esc: 58, pin: 46, sie: 72, can: 76, oni: 124, cri: 78, nube: 96 })[tipo] * (tipo === 'oni' ? 1.3 : ESC_O));
       const ob = { x, l, tipo, v, h, alto, hit: false, cd: -1, cambio: false }; S.obs.push(ob); return ob;
     }
     const addGota = (x, l, y) => S.drops.push({ x, l, y, ok: false });
@@ -255,7 +256,7 @@
         const tra = Math.random() < .55; S.pads.push({ x: p.x, l: p.l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
         if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(p.x + dx, p.l, y));
       }
-      for (let k = 0; k < 3; k++) S.decor.push({ x: x0 + RI(0, largo), id: pick(DEC[amb || 'dunas']), alto: amb === 'cielo' ? RI(40, 64) : RI(54, 86), amb, dy: amb === 'cielo' ? -RI(30, 120) : 0 });
+      for (let k = 0; k < 3; k++) S.decor.push({ x: x0 + RI(0, largo), id: pick(DEC[amb || 'dunas']), alto: Math.round((amb === 'cielo' ? RI(40, 64) : RI(54, 86)) * ESC_O), amb, dy: amb === 'cielo' ? -RI(30, 120) : 0 });
     }
     function recoger(p) {
       p.ok = true; beep(900, .08, 'sine'); const px = X_H, py = laneY(S.d, S.lane) - 150;
@@ -645,7 +646,7 @@
         const x = g.x - cam; if (x < -70 || x > W + 70) return;
         const dx = Math.abs(g.x - S.d), alfa = g.res ? 1 : clamp(dx / 110, .2, 1);
         for (let l = 0; l < 3; l++) {
-          const y = laneY(g.x, l) - 52, mia = g.res && g.lane === l, corr = g.res && l === g.corr, txt = String(g.q.ops[l]);
+          const y = laneY(g.x, l) - 52 * ESC_H, mia = g.res && g.lane === l, corr = g.res && l === g.corr, txt = String(g.q.ops[l]);
           const col = !g.res ? '#fff' : (mia ? (g.ok ? '#d6ffe4' : '#ffd0d0') : corr ? '#d6ffe4' : '#a79fc4');
           cx.globalAlpha = alfa * (g.tach === l && !g.res ? .35 : 1); T(txt, x, y + 12, txt.length > 2 ? 30 : 36, col, 'center', 7); cx.globalAlpha = 1;
         }
@@ -699,10 +700,10 @@
     }
 
     function zorro() {
-      const x = X_H - 102, wy = S.d - 102, y = laneY(wy, S.fly) - S.fz, e = S.zorro.t > 0 ? S.zorro.est : '';
-      cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, laneY(wy, S.fly) + 4, 30, 6, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      const x = X_H - 125, wy = S.d - 125, y = laneY(wy, S.fly) - S.fz, e = S.zorro.t > 0 ? S.zorro.est : '';
+      cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, laneY(wy, S.fly) + 4, 30 * ESC_H, 6 * ESC_H, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
       const salto = e === 'celebra' ? Math.abs(Math.sin(S.t * 9)) * 14 : 0;
-      const ok = e === 'celebra' ? spr('zorro_celebra', 0, x, y + 4 - salto, 84) : e === 'alerta' ? spr('zorro_alerta', 0, x, y + 4, 84) : spr('zorro_run', S.t * 11, x, y + 3, 62);
+      const ok = e === 'celebra' ? spr('zorro_celebra', 0, x, y + 4 - salto, 84 * ESC_H) : e === 'alerta' ? spr('zorro_alerta', 0, x, y + 4, 84 * ESC_H) : spr('zorro_run', S.t * 11, x, y + 3, 62 * ESC_H);
       if (!ok) { cx.fillStyle = '#f2a040'; cx.beginPath(); cx.ellipse(x, y - 20, 26, 16, 0, 0, 7); cx.fill(); }
     }
     function dibujarSprite() {      // personaje corriendo sobre la tabla (vehículo "tabla")
@@ -710,33 +711,33 @@
       if (!fr || !fr.length) return false;
       const i = a === 'jump' ? clamp(S.vz > 200 ? 0 : S.vz > 0 ? 1 : S.vz > -250 ? 2 : 3, 0, fr.length - 1) : Math.floor(S.t * 10) % fr.length, im = fr[i];
       if (!im || !im.complete || !im.naturalWidth) return false;
-      if (ANT && im._ay) { const k = 118 / 235; cx.drawImage(im, -im._ax * k, -im._ay * k + 6, im.naturalWidth * k, im.naturalHeight * k); return true; }   // Antarez: se alinea por su ancla (pies)
-      const h = 118, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
+      if (ANT && im._ay) { const k = 118 * ESC_H / 235; cx.drawImage(im, -im._ax * k, -im._ay * k + 6, im.naturalWidth * k, im.naturalHeight * k); return true; }   // Antarez: se alinea por su ancla (pies)
+      const h = 118 * ESC_H, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
     }
     function heroeEn(x, gy, z, ang, alfa) {     // el héroe parado/andando en cualquier punto (puente)
-      const y = gy - z, vehA = vehAct(); cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 52, 8, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
-      if (vehA === 'vagoneta') return spr('vagoneta_' + hero + '_rueda', S.t * 12, x, y + 4, 128, false, alfa, ang);
-      if (vehA === 'alfombra') return spr('alfombra_' + hero + '_planeo', S.t * 5, x, y - 6 + Math.sin(S.t * 5) * 3, 122, false, alfa, ang);
-      cx.save(); cx.translate(x, y); spr(tablaId, 0, 0, 22, 54); const ok = dibujarSprite(); cx.restore(); return ok;
+      const y = gy - z, vehA = vehAct(); cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 52 * ESC_H, 8 * ESC_H, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      if (vehA === 'vagoneta') return spr('vagoneta_' + hero + '_rueda', S.t * 12, x, y + 4, 128 * ESC_H, false, alfa, ang);
+      if (vehA === 'alfombra') return spr('alfombra_' + hero + '_planeo', S.t * 5, x, y - 6 + Math.sin(S.t * 5) * 3, 122 * ESC_H, false, alfa, ang);
+      cx.save(); cx.translate(x, y); spr(tablaId, 0, 0, 22 * ESC_H, 54 * ESC_H); const ok = dibujarSprite(); cx.restore(); return ok;
     }
     function heroe() {
       const x = X_H, gy = laneY(S.d, S.ly), y = gy - S.z, ang = Math.atan((hY(S.d + 10) - hY(S.d - 10)) / 20) * .7;
-      cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58 * (1 - clamp(S.z / 420, 0, .3)), 9 * (1 - clamp(S.z / 420, 0, .3)), 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58 * ESC_H * (1 - clamp(S.z / 420, 0, .3)), 9 * ESC_H * (1 - clamp(S.z / 420, 0, .3)), 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
       const fvT = (window.FisicaVisual && S.fv && !S.vuelo) ? FisicaVisual.transformar(S.fv, { suelo: S.z === 0, vy: -S.vz, vx: 1, vmax: 1, vref: 800, bob: 0, amp: .8 }) : null;
       cx.save(); if (fvT) { cx.translate(x, y); cx.scale(fvT.sx, fvT.sy); cx.translate(-x, -y); }
       const parp = S.inv > 0 && Math.floor(S.t * 14) % 2, alfa = parp ? .4 : 1;
       let ok;
       const vehA = vehAct();
-      if (vehA === 'vagoneta') { const id = S.z > 8 ? 'vagoneta_' + hero + '_salto' : 'vagoneta_' + hero + '_rueda'; ok = spr(id, S.t * 12, x, y + 4, 128, false, alfa, ang); }
-      else if (vehA === 'alfombra') { const bob = S.z === 0 ? Math.sin(S.t * 5) * 3 : 0, id = S.vz > 160 ? 'alfombra_' + hero + '_sube' : S.vz < -160 ? 'alfombra_' + hero + '_baja' : 'alfombra_' + hero + '_planeo'; ok = spr(id, S.t * 5, x, y - 6 + bob, 122, false, alfa, ang); }
+      if (vehA === 'vagoneta') { const id = S.z > 8 ? 'vagoneta_' + hero + '_salto' : 'vagoneta_' + hero + '_rueda'; ok = spr(id, S.t * 12, x, y + 4, 128 * ESC_H, false, alfa, ang); }
+      else if (vehA === 'alfombra') { const bob = S.z === 0 ? Math.sin(S.t * 5) * 3 : 0, id = S.vz > 160 ? 'alfombra_' + hero + '_sube' : S.vz < -160 ? 'alfombra_' + hero + '_baja' : 'alfombra_' + hero + '_planeo'; ok = spr(id, S.t * 5, x, y - 6 + bob, 122 * ESC_H, false, alfa, ang); }
       else {
         cx.save(); cx.globalAlpha = alfa; cx.translate(x, y); cx.rotate(ang * .8);
-        if (!spr(tablaId, 0, 0, 22, 54)) { cx.fillStyle = '#7a4a8c'; cx.beginPath(); cx.ellipse(0, 4, 40, 8, 0, 0, 7); cx.fill(); }
+        if (!spr(tablaId, 0, 0, 22 * ESC_H, 54 * ESC_H)) { cx.fillStyle = '#7a4a8c'; cx.beginPath(); cx.ellipse(0, 4, 40, 8, 0, 0, 7); cx.fill(); }
         ok = dibujarSprite(); cx.restore();
       }
       if (!ok) { cx.save(); cx.globalAlpha = alfa; cx.fillStyle = '#7a4a8c'; cx.fillRect(x - 40, y - 8, 80, 8); cx.fillStyle = kage ? '#4aa3ff' : '#ff6fa8'; cx.fillRect(x - 10, y - 50, 20, 40); cx.fillStyle = '#f2d1ad'; cx.beginPath(); cx.arc(x, y - 60, 12, 0, 7); cx.fill(); cx.restore(); }
-      if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(x - 70 - i * 16, y - 20 + i * 12); cx.lineTo(x - 120 - i * 16, y - 20 + i * 12); cx.stroke(); } }
-      if (S.escudo) { const gr = cx.createRadialGradient(x, y - 58, 20, x, y - 58, 78); gr.addColorStop(0, 'rgba(111,214,255,.04)'); gr.addColorStop(.8, 'rgba(111,214,255,.22)'); gr.addColorStop(1, 'rgba(190,240,255,.7)'); cx.fillStyle = gr; cx.beginPath(); cx.arc(x, y - 58, 78 + Math.sin(S.t * 6) * 2, 0, 7); cx.fill(); }
+      if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(x - 88 - i * 20, y - 25 + i * 15); cx.lineTo(x - 150 - i * 20, y - 25 + i * 15); cx.stroke(); } }
+      if (S.escudo) { const gr = cx.createRadialGradient(x, y - 72, 25, x, y - 72, 98); gr.addColorStop(0, 'rgba(111,214,255,.04)'); gr.addColorStop(.8, 'rgba(111,214,255,.22)'); gr.addColorStop(1, 'rgba(190,240,255,.7)'); cx.fillStyle = gr; cx.beginPath(); cx.arc(x, y - 72, 98 + Math.sin(S.t * 6) * 2, 0, 7); cx.fill(); }
       cx.restore();
     }
     // ── jefes: el escorpión persigue desde atrás, el gusano emerge delante, la esfinge y el faraón vigilan al fondo ──
