@@ -72,6 +72,7 @@ declare global {
 
   // ---------- módulos de engine/ ----------
   var Perfiles: PerfilesAPI;
+  var Nube: any;   // engine/nube.js (cuentas y guardado en la nube); puede no estar cargado
   var SelectorMundos: SelectorMundosAPI;
   var MundosRegistro: MundosRegistroAPI;
   var NinjaMods: any; var NinjaOrient: any; var NinjaCompat: any; var NinjaDevice: any; var NJ: any; var NJX: any;

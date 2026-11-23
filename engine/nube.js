@@ -10,6 +10,7 @@
  *  - La cuenta ES el jugador: el apodo es el nombre del perfil (perfil-ui.js lo crea y lo elige solo, sin pedir nombre).
  *    Solo se sincroniza el perfil de la cuenta (no los demás jugadores que haya en el mismo dispositivo).
  *  - Recuperar la clave: código de rescate (XXXX-XXXX-XXXX) que se muestra al crear la cuenta.
+ *  - Clases y rankings: código de clase (lo da el docente) y rankings de la clase y de todos (solo apodo y puntaje).
  *
  * Funciona en navegador y en Node (para las pruebas: Nube.crear({ store, fetch })). */
 (/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
@@ -21,7 +22,8 @@
   const API_URL = 'https://script.google.com/macros/s/AKfycbw0F6vIsqJE63E764x3iuAp7YUUuqC3ldkqaj8wbkYmV7prh_rpO6Khw_JVWkkZS2t7/exec';
   const K_SESION = 'ninja_nube_sesion_v1';   // { nick, token } — solo identifica la sesión, no es progreso
   const K_TS = 'ninja_nube_ts_v1';
-  const K_PERFILES = 'ninja_perfiles_v1';           // momento del último cambio local (para saber qué copia es más reciente)
+  const K_PERFILES = 'ninja_perfiles_v1';
+  const K_CUENTA = 'ninja_nube_cuenta_v1';   // { clase: {codigo, nombre} | null, ranking: bool } — datos de la cuenta, no es progreso           // momento del último cambio local (para saber qué copia es más reciente)
   const MAX_JSON = 45000;                    // mismo límite que el servidor (Code.gs)
   const NICK_RE = /^[A-Za-z0-9_]{3,16}$/;
   const CLAVE_MIN = 4;
@@ -55,6 +57,8 @@
     credenciales: 'Apodo o clave incorrectos.',
     demasiados_intentos: 'Demasiados intentos. Espera 10 minutos y vuelve a probar.',
     sesion: 'Tu sesión terminó. Inicia sesión de nuevo.',
+    clase_invalida: 'Ese código de clase no existe o está desactivado. Pídeselo a tu profe.',
+    sin_clase: 'Todavía no estás en ninguna clase.',
     codigo_invalido: 'Ese código de rescate no es correcto. Revisa que lo escribiste igual (letras y números).',
     sin_codigo: 'Esta cuenta aún no tiene código de rescate. Pídele a tu profe o a tus padres que te restablezcan la clave.',
     muy_grande: 'El progreso es demasiado grande para guardarlo en la nube.',
@@ -93,6 +97,16 @@
       return d;
     }
     const nickActual = () => { const s = sesion(); return s ? s.nick : null; };
+
+    /* datos de la cuenta que manda el servidor (clase y si aparece en los rankings) */
+    function cuenta() {
+      try { const c = JSON.parse(store.getItem(K_CUENTA) || 'null'); if (c && typeof c === 'object') return { clase: c.clase || null, ranking: c.ranking !== false }; } catch (e) {}
+      return { clase: null, ranking: true };
+    }
+    function guardarCuenta(c) {
+      if (!c || typeof c !== 'object') return;
+      try { store.setItem(K_CUENTA, JSON.stringify({ clase: c.clase && c.clase.codigo ? { codigo: String(c.clase.codigo), nombre: String(c.clase.nombre || '') } : null, ranking: c.ranking !== false })); } catch (e) {}
+    }
     const tieneProgreso = d => Object.keys(d || {}).some(k => !esPref(k));
     function snapshot(nick) { return { v: 1, ts: Number(store.getItem(K_TS)) || 0, datos: leerDatos(nick || nickActual()) }; }
     function normalizar(p) {
@@ -161,23 +175,24 @@
     const avisarSesion = motivo => { if (on.sesion) { try { on.sesion(nickActual(), motivo); } catch (e) {} } };
     function caducar() { ponerSesion(null); if (on.sesionExpirada) on.sesionExpirada(); avisarSesion('expirada'); }
 
-    async function registrar(nick, clave) {
-      nick = String(nick || '').trim(); clave = String(clave || '');
+    async function registrar(nick, clave, clase) {
+      nick = String(nick || '').trim(); clave = String(clave || ''); clase = String(clase || '').trim();
       if (!NICK_RE.test(nick)) return { ok: false, error: 'nick_invalido' };
       if (clave.length < CLAVE_MIN) return { ok: false, error: 'clave_corta' };
       if (!Number(store.getItem(K_TS))) store.setItem(K_TS, String(ahora()));
       const snap = snapshot(nick);
-      const r = await api('register', { nick, pass: clave, progress: snap });
-      if (r.ok) { ponerSesion({ nick, token: r.token }); ultimoEnviado = ultimoVisto = estable(snap.datos); avisarSesion('entrar'); }
+      const r = await api('register', { nick, pass: clave, progress: snap, clase });
+      if (r.ok) { ponerSesion({ nick, token: r.token }); guardarCuenta(r.cuenta || { clase: null, ranking: true }); ultimoEnviado = ultimoVisto = estable(snap.datos); avisarSesion('entrar'); }
       return r;
     }
     // Lo que sigue a un inicio de sesión correcto (con clave o con código de rescate)
     async function tras(nick, r) {
       if (r.nick && NICK_RE.test(String(r.nick))) nick = String(r.nick);   // el apodo tal como se registró (mayúsculas incluidas)
       ponerSesion({ nick, token: r.token });
+      guardarCuenta(r.cuenta || { clase: null, ranking: true });
       const nube = normalizar(r.progress), local = snapshot(nick);
       const nubeTiene = tieneProgreso(nube.datos), localTiene = tieneProgreso(local.datos);
-      let res;
+      /** @type {any} */ let res;
       if (!nubeTiene) {
         if (localTiene) { await guardarYa({ force: true }); res = { ok: true, accion: 'subido' }; }
         else res = { ok: true, accion: 'nada' };
@@ -219,6 +234,34 @@
       if (!r.ok && r.error === 'sesion') caducar();
       return r;
     }
+    /** ¿Existe y está activo este código de clase? → { ok, valid, nombre } (para mostrar el nombre al escribirlo) */
+    async function verificarClase(codigo) {
+      codigo = String(codigo || '').trim();
+      if (!codigo) return { ok: true, valid: false, nombre: '' };
+      return api('checkclass', { codigo });
+    }
+    /** Unirse a una clase con su código. Código vacío = salir de la clase. */
+    async function unirseClase(codigo) {
+      const s = sesion(); if (!s) return { ok: false, error: 'sesion' };
+      const r = await api('joinclass', { nick: s.nick, token: s.token, codigo: String(codigo || '').trim() });
+      if (r.ok) guardarCuenta(r.cuenta); else if (r.error === 'sesion') caducar();
+      return r;
+    }
+    /** Aparecer (true) o no (false) en los rankings. */
+    async function verEnRanking(visible) {
+      const s = sesion(); if (!s) return { ok: false, error: 'sesion' };
+      const r = await api('setranking', { nick: s.nick, token: s.token, visible: !!visible });
+      if (r.ok) guardarCuenta(r.cuenta); else if (r.error === 'sesion') caducar();
+      return r;
+    }
+    /** Ranking de 'clase' o de 'todos'. Antes sube el avance pendiente para que el puntaje propio esté al día. */
+    async function ranking(ambito, limite) {
+      const s = sesion(); if (!s) return { ok: false, error: 'sesion' };
+      await guardarYa();
+      const r = await api('top', { nick: s.nick, token: s.token, ambito: ambito === 'clase' ? 'clase' : 'todos', limite: limite || 10 });
+      if (!r.ok && r.error === 'sesion') caducar();
+      return r;
+    }
     /** Resuelve el conflicto de entrar(): 'nube' (usar lo de la nube) o 'local' (usar lo de este dispositivo). */
     async function resolver(eleccion) {
       const nube = conflicto; conflicto = null;
@@ -231,7 +274,7 @@
     async function salir(opc) {
       if (timer) { clearTimeout(timer); timer = null; }
       const nick = nickActual();
-      ponerSesion(null); conflicto = null;
+      ponerSesion(null); conflicto = null; try { store.removeItem(K_CUENTA); } catch (e) {}
       if (opc && opc.borrarLocal) borrarLocal(nick);
       avisarSesion('salir');
     }
@@ -280,6 +323,7 @@
         if (r.error === 'sesion') caducar();
         return { ok: false, error: r.error };
       }
+      if (r.cuenta) guardarCuenta(r.cuenta);
       const nube = normalizar(r.progress), local = snapshot(s.nick);
       ultimoEnviado = estable(nube.datos);
       if (estable(nube.datos) === estable(local.datos)) return { ok: true, accion: 'nada' };
@@ -290,7 +334,7 @@
 
     ultimoVisto = nickActual() ? estable(leerDatos(nickActual())) : null;
     return {
-      snapshot, aplicar, sesion, disponible, registrar, entrar, recuperar, cambiarClave, nuevoCodigo, resolver, salir,
+      snapshot, aplicar, sesion, cuenta, disponible, registrar, entrar, recuperar, cambiarClave, nuevoCodigo, verificarClase, unirseClase, verEnRanking, ranking, resolver, salir,
       cambio, guardarYa, sincronizarAlAbrir, get pendiente() { return !!timer; }
     };
   }
@@ -372,6 +416,8 @@
     '.nb-box label{display:block;margin:10px 0 4px;font-size:13px;color:#aab}.nb-box input{width:100%;box-sizing:border-box;padding:11px;border-radius:10px;border:1px solid #444b9a;background:#0b0e2a;color:#fff;font-size:16px}' +
     '.nb-row{display:flex;gap:6px}.nb-row input{flex:1}.nb-row button{padding:0 12px}' +
     '.nb-go,.nb-sec{margin-top:12px;width:100%;padding:12px;border-radius:12px;border:0;font-size:16px;font-weight:700;cursor:pointer}.nb-go{background:#22c55e;color:#04130a}.nb-sec{background:#252a63;color:#eef}.nb-go:disabled,.nb-sec:disabled{opacity:.55;cursor:default}' +
+    '.nb-rk{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:#0b0e2a;margin:4px 0;font-size:15px}.nb-rk.yo{background:#2b3190;border:1px solid #8fa0ff}.nb-rk .p{width:38px;text-align:center;font-weight:700;color:#ffe27a}.nb-rk .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nb-rk .s{font-weight:700;color:#86efac}' +
+    '.nb-box .nb-chk{display:flex;gap:8px;align-items:center;margin-top:14px;font-size:13px;color:#cfd4ff}.nb-box .nb-chk input{width:auto}' +
     '.nb-link{display:block;margin:12px auto 0;background:none;border:0;color:#9fb0ff;font-size:14px;text-decoration:underline;cursor:pointer}' +
     '.nb-code{margin:12px 0;padding:14px 8px;text-align:center;font:700 24px ui-monospace,Menlo,Consolas,monospace;letter-spacing:2px;color:#ffe27a;background:#0b0e2a;border:2px dashed #f6c768;border-radius:12px;user-select:all;word-break:break-all}' +
     '.nb-warn{margin:10px 0;padding:9px 11px;border-left:4px solid #fb923c;background:rgba(251,146,60,.12);border-radius:6px;font-size:13px;color:#ffd9b0}' +
@@ -421,6 +467,22 @@
       const put = (...xs) => xs.forEach(x => box.appendChild(x));
       const ojo = (input) => el('button', { type: 'button', className: 'nb-sec', textContent: '👁', style: 'margin:0;width:auto', ariaLabel: 'Mostrar u ocultar la clave', onclick: () => { input.type = input.type === 'password' ? 'text' : 'password'; } });
       const campoClave = (ph, auto) => el('input', { type: 'password', autocomplete: auto, placeholder: ph });
+      const numero = x => Number(x || 0).toLocaleString('es');
+      // Comprueba el código de clase mientras se escribe y muestra el nombre de la clase
+      const vigilarClase = (input, msg) => {
+        let t = null, seq = 0;
+        input.addEventListener('input', () => {
+          clearTimeout(t); msg.className = 'nb-msg mid'; msg.textContent = '';
+          const v = input.value.trim(); if (v.length < 4) return;
+          msg.textContent = 'Revisando…'; const mi = ++seq;
+          t = setTimeout(async () => {
+            const r = await n.verificarClase(v); if (mi !== seq) return;
+            if (!r.ok) { msg.className = 'nb-msg bad'; msg.textContent = mensajeDe(r.error); }
+            else if (r.valid) { msg.className = 'nb-msg ok'; msg.textContent = '✅ Clase: ' + (r.nombre || 'encontrada'); }
+            else { msg.className = 'nb-msg bad'; msg.textContent = '❌ ' + mensajeDe('clase_invalida'); }
+          }, 500);
+        });
+      };
       const msgDe = (e, ctx) => (ctx === 'actual' && e === 'credenciales') ? 'La clave actual no es correcta.' : mensajeDe(e);
 
       /* ── con sesión ── */
@@ -436,10 +498,12 @@
           return m[ui.estado] || 'Tu progreso se guarda solo cada vez que juegas.';
         };
         est.textContent = txt();
-        put(quien, est);
+        const cu = n.cuenta();
+        put(quien, el('p', { textContent: cu.clase ? '🏫 Clase: ' + (cu.clase.nombre || cu.clase.codigo) : '🏫 Aún no estás en una clase' }), est);
         if (ui.sinRescate) put(el('div', { className: 'nb-warn', textContent: '⚠️ Tu cuenta no tiene código de rescate. Genera uno para poder recuperar tu clave si la olvidas.' }));
-        const ya = el('button', { className: 'nb-go', type: 'button', textContent: 'Guardar ahora', onclick: async () => { ya.disabled = true; await n.guardarYa({ force: true }); ya.disabled = false; } });
-        put(ya,
+        const ya = el('button', { className: 'nb-sec', type: 'button', textContent: 'Guardar ahora', onclick: async () => { ya.disabled = true; await n.guardarYa({ force: true }); ya.disabled = false; } });
+        put(el('button', { className: 'nb-go', type: 'button', textContent: '🏆 Ranking', onclick: () => pintar(() => vistaRanking()) }), ya,
+          el('button', { className: 'nb-sec', type: 'button', textContent: cu.clase ? '🏫 Mi clase' : '🏫 Unirme a una clase', onclick: () => pintar(vistaClase) }),
           el('button', { className: 'nb-sec', type: 'button', textContent: '🔑 Cambiar clave', onclick: () => pintar(vistaCambiarClave) }),
           el('button', { className: 'nb-sec', type: 'button', textContent: '🆘 Código de rescate', onclick: () => pintar(vistaNuevoCodigo) }),
           el('button', { className: 'nb-sec', type: 'button', textContent: 'Cerrar sesión', onclick: async () => {
@@ -499,6 +563,75 @@
         return null;
       }
 
+      /* ── mi clase / unirme a una clase ── */
+      function vistaClase() {
+        const cu = n.cuenta();
+        cab('🏫 Mi clase');
+        const volver = el('button', { className: 'nb-link', type: 'button', textContent: '← Volver', onclick: () => pintar(vistaSesion) });
+        if (cu.clase) {
+          put(el('p', {}, ['Estás en la clase ', el('b', { textContent: cu.clase.nombre || cu.clase.codigo })]),
+            el('p', { textContent: 'Tu docente puede ver tu avance y compites en el ranking de tu clase.' }));
+          const msg = el('div', { className: 'nb-msg' });
+          put(el('button', { className: 'nb-sec', type: 'button', textContent: 'Salir de la clase', onclick: async () => {
+            if (!confirm('¿Salir de la clase? Dejarás de aparecer en su ranking.')) return;
+            const r = await n.unirseClase(''); if (!r.ok) { msg.className = 'nb-msg bad'; msg.textContent = msgDe(r.error); return; }
+            pintar(vistaSesion); aviso('Saliste de la clase');
+          } }), msg, volver);
+          return null;
+        }
+        put(el('p', { textContent: 'Escribe el código de clase que te dio tu profe. Así compites con tus compañeros.' }));
+        const cod = el('input', { type: 'text', maxLength: 10, autocapitalize: 'characters', autocomplete: 'off', spellcheck: false, placeholder: 'Ej: K7M24P', style: 'text-transform:uppercase;letter-spacing:2px' });
+        const msgCod = el('div', { className: 'nb-msg mid' }), msg = el('div', { className: 'nb-msg' });
+        const go = el('button', { className: 'nb-go', type: 'button', textContent: 'Unirme a la clase' });
+        put(el('label', { textContent: 'Código de clase' }), cod, msgCod, go, msg, volver);
+        vigilarClase(cod, msgCod);
+        const enviar = async () => {
+          msg.className = 'nb-msg mid'; msg.textContent = 'Uniéndote…'; go.disabled = true;
+          const r = await n.unirseClase(cod.value); go.disabled = false;
+          if (!r.ok) { msg.className = 'nb-msg bad'; msg.textContent = mensajeDe(r.error); if (r.error === 'sesion') pintar(() => vistaEntrada('entrar')); return; }
+          pintar(vistaSesion); aviso('🏫 ¡Ya estás en la clase!');
+        };
+        go.addEventListener('click', enviar);
+        cod.addEventListener('keydown', e => { if (e.key === 'Enter') enviar(); });
+        setTimeout(() => cod.focus(), 50);
+        return null;
+      }
+
+      /* ── ranking: de mi clase o de todos ── */
+      function vistaRanking(ambito) {
+        const cu = n.cuenta();
+        ambito = ambito === 'todos' ? 'todos' : (ambito === 'clase' || cu.clase) ? (cu.clase ? 'clase' : 'todos') : 'todos';
+        cab('🏆 Ranking');
+        const tabs = el('div', { className: 'nb-tabs' }, [
+          el('button', { type: 'button', textContent: '🏫 Mi clase', className: ambito === 'clase' ? 'on' : '', onclick: () => pintar(() => cu.clase ? vistaRanking('clase') : vistaClase()) }),
+          el('button', { type: 'button', textContent: '🌍 Todos', className: ambito === 'todos' ? 'on' : '', onclick: () => pintar(() => vistaRanking('todos')) })
+        ]);
+        const caja = el('div', { textContent: 'Cargando…', className: 'nb-msg mid' }), pie = el('p', { className: 'nb-msg mid' });
+        const chk = el('input', { type: 'checkbox', checked: cu.ranking });
+        chk.addEventListener('change', async () => { chk.disabled = true; await n.verEnRanking(chk.checked); pintar(() => vistaRanking(ambito)); });
+        put(tabs, caja, pie, el('label', { className: 'nb-chk' }, [chk, 'Aparecer en los rankings (solo se ve tu apodo y tu puntaje)']),
+          el('button', { className: 'nb-link', type: 'button', textContent: '← Volver', onclick: () => pintar(vistaSesion) }));
+        n.ranking(ambito).then(r => {
+          if (!box.contains(caja)) return;                       // ya cambió de pantalla
+          caja.className = ''; caja.textContent = '';
+          if (!r.ok) {
+            if (r.error === 'sesion') return pintar(() => vistaEntrada('entrar'));
+            caja.className = 'nb-msg bad'; caja.textContent = mensajeDe(r.error); return;
+          }
+          if (r.clase && ambito === 'clase') caja.appendChild(el('p', { textContent: 'Clase: ' + (r.clase.nombre || r.clase.codigo) }));
+          if (!r.top.length) caja.appendChild(el('p', { textContent: 'Todavía no hay nadie en este ranking. ¡Juega y aparece aquí!' }));
+          r.top.forEach(f => caja.appendChild(el('div', { className: 'nb-rk' + (f.yo ? ' yo' : '') }, [
+            el('span', { className: 'p', textContent: f.pos === 1 ? '🥇' : f.pos === 2 ? '🥈' : f.pos === 3 ? '🥉' : '#' + f.pos }),
+            el('span', { className: 'n', textContent: f.nick }),
+            el('span', { className: 's', textContent: numero(f.puntaje) + ' pts' })
+          ])));
+          if (r.oculto) pie.textContent = '🙈 Estás oculto: no apareces en la lista. Activa la casilla de abajo para participar.';
+          else if (r.yo && r.yo.pos) pie.textContent = '📍 Tu posición: #' + r.yo.pos + ' de ' + r.total + ' · ' + numero(r.yo.puntaje) + ' puntos';
+          else pie.textContent = 'Todavía no apareces en la lista: ¡juega para sumar puntos!';
+        });
+        return null;
+      }
+
       /* ── conflicto ── */
       function vistaConflicto() {
         cab('¿Qué progreso conservar?');
@@ -530,7 +663,11 @@
         const clave = campoClave('Mínimo ' + CLAVE_MIN + ' caracteres', modo === 'crear' ? 'new-password' : 'current-password');
         const msgNick = el('div', { className: 'nb-msg mid' }), msg = el('div', { className: 'nb-msg' });
         const go = el('button', { className: 'nb-go', type: 'button', textContent: modo === 'crear' ? 'Crear cuenta' : 'Entrar' });
-        put(tabs, el('label', { textContent: 'Apodo' }), nick, msgNick, el('label', { textContent: 'Clave' }), el('div', { className: 'nb-row' }, [clave, ojo(clave)]), go, msg);
+        const cls = el('input', { type: 'text', maxLength: 10, autocapitalize: 'characters', autocomplete: 'off', spellcheck: false, placeholder: 'Ej: K7M24P', style: 'text-transform:uppercase;letter-spacing:2px' });
+        const msgCls = el('div', { className: 'nb-msg mid' });
+        put(tabs, el('label', { textContent: 'Apodo' }), nick, msgNick, el('label', { textContent: 'Clave' }), el('div', { className: 'nb-row' }, [clave, ojo(clave)]));
+        if (modo === 'crear') { put(el('label', { textContent: 'Código de clase (opcional, te lo da tu profe)' }), cls, msgCls); vigilarClase(cls, msgCls); }
+        put(go, msg);
         if (modo === 'entrar') put(el('button', { className: 'nb-link', type: 'button', textContent: '¿Olvidaste tu clave?', onclick: () => pintar(() => vistaRecuperar(nick.value)) }));
 
         let t = null, seq = 0;
@@ -551,7 +688,7 @@
 
         const enviar = async () => {
           msg.className = 'nb-msg mid'; msg.textContent = modo === 'crear' ? 'Creando tu cuenta…' : 'Entrando…'; go.disabled = true;
-          const r = modo === 'crear' ? await n.registrar(nick.value, clave.value) : await n.entrar(nick.value, clave.value);
+          const r = modo === 'crear' ? await n.registrar(nick.value, clave.value, cls.value) : await n.entrar(nick.value, clave.value);
           go.disabled = false;
           if (!r.ok) { msg.className = 'nb-msg bad'; msg.textContent = mensajeDe(r.error); return; }
           if (modo === 'crear') { ui.estado = 'guardado'; ui.hora = Date.now(); pintarBoton(); return pintar(() => vistaRescate(r.rescate, () => { pintar(vistaSesion); aviso('☁️ ¡Listo! Tu progreso se guardará solo'); })); }

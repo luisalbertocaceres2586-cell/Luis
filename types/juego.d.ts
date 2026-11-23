@@ -113,6 +113,8 @@ declare global {
   // ---------- Perfiles ----------
   interface PerfilesAPI {
     crear(o: { nombre: string; avatar?: string; dispositivo?: string | null }): { ok: boolean; error?: string; perfil?: Perfil };
+    paraCuenta(nick: string, avatar?: string, dispositivo?: string | null): Perfil | null;
+    idDe(nombre: string): string;
     listar(): Perfil[];
     obtener(id: string): Perfil | null;
     activo(): Perfil | null;

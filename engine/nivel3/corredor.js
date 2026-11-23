@@ -403,7 +403,7 @@
       if (S.invCtrl && !S.plaza) { if (a === 'izq') a = 'der'; else if (a === 'der') a = 'izq'; }   // evento: carriles invertidos
       if (a === 'izq') { if (S.tl > 0) S.cambio = { dir: -1, t: 0.3 }; S.tl = Math.max(0, S.tl - 1); }
       else if (a === 'der') { if (S.tl < 2) S.cambio = { dir: 1, t: 0.3 }; S.tl = Math.min(2, S.tl + 1); }
-      else if (a === 'salta') { if (S.jh <= S.base + 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); S.sj = S.t; S.sq = null; despega(); } }
+      else if (a === 'salta') { if (S.jh > S.base + 1) S.salBuf = 0.12; if (S.jh <= S.base + 1) { S.jv = S.skate > 0 ? 1060 : 900; S.jt = 0; S.slide = 0; sfx.salto(); S.sj = S.t; S.sq = null; despega(); } }
       else if (a === 'baja') { if (S.jh > S.base + 1) S.jv = -1500; else if (S.sobre) { S.soltada = S.sobre; S.sobre = null; S.base = 0; S.jv = -250; S.jt = 0.3; sfx.desliza(); } else if (S.slide <= 0) { S.slide = 0.75; sfx.desliza(); } }
     }
 
@@ -497,10 +497,11 @@
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(0, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
       else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj = Math.min(vObj, Math.max(vObj * (1 - 0.4 * es.lento), 5.2)); } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
-      S.px += clamp(S.tl - S.px, -dt * 9, dt * 9);
+      { const w0 = 26; S.pxv = (S.pxv || 0) + (w0 * w0 * (S.tl - S.px) - 2 * w0 * (S.pxv || 0)) * dt; S.pxv = clamp(S.pxv, -14, 14); S.px += S.pxv * dt; if (Math.abs(S.tl - S.px) < 0.002 && Math.abs(S.pxv) < 0.05) { S.px = S.tl; S.pxv = 0; } }   // resorte amortiguado: arranca suave, frena sin golpe
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
-      else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= 2700 * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
+      else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= (S.jv > 0 ? 2700 : 3500) * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
+      if (S.skate > 0 && !S.plaza && Math.random() < dt * 30) chispas(W / 2 + (S.px - 1) * LW + R(-16, 16), PY - 4, Math.random() < 0.5 ? '#ffd35a' : '#ff9ad5', 2);
       if (S.skate > 0 && !S.plaza) { S.skate -= dt; if (S.skate <= 0) { S.skate = 0; toast('Se acabó la patineta', '#ffd18a', 1.2); } }
       if (S.slide > 0) S.slide -= dt; if (S.inv > 0) S.inv -= dt; if (S.hurt > 0) S.hurt -= dt; if (S.shake > 0) S.shake -= dt; if (S.flash > 0) S.flash -= dt;
       if (!S.plaza) {
@@ -639,6 +640,7 @@
       else { p.x = R(0, W); p.y = inicial ? R(HOR, H) : H + 10; p.vx = R(-14, 14); p.vy = -R(40, 110); p.r = R(1.6, 3.2); }
     }
     function efectos(dt) {
+      if (S.salBuf > 0) { S.salBuf -= dt; if (S.jh <= S.base + 1 && S.cae <= 0 && !S.plaza) { S.salBuf = 0; accion('salta'); } }   // salto «guardado» 0,12 s: tocar justo antes de aterrizar no se pierde
       musica(dt);
       S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5) S.lite = true;
       const ob = temaIdx(); S.temaF += clamp(ob - S.temaF, -dt * 0.45, dt * 0.45); if (S.flashB > 0) S.flashB -= dt;
@@ -1080,7 +1082,14 @@
       }
       ctx.restore();
     }
+    function lineasVel() {
+      const f = S.skate > 0 ? 1 : clamp((S.v - CFG.VEL0 * 1.12) / (CFG.VEL0 * 0.3), 0, 1); if (f <= 0.02 || S.plaza || S.fin) return;
+      ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,' + (0.14 * f) + ')'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.beginPath();
+      for (let i = 0; i < 16; i++) { const a = Math.PI * (0.06 + 0.88 * (i / 15)), r0 = 250 + ((S.t * 520 + i * 97) % 420), r1 = r0 + 70 + 40 * f, cx = W / 2, cy = HOR; ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0 * 1.1); ctx.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1 * 1.1); }
+      ctx.stroke(); ctx.restore();
+    }
     function dibEfectos() {
+      lineasVel();
       if (S.viento) { ctx.save(); ctx.strokeStyle = 'rgba(230,245,255,.28)'; ctx.lineWidth = 2.5; for (let i = 0; i < 14; i++) { const yy = HOR + 30 + ((i * 137 + S.t * 160) % (H - HOR - 40)), xx = ((((S.t * 900 * S.viento.dir) + i * 211) % (W + 200)) + W + 200) % (W + 200) - 100; ctx.beginPath(); ctx.moveTo(xx, yy); ctx.lineTo(xx - S.viento.dir * 70, yy + 6); ctx.stroke(); } ctx.restore(); }
       for (const e of S.fx) { const im = IMG(ART[e.k]); if (!listo(im)) continue; const k = e.t / e.dur, sz = e.s0 + (e.s1 - e.s0) * k, hh = sz * im.naturalHeight / im.naturalWidth; ctx.save(); ctx.globalAlpha = clamp(1 - k * k, 0, 1); ctx.translate(e.x, e.y - (e.sube ? k * 80 : 0)); if (e.k === 'fx_remo') ctx.rotate(k * 5); ctx.drawImage(im, -sz / 2, -hh / 2, sz, hh); ctx.restore(); } ctx.globalAlpha = 1;
       for (const o of (S.ondas || [])) { const k = o.t / 0.45, r = 30 + 120 * k * (0.6 + o.f); ctx.globalAlpha = (1 - k) * 0.45 * o.f + 0.05 * (1 - k); ctx.strokeStyle = '#e8dcc0'; ctx.lineWidth = 5 * (1 - k) + 1; ctx.beginPath(); ctx.ellipse(o.x, o.y, r, r * 0.25, 0, 0, 7); ctx.stroke(); } ctx.globalAlpha = 1;
@@ -1104,7 +1113,10 @@
       if (listo(pi)) { ctx.save(); ctx.beginPath(); ctx.arc(53, 51, 34, 0, 7); ctx.clip(); ctx.drawImage(pi, 17, 15, 72, 72); ctx.restore(); } if (listo(mi)) ctx.drawImage(mi, 6, 4, 94, 94);
       const hi = IMG(ART.corazon); for (let i = 0; i < CFG.VIDAS; i++) { ctx.globalAlpha = i < S.vidas ? 1 : 0.22; if (listo(hi)) ctx.drawImage(hi, 0, 0, 200, 175, 108 + i * 44, 14, 40, 35); else { ctx.fillStyle = '#ff5a7a'; ctx.font = '34px serif'; ctx.fillText('♥', 108 + i * 44, 44); } } ctx.globalAlpha = 1;
       const mo = IMG(ART.coin[Math.floor(S.t * 6) % 4]); if (listo(mo)) { const hh = 30, ww = hh * mo.naturalWidth / mo.naturalHeight; ctx.drawImage(mo, 123 - ww / 2, 56, ww, hh); }
-      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; { const mt = S.monedas + (S.racha >= 3 ? '  ×2' : ''); ctx.strokeText(mt, 144, 72); ctx.fillStyle = S.racha >= 3 ? '#fff3a0' : '#ffe27a'; ctx.fillText(mt, 144, 72); }
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; { const mt = S.monedas + (S.racha >= 3 ? '  ×2' : '');
+        if (S._mPrev == null) S._mPrev = S.monedas; if (S.monedas > S._mPrev) { S.mBump = S.t; S.mFlot = S.mFlot || []; S.mFlot.push({ t: S.t, v: S.monedas - S._mPrev }); if (S.mFlot.length > 4) S.mFlot.shift(); } S._mPrev = S.monedas;
+        const bp = Math.max(0, 1 - (S.t - (S.mBump || -9)) / 0.28), sc = 1 + 0.34 * bp; ctx.save(); ctx.translate(144, 72); ctx.scale(sc, sc); ctx.strokeText(mt, 0, 0); ctx.fillStyle = S.racha >= 3 ? '#fff3a0' : '#ffe27a'; ctx.fillText(mt, 0, 0); ctx.restore();
+        const tx = 144 + ctx.measureText(mt).width + 16; ctx.font = 'bold 20px ' + FUENTE; (S.mFlot || []).forEach(f => { const k = (S.t - f.t) / 0.9; if (k >= 0 && k < 1) { ctx.globalAlpha = 1 - k; ctx.fillStyle = '#fff3a0'; ctx.strokeText('+' + f.v, tx, 72 - k * 30); ctx.fillText('+' + f.v, tx, 72 - k * 30); ctx.globalAlpha = 1; } }); ctx.font = 'bold 26px ' + FUENTE; }
       // insignia con el número de la tabla
       const ins = IMG(ART.insignia); if (listo(ins)) ctx.drawImage(ins, 300, 6, 90, 90);
       ctx.textAlign = 'center'; ctx.font = 'bold 42px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.strokeText(e.T, 343, 48); ctx.fillStyle = '#fff'; ctx.fillText(e.T, 343, 48);
@@ -1212,11 +1224,14 @@
       const tot = S.aciertos + S.errores, prec = tot ? S.aciertos / tot : 1, est = prec >= 0.9 && S.golpes <= 2 ? 3 : prec >= 0.75 ? 2 : 1;
       const dificiles = Object.keys(S.fallos).sort((a, b) => S.fallos[b] - S.fallos[a]).slice(0, 4).map(k => k.replace('x', ' × '));
       guardar(true, est);
-      pantalla(retrato('radiante') + '<h1>¡NIVEL COMPLETADO!</h1>' + BARRA + '<div class="estrellas">' + '⭐'.repeat(est) + '<span style="opacity:.25">' + '⭐'.repeat(3 - est) + '</span></div>' +
-        '<p>Monedas: <b>' + S.monedas + ' 🪙</b> · Puntos: <b>' + S.puntos + '</b> · Aciertos: <b>' + S.aciertos + '</b> · Mejor racha: <b>' + S.mejorRacha + '</b> · Mejor combo: <b>×' + S.multMax + '</b></p>' + (S.jefeVis ? '<p>' + (S.jefeHp === 0 ? '🏆 ¡Venciste al Rey del Caos!' : '👹 El Rey del Caos huyó herido… ¡inténtalo otra vez!') + '</p>' : '') + (dificiles.length ? '<p>Para repasar: <b>' + dificiles.join(' · ') + '</b></p>' : '<p>¡Sin tablas difíciles! 🏆</p>') +
+      pantalla(retrato('radiante') + '<h1>¡NIVEL COMPLETADO!</h1>' + BARRA + '<div class="estrellas">' + [0, 1, 2].map(i => i < est ? '<span class="st" style="animation-delay:' + (0.4 + i * 0.4) + 's">⭐</span>' : '<span class="st0">⭐</span>').join('') + '</div>' +
+        '<p>Monedas: <b><span id="cnM">' + S.monedas + '</span> 🪙</b> · Puntos: <b id="cnP">' + S.puntos + '</b> · Aciertos: <b>' + S.aciertos + '</b> · Mejor racha: <b>' + S.mejorRacha + '</b> · Mejor combo: <b>×' + S.multMax + '</b></p>' + (S.jefeVis ? '<p>' + (S.jefeHp === 0 ? '🏆 ¡Venciste al Rey del Caos!' : '👹 El Rey del Caos huyó herido… ¡inténtalo otra vez!') + '</p>' : '') + (dificiles.length ? '<p>Para repasar: <b>' + dificiles.join(' · ') + '</b></p>' : '<p>¡Sin tablas difíciles! 🏆</p>') +
         '<button id="otra" type="button">↻ JUGAR OTRA VEZ</button><button id="sal2" type="button" class="sec">⟵ SALIR</button>', 'fin');
       document.getElementById('otra').onclick = () => { inicio(); };
       document.getElementById('sal2').onclick = () => salir();
+      const cu = (id, a, ms) => { const el = document.getElementById(id); if (!el) return; const t0 = performance.now(); (function f(t) { const k = Math.min(1, (t - t0) / ms); el.textContent = Math.round(a * (1 - Math.pow(1 - k, 3))); if (k < 1 && document.body.contains(el)) requestAnimationFrame(f); })(t0); };
+      cu('cnM', S.monedas, 1400); cu('cnP', S.puntos, 1600);
+      for (let i = 0; i < est; i++) setTimeout(() => { if (S.fin) { sfx.bien(i + 2); chispas(W / 2 + (i - 1) * 90, 300, '#ffe27a', 16); } }, 480 + i * 400);
     }
 
     // ───────────────────────── controles ─────────────────────────

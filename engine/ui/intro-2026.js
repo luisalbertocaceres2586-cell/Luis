@@ -253,15 +253,27 @@ function drawStory(){
 }
 
 /* ---------- fondo de la carga y del título ---------- */
+/* Montaje de la carga: Sakura recorre los 3 mundos (corre, salta, pelea, dispara, cruza portales) según avanza el %.
+   Usa las mismas escenas de las tarjetas (engine/ui/preview-mundos.js). Si no está disponible, o si se apagaron las animaciones con el botón 🎞, queda el fondo de siempre. */
+let MON=null,MONno=false;
+function monJ(){if(MON||MONno)return MON;
+  try{if(!window.PreviewMundos||!PreviewMundos.crearMontaje||!window.MundosRegistro)return null;
+    if(localStorage.getItem('ninja_mundos_anim_v1')==='0'){MONno=true;return null;}
+    MON=PreviewMundos.crearMontaje('sakura');if(!MON){MONno=true;return null;}PreviewMundos.precargar(MON.imgs);}catch(e){MONno=true;MON=null;}
+  return MON;}
 function drawLoadBG(){const el=(performance.now()-loadStart)/1000;
   cx.fillStyle='#050817';cx.fillRect(0,0,VW,VH);
+  const mon=monJ();
+  if(mon){try{mon.dibujar(cx,VW,VH,el,shown);}catch(e){MONno=true;MON=null;}}
+  if(!mon){
   cover(IM.bg,ss(0,.8,el),1.06+Math.sin(el*.25)*.012,Math.sin(el*.2)*.008,0);
   const g=cx.createLinearGradient(0,0,0,VH);g.addColorStop(0,'rgba(4,6,24,.35)');g.addColorStop(.55,'rgba(4,6,24,.25)');g.addColorStop(1,'rgba(3,4,16,.82)');cx.fillStyle=g;cx.fillRect(0,0,VW,VH);
-  rays(el,.45);
+  rays(el,.45);}
   if(Math.random()<dt*5)spawnMote();if(Math.random()<dt*2.4)spawnPetal();if(!REDUCED&&Math.random()<dt*2.2)spawnDig(true);
   drawParticles(1,.4);vignette(1);}
 
 /* ---------- carga real ---------- */
+const MINC=2.6; /* segundos mínimos de pantalla de carga (para que se vea el recorrido por los mundos) */
 function runLoader(){const items=[];
   const wait=i=>new Promise(res=>{if(!i||(i.complete))return res();let d=false;const f=()=>{if(d)return;d=true;res();};i.addEventListener('load',f,{once:true});i.addEventListener('error',f,{once:true});setTimeout(f,9000);});
   const add=p=>items.push(Promise.resolve(p).catch(()=>null));
@@ -295,11 +307,11 @@ function loop(ts){
   if(phase==='load'||phase==='ready'||phase==='out'&&!story){
     const el=(performance.now()-loadStart)/1000;
     if(phase==='load'){
-      shown+=(Math.min(real,el/(story?2.2:1.5))-shown)*Math.min(1,dt*4);const pct=Math.min(100,Math.round(shown*100));
+      shown+=(Math.min(real,el/(MINC))-shown)*Math.min(1,dt*4);const pct=Math.min(100,Math.round(shown*100));
       document.getElementById('n26pct').textContent=pct+'%';document.getElementById('n26fill').style.width=pct+'%';
-      const run=document.getElementById('n26run');run.style.left=pct+'%';const rx=run.getContext('2d');rx.clearRect(0,0,184,184);
+      const run=document.getElementById('n26run');run.style.left=pct+'%';run.style.display=MON?'none':'';const rx=run.getContext('2d');rx.clearRect(0,0,184,184);
       const f=fr(SK,el,16);if(f&&ok(f.img)){const s=150/NSK;rx.drawImage(f.img,92-f.ax*s,170-f.ay*s,f.img.naturalWidth*s,f.img.naturalHeight*s);}
-      if(shown>.995&&el>=(story?2.2:1.5)){phase='ready';tapT0=performance.now();
+      if(shown>.995&&el>=(MINC)){phase='ready';tapT0=performance.now();
         if(story){document.getElementById('n26tap').classList.add('on');}else{setTimeout(()=>{if(!dead&&phase==='ready')startOut();},700);}}}
     else if(phase==='ready'&&story&&performance.now()-tapT0>7000)startStory(false);
     drawLoadBG();

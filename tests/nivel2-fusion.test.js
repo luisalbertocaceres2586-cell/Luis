@@ -21,10 +21,12 @@ function entorno(){
   ctx.AudioContext=undefined;ctx.ontouchstart=undefined;
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(root,'assets/nivel2/manifest.js'),'utf8'),ctx);
+  vm.runInContext(fs.readFileSync(path.join(root,'engine/core/fisica-visual.js'),'utf8'),ctx);
   vm.runInContext(fs.readFileSync(path.join(root,'engine/nivel2/surf.js'),'utf8'),ctx);
   let ts=0;return{ctx,frame:()=>{ts+=33;const f=cb;if(f)f(ts);},S:()=>ctx.__n2()};
 }
 // jugador automático: siempre elige la respuesta correcta y salta a menudo
+const alSuelo=S=>{S.z=0;S.vz=0;S.saltoBuf=0;S.inputs.salto=false;};   // las pruebas de recogida no deben depender de dónde caiga el salto en ese cuadro
 function jugar(E,max,hasta){let n=0;for(;n<max;n++){const S=E.S();if(S.est!=='play'&&n>5)break;
   if(S.fase==='puente'&&S.puente&&S.puente.est==='juega'&&n%4===0){const P=S.puente,i=P.bl.findIndex(b=>b.est==='normal'&&b.v===P.vals[P.paso]);if(i>=0)E.ctx.__n2puente(i);}
   const g=S.gates.find(g=>!g.res);if(g&&g.x-S.d<1800)S.lane=g.q.ops.indexOf(g.q.ans);if(n%23===0)S.inputs.salto=true;E.frame();if(hasta&&hasta(S))return n;}return n;}
@@ -49,20 +51,20 @@ ok('obstáculos difíciles (pinchos, sierra, cañón, oni) solo aparecen en rond
   ['pin','sie'].forEach(t=>assert(!(t in vistos)||vistos[t]>=2,t+' demasiado pronto'));['can','oni'].forEach(t=>assert(!(t in vistos)||vistos[t]>=4,t+' demasiado pronto'));});
 ok('poderes: escarabajo=escudo, reloj, imán, comodín (tacha una mala y se gasta), onigiri=+1 corazón',()=>{
   const E=nuevo({});jugar(E,30);const S=E.S();S.vidas=2;
-  const dar=tipo=>{S.pows.push({x:S.d+5,l:Math.round(S.ly),tipo,ok:false});E.frame();E.frame();};
+  const dar=tipo=>{alSuelo(S);S.pows.push({x:S.d+5,l:Math.round(S.ly),tipo,ok:false});E.frame();E.frame();};
   dar('poder_escarabajo');assert.strictEqual(S.escudo,true);dar('poder_reloj');assert(S.lento>0);dar('poder_iman');assert(S.iman>0);
   dar('onigiri');assert.strictEqual(S.vidas,3);
   dar('poder_comodin');assert.strictEqual(S.comodin,1);let g=null;for(let i=0;i<900&&!(g=S.gates.find(g=>!g.res&&g.tach!==undefined));i++){S.lane=1;E.frame();}   // actúa cuando la puerta está a <1900 px
   assert(g&&g.q.ops[g.tach]!==g.q.ans,'el comodín debe tachar una respuesta MALA');
   S.d=g.x-1;S.lane=g.q.ops.indexOf(g.q.ans);E.frame();E.frame();assert.strictEqual(S.comodin,0,'el comodín se gasta al responder');});
 ok('trampolín lanza al héroe; cofre da puntos; cinta da turbo',()=>{
-  const E=nuevo({});jugar(E,30);const S=E.S(),l=Math.round(S.ly);
+  const E=nuevo({});jugar(E,30);const S=E.S(),l=Math.round(S.ly);alSuelo(S);
   S.pads.push({x:S.d+4,l,tipo:'trampolin',ok:false,t:0});E.frame();assert(S.vz>=700||S.z>0,'el trampolín no impulsó');
-  const E2=nuevo({});jugar(E2,30);const S2=E2.S(),p0=S2.punt;S2.cofres.push({x:S2.d+4,l:Math.round(S2.ly),oscuro:false,est:0,t:0});E2.frame();assert(S2.punt>=p0+150);
-  const E3=nuevo({});jugar(E3,30);const S3=E3.S();S3.pads.push({x:S3.d+4,l:Math.round(S3.ly),tipo:'cinta_transportadora',ok:false,t:0});E3.frame();assert(S3.boost>0);});
+  const E2=nuevo({});jugar(E2,30);const S2=E2.S(),p0=S2.punt;alSuelo(S2);S2.cofres.push({x:S2.d+4,l:Math.round(S2.ly),oscuro:false,est:0,t:0});E2.frame();assert(S2.punt>=p0+150);
+  const E3=nuevo({});jugar(E3,30);const S3=E3.S();alSuelo(S3);S3.pads.push({x:S3.d+4,l:Math.round(S3.ly),tipo:'cinta_transportadora',ok:false,t:0});E3.frame();assert(S3.boost>0);});
 ok('cañón dispara una bola de fuego que quita un corazón (y el escudo la bloquea)',()=>{
-  const E=nuevo({});jugar(E,30);const S=E.S(),l=Math.round(S.ly);S.obs.push({x:S.d+500,l:(l+1)%3,tipo:'can',v:0,h:44,alto:76,hit:false,cd:-1,cambio:false});E.frame();assert(S.balas.length===1,'no disparó');
-  S.balas[0].l=l;S.balas[0].x=S.d+10;S.inv=0;S.caido=0;S.escudo=true;const v0=S.vidas;E.frame();E.frame();assert.strictEqual(S.vidas,v0,'el escudo debía bloquear');assert.strictEqual(S.escudo,false);});
+  const E=nuevo({});jugar(E,30);const S=E.S(),l=Math.round(S.ly);alSuelo(S);S.obs.push({x:S.d+500,l:(l+1)%3,tipo:'can',v:0,h:44,alto:76,hit:false,cd:-1,cambio:false});E.frame();assert(S.balas.length===1,'no disparó');
+  alSuelo(S);S.balas[0].l=l;S.balas[0].x=S.d+10;S.inv=0;S.caido=0;S.escudo=true;const v0=S.vidas;E.frame();E.frame();assert.strictEqual(S.vidas,v0,'el escudo debía bloquear');assert.strictEqual(S.escudo,false);});
 ok('tutorial: se completa y pasa al recorrido',()=>{
   const E=entorno();E.ctx.Nivel2.iniciar({debug:true,modo:'tut',heroe:'sakura'});let n=0;
   for(;n<30000&&E.S().fase==='tut';n++){const S=E.S();S.lane=(Math.floor(n/40))%3;const g=S.gates.find(g=>!g.res);if(g)S.lane=g.q.ops.indexOf(g.q.ans);
