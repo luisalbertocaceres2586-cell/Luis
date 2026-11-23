@@ -136,7 +136,7 @@
   function salir(a, motivo) {
     const s = S(), D = s.dir; if (!a || a.sale) return; a.sale = true; a.motivo = motivo;
     if (a.id === 'fuego' && D.fuego && !D.fuego.tocado && (motivo === 'natural' || motivo === 'refugio')) {
-      s.pergaminos += 5; core().texto(s.h.x, s.h.y - 130, '+5 📜 ¡A SALVO!', '#ffd54a'); core().chispas(s.h.x, s.h.y - 60, 24, '#ffd54a'); s.aviso = { t: 2.6, s: '🔥 ¡ESCAPASTE DEL FUEGO!  +5 📜' };
+      s.pergaminos += 5; core().texto(s.h.x, s.h.y - 175, '+5 📜 ¡A SALVO!', '#ffd54a'); core().chispas(s.h.x, s.h.y - 60, 24, '#ffd54a'); s.aviso = { t: 2.6, s: '🔥 ¡ESCAPASTE DEL FUEGO!  +5 📜' };
     }
     D.espera = intervalo(D.dom, zonaDe(s.N, s.h.x), D.rng());
   }

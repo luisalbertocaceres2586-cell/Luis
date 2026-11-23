@@ -899,7 +899,11 @@
       if (S.mult > 1 || S.combo >= 3) {
         const pul = 1 + 0.22 * clamp(S.multPulso / 0.6, 0, 1), col = ['#ffe27a', '#ffe27a', '#ffb347', '#ff8a3d', '#ff5a5a', '#ff3d9a'][S.mult];
         ctx.save(); ctx.translate(W - 16, 98); ctx.scale(pul, pul); ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(10,5,30,.92)'; ctx.font = 'bold 34px ' + FUENTE;
-        const t = S.mult > 1 ? '🔥 ×' + S.mult : '✨ ' + S.combo; ctx.strokeText(t, 0, 0); ctx.fillStyle = col; ctx.fillText(t, 0, 0);
+        const t = S.mult > 1 ? '🔥 ×' + S.mult : '✨ ' + S.combo;
+        if (S.mult > 1) { const tw = ctx.measureText(t).width, n = 5 + S.mult * 2; ctx.save();
+          for (let i = 0; i < n; i++) { const ph = (S.t * 1.7 + i * 0.31) % 1, fx = -tw * ((i + 0.5) / n) + Math.sin(S.t * 6 + i) * 3, fy = 12 - ph * (26 + 9 * S.mult), r = (13 + 3.2 * S.mult) * (1 - ph * 0.75), g = ctx.createRadialGradient(fx, fy, 0, fx, fy, r);
+            g.addColorStop(0, 'rgba(255,245,170,' + (1 * (1 - ph * 0.6)).toFixed(2) + ')'); g.addColorStop(0.5, 'rgba(255,120,30,' + (0.85 * (1 - ph * 0.6)).toFixed(2) + ')'); g.addColorStop(1, 'rgba(255,60,20,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(fx, fy, r, 0, 7); ctx.fill(); } ctx.restore(); }
+        ctx.strokeText(t, 0, 0); ctx.fillStyle = col; ctx.fillText(t, 0, 0);
         ctx.font = 'bold 15px ' + FUENTE; ctx.lineWidth = 4; ctx.strokeText('COMBO ' + S.combo, 0, 24); ctx.fillStyle = '#fff'; ctx.fillText('COMBO ' + S.combo, 0, 24);
         const f = clamp(S.comboT / 3, 0, 1); ctx.fillStyle = 'rgba(10,5,30,.7)'; ctx.fillRect(-96, 36, 96, 7); ctx.fillStyle = col; ctx.fillRect(-96, 36, 96 * f, 7); ctx.restore();
       }
@@ -1150,7 +1154,10 @@
       const b = S.banner; if (b && b.t > 0) {
         const el = b.t0 - b.t, kin = clamp(el / 0.5, 0, 1), kout = clamp(b.t / 0.45, 0, 1), off = (1 - easeBack(kin)) * W, a = Math.min(kin * 1.6, 1) * kout;
         ctx.save(); ctx.globalAlpha = a; ctx.translate(off, 0);
+        if (kin > 0.3) brillo(W / 2, 523, 250, '255,226,150', 0.32 * a);
         if (listo(ba)) ctx.drawImage(ba, 22, 478, 496, 89); if (listo(ins)) ctx.drawImage(ins, 14, 462, 112, 112);
+        if (kin >= 1 && !b.boom) { b.boom = true; chispas(W / 2, 523, '#ffe27a', 26); chispas(70, 513, '#9ad7ff', 14); }
+        { const sw = clamp((el - 0.45) / 0.8, 0, 1); if (kin >= 1 && sw > 0 && sw < 1) { ctx.save(); ctx.beginPath(); rr(44, 484, 452, 78, 34); ctx.clip(); const gx = 22 + sw * 560 - 60, g = ctx.createLinearGradient(gx - 80, 0, gx + 80, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,255,255,0.9)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.fillRect(22, 478, 496, 89); ctx.restore(); } }
         ctx.textAlign = 'center'; ctx.font = 'bold 46px ' + FUENTE; ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.strokeText(b.T, 70, 513); ctx.fillStyle = '#fff'; ctx.fillText(b.T, 70, 513);
         ctx.font = 'bold 38px ' + FUENTE; ctx.strokeStyle = 'rgba(8,20,60,.95)'; ctx.strokeText(b.s, W / 2 + 54, 523); ctx.fillStyle = '#fff'; ctx.fillText(b.s, W / 2 + 54, 523);
         ctx.font = 'bold 24px ' + FUENTE; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.strokeText(b.sub, W / 2, 600); ctx.fillStyle = '#ffe27a'; ctx.fillText(b.sub, W / 2, 600); ctx.restore();
