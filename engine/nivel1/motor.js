@@ -297,8 +297,7 @@
       if (!salto() && h.vy < -330 && !h.cortado && (!S.movil || h.saltoT >= SALTO_MIN_MOVIL)) { h.vy *= S.movil ? SALTO_CORTE_MOVIL : SALTO_CORTE_PC; h.cortado = true; }
       if ((keys.KeyC || keys.KeyJ || keys.KeyZ) && h.atkCd <= 0 && !S.apunta) { h.atk = .28; h.atkCd = .38; h.tajoUsado = false; S.tajos++; if (window.N1hab) N1hab.alTajo(); }
     }
-    h.empuja = false; const colgado = (!h.suelo && Math.abs(h.vy) < 150 && h.aturdido <= 0 && salto()) ? .72 : 1;   // «pausa» en el vértice mientras se mantiene el salto
-    if (!hab.skipGrav) h.vy = Math.min(1250 * S.mod.gc, h.vy + 2300 * S.mod.g * colgado * dt);
+    h.empuja = false; if (!hab.skipGrav) h.vy = Math.min(1250 * S.mod.gc, h.vy + 2300 * S.mod.g * dt);
     if (window.N1hab) N1hab.despuesGravedad(dt);
 
     h.x += h.vx * dt; h.x = clamp(h.x, 20, N.ancho - 20); if (Math.abs(h.vx) > 40) S.movido += Math.abs(h.vx) * dt;
