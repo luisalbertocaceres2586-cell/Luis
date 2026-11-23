@@ -25,6 +25,10 @@
     "types/**/*.d.ts",
     "engine/**/*.js",
     "manifest.js",
-    "intro-premium.js"
+    "intro-premium.js",
+    "engine/juego-principal.js"
+  ],
+  "exclude": [
+    "types/globales-estricto.d.ts"
   ]
 }

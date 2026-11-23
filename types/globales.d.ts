@@ -10,39 +10,19 @@
 export {};
 
 declare global {
-  // ---------- estado principal del juego (definido en index.html) ----------
-  interface EstadoJuego {
-    phase: string; level: number; totalScore: number; name: string; char: string;
-    [campo: string]: any; // TODO: describir el resto de campos
-  }
-  /** Jugador (posición, velocidad, vidas, poderes…). */
-  interface Jugador {
-    x: number; y: number; vx: number; vy: number; w: number; h: number;
-    [campo: string]: any; // TODO
-  }
+  // ---------- estado principal del juego ----------
+  // GS, P, CX, CV, W, H, K… ya NO se declaran aquí: se definen de verdad en engine/juego-principal.js y TypeScript
+  // usa los tipos que infiere de ese código.
 
-  var GS: EstadoJuego;
-  var P: Jugador;
-  var CX: CanvasRenderingContext2D;
-  var CV: HTMLCanvasElement;
-  var W: number;
-  var H: number;
-  var camX: number;
-  var AC: AudioContext;
   /** Teclas pulsadas, por nombre. */
-  var K: Record<string, boolean | number>; // el teclado guarda true/false y el mando 0/1
-  var _muted: boolean;
-  var _paused: boolean;
-  var _char: string;
-  var _perfMode: string | number | boolean;
 
   // ---------- funciones sueltas del juego ----------
-  var SFX: Record<string, any>;
   var FX: any; // TODO
   /** Sonido sintetizado. ¡Ojo con el orden!: frecuencia, TIPO de onda, duración, volumen, retraso. */
   function tone(freq: number, tipo?: OscillatorType | string, dur?: number, vol?: number, retraso?: number): void;
   function render(...args: any[]): void;
-  function uAC(): void;
+  /** Se asigna como window.startIntroAnimation en juego-principal.js (después de usarse en un setTimeout). */
+  function startIntroAnimation(): void;
   function startLevel(nivel: number, fase: string): void;
   function togglePause(...args: any[]): void;
   function updHUD(...args: any[]): void;
@@ -58,16 +38,14 @@ declare global {
   function zoneBgFor(...args: any[]): any;
   function groundYAt(x: number): number;
 
+  /** Plataforma del nivel (suelo, flotante, móvil o portal del cielo). */
+  interface Plataforma { x: number; y: number; w: number; h: number; type: string; moving?: boolean; isSkyPortal?: boolean; portalActive?: boolean; [extra: string]: any }
+
   // ---------- mundo y nivel (TODO: tipar) ----------
   /** Altura del suelo en píxeles (función, no variable). */
   function groundY(): number;
   /** Jefe del nivel actual (objeto con hp, encountered…) o false. */
-  var bossFight: any;
-  var curLV: any; var curQ: any; var AQ: any; var AQbonus: any;
-  var platforms: any[]; var pipes: any[]; var skyItems: any[]; var coins: any[]; var bullets: any[];
-  var flagX: number; var tiLeft: number; var WORLD_W: number; var GRAV: number; var MELEE_DUR: number;
-  var _skyZone: any; var _spreadCooldown: number;
-  var POWER_ICONS: any; var THEMED_POWERS: any; var ISLAS_META: any; var SPR: any;
+  var ISLAS_META: any;
   var ANTAREZ: any; var ANTAREZ_MANIFEST: any; var VILLAIN_MANIFEST: any;
 
   // ---------- módulos de engine/ ----------
@@ -77,7 +55,7 @@ declare global {
   var MundosRegistro: MundosRegistroAPI;
   var PreviewMundos: { montar(...a: any[]): any; crearMontaje(heroe: string): { imgs: string[]; dibujar(c: CanvasRenderingContext2D, W: number, H: number, ahora: number, prog: number): void } | null; precargar(lista: string[]): void; diagnostico(): any[] };
   var FisicaVisual: any;   // engine/core/fisica-visual.js
-  var NinjaMods: any; var NinjaOrient: any; var NinjaCompat: any; var NinjaDevice: any; var NJ: any; var NJX: any;
+  var NinjaMods: any; var NinjaOrient: any; var NinjaCompat: any; var NinjaDevice: any;
   var IntroPro: any; var VillainBoss: any;
   var Nivel1: any; var N1hab: any; var N1elem: any; var N1dir: any; var Ruta: any; var Acertijos: any; var GenNivel: any;
 

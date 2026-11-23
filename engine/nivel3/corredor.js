@@ -238,6 +238,7 @@
       [0, 1, 2].forEach(l => S.items.push({ k: 'orb', d, lane: l, val: l === cl ? c : vals.pop(), ok: l === cl, row, tomado: false }));
     }
     function patronLibre(d, lane, suave, calma, M, ev) {
+      /** @type {[string, number][]} */
       const A = [['linea', 14], ['arco', 12], ['zig', 10]];
       if (!suave) A.push(['tramp', 8]);
       if (!calma) A.push(['bajo', 10], ['alto', 8]);
