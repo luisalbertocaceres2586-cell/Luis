@@ -17,7 +17,7 @@
     return { v: 1, activo: null, perfiles: {} };
   }
   function escribir(d) { if (!store) return false; try { store.setItem(KEY, JSON.stringify(d)); return true; } catch (e) { return false; } }
-  function limpiarNombre(n) { return String(n == null ? '' : n).replace(/[<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14); }
+  function limpiarNombre(n) { return String(n == null ? '' : n).replace(/[<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
   function idDe(nombre) { return limpiarNombre(nombre).toLowerCase().replace(/[^a-z0-9áéíóúñü]+/g, '-'); }
 
   function nuevoPerfil(nombre, avatar, dispositivo) {
@@ -43,6 +43,16 @@
     const p = nuevoPerfil(nombre, o.avatar, o.dispositivo);
     d.perfiles[id] = p; d.activo = id;
     return escribir(d) ? { ok: true, perfil: p } : { ok: false, error: 'No se pudo guardar (almacenamiento bloqueado).' };
+  }
+  /* Jugador ligado a una cuenta (apodo): lo crea si no existe, o adopta uno local con el mismo nombre,
+     y lo deja como jugador activo. Así el juego no vuelve a pedir el nombre. */
+  function paraCuenta(nick, avatar, dispositivo) {
+    const nombre = limpiarNombre(nick), id = idDe(nombre);
+    if (nombre.length < 2 || !id) return null;
+    const d = leer();
+    const p = d.perfiles[id] || (d.perfiles[id] = nuevoPerfil(nombre, avatar, dispositivo));
+    p.cuenta = String(nick).toLowerCase(); p.ultimo = Date.now(); d.activo = id;
+    return escribir(d) ? p : null;
   }
   function listar() {
     return Object.values(leer().perfiles).sort((a, b) => b.ultimo - a.ultimo);
@@ -106,5 +116,5 @@
     } catch (e) { return { ok: false, error: 'Código no válido.' }; }
   }
 
-  return { crear, listar, obtener, activo, elegir, cerrarSesion, registrarHechos, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
+  return { crear, paraCuenta, idDe, listar, obtener, activo, elegir, cerrarSesion, registrarHechos, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
 });
