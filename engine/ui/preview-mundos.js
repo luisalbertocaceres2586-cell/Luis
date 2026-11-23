@@ -87,7 +87,7 @@
     const items = [], add = (k, lane, tA, o) => items.push(Object.assign({ k, lane, tA, D: dist(tA) }, o || {}));
     const arc = [0, 40, 75, 90, 75, 40, 0];
     for (let i = 0; i < 6; i++) add('moneda', 1, .9 + i * .22);
-    add('barril', 0, 4.0); for (let i = 0; i < 7; i++) add('moneda', 0, 3.55 + i * .15, { h: arc[i] });
+    add('barril', 0, 4.0); for (let i = 0; i < 7; i++) add('moneda', 0, 3.55 + i * .15, { h: arc[i], pico: i === 3 });
     add('torii', 0, 6.3); for (let i = 0; i < 5; i++) add('moneda', 0, 5.85 + i * .2);
     items.push({ k: 'arco', D: Dd - 26, tA: tAt(Dd - 26) }); items.push({ k: 'puerta', D: Dd, tA: tD });
     for (let i = 0; i < 4; i++) add('moneda', 2, tD + .9 + i * .18);
@@ -99,16 +99,29 @@
     const FAR = m.fases[0].far, DEC = (m.props || []).filter(p => !p.alto).map(p => p.img);
     const TORII = P + 'structures/torii_small_lanterns_c.png', ARCO = P + 'structures/torii_lanterns_a.png', BARRIL = P + 'objects/barrel_c.png';
     const H = HEROES[heroeId] || HEROES.sakura, espalda = () => heroeId !== 'kage' && man3();
-    const imgs = [FAR, COIN, TORII, ARCO, BARRIL].concat(DEC, H.run, H.jump);
+    // arte propio del Nivel 3 (el mismo que se ve jugando)
+    const NA = A + 'nivel3/arte/', PANO = m.demo && m.demo.pano, COINS = [1, 2, 3, 4].map(i => NA + 'monedas/coin_' + i + '.png'), COINR = NA + 'monedas/coin_racha.png';
+    const OB_BARRIL = NA + 'obstaculos/barril.png', OB_TORII = NA + 'obstaculos/torii_bajo.png', CAJA = NA + 'potenciadores/caja.png', BURB = NA + 'efectos/burbuja.png', POLVO = NA + 'efectos/polvo.png';
+    const ZRUN = [1, 2, 3, 4].map(i => NA + 'zorro/run_' + i + '.png'), ZSAL = NA + 'zorro/salto.png', ZSEN = NA + 'zorro/senala.png', ZCEL = NA + 'zorro/celebra.png', ZESP = NA + 'zorro/espera.png';
+    const rgba = (hex, a) => { const n = parseInt(hex.replace('#', ''), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
+    const imgs = [FAR, COIN, TORII, ARCO, BARRIL, COINR, OB_BARRIL, OB_TORII, CAJA, BURB, POLVO, ZSAL, ZSEN, ZCEL, ZESP].concat(COINS, ZRUN, PANO ? [PANO] : [], DEC, H.run, H.jump);
     if (heroeId !== 'kage') ['run', 'jump', 'roll', 'carril', 'celebra'].forEach(n => { for (let i = 1; i <= 8; i++) imgs.push(B3 + n + '_' + pad(i) + '.png'); });
 
     function dibujar(c, W, Hh, t, op) {
       const Wn = Math.min(W, Hh * .72), tl = mod(t, T), dn = dist(t), u = Hh / 960, hor = .19 * Hh, Py = .5 * Hh, LW = .27 * Wn, sinHud = !!(op && op.sinHud); let s;
       const pz = z => 1 / (1 + z / Z0), yz = z => hor + (Py - hor) * pz(z), xz = (l, z) => W / 2 + (l - 1) * LW * pz(z);
       let g = c.createLinearGradient(0, 0, 0, hor + 4); g.addColorStop(0, m.cielo[0]); g.addColorStop(1, m.cielo[1]); c.fillStyle = g; c.fillRect(0, 0, W, hor + 4);
-      const mt = IM(FAR);
-      if (ok(mt)) { const hh = .2 * Hh, ww = hh * iw(mt) / ih(mt), off = -mod(dn * 3 * u, ww); for (let x = off - ww; x < W + ww; x += ww) c.drawImage(mt, x, hor - hh + 2, ww, hh); }
+      const mt = IM(FAR), pn = PANO ? IM(PANO) : null, lap = lane(tl);
+      if (!(pn && ok(pn)) && ok(mt)) { const hh = .2 * Hh, ww = hh * iw(mt) / ih(mt), off = -mod(dn * 3 * u, ww); for (let x = off - ww; x < W + ww; x += ww) c.drawImage(mt, x, hor - hh + 2, ww, hh); }
       g = c.createLinearGradient(0, hor, 0, Hh); g.addColorStop(0, suelo[1]); g.addColorStop(1, suelo[0]); c.fillStyle = g; c.fillRect(0, hor, W, Hh - hor);
+
+      if (pn && ok(pn)) {
+        const hp = hor + .09 * Hh, asp = iw(pn) / ih(pn), hh = hp * 1.32, ww = hh * asp, lim = Math.min(ww * .04, 14), sh = clamp(-(lap.l - 1) * 6 + Math.sin(t * .25) * 4, -lim, lim), x0 = W / 2 - ww / 2 + sh;
+        for (let k = Math.floor(-x0 / ww) - 1; k <= Math.ceil((W - x0) / ww); k++) {
+          const xx = x0 + k * ww; c.save(); if (k & 1) { c.translate(xx + ww, 0); c.scale(-1, 1); c.drawImage(pn, 0, hp - hh, ww, hh); } else c.drawImage(pn, xx, hp - hh, ww, hh); c.restore();
+        }
+        const gf = c.createLinearGradient(0, hp * .5, 0, hp); gf.addColorStop(0, rgba(suelo[1], 0)); gf.addColorStop(1, rgba(suelo[1], 1)); c.fillStyle = gf; c.fillRect(0, hp * .5, W, hp * .5 + 1);
+      }
       // camino en perspectiva
       const zf = ZMAX, zn = -11, lI = -.62, lD = 2.62;
       g = c.createLinearGradient(0, hor, 0, Hh); g.addColorStop(0, ruta[1]); g.addColorStop(1, ruta[0]); c.fillStyle = g;
@@ -129,13 +142,13 @@
         const z = o.D + k * Dl - dn; if (z < -4 || z > ZMAX) return; const tp = t - (o.tA + k * T), p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1);
         L.push([z, () => {
           const x = xz(o.lane == null ? 1 : o.lane, z), y = yz(z);
-          if (o.k === 'moneda') { if (z < .4) { chispas(c, x, y - 46 * u * p * 1.3, tp, 5, .6, '#ffd35a', o.tA * 10 | 0); return; } const yy = y - (46 + (o.h || 0)) * u * p * 1.3; brillo(c, x, yy, .058 * Hh * p, '255,210,90', .4 * a); c.globalAlpha = a; moneda(c, x, yy, .03 * Hh * p, t + o.tA); c.globalAlpha = 1; }
-          else if (o.k === 'barril') imagen(c, BARRIL, x, y, .12 * Hh * p, a);
-          else if (o.k === 'torii') imagen(c, TORII, x, y, .21 * Hh * p, a);
+          if (o.k === 'moneda') { if (z < .4) { chispas(c, x, y - 46 * u * p * 1.3, tp, 5, .6, '#ffd35a', o.tA * 10 | 0); return; } const yy = y - (46 + (o.h || 0)) * u * p * 1.3; brillo(c, x, yy, .058 * Hh * p, '255,210,90', .4 * a); c.globalAlpha = a; if (!imagen(c, o.pico ? COINR : COINS[Math.floor(t * 9 + o.tA * 3) % 4], x, yy + .034 * Hh * p, .068 * Hh * p, a)) moneda(c, x, yy, .03 * Hh * p, t + o.tA); c.globalAlpha = 1; }
+          else if (o.k === 'barril') { if (!imagen(c, OB_BARRIL, x, y, .15 * Hh * p, a)) imagen(c, BARRIL, x, y, .12 * Hh * p, a); }
+          else if (o.k === 'torii') { if (!imagen(c, OB_TORII, x, y, .22 * Hh * p, a)) imagen(c, TORII, x, y, .21 * Hh * p, a); }
           else if (o.k === 'arco') { const hh = .34 * Hh * p; imagen(c, ARCO, W / 2, y, hh, a); }
           else if (o.k === 'caja') {
             if (z < .4) { chispas(c, x, y - 50 * u * p * 1.3, tp, 12, .7, '#c9a0ff', 7); return; }
-            const r = .028 * Hh * p, yy = y - (50 + 8 * Math.sin(t * 4)) * u * p * 1.3; brillo(c, x, yy, r * 2.6, '190,140,255', .6 * a); c.globalAlpha = a; c.fillStyle = '#7a3fd0'; c.strokeStyle = '#ffd35a'; c.lineWidth = Math.max(1.5, 3 * p); rr(c, x - r, yy - r, r * 2, r * 2, r * .22); c.fill(); c.stroke(); c.fillStyle = '#ffd35a'; c.fillRect(x - r * .14, yy - r, r * .28, r * 2); c.globalAlpha = 1; texto(c, '?', x, yy + r * .06, r * 1.2, '#fff');
+            const r = .028 * Hh * p, yy = y - (50 + 8 * Math.sin(t * 4)) * u * p * 1.3; brillo(c, x, yy, r * 2.6, '190,140,255', .6 * a); if (imagen(c, CAJA, x, yy + r * 1.2, r * 2.5, a)) return; c.globalAlpha = a; c.fillStyle = '#7a3fd0'; c.strokeStyle = '#ffd35a'; c.lineWidth = Math.max(1.5, 3 * p); rr(c, x - r, yy - r, r * 2, r * 2, r * .22); c.fill(); c.stroke(); c.fillStyle = '#ffd35a'; c.fillRect(x - r * .14, yy - r, r * .28, r * 2); c.globalAlpha = 1; texto(c, '?', x, yy + r * .06, r * 1.2, '#fff');
           } else if (o.k === 'puerta') {
             const vals = [24, 32, 28], elegido = tp > -.02;
             for (let l = 0; l < 3; l++) {
@@ -159,12 +172,24 @@
         else if (la.cambia) { est = 'carril'; idx = Math.min(3, Math.floor(la.s * 4)) + (la.der ? 4 : 0); }
         else if (tl > 10.9 && tl < 12.0) idx = Math.floor(t * 8) % 8;
         const y = Py - jh;
+        { const kp = (tl - 4.36) / .5; if (kp >= 0 && kp <= 1) imagen(c, POLVO, hx, Py + 6 * u, .1 * Hh * (1 + kp * .7), (1 - kp) * .9); }
         c.fillStyle = 'rgba(0,0,0,.38)'; c.beginPath(); c.ellipse(hx, Py + 3 * u, 48 * u * (1 - jh / (400 * u)), 11 * u, 0, 0, 7); c.fill();
         const M = espalda();
         if (M && M.animations[est]) { const fr = M.animations[est].frames[idx % M.animations[est].frames.length], im = IM(B3 + fr.file), sc = .2 * Hh / M.refH; if (ok(im)) c.drawImage(im, hx - fr.ax * sc, y - fr.ay * sc, fr.w * sc, fr.h * sc); }
         else { lado(c, est === 'jump' ? H.jump : H.run, est === 'jump' ? s * H.jump.length : t * 14, hx, y, .22 * Hh); }
         const sh = clamp(Math.min(tl - (tD + 2.0), T - .5 - tl) / .4, 0, 1); // escudo de la caja sorpresa
-        if (sh > 0) { c.globalAlpha = sh; c.fillStyle = 'rgba(120,200,255,.16)'; c.strokeStyle = 'rgba(160,225,255,.85)'; c.lineWidth = 3; c.beginPath(); c.arc(hx, y - .095 * Hh, .105 * Hh + 3 * Math.sin(t * 6), 0, 7); c.fill(); c.stroke(); c.globalAlpha = 1; }
+        if (sh > 0 && imagen(c, BURB, hx, y + .05 * Hh, .23 * Hh, sh * .9)) { }
+        else if (sh > 0) { c.globalAlpha = sh; c.fillStyle = 'rgba(120,200,255,.16)'; c.strokeStyle = 'rgba(160,225,255,.85)'; c.lineWidth = 3; c.beginPath(); c.arc(hx, y - .095 * Hh, .105 * Hh + 3 * Math.sin(t * 6), 0, 7); c.fill(); c.stroke(); c.globalAlpha = 1; }
+      }]);
+      // zorro compañero (de espalda): corre al lado, salta con ella, señala la pista, espera en la plaza y celebra
+      L.push([.02, () => {
+        const side = clamp((1.15 - la.l) * 4, -1, 1), fx = clamp(hx + side * .2 * Wn, W * .08, W * .92), hh = .14 * Hh; let im = null, dy = 0;
+        if (tl > tD - .05 && tl < tD + 1.5) im = ZCEL;
+        else if (tl > 3.64 && tl < 4.36) { im = ZSAL; dy = -Math.abs(Math.sin((tl - 3.64) / .72 * Math.PI)) * 30 * u; }
+        else if (tl > 9.3 && tl < 10.9) im = ZSEN;
+        else if (tl >= 10.9 && tl < 12.05) im = ZESP;
+        else { im = ZRUN[Math.floor(t * 10 + 2) % 4]; dy = -Math.abs(Math.sin(t * 8)) * 5 * u; }
+        c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(fx, Py + 22 * u, hh * .24, 7 * u, 0, 0, 7); c.fill(); imagen(c, im, fx, Py + 22 * u + dy, hh);
       }]);
       L.sort((a, b) => b[0] - a[0]); L.forEach(f => f[1]());
       // texto en pantalla (igual que en el juego)
