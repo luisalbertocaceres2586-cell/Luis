@@ -75,6 +75,8 @@ declare global {
   var Nube: any;   // engine/nube.js (cuentas y guardado en la nube); puede no estar cargado
   var SelectorMundos: SelectorMundosAPI;
   var MundosRegistro: MundosRegistroAPI;
+  var PreviewMundos: { montar(...a: any[]): any; crearMontaje(heroe: string): { imgs: string[]; dibujar(c: CanvasRenderingContext2D, W: number, H: number, ahora: number, prog: number): void } | null; precargar(lista: string[]): void; diagnostico(): any[] };
+  var FisicaVisual: any;   // engine/core/fisica-visual.js
   var NinjaMods: any; var NinjaOrient: any; var NinjaCompat: any; var NinjaDevice: any; var NJ: any; var NJX: any;
   var IntroPro: any; var VillainBoss: any;
   var Nivel1: any; var N1hab: any; var N1elem: any; var N1dir: any; var Ruta: any; var Acertijos: any; var GenNivel: any;
