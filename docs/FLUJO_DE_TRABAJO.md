@@ -70,3 +70,16 @@ Casi nunca se pierde. En orden:
 ## Ideas para más adelante (cambian la forma del código, por eso no se hicieron aún)
 - Partir `juego-principal.js` y `corredor.js` en archivos por tema (física, dibujo, jefes…): archivos más chicos = menos choques.
 - Un solo archivo con la lista de scripts que carga el juego, en vez de editar `index.html` a mano.
+
+## 🤖 El robot que fusiona solo (Pull Requests automáticos)
+Archivos: `.github/workflows/auto-fusionar.yml`, `tools/fusionar-todo.sh`, `tools/fusionar-pr.js` (pruebas: `tests/fusionar.test.js`).
+
+**Qué hace, cada vez que se abre o actualiza un Pull Request (y cada vez que entra algo a `main`, y cada 30 minutos):**
+1. Pone el PR al día con `main`.  Resuelve solo lo seguro: `version.json` (gana main) y las líneas `<script>`/`<link>` que dos pestañas agregaron en el mismo sitio de un `.html` (se conservan las dos; si las dos tocaron el mismo archivo, gana el `?v=` más alto).
+2. Corre `npm run typecheck` y `npm test` sobre el resultado ya unido.
+3. Si todo pasa → **fusiona y borra la rama**. Los PR se fusionan de uno en uno, cada uno sobre el main más reciente.
+4. Si NO puede (choque real de código, pruebas rotas) → no fusiona nada: pone la etiqueta **`necesita-revision`** y comenta qué pasó. Al subir tu arreglo lo vuelve a intentar solo.
+
+**Lo que el robot NO hace:** adivinar choques de código. Si dos pestañas cambian las mismas líneas de `corredor.js`, alguien tiene que decidir (`npm run sincronizar`, o pegarle el mensaje a Claude).
+**Para que no toque un PR:** ábrelo como borrador (draft) o ponle la etiqueta `no-fusionar`.
+**Recomendado (una sola vez):** crear un token personal y guardarlo como secreto `AUTO_TOKEN` (Settings → Secrets and variables → Actions). Con él, lo que fusiona el robot publica la versión y GitHub Pages sin pasos extra.
