@@ -652,7 +652,8 @@
     let idx = progress === undefined ? Math.floor((now - st.start) * anim.fps) : Math.floor(Math.max(0, Math.min(.999999, progress)) * count);
     if (anim.loop) idx %= count; else idx = Math.min(count - 1, idx);
     const f = anim.frames[idx]; if (!f) return; const im = img[f.file]; if (!im) return;
-    const s = S.alto * 1.155, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
+    // los fotogramas de lanzar kunai y tajo abajo salen de otra hoja (pose en cuclillas dibujada ~23 % más chica); ×1.3 iguala el tamaño de su cabeza con el de correr
+    const kAnim = (name === 'kunai' || name === 'special') ? 1.3 : 1, s = S.alto * 1.155 * kAnim, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s;
     const groundOffset = h.suelo ? 4 : 0;
     if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
     if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
