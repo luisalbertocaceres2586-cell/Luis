@@ -14,12 +14,14 @@ function fakeStore() {
 }
 // Servidor simulado con las mismas reglas del Code.gs (v2.1)
 function fakeServer() {
-  const users = {}; let n = 0, c = 0; const llamadas = [];
+  const users = {}; let n = 0, c = 0; const llamadas = [], fallos = {}, opts = { exigeConsent: false };
   const clases = { K7M24P: { nombre: '3A', activa: true }, OFF222: { nombre: 'Vieja', activa: false } };
   const cuentaDe = u => ({ clase: u.clase ? { codigo: u.clase, nombre: clases[u.clase].nombre } : null, ranking: !u.oculto });
   const cod = () => 'COD' + (++c) + '-AAAA-BBBB';
   const fetch = async (url, init) => {
     const q = JSON.parse(init.body); llamadas.push(q.action);
+    const pend = fallos[q.action];                       // fallos programados: 'red' = corte de conexión; otro texto = error del servidor
+    if (pend && pend.length) { const e = pend.shift(); if (e === 'red') throw new Error('offline'); return { json: async () => ({ ok: false, error: e }) }; }
     const nick = String(q.nick || '').trim(), low = nick.toLowerCase(), u = users[low];
     const ok = tk => u && u.tokens.indexOf(tk) >= 0;
     let r;
@@ -27,8 +29,9 @@ function fakeServer() {
       case 'check': r = /^[A-Za-z0-9_]{3,16}$/.test(nick) ? { ok: true, available: !u } : { ok: false, error: 'nick_invalido' }; break;
       case 'register':
         if (u) r = { ok: false, error: 'nick_en_uso' };
+        else if (opts.exigeConsent && !(q.consentimiento && q.consentimiento.aceptado)) r = { ok: false, error: 'sin_consentimiento' };
         else if (q.clase && !(clases[String(q.clase).toUpperCase()] || {}).activa) r = { ok: false, error: 'clase_invalida' };
-        else { const tk = 't' + (++n), rc = cod(); users[low] = { nick, pass: q.pass, tokens: [tk], progress: q.progress || {}, rescate: rc, clase: q.clase ? String(q.clase).toUpperCase() : '' }; r = { ok: true, token: tk, progress: q.progress, rescate: rc, tieneRescate: true, cuenta: cuentaDe(users[low]) }; }
+        else { const tk = 't' + (++n), rc = cod(); users[low] = { nick, consent: q.consentimiento, pass: q.pass, tokens: [tk], progress: q.progress || {}, rescate: rc, clase: q.clase ? String(q.clase).toUpperCase() : '' }; r = { ok: true, token: tk, progress: q.progress, rescate: rc, tieneRescate: true, cuenta: cuentaDe(users[low]) }; }
         break;
       case 'login':
         if (!u || u.pass !== q.pass) r = { ok: false, error: 'credenciales' };
@@ -50,6 +53,7 @@ function fakeServer() {
         else { u.rescate = cod(); r = { ok: true, rescate: u.rescate }; }
         break;
       case 'load': r = ok(q.token) ? { ok: true, progress: u.progress, cuenta: cuentaDe(u) } : { ok: false, error: 'sesion' }; break;
+      case 'config': r = { ok: true, responsable: 'Colegio X', contacto: 'datos@colegio.edu.co', clavesVisibles: true, exigeConsentimiento: opts.exigeConsent, versionLegal: '1.0' }; break;
       case 'checkclass': { const k = clases[String(q.codigo).toUpperCase()]; r = { ok: true, valid: !!(k && k.activa), nombre: k && k.activa ? k.nombre : '' }; break; }
       case 'joinclass':
         if (!ok(q.token)) r = { ok: false, error: 'sesion' };
@@ -68,13 +72,13 @@ function fakeServer() {
     }
     return { json: async () => JSON.parse(JSON.stringify(r)) };
   };
-  return { fetch, users, llamadas };
+  return { fetch, users, llamadas, fallos, opts };
 }
-const dispositivo = (srv, t) => {
+const dispositivo = (srv, t, extra) => {
   const store = fakeStore(); let reloj = t || 1000;
   const eventos = [], sesiones = [];
-  const nube = Nube.crear({ store, fetch: srv.fetch, now: () => ++reloj, espera: 5,
-    on: { estado: e => eventos.push(e), sesionExpirada: () => eventos.push('expirada'), sesion: (nick, motivo) => sesiones.push([nick, motivo]) } });
+  const nube = Nube.crear(Object.assign({ store, fetch: srv.fetch, now: () => ++reloj, espera: 5, retardos: [1, 1],
+    on: { estado: e => eventos.push(e), sesionExpirada: () => eventos.push('expirada'), sesion: (nick, motivo) => sesiones.push([nick, motivo]) } }, extra));
   return { store, nube, eventos, sesiones, jugar: (k, v) => { store.setItem(k, v); nube.cambio(k); } };
 };
 const espera = ms => new Promise(r => setTimeout(r, ms));
@@ -240,6 +244,53 @@ const lista = d => Object.keys(JSON.parse(d.store.getItem('ninja_perfiles_v1') |
   // sesión vencida: ranking/clase avisan
   srv.users['alumno_1'].tokens = [];
   assert.strictEqual((await G.nube.ranking('todos')).error, 'sesion'); assert.deepStrictEqual(G.sesiones.pop(), [null, 'expirada']);
+
+  // SERVIDOR OCUPADO Y CORTES DE RED: reintentos automáticos (solo donde es seguro repetir)
+  const srv2 = fakeServer(), Rt = dispositivo(srv2, 400000);
+  srv2.fallos.check = ['ocupado', 'red'];                                   // falla dos veces y la tercera funciona
+  assert.strictEqual((await Rt.nube.disponible('reintento')).available, true);
+  assert.strictEqual(srv2.llamadas.filter(x => x === 'check').length, 3, 'reintentó 2 veces');
+  srv2.fallos.check = ['ocupado', 'ocupado', 'ocupado'];                    // si sigue ocupado, se rinde y avisa
+  assert.strictEqual((await Rt.nube.disponible('reintento')).error, 'ocupado');
+  srv2.fallos.register = ['ocupado'];                                       // 'ocupado' = no se hizo nada: se puede repetir
+  assert.ok((await Rt.nube.registrar('reintento', 'clave1', '', { aceptado: true })).ok);
+  assert.strictEqual(srv2.llamadas.filter(x => x === 'register').length, 2);
+  const Rt2 = dispositivo(srv2, 410000); srv2.fallos.register = ['red'];
+  assert.strictEqual((await Rt2.nube.registrar('otro_reint', 'clave1', '', { aceptado: true })).error, 'red', 'un corte de red NO se repite al registrar (podría crear dos cuentas)');
+  assert.strictEqual(srv2.llamadas.filter(x => x === 'register').length, 3);
+  srv2.fallos.save = ['red', 'error_servidor'];                              // guardar sí se repite ante cortes
+  Rt.jugar('mpl_v10_sv', '{"nivel":4}'); await espera(80);
+  assert.strictEqual(srv2.users['reintento'].progress.datos['mpl_v10_sv'], '{"nivel":4}', 'el avance llegó pese a los fallos');
+  assert.ok(Rt.eventos.includes('guardado'));
+
+  // CONSENTIMIENTO de un adulto al crear la cuenta
+  srv2.opts.exigeConsent = true;
+  assert.strictEqual((await Rt2.nube.registrar('con_aut', 'clave1')).error, 'sin_consentimiento');
+  assert.strictEqual((await Rt2.nube.registrar('con_aut', 'clave1', '', { aceptado: false })).error, 'sin_consentimiento');
+  assert.strictEqual((await Rt2.nube.disponible('con_aut')).available, true, 'sin autorización no se crea la cuenta');
+  assert.ok((await Rt2.nube.registrar('con_aut', 'clave1', '', { aceptado: true })).ok);
+  assert.deepStrictEqual(srv2.users['con_aut'].consent, { aceptado: true, version: '1.0' }, 'se envía la versión del aviso aceptado');
+  srv2.opts.exigeConsent = false;
+
+  // DATOS DEL AVISO DE PRIVACIDAD (responsable, contacto, claves visibles)
+  const Cf = dispositivo(srv2, 420000);
+  assert.deepStrictEqual(Cf.nube.config(), {});
+  const cfg = await Cf.nube.cargarConfig();
+  assert.deepStrictEqual([cfg.responsable, cfg.contacto, cfg.clavesVisibles], ['Colegio X', 'datos@colegio.edu.co', true]);
+  assert.strictEqual(Cf.nube.config().contacto, 'datos@colegio.edu.co', 'queda guardado en el dispositivo');
+  srv2.fallos.config = ['red', 'red', 'red'];
+  assert.strictEqual((await Cf.nube.cargarConfig()).contacto, 'datos@colegio.edu.co', 'sin conexión se usa lo último guardado');
+
+  // GUARDADO: espera a que el niño pause, pero nunca se queda sin guardar más de «maxEspera»
+  const Sp = dispositivo(srv2, 430000, { espera: 40, maxEspera: 100 });
+  await Sp.nube.registrar('seguido_1', 'clave1', '', { aceptado: true });
+  const savesIni = srv2.llamadas.filter(x => x === 'save').length;
+  for (let i = 0; i < 20; i++) { Sp.jugar('mpl_v10_sv', JSON.stringify({ i })); await espera(15); }   // cambios cada 15 ms durante 300 ms
+  const duranteElJuego = srv2.llamadas.filter(x => x === 'save').length - savesIni;
+  assert.ok(duranteElJuego >= 1, 'guardó aunque el niño no dejó de jugar (tope de espera): ' + duranteElJuego);
+  assert.ok(duranteElJuego <= 6, 'y sin guardar en cada cambio: ' + duranteElJuego);
+  await espera(120);
+  assert.strictEqual(srv2.users['seguido_1'].progress.datos['mpl_v10_sv'], '{"i":19}', 'al final queda lo último');
 
   // sin red
   const E = dispositivo({ fetch: async () => { throw new Error('offline'); } });
