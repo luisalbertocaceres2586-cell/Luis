@@ -121,7 +121,7 @@ css.textContent=
 /* ---------- acciones con confirmación visible ---------- */
 function bloqueSalida(o){
   /* o: {sesion:bool, salirTxt, guardar(), salir(), cerrarSesion(), okMsg} → devuelve el elemento .njSalir */
-  var w=document.createElement('div');w.className='njSalir';
+  var w=/** @type {any} */(document.createElement('div'));w.className='njSalir';
   w.innerHTML=
     '<div class="qn"></div>'+
     '<div class="par">'+
@@ -197,7 +197,7 @@ function montarClasico(){
     salir:function(){
       clasicoDetener();
       var p=perfil();
-      if(p&&window.PerfilUI&&PerfilUI.abrirMundos)setTimeout(function(){PerfilUI.abrirMundos(p);},60);
+      if(p&&window.PerfilUI&&window.PerfilUI.abrirMundos)setTimeout(function(){window.PerfilUI.abrirMundos(p);},60);
     },
     cerrarSesion:function(){clasicoDetener();setTimeout(aIndice,60);}   // arranque limpio: JUGAR vuelve a pedir "¿Quién juega?"
   });
@@ -262,7 +262,7 @@ function opcionesN1(){
 }
 
 /* ---- Nivel 2 (nivel2.html) ---- */
-function n2(){return (window.Nivel2&&Nivel2._estado&&Nivel2._estado())||null;}
+function n2(){return (window.Nivel2&&window.Nivel2._estado&&window.Nivel2._estado())||null;}
 function clicSalirN2(){
   var bs=document.querySelectorAll('button');
   for(var i=bs.length-1;i>=0;i--)if((bs[i].textContent||'').trim()==='✕'){bs[i].click();return true;}

@@ -1,0 +1,12 @@
+/* Cambio de ninja 2026: anillo de aparición + humo mágico bajo el elegido y una cortina de energía que cruza el escenario. Solo capas temporales. */
+#m26 .m26-stage{position:relative}
+#m26 .m26-hero .cb26-ring,#m26 .m26-hero .cb26-smoke{position:absolute;left:50%;bottom:calc(clamp(40px,7vh,64px) - var(--hh)*.06);width:auto;max-width:none;translate:-50% 0;pointer-events:none;mix-blend-mode:screen;opacity:0;z-index:3}
+#m26 .m26-hero .cb26-ring{height:calc(var(--hh)*.78);animation:cb26ring .85s cubic-bezier(.15,.8,.25,1) forwards}
+#m26 .m26-hero .cb26-smoke{height:calc(var(--hh)*.7);mix-blend-mode:normal;animation:cb26smoke 1s ease-out forwards}
+@keyframes cb26ring{0%{opacity:0;scale:.35}25%{opacity:1}100%{opacity:0;scale:1.5}}
+@keyframes cb26smoke{0%{opacity:0;scale:.5;translate:-50% 18px}30%{opacity:.7}100%{opacity:0;scale:1.25;translate:-50% -10px}}
+#m26 .cb26-curtain{position:absolute;top:8%;height:80%;width:auto;max-width:none;pointer-events:none;mix-blend-mode:screen;z-index:4;opacity:0;left:50%;translate:-50% 0;animation:cb26curtain .75s cubic-bezier(.3,.7,.2,1) forwards}
+#m26 .cb26-curtain.izq{scale:-1 1}
+@keyframes cb26curtain{0%{opacity:0;translate:calc(-50% + var(--d)*-38%) 0}35%{opacity:.85}100%{opacity:0;translate:calc(-50% + var(--d)*38%) 0}}
+html.fx-low #m26 .cb26-ring,html.fx-low #m26 .cb26-smoke,html.fx-low #m26 .cb26-curtain{display:none}
+@media(prefers-reduced-motion:reduce){#m26 .cb26-ring,#m26 .cb26-smoke,#m26 .cb26-curtain{display:none}}

@@ -3,7 +3,7 @@
 'use strict';
 const P='assets/intro-2026/';
 const MAP={Ranking:['interfaz/icono_estrella','estrella'],Logros:['interfaz/icono_escudo','escudo'],Reporte:['interfaz/icono_rayo','rayo'],
-  Sonido:['iconos/icono_sonido','sonido'],'Créditos':['interfaz/icono_corazon','corazon'],Historia:['interfaz/icono_sakura','sakura']};
+  Sonido:['iconos/icono_sonido','sonido'],'Créditos':['interfaz/icono_corazon','corazon'],Historia:['interfaz/icono_sakura','sakura'],Cuenta:['iconos/icono_jugador','jugador'],Progreso:['interfaz/icono_fuego','fuego']};
 function marcar(i){
   const b=i.closest('.m26-d'),l=b&&b.querySelector('.m26-l');if(!l)return;
   const m=MAP[(l.textContent||'').trim()];if(!m)return;
