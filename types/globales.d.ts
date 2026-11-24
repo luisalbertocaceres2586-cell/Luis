@@ -61,7 +61,7 @@ declare global {
     saveG?: (...args: any[]) => void; spawnSkyItem?: (...args: any[]) => void; njLayout?: (...args: any[]) => void;
     __introDone?: boolean; NJ_BUILD?: string; NJ_ZOOM?: number;
     VILLAIN_NAME?: string; SAKURA_MANIFEST?: any; SAKURA_EVE_MANIFEST?: any;
-    IntroPro?: any; VillainBoss?: any; Nivel1?: any; Nivel2?: any; Nivel3?: any;
+    IntroPro?: any; VillainBoss?: any; Nivel1?: any; Nivel2?: any; Nivel3?: any; PerfilUI?: any;
     webkitAudioContext?: typeof AudioContext;
     [extra: string]: any; // los mods dejan banderas sueltas en window (p. ej. __mod_xyz)
   }
