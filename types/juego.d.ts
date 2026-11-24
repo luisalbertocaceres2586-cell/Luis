@@ -19,6 +19,7 @@ declare global {
 
   interface Nivel1Datos { intentos?: number; completados?: number; plan?: unknown; estado?: unknown; semilla?: unknown }
   interface Nivel2Datos { plan?: unknown; semilla?: unknown; intentos?: number; completados?: number; estrellas?: number; mejor?: number; tutorial?: boolean; fallos?: Record<string, number> }
+  interface Nivel4Datos { intentos?: number; completado?: boolean; estrellas?: number; mejor?: number; salaMax?: number; fallos?: Record<string, number> }
   interface Nivel3Datos { intentos?: number; completado?: boolean; estrellas?: number; mejor?: number; fallos?: Record<string, number> }
 
   type Avatar = 'sakura' | 'kage';
@@ -34,6 +35,7 @@ declare global {
     nivel1?: Nivel1Datos;
     nivel2?: Nivel2Datos;
     nivel3?: Nivel3Datos;
+    nivel4?: Nivel4Datos;
     maestria?: Maestria;
     racha?: Racha;
     mundos?: { ultimo?: string };
