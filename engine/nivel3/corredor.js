@@ -63,6 +63,12 @@
     hieloN: [D2 + 'cristales_azules.png', D2 + 'cristales_azules.png', D2 + 'piedra_agrietada.png', D2 + 'cristales_azules.png', D1 + 'santuario_jizo.png', D1 + 'estatua_kitsune.png'],
     truenoN: [D2 + 'tambor_taiko.png', D1 + 'pilar_rojo.png', D1 + 'estandarte_emblema.png', D2 + 'piedra_agrietada.png', DL + 'toro_piedra.png', D1 + 'estatua_kitsune.png', D1 + 'pilar_rojo.png', D2 + 'piedra_agrietada.png']
   });
+  // v11 · parallax: islas flotantes y nubes reales del catálogo de entorno (se precargan con el resto del arte)
+  const SKYC = 'assets/environment/sky/clouds/';
+  Object.assign(ART, {
+    par_islas: [P + 'islands/floating_island_d.png', P + 'islands/floating_island_grass_b.png', P + 'islands/island_small_c.png', P + 'islands/island_waterfall_c.png', P + 'islands/island_waterfall_flowers_c.png'],
+    par_nubes: [SKYC + 'cloud_h02.png', SKYC + 'cloud_h03.png', SKYC + 'cloud_h04.png', SKYC + 'cloud_h05.png']
+  });
   const cache = {};
   function IMG(src) { let i = cache[src]; if (!i) { i = new Image(); i.src = src; cache[src] = i; } return i; }
   const listo = i => i && i.complete && i.naturalWidth > 0;
@@ -224,7 +230,7 @@
     function nuevo() {
       return { dist: 0, v: CFG.VEL0, px: 1, tl: 1, jh: 0, jv: 0, jt: 0, slide: 0, inv: 0, hurt: 0, vidas: CFG.VIDAS, items: [], deco: [], filas: [], parts: [], fx: [], toasts: [],
         racha: 0, mejorRacha: 0, puntos: 0, aciertos: 0, errores: 0, golpes: 0, fallosSeg: 0, cazadas: 0, cazaOk: 0, repasos: [], fallos: {}, hudE: 0, cadena: [], monedas: 0, mundo: 0, qpas: 0, zp: 0, cortes: [{ d: 0, m: 0 }],
-        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, iman: 0, escudo: 0, vuelo: 0, vueloD: 0, mAc: 0, mFa: 0, tutor: false, malSeg: 0,
+        plaza: false, espera: false, listo: false, filaAct: null, alegre: 0, alegreT: 0, pista: null, pistaHold: 0, iman: 0, escudo: 0, vuelo: 0, vueloD: 0, mAc: 0, mFa: 0, tutor: false, malSeg: 0,
         sp: { nextD: 30, qi: 0, tr: 0, mundo: 0, patM: false, cieloM: false, ultLane: -1, decoD: 8, evI: RI(0, 3), jr: 0, ultP: '', jUsadas: [] }, skate: 0, tiempo: 0, dash: 0, base: 0, sobre: null, combo: 0, comboT: 0, mult: 1, multMax: 1, multPulso: 0, invCtrl: false, viento: null, vientoT: 1.4, vientoAv: false, oscuro: 0, jefeHp: 3, jefeVis: false, jefeX: 1, jefeFlash: 0, jefeDerr: -1, nPod: 0, filaPod: null, hist: [], tAnim: 0, shake: 0, flash: 0, banner: null, amb: [], rings: [], polvo: [], lineas: [], temaF: 0, polvoT: 0, flashB: 0,
         corriendo: false, pausa: false, fin: false, cae: 0, t: 0 };
     }
@@ -320,8 +326,8 @@
         d += 12;
       });
       const doorD = d + CFG.RAMPA + 6;
-      S.items.push({ k: 'portal', d: doorD - 26, final: false, arco: true, txt: '¡Pregunta!', pasado: false });
-      const row = filaPregunta(jefeQ(r), false); row.jefe = true; sp.nextD = doorD + 18;
+      const arcoQ = { k: 'portal', d: doorD - 26, final: false, arco: true, txt: '¡Pregunta!', pasado: false, q: '' }; S.items.push(arcoQ);
+      const row = filaPregunta(jefeQ(r), false); row.jefe = true; arcoQ.q = row.q; sp.nextD = doorD + 18;
     }
     function portal(d, m, final) { S.items.push({ k: 'portal', d, final: !!final, txt: final ? '¡META!' : '¡Nuevo mundo!', pasado: false, sigM: m }); }
     function generar() {
@@ -339,8 +345,8 @@
         const doorD = Math.max(dFin, d0 + len) + CFG.RAMPA + 6; sp.nextD = doorD;
         const rep = S.repasos.find(x => x.espera <= 0); let q, esRep = false;
         if (rep) { S.repasos.splice(S.repasos.indexOf(rep), 1); q = rep.q; esRep = true; } else { q = PREGS[sp.qi++]; sp.tr++; S.repasos.forEach(x => x.espera--); }
-        S.items.push({ k: 'portal', d: doorD - 26, final: false, arco: true, txt: '¡Pregunta!', pasado: false });
-        filaPregunta(q, esRep); sp.nextD = doorD + 18;
+        const arcoQ = { k: 'portal', d: doorD - 26, final: false, arco: true, txt: '¡Pregunta!', pasado: false, q: '' }; S.items.push(arcoQ);
+        arcoQ.q = filaPregunta(q, esRep).q; sp.nextD = doorD + 18;
       }
       // decorado a los lados, según el mundo en que esté esa parte de la pista
       while (sp.decoD < S.dist + ZMAX) {
@@ -381,7 +387,9 @@
         else toast(['¡Bien!', '¡Eso es!', '¡Perfecto!', '¡Genial!'][RI(0, 3)] + ' +' + gan + ' 🪙', '#7dffb0', 1.2);
       } else {
         S.errores++; S.racha = 0; guardaFallo(row); sfx.casi(); chispas(x, y, '#9aa3c7', 10); anillo(x, y, '#9aa3c7', 0.7);
-        S.pista = { txt: secuencia(row.T, row.n), t: 5 }; toast('Casi… ' + row.T + ' × ' + row.n + ' = ' + row.c, '#ffd18a', 2);
+        { const hold = row.jefe ? 0 : Math.min(5.6, row.n * 0.36 + 2.2);   // el mundo se queda quieto un momento para que el niño vea los grupos con calma (no en el jefe)
+          S.pista = { txt: secuencia(row.T, row.n), t: hold + 2.5, T: row.T, n: row.n, c: row.c, t0: S.t, hold, marca: 0 }; S.pistaHold = hold; }
+        if (!S.pistaHold) toast('Casi… ' + row.T + ' × ' + row.n + ' = ' + row.c, '#ffd18a', 2);   // con la pista visual el pergamino ya dice el resultado
       }
       if (row.jefe) {
         if (it.ok) { S.jefeHp = Math.max(0, S.jefeHp - 1); S.jefeFlash = 1; sfx.golpeJefe(); chispas(W / 2 + (S.jefeX - 1) * LW * 0.4, 420, '#c9a0ff', 30); anillo(W / 2, 430, '#c9a0ff', 1.6); toast(S.jefeHp ? '💥 ¡Golpe al jefe!' : '💥 ¡JEFE VENCIDO!', '#d9b3ff', 2); if (!S.jefeHp) { S.jefeDerr = S.t; chispas(W / 2, 430, '#ffe27a', 50); S.flashB = 0.4; } }
@@ -416,6 +424,7 @@
     function accion(a) {
       if (!S || !S.corriendo || S.pausa || S.fin || S.cae > 0) return;
       if (S.plaza && !S.listo) S.listo = true; // en la plaza, cualquier gesto significa «ya elegí, seguimos»
+      if (S.pistaHold > 0) { if (S.pista && S.t - S.pista.t0 > S.pista.n * 0.36 + 0.9) S.pistaHold = 0; return; }   // durante la pista visual no hay nada que esquivar; un toque (cuando ya se vieron los grupos) sigue
       if (a === 'listo') return;
       if (S.vuelo > 0 && a !== 'izq' && a !== 'der') return;
       if (S.invCtrl && !S.plaza) { if (a === 'izq') a = 'der'; else if (a === 'der') a = 'izq'; }   // evento: carriles invertidos
@@ -512,6 +521,7 @@
       if (S.dash > 0 && !S.plaza) vObj = base * 1.45;
       if (S.plaza) { const k = clamp((dz - CFG.ESPERA) / (CFG.RAMPA - CFG.ESPERA), 0, 1); vObj = CFG.VPLAZA + (base - CFG.VPLAZA) * k; if (dz <= CFG.ESPERA + 0.3) vObj = S.listo ? CFG.VPLAZA + 1.4 : 0; }
       if (S.tiempo > 0 && !S.plaza) vObj *= 0.62;
+      if (S.pistaHold > 0) { S.pistaHold -= dt; vObj = 0; const pi = S.pista; if (pi) { const k = Math.min(pi.n, Math.floor((S.t - pi.t0) / 0.36) + 1); if (k > pi.marca) { pi.marca = k; tono(520 + 38 * k, 0.14, 'sine', 0.07); } } }
       if (S.cae > 0) { S.cae -= dt; S.v = Math.max(0, S.v - 20 * dt); if (S.cae <= 0) reaparecer(); }
       else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj = Math.min(vObj, Math.max(vObj * (1 - 0.4 * es.lento), 5.2)); } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
@@ -700,6 +710,71 @@
         if (c[2] <= 0.01) return; const m = IMG(BG + tm.bg + '.png'); if (!listo(m)) return; const hh = 200, ww = hh * m.naturalWidth / m.naturalHeight, off = -((S.dist * 0.5 + (S.px - 1) * 30) % ww);
         ctx.globalAlpha = c[2]; for (let x = off - ww; x < W + 60; x += ww) ctx.drawImage(m, x, HOR - hh + 16, ww, hh); ctx.globalAlpha = 1;
       });
+    }
+    // ───────────────────────── v11 · PARALLAX DE VARIAS CAPAS ─────────────────────────
+    // De atrás hacia adelante:  cielo + panorama (fondoDib) → islas LEJANAS → nubes suaves → islas MEDIAS → nubes de FRENTE
+    //   → camino y objetos → primer plano BORROSO (siluetas del decorado que pasan rápido por los costados).
+    // Cada capa se mueve distinto: con el carril (S.px) y con la distancia recorrida (S.dist), más una deriva propia por tiempo.
+    // Como dependen de S.dist, todo se detiene solo cuando la pista espera en la plaza. En modo S.lite (teléfonos lentos) no se dibujan.
+    const md = (a, b) => ((a % b) + b) % b;
+    const CAPAS_ISLA = [
+      { n: 3, h: [48, 68], y: [128, 200], par: 10, deriva: 2.4, dist: 0.10, al: 0.7, bruma: 0.5, max: 130, libre: 6 },   // lejanas: pequeñas, con bruma, casi quietas
+      { n: 2, h: [100, 128], y: [186, 236], par: 30, deriva: 6, dist: 0.5, al: 0.95, bruma: 0.22, max: 230, libre: -54 }     // medias: grandes, nítidas, se mueven más
+    ];
+    const cacheBruma = {};
+    /** Sprite reducido y teñido con el color de la niebla del mundo (así las capas lejanas se funden con el cielo). */
+    function brumaSprite(im, key, col, k, maxW) {
+      if (cacheBruma[key]) return cacheBruma[key];
+      const s0 = Math.min(1, maxW / im.naturalWidth), c = document.createElement('canvas'); c.width = Math.max(2, Math.round(im.naturalWidth * s0)); c.height = Math.max(2, Math.round(im.naturalHeight * s0));
+      const x = c.getContext('2d'); if (!x) return im; x.drawImage(im, 0, 0, c.width, c.height); x.globalCompositeOperation = 'source-atop'; x.globalAlpha = k; x.fillStyle = rgb(col); x.fillRect(0, 0, c.width, c.height);
+      return (cacheBruma[key] = c);
+    }
+    function islasCapa(L, ta, tb, f) {
+      if (S.lite) return;
+      const C = CAPAS_ISLA[L], arr = ART.par_islas, pares = [[ta, 1 - f]]; if (f > 0.01 && tb !== ta) pares.push([tb, f]);
+      for (let k = 0; k < C.n; k++) {
+        const sp = arr[Math.floor(hash(L * 97 + k * 13 + 5) * arr.length)], im = IMG(sp); if (!listo(im)) continue;
+        const h = C.h[0] + hash(L * 31 + k * 7 + 1) * (C.h[1] - C.h[0]), w = h * im.naturalWidth / im.naturalHeight, per = W + w + 220;
+        const x = md(hash(L * 53 + k * 11 + 3) * per - S.t * C.deriva * (k % 2 ? 1 : 0.7) - S.dist * C.dist - (S.px - 1) * C.par, per) - w - 110;
+        const y = Math.min(C.y[0] + hash(L * 71 + k * 17 + 9) * (C.y[1] - C.y[0]), HOR - h - C.libre) + Math.sin(S.t * 0.55 + k * 2.1 + L) * (3 + L * 3);
+        pares.forEach(pr => { ctx.globalAlpha = C.al * pr[1]; ctx.drawImage(brumaSprite(im, sp + '|' + pr[0] + '|' + L, TEMAS[pr[0]].rn, C.bruma, C.max), x, y, w, h); });
+      }
+      ctx.globalAlpha = 1;
+    }
+    function nubesFrente() {
+      if (S.lite) return;
+      const arr = ART.par_nubes, ta = Math.floor(S.temaF), tb = Math.min(TEMAS.length - 1, ta + 1), f = S.temaF - ta, pares = [[ta, 1 - f]]; if (f > 0.01 && tb !== ta) pares.push([tb, f]);
+      for (let k = 0; k < 4; k++) {
+        const sp = arr[k % arr.length], im = IMG(sp); if (!listo(im)) continue;
+        const w = 150 + hash(k * 19 + 2) * 90, h = w * im.naturalHeight / im.naturalWidth, per = W + w + 260;
+        const x = md(hash(k * 23 + 4) * per - S.t * (8 + k * 2.5) - S.dist * 0.34 - (S.px - 1) * 46, per) - w - 130, y = 96 + hash(k * 29 + 6) * 110 + Math.sin(S.t * 0.4 + k) * 4;
+        pares.forEach(pr => { ctx.globalAlpha = 0.34 * pr[1]; ctx.drawImage(brumaSprite(im, sp + '|' + pr[0] + '|n', TEMAS[pr[0]].rn, 0.45, 260), x, y, w, h); });
+      }
+      ctx.globalAlpha = 1;
+    }
+    const cacheBorrosa = {};
+    /** Desenfoque barato: se reduce el sprite dos veces y el navegador lo suaviza al ampliarlo; además se oscurece con el color del mundo. */
+    function borrosa(im, key, col) {
+      if (cacheBorrosa[key]) return cacheBorrosa[key];
+      /** @type {CanvasImageSource} */ let src = im; let sw = im.naturalWidth, sh = im.naturalHeight;
+      [128, 40].forEach(t => { const s0 = t / Math.max(sw, sh); if (s0 >= 1) return; const c = document.createElement('canvas'); c.width = Math.max(2, Math.round(sw * s0)); c.height = Math.max(2, Math.round(sh * s0)); const x = c.getContext('2d'); if (!x) return; x.drawImage(src, 0, 0, c.width, c.height); src = c; sw = c.width; sh = c.height; });
+      const o = document.createElement('canvas'); o.width = sw; o.height = sh; const x = o.getContext('2d'); if (x) { x.drawImage(src, 0, 0); x.globalCompositeOperation = 'source-atop'; x.globalAlpha = 0.6; x.fillStyle = rgb(col); x.fillRect(0, 0, sw, sh); }
+      return (cacheBorrosa[key] = { c: o, w: sw, h: sh });
+    }
+    function primerPlano(ta, tb, f) {
+      if (S.lite || S.fin) return;
+      const calma = 1 - 0.7 * S.zp, pares = [[ta, 1 - f]]; if (f > 0.01 && tb !== ta) pares.push([tb, f]);   // en la plaza casi desaparece para no tapar las respuestas
+      pares.forEach(pr => {
+        const arr = [].concat(ART[TEMAS[pr[0]].deco] || []); if (!arr.length) return;
+        for (let k = 0; k < 4; k++) {
+          const v = S.dist * 0.017 + k * 0.25, n = Math.floor(v), u = v - n, e = u * u, side = k % 2 ? 1 : -1;
+          const sp = arr[Math.floor(hash(n * 7 + k * 31 + pr[0] * 101) * arr.length)], im = IMG(sp); if (!listo(im)) continue;
+          const b = borrosa(im, sp + '|' + pr[0], TEMAS[pr[0]].rc1), hp = 150 + e * 800, wp = hp * b.w / b.h;
+          const x = W / 2 + side * (170 + e * 330) - (S.px - 1) * (26 + e * 150), y = HOR + 24 + e * H * 0.6;
+          ctx.globalAlpha = clamp(pr[1] * calma * Math.min(1, u * 5) * (1 - e * 0.3) * 0.72, 0, 1); ctx.drawImage(b.c, x - wp / 2, y - hp, wp, hp);
+        }
+      });
+      ctx.globalAlpha = 1;
     }
     // ───────────────────────── capas visuales extra (todo procedural, no necesita imágenes) ─────────────────────────
     // adoquines con juntas escalonadas + detalle del suelo por mundo, nubes, rayos de luz, aurora (hielo), tormenta (trueno) y corrección de color
@@ -976,6 +1051,18 @@
     }
     // El portal se dibuja en dos partes: 'alto' (arco, pilares, rótulo) y 'suelo' (escalera, rocas, plantas). Así la Sakura pisa los peldaños (suelo va ANTES que ella)
     // y pasa por debajo del arco (alto va DESPUÉS). La escalera no está centrada en el sprite: es la heroína quien se acomoda sobre ella (ver escaleraInfo).
+    // v11 · la pregunta cuelga del arco como un pergamino (dos varas, cuerdas y papel) y se ve crecer al acercarse
+    function pergaminoDib(x, yTop, wd, p, txt, a) {
+      const w = wd * 0.5, h = w * 0.4, x0 = x - w / 2, vara = Math.max(3, 9 * p), balanceo = Math.sin(S.t * 1.3) * 2 * p;
+      ctx.save(); ctx.globalAlpha = a * 0.95; ctx.translate(balanceo, 0);
+      ctx.strokeStyle = '#6b3b22'; ctx.lineWidth = Math.max(1, 3 * p); ctx.beginPath(); ctx.moveTo(x0 + w * 0.12, yTop - h * 0.3); ctx.lineTo(x0 + w * 0.12, yTop); ctx.moveTo(x0 + w * 0.88, yTop - h * 0.3); ctx.lineTo(x0 + w * 0.88, yTop); ctx.stroke();
+      const g = ctx.createLinearGradient(0, yTop, 0, yTop + h); g.addColorStop(0, '#fff3cf'); g.addColorStop(1, '#ecd18c'); ctx.fillStyle = g; ctx.fillRect(x0 + 3 * p, yTop, w - 6 * p, h);
+      ctx.fillStyle = '#b3261e'; rr(x0 - 4 * p, yTop - vara * 0.5, w + 8 * p, vara, vara / 2); ctx.fill(); rr(x0 - 4 * p, yTop + h - vara * 0.5, w + 8 * p, vara, vara / 2); ctx.fill();
+      ctx.fillStyle = '#ffd35a'; [x0 - 6 * p, x0 + w + 6 * p].forEach(cx => { ctx.beginPath(); ctx.arc(cx, yTop, vara * 0.55, 0, 7); ctx.arc(cx, yTop + h, vara * 0.55, 0, 7); ctx.fill(); });
+      let fs = Math.round(34 * p * 1.3); ctx.font = 'bold ' + fs + 'px ' + FUENTE; const mw = ctx.measureText(txt).width; if (mw > w * 0.86) { fs = Math.max(6, Math.floor(fs * w * 0.86 / mw)); ctx.font = 'bold ' + fs + 'px ' + FUENTE; }
+      ctx.fillStyle = '#4a2410'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x, yTop + h / 2 + 1);
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
     function portalDib(it, z, parte) {
       const p = pz(z), im = IMG(ART.portal), y = yz(z); if (!listo(im) || z < -3) return; parte = parte || 'todo';
       const wd = RW * 2.05 * p, ht = wd * im.naturalHeight / im.naturalWidth, x = W / 2, a = clamp((ZMAX - z) / 26, 0, 1), col = it.final ? '255,226,120' : it.poder ? '210,150,255' : '170,230,255';
@@ -990,6 +1077,7 @@
       if (parte === 'suelo') { ctx.globalAlpha = 1; return; }
       const bw = wd * 0.8, bh = 46 * p * 1.6, by = y - ht - bh * 0.55; ctx.fillStyle = 'rgba(20,10,40,.88)'; rr(x - bw / 2, by, bw, bh, 12 * p); ctx.fill(); ctx.lineWidth = 3 * p; ctx.strokeStyle = '#ffe27a'; ctx.stroke();
       ctx.fillStyle = '#ffe27a'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold ' + Math.round(34 * p) + 'px ' + FUENTE; ctx.fillText(it.txt, x, by + bh / 2); ctx.globalAlpha = 1;
+      if (it.arco && it.q && z > -1.5) pergaminoDib(x, y - ht * 0.62, wd, p, it.q, a);
     }
     function cajaDib(it, z) {
       if (it.tomado || z < -2) return; const p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1), x = W / 2 + (it.lane - 1) * LW * p, y = yz(z) - (50 + (it.h || 0) + 8 * Math.sin(S.t * 4 + it.d)) * p, r = 34 * p, im = IMG(ART.pu_caja);
@@ -1043,7 +1131,7 @@
       if (S.vuelo > 0) return; const lado = S.px < 1.15 ? 1 : -1; S.zx = S.zx == null ? lado : S.zx + (lado - S.zx) * 0.07;
       let nom, im, dy = 0; const hh = 128;
       if (S.celeb != null) nom = 'zo_celebra';
-      else if (S.pista && S.pista.t > 3.3) nom = 'zo_senala';
+      else if (S.pista && S.t - S.pista.t0 < 2.2) nom = 'zo_senala';
       else if (S.alegre > 0) { nom = 'zo_salto'; dy = -Math.abs(Math.sin((S.t - S.alegreT) * 9)) * 26; }
       else if (S.espera) nom = 'zo_espera';
       else { im = IMG(ART.zo_run[Math.floor(S.tAnim * 10 + 2) % 4]); dy = -Math.abs(Math.sin(S.tAnim * 10 * 0.8)) * 5; }
@@ -1153,6 +1241,22 @@
       if (!vineta) { vineta = document.createElement('canvas'); vineta.width = W; vineta.height = H; const x = vineta.getContext('2d'), g = x.createRadialGradient(W / 2, H * 0.52, H * 0.26, W / 2, H * 0.52, H * 0.78); g.addColorStop(0, 'rgba(5,2,18,0)'); g.addColorStop(1, 'rgba(5,2,18,.62)'); x.fillStyle = g; x.fillRect(0, 0, W, H); }
       ctx.drawImage(vineta, 0, 0);
     }
+    // v11 · pista visual: «n grupos de T» con monedas que aparecen de a un grupo, con el total corrido a la derecha
+    function pistaGrupos(pi) {
+      const T = pi.T, n = pi.n, el = S.t - pi.t0, vis = Math.min(n, Math.floor(el / 0.36) + 1), pc = 21, rp = n > 7 ? 19 : 23, d = 15;
+      const pw = T * pc + 150, ph = n * rp + 112, x0 = W / 2 - pw / 2, y0 = 292, fade = clamp((pi.hold + 0.5 - el) / 0.5, 0, 1) * clamp(el / 0.25, 0, 1);
+      ctx.save(); ctx.globalAlpha = fade * 0.96;
+      const g = ctx.createLinearGradient(0, y0, 0, y0 + ph); g.addColorStop(0, '#fff3cf'); g.addColorStop(1, '#ecd18c'); ctx.fillStyle = g; ctx.strokeStyle = '#b8741c'; ctx.lineWidth = 4; rr(x0, y0, pw, ph, 22); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#b3261e'; rr(x0 - 8, y0 - 6, pw + 16, 14, 7); ctx.fill(); rr(x0 - 8, y0 + ph - 8, pw + 16, 14, 7); ctx.fill();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#4a2410'; ctx.font = 'bold 26px ' + FUENTE; ctx.fillText('Casi… ' + n + ' grupos de ' + T, W / 2, y0 + 30);
+      for (let r = 0; r < Math.min(vis, n); r++) {
+        const e = clamp((el - r * 0.36) / 0.22, 0, 1), cy = y0 + 62 + r * rp + rp / 2;
+        for (let i = 0; i < T; i++) { const cx = x0 + 28 + i * pc + pc / 2, rad = d / 2 * (0.4 + 0.6 * e); ctx.fillStyle = '#ffcf3a'; ctx.strokeStyle = '#a8631b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.beginPath(); ctx.arc(cx - rad * 0.3, cy - rad * 0.3, rad * 0.28, 0, 7); ctx.fill(); }
+        ctx.globalAlpha = fade * 0.96 * e; ctx.textAlign = 'left'; ctx.font = 'bold ' + (n > 7 ? 18 : 21) + 'px ' + FUENTE; ctx.fillStyle = '#7a3a10'; ctx.fillText('= ' + T * (r + 1), x0 + 36 + T * pc, cy); ctx.globalAlpha = fade * 0.96;
+      }
+      if (vis >= n) { ctx.textAlign = 'center'; ctx.font = 'bold 30px ' + FUENTE; ctx.fillStyle = '#1f7a45'; ctx.fillText(T + ' × ' + n + ' = ' + pi.c, W / 2, y0 + ph - 28); }
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
     function hud() {
       let g = ctx.createLinearGradient(0, 0, 0, 262); g.addColorStop(0, 'rgba(8,4,24,.8)'); g.addColorStop(1, 'rgba(8,4,24,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, 262);
       const row = S.filaAct, e = { T: (row || PREGS[Math.min(PREGS.length - 1, S.qpas)]).T }, tema = TEMAS[S.mundo], mostrarQ = !!row && S.plaza;
@@ -1176,8 +1280,12 @@
       ctx.font = 'bold ' + (txt.length > 22 ? 28 : txt.length > 14 ? 34 : 46) + 'px ' + FUENTE; ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(8,20,60,.95)'; ctx.strokeText(txt, W / 2, 169); ctx.fillStyle = '#fff'; ctx.fillText(txt, W / 2, 169);
       if (S.jefeVis) jefeBarra(); else { const n = S.qpas % CFG.PREG_TABLA, X = i => W / 2 + (i - (CFG.PREG_TABLA - 1) / 2) * 40;
         for (let i = 0; i < CFG.PREG_TABLA; i++) { const on = i < n; if (on) brillo(X(i), 240, 17, '255,210,90', 0.55); ctx.fillStyle = on ? '#ffe27a' : 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.arc(X(i), 240, on ? 10 : 8, 0, 7); ctx.fill(); if (on) { ctx.strokeStyle = '#a8631b'; ctx.lineWidth = 2; ctx.stroke(); } } }
-      if (S.pista && S.pista.t > 0) { ctx.globalAlpha = clamp(S.pista.t, 0, 1); ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.textAlign = 'center'; ctx.strokeText('Pista: ' + S.pista.txt, W / 2, 280); ctx.fillStyle = '#bff5d0'; ctx.fillText('Pista: ' + S.pista.txt, W / 2, 280); ctx.globalAlpha = 1; }
-      if (S.espera) { ctx.globalAlpha = 0.65 + 0.35 * Math.sin(S.t * 4); ctx.textAlign = 'center'; ctx.font = 'bold 28px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; const t4 = tactil() ? 'Elige tu carril y toca para seguir' : 'Elige con ← → y pulsa Espacio'; ctx.strokeText(t4, W / 2, 470); ctx.fillStyle = '#ffffff'; ctx.fillText(t4, W / 2, 470); ctx.globalAlpha = 1; }
+      if (S.pista && S.pista.t > 0 && S.pista.hold && S.t - S.pista.t0 < S.pista.hold + 0.5) pistaGrupos(S.pista);
+      else if (S.pista && S.pista.t > 0) { ctx.globalAlpha = clamp(S.pista.t, 0, 1); ctx.font = 'bold 26px ' + FUENTE; ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(10,5,30,.95)'; ctx.textAlign = 'center'; ctx.strokeText('Pista: ' + S.pista.txt, W / 2, 280); ctx.fillStyle = '#bff5d0'; ctx.fillText('Pista: ' + S.pista.txt, W / 2, 280); ctx.globalAlpha = 1; }
+      if (S.espera) { ctx.globalAlpha = 0.65 + 0.35 * Math.sin(S.t * 4); ctx.textAlign = 'center'; ctx.font = 'bold 28px ' + FUENTE; ctx.lineWidth = 7; ctx.strokeStyle = 'rgba(10,5,30,.95)'; const t4 = tactil() ? 'Elige tu carril y toca para seguir' : 'Elige con ← → y pulsa Espacio'; ctx.strokeText(t4, W / 2, 470); ctx.fillStyle = '#ffffff'; ctx.fillText(t4, W / 2, 470); ctx.globalAlpha = 1;
+        { const bw = 230, resp = 0.5 + 0.5 * Math.sin(S.t * 1.1), gc = ctx.createLinearGradient(W / 2 - bw / 2, 0, W / 2 + bw / 2, 0); gc.addColorStop(0, '#7fe3c4'); gc.addColorStop(1, '#9ad7ff');
+          ctx.fillStyle = 'rgba(10,5,30,.55)'; rr(W / 2 - bw / 2 - 6, 372, bw + 12, 24, 12); ctx.fill(); ctx.fillStyle = gc; rr(W / 2 - bw / 2, 377, bw * (0.6 + 0.4 * resp), 14, 7); ctx.fill();
+          ctx.textAlign = 'center'; ctx.font = 'bold 20px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; ctx.strokeText('🌿 Sin prisa, tú decides', W / 2, 414); ctx.fillStyle = '#d8f5ea'; ctx.fillText('🌿 Sin prisa, tú decides', W / 2, 414); } }
       // abajo: sombras y racha
       const ci = IMG(ART.clon); ctx.globalAlpha = S.dash > 0 ? 1 : 0.4; if (listo(ci)) ctx.drawImage(ci, 12, H - 66, 48, 48); ctx.globalAlpha = 1;
       ctx.textAlign = 'left'; ctx.font = 'bold 22px ' + FUENTE; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(10,5,30,.9)'; const t3 = 'Racha ' + S.racha + (S.racha >= 3 ? '  ✨ ×2 🪙' : ''); ctx.strokeText(t3, 68, H - 42); ctx.fillStyle = '#fff'; ctx.fillText(t3, 68, H - 42);
@@ -1221,7 +1329,7 @@
       const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
       ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob + (S.bump || 0) * 12);
       if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
-      fondoDib(ta, tb, f); nubesDib(); auroraDib(); rayoDib(); camino(Tm); marcasCamino(ta, tb, f); charcos(); niebla(Tm);
+      fondoDib(ta, tb, f); islasCapa(0, ta, tb, f); nubesDib(); islasCapa(1, ta, tb, f); nubesFrente(); auroraDib(); rayoDib(); camino(Tm); marcasCamino(ta, tb, f); charcos(); niebla(Tm);
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
       for (let k = Math.floor((S.dist - 3) / 8); k * 8 - S.dist < ZMAX; k++) { const d = k * 8, z = d - S.dist; if (z >= -3) cola.push({ z, f: () => postes(d) }); }
@@ -1229,7 +1337,7 @@
       if (S.jefeVis && !S.fin) cola.push({ z: 40, f: jefeDib });
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
-      dibAmb(); dibEfectos(); rayosLuz(Tm); lluviaDib(); oscuroDib();
+      primerPlano(ta, tb, f); dibAmb(); dibEfectos(); rayosLuz(Tm); lluviaDib(); oscuroDib();
       ctx.restore(); gradoDib(ta, tb, f); vinetaDib(); hud();
     }
     function bucle(t) {
