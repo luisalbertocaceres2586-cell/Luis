@@ -27,7 +27,7 @@
     columna: 'cueva_extra/estalagmita_columna', cristalesTecho: 'cueva_extra/cristales_techo', hongoGigante: 'cueva_extra/hongo_gigante', raices: 'cueva_extra/raices_colgantes', paredMineral: 'cueva_extra/pared_mineral', arco: 'cueva_extra/arco_ruinas', floresLuz: 'cueva_extra/flores_luminosas', altar: 'cueva_extra/altar_vela',
     arquero: 'enemigos_extra/ninja_arquero', lancero: 'enemigos_extra/ninja_lancero', fantasma: 'enemigos_extra/samurai_fantasma', serpiente: 'enemigos_extra/serpiente_cueva', escarabajo: 'enemigos_extra/escarabajo_cristal', kappa: 'enemigos_extra/kappa', zorro: 'enemigos_extra/zorro_fuego', rana: 'enemigos_extra/rana_gigante',
     sensei: 'objetos_extra/maestro_sensei', tanuki: 'objetos_extra/mercader_tanuki', palancaOff: 'objetos_extra/palanca_apagada', palancaOn: 'objetos_extra/palanca_encendida', frasco: 'objetos_extra/frasco_luz', llave: 'objetos_extra/llave_dorada', campana: 'objetos_extra/campana_templo', corazon: 'objetos_extra/corazon_jade',
-    shuriken: 'animados/shuriken_espiritual_8', antorchaAnim: 'animados/antorcha_llama_10',
+    shuriken: 'animados/shuriken_espiritual_8', kunaiFx: 'animados/kunai_sakura_fx', antorchaAnim: 'animados/antorcha_llama_10',
     montanas: '../environment/levels/nivel1/n1_bg_montanas_lejos', nube: '../environment/levels/nivel1/nubes/nube_01'
   };
   // arte extra (decorado, cueva, terreno, enemigos, objetos, hojas del Oni): se carga en segundo plano, sin alargar la pantalla de carga
@@ -126,7 +126,7 @@
       movil: o.dispositivo === 'movil' || /[?&]movil=1/.test(location.search),
       h: { x: N.inicio.x, y: G, vx: 0, vy: 0, w: Math.round(34 * ESC_CAJA), h: Math.round(92 * ESC_CAJA), dir: 1, suelo: true, coyote: 0, buffer: 0, inv: 0, atk: 0, atkCd: 0, shCd: 0, kunaiT: 0, vida: 5, muerto: 0, aturdido: 0, pisando: null, anim: 0, lento: 0 },
       cam: 0, t: 0, tiempo: 0, vidaMax: 5, seguro: { x: N.inicio.x, y: G }, resp: { x: N.inicio.x, y: G },
-      shur: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
+      shur: [], kfx: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
       pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: nivel2 ? 'DESIERTO NOCTURNO' : 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
       alto: 100 * ESC_HEROE / (M.idle[0].h || 200), flechas: [], luz: 330, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0, eligiendo: false, hab: null,
       mod: { g: 1, gc: 1, jv: 1, ag: 1, fr: 1, vv: 0, noche: 0 }, dir: null   // mod: gravedad, tope de caída, salto, agarre/fricción del suelo, viento y noche (los mueve el director)
@@ -334,9 +334,14 @@
 
     S.shur.forEach(s => {
       s.t -= dt; s.a += dt * 20;
-      if (s.obj) { const dx = s.obj.x - s.x, dy = s.obj.y - s.y, d = Math.hypot(dx, dy) || 1; s.x += dx / d * 980 * dt; s.y += dy / d * 980 * dt; if (d < 40) { s.t = 0; golpearObjetivo(s.est, s.obj, 'shuriken'); } } else s.x += s.vx * dt;
+      if (s.obj) { const dx = s.obj.x - s.x, dy = s.obj.y - s.y, d = Math.hypot(dx, dy) || 1; s.dx = dx / d; s.dy = dy / d; s.x += dx / d * 980 * dt; s.y += dy / d * 980 * dt; if (d < 40) { s.t = 0; golpearObjetivo(s.est, s.obj, 'shuriken'); } } else s.x += s.vx * dt;
     });
-    S.shur = S.shur.filter(s => s.t > 0 && s.x > S.cam - 120 && s.x < S.cam + W + 120);
+    S.shur = S.shur.filter(s => {
+      const vivo = s.t > 0 && s.x > S.cam - 120 && s.x < S.cam + W + 120;
+      if (!vivo && s.kunai && s.t <= 0 && (s.golpe || s.obj)) S.kfx.push({ x: s.x, y: s.y, dx: s.dx, dy: s.dy, t: 0 });   // destello de impacto con pétalos
+      return vivo;
+    });
+    S.kfx.forEach(f => { f.t += dt; }); S.kfx = S.kfx.filter(f => f.t < .34);
 
     S.items.forEach(i => {
       if (i.tomado) return; if (!cruza(hb, rect(i.x - 28, i.y - 28, 56, 56))) return;
@@ -417,10 +422,10 @@
   function empezarApuntar() {
     const e = S.estSel, h = S.h; const lst = e ? objetivos(e).filter(o => Math.abs(o.x - h.x) < 900) : [];
     if (lst.length) { lst.sort((a, b) => a.x - b.x); let k = 0, d = 1e9; lst.forEach((o, i) => { const dd = Math.abs(o.x - h.x - h.dir * 150); if (dd < d) { d = dd; k = i; } }); S.apunta = { e, sel: k, lst, t: 0 }; }
-    else if (h.shCd <= 0 && h.aturdido <= 0) { h.shCd = .45; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 40, y: h.y - 58 * ESC_HEROE, vx: 760 * h.dir, vy: 0, t: 1.2, a: 0, recto: true }); }
+    else if (h.shCd <= 0 && h.aturdido <= 0) { h.shCd = .45; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 40, y: h.y - 58 * ESC_HEROE, vx: 760 * h.dir, vy: 0, t: 1.2, a: 0, recto: true, kunai: S.heroeId === 'sakura', n0: S.t, dx: h.dir, dy: 0 }); }
   }
   const cambiarObjetivo = d => { const a = S.apunta; if (a) a.sel = (a.sel + d + a.lst.length) % a.lst.length; };
-  function disparar(o, e) { const h = S.h; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 40, y: h.y - 58 * ESC_HEROE, vx: 0, vy: 0, t: 1.5, a: 0, obj: o, est: e }); }
+  function disparar(o, e) { const h = S.h; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 40, y: h.y - 58 * ESC_HEROE, vx: 0, vy: 0, t: 1.5, a: 0, obj: o, est: e, kunai: S.heroeId === 'sakura', n0: S.t, dx: h.dir, dy: 0 }); }
   function lanzar() { const a = S.apunta; if (!a) return; S.apunta = null; const o = a.lst[a.sel]; if (o && (o.estado === 'listo' || o.estado === 'apagada')) disparar(o, a.e); }
   Object.assign(core, { objetivos, golpearObjetivo, pisarPiedra });
 
@@ -612,6 +617,29 @@
       });
     });
   }
+  // ── Proyectil de Sakura: dos kunai con estela violeta (coherente con su pose de lanzar). Hoja de 10 cuadros (assets/nivel1/animados/kunai_sakura_fx.png):
+  // 0 destello, 1 salida, 2·3·4·7 vuelo (se mezclan entre sí para que sea fluido), 8 impacto con pétalos, 9 desvanecer. Los demás héroes siguen con la shuriken.
+  const KF = { c: 5, w: 184, h: 161, px: 102, py: 83, s: .5 }, KVUELO = [2, 3, 4, 7, 3];
+  function kunaiCuadro(im, i, a) { cx.globalAlpha = a; cx.drawImage(im, (i % KF.c) * KF.w, Math.floor(i / KF.c) * KF.h, KF.w, KF.h, -KF.px * KF.s, -KF.py * KF.s, KF.w * KF.s, KF.h * KF.s); }
+  function kunaiOrienta(dx, dy) { cx.scale(dx < 0 ? -1 : 1, 1); cx.rotate(Math.atan2(dy || 0, Math.abs(dx) || 1)); }
+  function dibujarKunai(s) {
+    const im = img.kunaiFx; if (!im || !im.width) return false;
+    const dx = s.dx != null ? s.dx : (s.vx < 0 ? -1 : 1);
+    cx.save(); cx.translate(s.x - S.cam, s.y); kunaiOrienta(dx, s.dy);
+    [[0, 0, 1, 0], [-26, -15, .92, 1]].forEach(([ox, oy, k, ph]) => {   // dos kunai, como en la pose
+      const e = S.t - s.n0 + ph * .045; cx.save(); cx.translate(ox, oy); cx.scale(k, k);
+      if (e < .06) kunaiCuadro(im, 0, 1); else if (e < .12) kunaiCuadro(im, 1, 1);
+      else { const fase = (e - .12) * 13, i0 = Math.floor(fase) % KVUELO.length, i1 = (i0 + 1) % KVUELO.length; kunaiCuadro(im, KVUELO[i0], 1); kunaiCuadro(im, KVUELO[i1], fase % 1); }
+      cx.restore();
+    });
+    cx.globalAlpha = 1; cx.restore(); return true;
+  }
+  function dibujarKunaiFx(f) {
+    const im = img.kunaiFx; if (!im || !im.width) return;
+    const dx = f.dx != null ? f.dx : 1; cx.save(); cx.translate(f.x - S.cam, f.y); kunaiOrienta(dx, f.dy);
+    if (f.t < .12) { const k = .85 + f.t / .12 * .3; cx.scale(k, k); kunaiCuadro(im, 8, 1); } else { cx.scale(1.15, 1.15); kunaiCuadro(im, 9, Math.max(0, 1 - (f.t - .12) / .22)); }
+    cx.globalAlpha = 1; cx.restore();
+  }
   function dibujarSakuraEve() {
     const h = S.h, M = S.M, A = S.hab, now = performance.now() / 1000;
     const st = h._animState || (h._animState = { name: '', start: S.t, lastGrounded: null, landUntil: 0, wallJumps: 0, wallJumpUntil: 0, gliding: false, glideUntil: 0, kunaiT: 0 });
@@ -748,7 +776,8 @@
     if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = { onigiri: img.onigiri, frasco: img.frasco, corazon: img.corazon, llave: img.llave }[i.tipo] || img.pergamino, w = { onigiri: 46, frasco: 46, corazon: 54, llave: 52 }[i.tipo] || 52; if (im) { const brilla = i.tipo === 'corazon' || i.tipo === 'llave'; if (brilla) { cx.save(); cx.shadowColor = '#ffe27a'; cx.shadowBlur = 14; } sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); if (brilla) cx.restore(); } });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
-    S.shur.forEach(s => { const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
+    S.kfx.forEach(dibujarKunaiFx);
+    S.shur.forEach(s => { if (s.kunai && dibujarKunai(s)) return; const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
     if (!S.nivel2) decorado('frente'); if (window.N1dir && !S.nivel2) N1dir.mundo();
     S.part.forEach(p => { cx.globalAlpha = clamp(p.t * 2, 0, 1); cx.fillStyle = p.col; cx.fillRect(p.x - S.cam - p.r / 2, p.y - p.r / 2, p.r, p.r); }); cx.globalAlpha = 1;
     if (!S.nivel2 && S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
