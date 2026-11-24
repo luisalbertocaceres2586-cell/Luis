@@ -23,7 +23,10 @@
   const K_SESION = 'ninja_nube_sesion_v1';   // { nick, token } — solo identifica la sesión, no es progreso
   const K_TS = 'ninja_nube_ts_v1';
   const K_PERFILES = 'ninja_perfiles_v1';
+  const K_CONFIG = 'ninja_nube_config_v1';   // datos del aviso de privacidad que manda el servidor (responsable, contacto, claves visibles)
   const K_CUENTA = 'ninja_nube_cuenta_v1';   // { clase: {codigo, nombre} | null, ranking: bool } — datos de la cuenta, no es progreso           // momento del último cambio local (para saber qué copia es más reciente)
+  const global_ = typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : {};
+  const versionLegal = () => (global_.Legal && global_.Legal.CONFIG && global_.Legal.CONFIG.version) || '1.0';
   const MAX_JSON = 45000;                    // mismo límite que el servidor (Code.gs)
   const NICK_RE = /^[A-Za-z0-9_]{3,16}$/;
   const CLAVE_MIN = 4;
@@ -57,6 +60,8 @@
     credenciales: 'Apodo o clave incorrectos.',
     demasiados_intentos: 'Demasiados intentos. Espera 10 minutos y vuelve a probar.',
     sesion: 'Tu sesión terminó. Inicia sesión de nuevo.',
+    ocupado: 'El servidor está muy ocupado ahora mismo (muchos jugadores a la vez). Espera unos segundos e inténtalo otra vez.',
+    sin_consentimiento: 'Un adulto responsable debe leer el aviso de privacidad y autorizar la cuenta.',
     clase_invalida: 'Ese código de clase no existe o está desactivado. Pídeselo a tu profe.',
     sin_clase: 'Todavía no estás en ninguna clase.',
     codigo_invalido: 'Ese código de rescate no es correcto. Revisa que lo escribiste igual (letras y números).',
@@ -68,11 +73,15 @@
   };
   const mensajeDe = e => MENSAJES[e] || 'Algo salió mal. Inténtalo otra vez.';
 
-  /** @param {{store:any, fetch:any, url?:string, now?:()=>number, espera?:number, on?:any}} o */
+  /** @param {{store:any, fetch:any, url?:string, now?:()=>number, espera?:number, maxEspera?:number, retardos?:number[], on?:any}} o */
   function crear(o) {
     const store = o.store, doFetch = o.fetch, url = o.url || API_URL;
-    const ahora = o.now || Date.now, espera = o.espera == null ? 2500 : o.espera, on = o.on || {};
-    let aplicando = false, timer = null, ultimoEnviado = null, ultimoVisto = null, guardando = false, otraVez = false, conflicto = null;
+    const ahora = o.now || Date.now, on = o.on || {};
+    // Guardar: espera a que el niño deje de jugar un momento (6 s), pero nunca más de 30 s seguidos sin guardar.
+    // Menos escrituras = el servidor aguanta una clase entera a la vez.
+    const espera = o.espera == null ? 6000 : o.espera, maxEspera = o.maxEspera == null ? 30000 : o.maxEspera;
+    const retardos = o.retardos || [900, 2200];
+    let aplicando = false, timer = null, primerCambio = 0, ultimoEnviado = null, ultimoVisto = null, guardando = false, otraVez = false, conflicto = null;
 
     /* ───────── almacenamiento ───────── */
     const parsear = t => { try { return JSON.parse(t); } catch (e) { return null; } };
@@ -152,7 +161,7 @@
 
     /* ───────── red ───────── */
     // Sin cabeceras personalizadas (el cuerpo va como text/plain): así Apps Script no exige CORS preflight.
-    async function api(accion, datos, opc) {
+    async function llamar(accion, datos, opc) {
       const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
       const t = ctl ? setTimeout(() => ctl.abort(), 20000) : null;
       try {
@@ -165,6 +174,33 @@
       } catch (e) { return { ok: false, error: 'red' }; }
       finally { if (t) clearTimeout(t); }
     }
+    // Acciones que se pueden repetir sin riesgo si falla la conexión. 'ocupado' (el servidor no llegó a hacer nada)
+    // se reintenta siempre; 'red' y 'error_servidor' solo en estas, para no crear dos cuentas ni cambiar dos veces una clave.
+    const REPETIBLES = { check: 1, checkclass: 1, config: 1, load: 1, save: 1, top: 1, setranking: 1, joinclass: 1, login: 1 };
+    const pausa = ms => new Promise(r => setTimeout(r, ms));
+    async function api(accion, datos, opc) {
+      let r;
+      for (let intento = 0; ; intento++) {
+        r = await llamar(accion, datos, opc);
+        const transitorio = r.error === 'ocupado' || ((r.error === 'red' || r.error === 'error_servidor') && REPETIBLES[accion]);
+        if (r.ok || !transitorio || (opc && opc.keepalive) || intento >= retardos.length) return r;
+        // espera creciente + un poco de azar, para que 30 niños no reintenten todos en el mismo instante
+        await pausa(retardos[intento] + (o.retardos ? 0 : Math.random() * 600));
+      }
+    }
+
+    /* datos del aviso de privacidad (responsable, contacto, si el administrador puede ver las claves) */
+    function config() {
+      try { const c = JSON.parse(store.getItem(K_CONFIG) || 'null'); if (c && typeof c === 'object') return c; } catch (e) {}
+      return {};
+    }
+    async function cargarConfig() {
+      const r = await api('config', {});
+      if (!r || !r.ok) return config();
+      const c = { responsable: String(r.responsable || ''), contacto: String(r.contacto || ''), clavesVisibles: r.clavesVisibles !== false, exigeConsentimiento: r.exigeConsentimiento !== false, versionLegal: String(r.versionLegal || '') };
+      try { store.setItem(K_CONFIG, JSON.stringify(c)); } catch (e) {}
+      return c;
+    }
 
     /* ───────── cuentas ───────── */
     async function disponible(nick) {
@@ -175,13 +211,13 @@
     const avisarSesion = motivo => { if (on.sesion) { try { on.sesion(nickActual(), motivo); } catch (e) {} } };
     function caducar() { ponerSesion(null); if (on.sesionExpirada) on.sesionExpirada(); avisarSesion('expirada'); }
 
-    async function registrar(nick, clave, clase) {
+    async function registrar(nick, clave, clase, consentimiento) {
       nick = String(nick || '').trim(); clave = String(clave || ''); clase = String(clase || '').trim();
       if (!NICK_RE.test(nick)) return { ok: false, error: 'nick_invalido' };
       if (clave.length < CLAVE_MIN) return { ok: false, error: 'clave_corta' };
       if (!Number(store.getItem(K_TS))) store.setItem(K_TS, String(ahora()));
       const snap = snapshot(nick);
-      const r = await api('register', { nick, pass: clave, progress: snap, clase });
+      const r = await api('register', { nick, pass: clave, progress: snap, clase, consentimiento: { aceptado: !!(consentimiento && consentimiento.aceptado), version: versionLegal() } });
       if (r.ok) { ponerSesion({ nick, token: r.token }); guardarCuenta(r.cuenta || { clase: null, ranking: true }); ultimoEnviado = ultimoVisto = estable(snap.datos); avisarSesion('entrar'); }
       return r;
     }
@@ -293,11 +329,14 @@
       try { store.setItem(K_TS, String(ahora())); } catch (e) {}
       if (!nick) return;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => { guardarYa(); }, espera);
+      const t = Date.now();
+      if (!primerCambio) primerCambio = t;
+      timer = setTimeout(() => { guardarYa(); }, Math.max(0, Math.min(espera, maxEspera - (t - primerCambio))));
     }
     async function guardarYa(opc) {
       opc = opc || {};
       if (timer) { clearTimeout(timer); timer = null; }
+      primerCambio = 0;
       const s = sesion();
       if (!s) return { ok: false, error: 'sin_sesion' };
       if (guardando) { otraVez = true; return { ok: true, enCurso: true }; }
@@ -335,7 +374,7 @@
     ultimoVisto = nickActual() ? estable(leerDatos(nickActual())) : null;
     return {
       snapshot, aplicar, sesion, cuenta, disponible, registrar, entrar, recuperar, cambiarClave, nuevoCodigo, verificarClase, unirseClase, verEnRanking, ranking, resolver, salir,
-      cambio, guardarYa, sincronizarAlAbrir, get pendiente() { return !!timer; }
+      cambio, guardarYa, sincronizarAlAbrir, config, cargarConfig, get pendiente() { return !!timer; }
     };
   }
 
@@ -379,7 +418,8 @@
       aviso('☁️ Progreso actualizado desde la nube');
       setTimeout(() => location.reload(), 1200);
     };
-    if (n.sesion()) n.sincronizarAlAbrir().then(r => { if (r && r.accion === 'cargado') recargar(); avisar(); });
+    // Un pequeño retraso al azar evita que toda una clase pida lo mismo en el mismo segundo al empezar.
+    if (n.sesion()) setTimeout(() => { n.sincronizarAlAbrir().then(r => { if (r && r.accion === 'cargado') recargar(); avisar(); }); }, Math.random() * 1500);
 
     if (!window.NUBE_SIN_UI) montarUI(n, ui, recargar);
     return n;
@@ -467,6 +507,7 @@
       const put = (...xs) => xs.forEach(x => box.appendChild(x));
       const ojo = (input) => el('button', { type: 'button', className: 'nb-sec', textContent: '👁', style: 'margin:0;width:auto', ariaLabel: 'Mostrar u ocultar la clave', onclick: () => { input.type = input.type === 'password' ? 'text' : 'password'; } });
       const campoClave = (ph, auto) => el('input', { type: 'password', autocomplete: auto, placeholder: ph });
+      const enlaceLegal = () => el('button', { className: 'nb-link', type: 'button', style: 'font-size:12px;opacity:.8', textContent: '⚖️ Privacidad, términos y créditos', onclick: () => { if (window.Legal && window.Legal.abrir) window.Legal.abrir(); } });
       const numero = x => Number(x || 0).toLocaleString('es');
       // Comprueba el código de clase mientras se escribe y muestra el nombre de la clase
       const vigilarClase = (input, msg) => {
@@ -506,6 +547,7 @@
           el('button', { className: 'nb-sec', type: 'button', textContent: cu.clase ? '🏫 Mi clase' : '🏫 Unirme a una clase', onclick: () => pintar(vistaClase) }),
           el('button', { className: 'nb-sec', type: 'button', textContent: '🔑 Cambiar clave', onclick: () => pintar(vistaCambiarClave) }),
           el('button', { className: 'nb-sec', type: 'button', textContent: '🆘 Código de rescate', onclick: () => pintar(vistaNuevoCodigo) }),
+          enlaceLegal(),
           el('button', { className: 'nb-sec', type: 'button', textContent: 'Cerrar sesión', onclick: async () => {
             await n.guardarYa(); await n.salir();
             if (confirm('¿Borrar también el progreso de ESTE dispositivo?\n(Tu progreso sigue guardado en la nube. Elige "Aceptar" si es un equipo compartido.)')) { await n.salir({ borrarLocal: true }); location.reload(); return; }
@@ -662,13 +704,23 @@
         const nick = el('input', { type: 'text', maxLength: 16, autocapitalize: 'none', autocomplete: 'username', spellcheck: false, placeholder: 'Ej: ninja_veloz' });
         const clave = campoClave('Mínimo ' + CLAVE_MIN + ' caracteres', modo === 'crear' ? 'new-password' : 'current-password');
         const msgNick = el('div', { className: 'nb-msg mid' }), msg = el('div', { className: 'nb-msg' });
+        let chkAdulto = null;
         const go = el('button', { className: 'nb-go', type: 'button', textContent: modo === 'crear' ? 'Crear cuenta' : 'Entrar' });
         const cls = el('input', { type: 'text', maxLength: 10, autocapitalize: 'characters', autocomplete: 'off', spellcheck: false, placeholder: 'Ej: K7M24P', style: 'text-transform:uppercase;letter-spacing:2px' });
         const msgCls = el('div', { className: 'nb-msg mid' });
         put(tabs, el('label', { textContent: 'Apodo' }), nick, msgNick, el('label', { textContent: 'Clave' }), el('div', { className: 'nb-row' }, [clave, ojo(clave)]));
         if (modo === 'crear') { put(el('label', { textContent: 'Código de clase (opcional, te lo da tu profe)' }), cls, msgCls); vigilarClase(cls, msgCls); }
+        if (modo === 'crear') {
+          const notaClave = () => (n.config().clavesVisibles !== false ? '🔑 Usa una clave que solo uses en este juego: tu profe puede verla para ayudarte si la olvidas.' : '🔑 Usa una clave que solo uses en este juego.');
+          const nota = el('p', { className: 'nb-msg mid', textContent: notaClave() });
+          n.cargarConfig().then(() => { if (box.contains(nota)) nota.textContent = notaClave(); }).catch(() => {});
+          chkAdulto = el('input', { type: 'checkbox' });
+          put(nota, el('label', { className: 'nb-chk' }, [chkAdulto, el('span', { textContent: 'Un adulto responsable (papá, mamá, acudiente o profe) leyó el aviso de privacidad y autoriza que yo juegue con una cuenta.' })]),
+            el('button', { className: 'nb-link', type: 'button', textContent: '📄 Leer el aviso de privacidad', onclick: () => { if (window.Legal && window.Legal.abrir) window.Legal.abrir('privacidad'); else aviso('El aviso de privacidad no está disponible ahora.'); } }));
+        }
         put(go, msg);
         if (modo === 'entrar') put(el('button', { className: 'nb-link', type: 'button', textContent: '¿Olvidaste tu clave?', onclick: () => pintar(() => vistaRecuperar(nick.value)) }));
+        put(enlaceLegal());
 
         let t = null, seq = 0;
         nick.addEventListener('input', () => {
@@ -687,8 +739,9 @@
         });
 
         const enviar = async () => {
+          if (modo === 'crear' && !(chkAdulto && chkAdulto.checked)) { msg.className = 'nb-msg bad'; msg.textContent = 'Pídele a un adulto que lea el aviso de privacidad y marca la casilla para crear tu cuenta.'; return; }
           msg.className = 'nb-msg mid'; msg.textContent = modo === 'crear' ? 'Creando tu cuenta…' : 'Entrando…'; go.disabled = true;
-          const r = modo === 'crear' ? await n.registrar(nick.value, clave.value, cls.value) : await n.entrar(nick.value, clave.value);
+          const r = modo === 'crear' ? await n.registrar(nick.value, clave.value, cls.value, { aceptado: true }) : await n.entrar(nick.value, clave.value);
           go.disabled = false;
           if (!r.ok) { msg.className = 'nb-msg bad'; msg.textContent = mensajeDe(r.error); return; }
           if (modo === 'crear') { ui.estado = 'guardado'; ui.hora = Date.now(); pintarBoton(); return pintar(() => vistaRescate(r.rescate, () => { pintar(vistaSesion); aviso('☁️ ¡Listo! Tu progreso se guardará solo'); })); }
@@ -732,6 +785,9 @@
     crear, esProgreso, perfilId, CLAVES, PREFIJOS, API_URL, NICK_RE, abrir: function () {},
     /** Apodo con sesión iniciada (o null). Lo usa perfil-ui.js para no pedir el nombre otra vez. */
     nickActivo: nickGuardado,
+    /** Datos del aviso de privacidad (responsable, contacto…), guardados en este dispositivo. */
+    config: function () { return api.instancia ? api.instancia.config() : (function () { try { return JSON.parse(localStorage.getItem(K_CONFIG) || '{}') || {}; } catch (e) { return {}; } })(); },
+    cargarConfig: function () { return api.instancia ? api.instancia.cargarConfig() : Promise.resolve({}); },
     /** fn(nick|null, motivo) cuando entra o sale una cuenta. motivo: 'entrar' | 'salir' | 'expirada'. */
     alCambiarSesion: function (fn) { if (typeof fn === 'function') oyentes.push(fn); }
   };

@@ -115,7 +115,7 @@
         { img: EN + 'props/lights/hanging_lantern_c.png', x: 70, h: 40, capa: 'cerca', alto: true }
       ],
       heroe: 'corre',
-      demo: { tipo: 'carril', ruta: ['#4b3f7c', '#2b2152'] },
+      demo: { tipo: 'carril', ruta: ['#4b3f7c', '#2b2152'], pano: 'assets/nivel3/arte/mundos/pano_aldea.jpg' },
       particulas: 'farolillos',
       progreso: p => {
         const n = (p && p.nivel3) || {};

@@ -63,6 +63,17 @@
     }
     c.globalAlpha = 1;
   }
+  // partículas de ambiente según el mundo: luciérnagas, arena que pasa, farolillos que suben (determinista, sin estado)
+  function ambiente(c, W, Hh, t, tipo) {
+    if (!tipo) return; const y0 = .14 * Hh, y1 = .52 * Hh, u = Hh / 960, n = tipo === 'arena' ? 30 : tipo === 'farolillos' ? 14 : 24;
+    for (let i = 0; i < n; i++) {
+      const h = hash(i * 13 + tipo.length * 7), fx = (h % 1000) / 1000, fy = ((h >> 10) % 1000) / 1000;
+      if (tipo === 'luciernagas') { const x = fx * W + Math.sin(t * .7 + i) * 16, y = y0 + fy * (y1 - y0) + Math.cos(t * .9 + i * 2) * 10, a = .25 + .65 * Math.abs(Math.sin(t * 1.5 + i)); brillo(c, x, y, 9 * u * 2.2, '215,255,120', a * .6); c.globalAlpha = a; c.fillStyle = '#f6ffc4'; c.fillRect(x - 1, y - 1, 2.2, 2.2); c.globalAlpha = 1; }
+      else if (tipo === 'arena') { const v = 50 + ((h >> 20) % 70), x = mod(fx * (W + 40) - t * v * (Hh / 394), W + 40) - 20, y = y0 + fy * (y1 - y0 + .1 * Hh) + Math.sin(t * 2 + i) * 4; c.globalAlpha = .22 + .3 * ((h >> 5) % 3) / 3; c.fillStyle = '#f6dca4'; c.fillRect(x, y, 3 * Hh / 394 + 1, 1.2); c.globalAlpha = 1; }
+      else { const per = y1 - y0 + 50, y = y1 + 20 - mod(t * (12 + ((h >> 8) % 14)) * (Hh / 394) + fy * per, per), x = fx * W + Math.sin(t * .8 + i * 1.7) * 10, k = clamp((y - y0) / (y1 - y0), 0, 1), a = Math.min(1, k * 3) * .85, r = 5 * (Hh / 394) + 2;
+        brillo(c, x, y, r * 3.2, '255,160,60', .5 * a); c.globalAlpha = a; c.fillStyle = '#ffb04a'; rr(c, x - r * .7, y - r, r * 1.4, r * 2, r * .5); c.fill(); c.fillStyle = '#ffe9a0'; c.fillRect(x - r * .25, y - r * .55, r * .5, r * 1.1); c.globalAlpha = 1; }
+    }
+  }
   function pastilla(c, s, cx, cy, w, h, acento, px) { rr(c, cx - w / 2, cy - h / 2, w, h, h / 2); c.fillStyle = 'rgba(12,6,36,.78)'; c.fill(); c.lineWidth = 2; c.strokeStyle = acento; c.stroke(); texto(c, s, cx, cy + 1, px, '#fff6c2'); }
   // héroe de perfil (niveles 1 y 2): se escala con el alto del primer cuadro para que no «salte» entre cuadros
   function lado(c, lista, idx, x, yPies, alto) {
@@ -87,7 +98,7 @@
     const items = [], add = (k, lane, tA, o) => items.push(Object.assign({ k, lane, tA, D: dist(tA) }, o || {}));
     const arc = [0, 40, 75, 90, 75, 40, 0];
     for (let i = 0; i < 6; i++) add('moneda', 1, .9 + i * .22);
-    add('barril', 0, 4.0); for (let i = 0; i < 7; i++) add('moneda', 0, 3.55 + i * .15, { h: arc[i] });
+    add('barril', 0, 4.0); for (let i = 0; i < 7; i++) add('moneda', 0, 3.55 + i * .15, { h: arc[i], pico: i === 3 });
     add('torii', 0, 6.3); for (let i = 0; i < 5; i++) add('moneda', 0, 5.85 + i * .2);
     items.push({ k: 'arco', D: Dd - 26, tA: tAt(Dd - 26) }); items.push({ k: 'puerta', D: Dd, tA: tD });
     for (let i = 0; i < 4; i++) add('moneda', 2, tD + .9 + i * .18);
@@ -99,16 +110,29 @@
     const FAR = m.fases[0].far, DEC = (m.props || []).filter(p => !p.alto).map(p => p.img);
     const TORII = P + 'structures/torii_small_lanterns_c.png', ARCO = P + 'structures/torii_lanterns_a.png', BARRIL = P + 'objects/barrel_c.png';
     const H = HEROES[heroeId] || HEROES.sakura, espalda = () => heroeId !== 'kage' && man3();
-    const imgs = [FAR, COIN, TORII, ARCO, BARRIL].concat(DEC, H.run, H.jump);
+    // arte propio del Nivel 3 (el mismo que se ve jugando)
+    const NA = A + 'nivel3/arte/', PANO = m.demo && m.demo.pano, COINS = [1, 2, 3, 4].map(i => NA + 'monedas/coin_' + i + '.png'), COINR = NA + 'monedas/coin_racha.png';
+    const OB_BARRIL = NA + 'obstaculos/barril.png', OB_TORII = NA + 'obstaculos/torii_bajo.png', CAJA = NA + 'potenciadores/caja.png', BURB = NA + 'efectos/burbuja.png', POLVO = NA + 'efectos/polvo.png';
+    const ZRUN = [1, 2, 3, 4].map(i => NA + 'zorro/run_' + i + '.png'), ZSAL = NA + 'zorro/salto.png', ZSEN = NA + 'zorro/senala.png', ZCEL = NA + 'zorro/celebra.png', ZESP = NA + 'zorro/espera.png';
+    const rgba = (hex, a) => { const n = parseInt(hex.replace('#', ''), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')'; };
+    const imgs = [FAR, COIN, TORII, ARCO, BARRIL, COINR, OB_BARRIL, OB_TORII, CAJA, BURB, POLVO, ZSAL, ZSEN, ZCEL, ZESP].concat(COINS, ZRUN, PANO ? [PANO] : [], DEC, H.run, H.jump);
     if (heroeId !== 'kage') ['run', 'jump', 'roll', 'carril', 'celebra'].forEach(n => { for (let i = 1; i <= 8; i++) imgs.push(B3 + n + '_' + pad(i) + '.png'); });
 
     function dibujar(c, W, Hh, t, op) {
       const Wn = Math.min(W, Hh * .72), tl = mod(t, T), dn = dist(t), u = Hh / 960, hor = .19 * Hh, Py = .5 * Hh, LW = .27 * Wn, sinHud = !!(op && op.sinHud); let s;
       const pz = z => 1 / (1 + z / Z0), yz = z => hor + (Py - hor) * pz(z), xz = (l, z) => W / 2 + (l - 1) * LW * pz(z);
       let g = c.createLinearGradient(0, 0, 0, hor + 4); g.addColorStop(0, m.cielo[0]); g.addColorStop(1, m.cielo[1]); c.fillStyle = g; c.fillRect(0, 0, W, hor + 4);
-      const mt = IM(FAR);
-      if (ok(mt)) { const hh = .2 * Hh, ww = hh * iw(mt) / ih(mt), off = -mod(dn * 3 * u, ww); for (let x = off - ww; x < W + ww; x += ww) c.drawImage(mt, x, hor - hh + 2, ww, hh); }
+      const mt = IM(FAR), pn = PANO ? IM(PANO) : null, lap = lane(tl);
+      if (!(pn && ok(pn)) && ok(mt)) { const hh = .2 * Hh, ww = hh * iw(mt) / ih(mt), off = -mod(dn * 3 * u, ww); for (let x = off - ww; x < W + ww; x += ww) c.drawImage(mt, x, hor - hh + 2, ww, hh); }
       g = c.createLinearGradient(0, hor, 0, Hh); g.addColorStop(0, suelo[1]); g.addColorStop(1, suelo[0]); c.fillStyle = g; c.fillRect(0, hor, W, Hh - hor);
+
+      if (pn && ok(pn)) {
+        const hp = hor + .09 * Hh, asp = iw(pn) / ih(pn), hh = hp * 1.32, ww = hh * asp, lim = Math.min(ww * .04, 14), sh = clamp(-(lap.l - 1) * 6 + Math.sin(t * .25) * 4, -lim, lim), x0 = W / 2 - ww / 2 + sh;
+        for (let k = Math.floor(-x0 / ww) - 1; k <= Math.ceil((W - x0) / ww); k++) {
+          const xx = x0 + k * ww; c.save(); if (k & 1) { c.translate(xx + ww, 0); c.scale(-1, 1); c.drawImage(pn, 0, hp - hh, ww, hh); } else c.drawImage(pn, xx, hp - hh, ww, hh); c.restore();
+        }
+        const gf = c.createLinearGradient(0, hp * .5, 0, hp); gf.addColorStop(0, rgba(suelo[1], 0)); gf.addColorStop(1, rgba(suelo[1], 1)); c.fillStyle = gf; c.fillRect(0, hp * .5, W, hp * .5 + 1);
+      }
       // camino en perspectiva
       const zf = ZMAX, zn = -11, lI = -.62, lD = 2.62;
       g = c.createLinearGradient(0, hor, 0, Hh); g.addColorStop(0, ruta[1]); g.addColorStop(1, ruta[0]); c.fillStyle = g;
@@ -129,13 +153,13 @@
         const z = o.D + k * Dl - dn; if (z < -4 || z > ZMAX) return; const tp = t - (o.tA + k * T), p = pz(z), a = clamp((ZMAX - z) / 26, 0, 1);
         L.push([z, () => {
           const x = xz(o.lane == null ? 1 : o.lane, z), y = yz(z);
-          if (o.k === 'moneda') { if (z < .4) { chispas(c, x, y - 46 * u * p * 1.3, tp, 5, .6, '#ffd35a', o.tA * 10 | 0); return; } const yy = y - (46 + (o.h || 0)) * u * p * 1.3; brillo(c, x, yy, .058 * Hh * p, '255,210,90', .4 * a); c.globalAlpha = a; moneda(c, x, yy, .03 * Hh * p, t + o.tA); c.globalAlpha = 1; }
-          else if (o.k === 'barril') imagen(c, BARRIL, x, y, .12 * Hh * p, a);
-          else if (o.k === 'torii') imagen(c, TORII, x, y, .21 * Hh * p, a);
+          if (o.k === 'moneda') { if (z < .4) { chispas(c, x, y - 46 * u * p * 1.3, tp, 5, .6, '#ffd35a', o.tA * 10 | 0); return; } const yy = y - (46 + (o.h || 0)) * u * p * 1.3; brillo(c, x, yy, .058 * Hh * p, '255,210,90', .4 * a); c.globalAlpha = a; if (!imagen(c, o.pico ? COINR : COINS[Math.floor(t * 9 + o.tA * 3) % 4], x, yy + .034 * Hh * p, .068 * Hh * p, a)) moneda(c, x, yy, .03 * Hh * p, t + o.tA); c.globalAlpha = 1; }
+          else if (o.k === 'barril') { if (!imagen(c, OB_BARRIL, x, y, .15 * Hh * p, a)) imagen(c, BARRIL, x, y, .12 * Hh * p, a); }
+          else if (o.k === 'torii') { if (!imagen(c, OB_TORII, x, y, .22 * Hh * p, a)) imagen(c, TORII, x, y, .21 * Hh * p, a); }
           else if (o.k === 'arco') { const hh = .34 * Hh * p; imagen(c, ARCO, W / 2, y, hh, a); }
           else if (o.k === 'caja') {
             if (z < .4) { chispas(c, x, y - 50 * u * p * 1.3, tp, 12, .7, '#c9a0ff', 7); return; }
-            const r = .028 * Hh * p, yy = y - (50 + 8 * Math.sin(t * 4)) * u * p * 1.3; brillo(c, x, yy, r * 2.6, '190,140,255', .6 * a); c.globalAlpha = a; c.fillStyle = '#7a3fd0'; c.strokeStyle = '#ffd35a'; c.lineWidth = Math.max(1.5, 3 * p); rr(c, x - r, yy - r, r * 2, r * 2, r * .22); c.fill(); c.stroke(); c.fillStyle = '#ffd35a'; c.fillRect(x - r * .14, yy - r, r * .28, r * 2); c.globalAlpha = 1; texto(c, '?', x, yy + r * .06, r * 1.2, '#fff');
+            const r = .028 * Hh * p, yy = y - (50 + 8 * Math.sin(t * 4)) * u * p * 1.3; brillo(c, x, yy, r * 2.6, '190,140,255', .6 * a); if (imagen(c, CAJA, x, yy + r * 1.2, r * 2.5, a)) return; c.globalAlpha = a; c.fillStyle = '#7a3fd0'; c.strokeStyle = '#ffd35a'; c.lineWidth = Math.max(1.5, 3 * p); rr(c, x - r, yy - r, r * 2, r * 2, r * .22); c.fill(); c.stroke(); c.fillStyle = '#ffd35a'; c.fillRect(x - r * .14, yy - r, r * .28, r * 2); c.globalAlpha = 1; texto(c, '?', x, yy + r * .06, r * 1.2, '#fff');
           } else if (o.k === 'puerta') {
             const vals = [24, 32, 28], elegido = tp > -.02;
             for (let l = 0; l < 3; l++) {
@@ -159,15 +183,28 @@
         else if (la.cambia) { est = 'carril'; idx = Math.min(3, Math.floor(la.s * 4)) + (la.der ? 4 : 0); }
         else if (tl > 10.9 && tl < 12.0) idx = Math.floor(t * 8) % 8;
         const y = Py - jh;
+        { const kp = (tl - 4.36) / .5; if (kp >= 0 && kp <= 1) imagen(c, POLVO, hx, Py + 6 * u, .1 * Hh * (1 + kp * .7), (1 - kp) * .9); }
         c.fillStyle = 'rgba(0,0,0,.38)'; c.beginPath(); c.ellipse(hx, Py + 3 * u, 48 * u * (1 - jh / (400 * u)), 11 * u, 0, 0, 7); c.fill();
         const M = espalda();
         if (M && M.animations[est]) { const fr = M.animations[est].frames[idx % M.animations[est].frames.length], im = IM(B3 + fr.file), sc = .2 * Hh / M.refH; if (ok(im)) c.drawImage(im, hx - fr.ax * sc, y - fr.ay * sc, fr.w * sc, fr.h * sc); }
         else { lado(c, est === 'jump' ? H.jump : H.run, est === 'jump' ? s * H.jump.length : t * 14, hx, y, .22 * Hh); }
         const sh = clamp(Math.min(tl - (tD + 2.0), T - .5 - tl) / .4, 0, 1); // escudo de la caja sorpresa
-        if (sh > 0) { c.globalAlpha = sh; c.fillStyle = 'rgba(120,200,255,.16)'; c.strokeStyle = 'rgba(160,225,255,.85)'; c.lineWidth = 3; c.beginPath(); c.arc(hx, y - .095 * Hh, .105 * Hh + 3 * Math.sin(t * 6), 0, 7); c.fill(); c.stroke(); c.globalAlpha = 1; }
+        if (sh > 0 && imagen(c, BURB, hx, y + .05 * Hh, .23 * Hh, sh * .9)) { }
+        else if (sh > 0) { c.globalAlpha = sh; c.fillStyle = 'rgba(120,200,255,.16)'; c.strokeStyle = 'rgba(160,225,255,.85)'; c.lineWidth = 3; c.beginPath(); c.arc(hx, y - .095 * Hh, .105 * Hh + 3 * Math.sin(t * 6), 0, 7); c.fill(); c.stroke(); c.globalAlpha = 1; }
+      }]);
+      // zorro compañero (de espalda): corre al lado, salta con ella, señala la pista, espera en la plaza y celebra
+      L.push([.02, () => {
+        const side = clamp((1.15 - la.l) * 4, -1, 1), fx = clamp(hx + side * .2 * Wn, W * .08, W * .92), hh = .14 * Hh; let im = null, dy = 0;
+        if (tl > tD - .05 && tl < tD + 1.5) im = ZCEL;
+        else if (tl > 3.64 && tl < 4.36) { im = ZSAL; dy = -Math.abs(Math.sin((tl - 3.64) / .72 * Math.PI)) * 30 * u; }
+        else if (tl > 9.3 && tl < 10.9) im = ZSEN;
+        else if (tl >= 10.9 && tl < 12.05) im = ZESP;
+        else { im = ZRUN[Math.floor(t * 10 + 2) % 4]; dy = -Math.abs(Math.sin(t * 8)) * 5 * u; }
+        c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(fx, Py + 22 * u, hh * .24, 7 * u, 0, 0, 7); c.fill(); imagen(c, im, fx, Py + 22 * u + dy, hh);
       }]);
       L.sort((a, b) => b[0] - a[0]); L.forEach(f => f[1]());
       // texto en pantalla (igual que en el juego)
+      ambiente(c, W, Hh, t, m.particulas);
       const hayQ = tl > 8.6 && tl < tD + .1;
       if (sinHud) return;
       pastilla(c, hayQ ? '¿Cuánto es 7 × 4?' : '¡Corre y junta monedas!', W / 2, .2 * Hh, Wn * (hayQ ? .66 : .74), .06 * Hh, m.acento || '#ffd24a', .036 * Hh);
@@ -216,6 +253,7 @@
       else if ((s = (tl - 7.25) / .75) >= 0 && s <= 1) { set = H.slide || H.run; idx = H.slide ? Math.min(.999, s) * H.slide.length : t * 14; yy = H.slide ? 0 : 0; }
       c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(hx, pies + 2, .1 * W * (1 - jh / (.5 * Hh)), .016 * Hh, 0, 0, 7); c.fill();
       lado(c, set, idx, hx, pies - jh + yy, .3 * Hh);
+      ambiente(c, W, Hh, t, m.particulas);
       if (tl >= 3.5 && tl <= 3.92) { // kunai de energía hacia el ninja
         const k = (tl - 3.5) / .42, xs = hx + .07 * Ws, xe = hx + .45 * sp, px = xs + (xe - xs) * k, py = pies - .15 * Hh;
         brillo(c, px, py, .07 * Hh, '255,120,210', .6); c.save(); c.translate(px, py); c.rotate(t * 20); c.fillStyle = '#fff0fa'; c.strokeStyle = '#ff7ad9'; c.lineWidth = 2; c.beginPath();
@@ -264,6 +302,7 @@
       const al = dy < -.002 * Hh ? H.sube : dy > .002 * Hh ? H.baja : H.alf[Math.floor(t * 8) % 2];
       c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(hx, .52 * Hh, .08 * W, .011 * Hh, 0, 0, 7); c.fill();
       imagen(c, al, hx, y + Math.sin(t * 3) * .005 * Hh + .075 * Hh, .185 * Hh);
+      ambiente(c, W, Hh, t, m.particulas);
       const hayQ = tau > .2 && tau < 2.9; if (!sinHud) pastilla(c, hayQ ? '¿Cuánto es ' + q.q + '?' : '¡Cruza la puerta correcta!', W / 2, .2 * Hh, Ws * .72, .06 * Hh, m.acento || '#ffb44a', .036 * Hh);
     }
     return { dur: T, imgs, dibujar, listo: () => ok(IM(fases[0].far)) && ok(IM(H.alf[0])) };
@@ -277,8 +316,9 @@
     const reg = root.MundosRegistro && root.MundosRegistro.lista; if (!reg) return null;
     const ms = ['senda', 'viaje', 'farolillos'].map(id => reg.filter(m => m.id === id)[0]); if (ms.some(m => !m || !m.demo || !TIPOS[m.demo.tipo])) return null;
     const demos = ms.map(m => TIPOS[m.demo.tipo](m, heroe === 'kage' ? 'kage' : 'sakura')), inicio = [2.1, .6, 3.1];
-    const imgs = demos.reduce((a, d) => a.concat(d.imgs), []);
-    let idx = -1, tEnt = 0, tCam = -9, ult = 0, oc = null, o2 = null;
+    const MC = [1, 2, 3, 4].map(i => A + 'nivel3/arte/monedas/coin_' + i + '.png'), GEMA = A + 'nivel3/arte/monedas/gema.png';
+    const imgs = demos.reduce((a, d) => a.concat(d.imgs), MC.concat(GEMA));
+    let idx = -1, tEnt = 0, tCam = -9, ult = 0, oc = null, o2 = null, tFin = -1;
     function dibujar(c, W, H, ahora, prog) {
       if (ahora < ult) idx = -1; ult = ahora;
       const i = prog < .34 ? 0 : prog < .67 ? 1 : 2;
@@ -300,7 +340,16 @@
       // cruce de portal: destello dorado + rótulo del nuevo mundo
       const dc = ahora - tCam;
       if (dc < .75) { const a = 1 - dc / .75; c.fillStyle = 'rgba(255,236,170,' + (.8 * a * a) + ')'; c.fillRect(0, 0, W, H); brillo(c, W / 2, y0 + Hs * .5, Math.max(W, H) * (.25 + dc * .9), '255,214,110', .7 * a); }
-      if (dc < 2.4) { const a = clamp(Math.min(dc / .3, (2.4 - dc) / .5), 0, 1); c.globalAlpha = a; const tx = 'MUNDO ' + (i + 1) + ' · ' + m.nombre.toUpperCase(), px = clamp(W * .03, 11, 17), ph2 = px * 2.1; c.font = 'bold ' + Math.round(px) + 'px ' + FONT; pastilla(c, tx, W / 2, H * .725, Math.min(W * .94, c.measureText(tx).width + ph2 * 1.2), ph2, m.acento || '#ffd24a', px); c.globalAlpha = 1; }
+      if (prog >= .985) {   // ¡llegamos al final! rayos de luz, lluvia de monedas y aviso
+        if (tFin < 0) tFin = ahora; const df = ahora - tFin, cxr = W / 2, cyr = y0 + Hs * .5, R = Math.max(W, H);
+        c.save(); c.translate(cxr, cyr); c.rotate(df * .6); c.globalAlpha = clamp(df / .25, 0, 1) * .075; c.fillStyle = '#fff1b8'; c.globalCompositeOperation = 'lighter';
+        for (let k = 0; k < 12; k++) { c.rotate(Math.PI / 6); c.beginPath(); c.moveTo(0, 0); c.lineTo(R * .9, -R * .05); c.lineTo(R * .9, R * .05); c.closePath(); c.fill(); } c.restore(); c.globalAlpha = 1;
+        const sz = H * .045;
+        for (let k = 0; k < 34; k++) { const h = hash(k * 17 + 3), x = (h % 1000) / 1000 * W, v = H * (.55 + ((h >> 10) % 100) / 160), y = -sz + (df * v + ((h >> 4) % 300) * .5) % (H + sz * 2) - ((h >> 12) % 2) * 0, f = (h >> 3) % 2 && k % 7 === 0 ? GEMA : MC[Math.floor(df * 9 + k) % 4]; imagen(c, f, x, y + sz, sz * (f === GEMA ? 1.1 : 1), clamp(1 - df / 6, .25, 1)); }
+        const tx = '¡LISTO PARA JUGAR!', px = clamp(W * .036, 13, 22), ph3 = px * 2.2, pul = 1 + .04 * Math.sin(df * 9); c.save(); c.translate(W / 2, H * .725); c.scale(pul, pul); c.translate(-W / 2, -H * .725); c.font = 'bold ' + Math.round(px) + 'px ' + FONT;
+        pastilla(c, tx, W / 2, H * .725, c.measureText(tx).width + ph3 * 1.4, ph3, '#ffe27a', px); c.restore();
+      } else tFin = -1;
+      if (prog < .985 && dc < 2.4) { const a = clamp(Math.min(dc / .3, (2.4 - dc) / .5), 0, 1); c.globalAlpha = a; const tx = 'MUNDO ' + (i + 1) + ' · ' + m.nombre.toUpperCase(), px = clamp(W * .03, 11, 17), ph2 = px * 2.1; c.font = 'bold ' + Math.round(px) + 'px ' + FONT; pastilla(c, tx, W / 2, H * .725, Math.min(W * .94, c.measureText(tx).width + ph2 * 1.2), ph2, m.acento || '#ffd24a', px); c.globalAlpha = 1; }
     }
     return { imgs, dibujar };
   }

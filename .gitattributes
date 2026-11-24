@@ -1,0 +1,14 @@
+# Finales de línea siempre LF (evita que Windows reescriba archivos enteros y provoque conflictos falsos)
+* text=auto eol=lf
+# Archivos binarios: git nunca intenta mezclarlos como texto
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.mp3 binary
+*.ogg binary
+*.wav binary
+*.woff2 binary
+*.zip binary
