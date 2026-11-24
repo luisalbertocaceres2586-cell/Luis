@@ -27,6 +27,7 @@ Archivos en nivel 1 (estricto): `perfiles`, `ruta`, `acertijos`, `director`, `el
 |---|---|
 | `types/juego.d.ts` | **Dominio**: `Perfil`, `Maestria`, `Racha`, `Mundo`, `PerfilesAPI`, `SelectorMundosAPI`… |
 | `types/globales.d.ts` | Variables globales que comparten los scripts (`GS`, `P`, `CX`, `W`, `H`, `tone`, `groundY`, `bossFight`…) y extras de `window` |
+| `types/modulos/*.d.ts` | **Un archivo por módulo** de `engine/` (`Nube`, `PreviewMundos`…). Módulo nuevo = archivo nuevo, no se edita `globales.d.ts` (evita conflictos entre pestañas; ver `docs/FLUJO_DE_TRABAJO.md`) |
 | `types/legacy-dom.d.ts` | **Tolerancia solo para el nivel 2** (`e.target.closest`, `el.style`, APIs de Safari). El código nuevo **no** debe apoyarse en esto |
 | `types/node-minimo.d.ts` | Lo mínimo de CommonJS para los módulos que también se cargan en Node (pruebas) |
 
