@@ -14,7 +14,9 @@
 (function(){
 'use strict';
 var INCLUIR=/^(ninja_|mpl_|n2_|n2cfg)/;
-var EXCLUIR=/^(ninja_debug|ninja_ios_hint_v1|ninja_btn_pos_|ninja_ctl_cfg|ninja_haptics|ninja_abrir_mundos|ninja_prev_backup|ninja_fx_volume|ninja_mult_muted)/;
+/* ⚠ ninja_nube_*: contiene el TOKEN de la cuenta en línea (quien lo tenga puede entrar a la cuenta). NUNCA debe viajar en un código que se
+   comparte por WhatsApp, ni aceptarse al importar uno ajeno. La cuenta en línea ya guarda el progreso por sí sola (engine/nube.js). */
+var EXCLUIR=/^(ninja_nube_|ninja_sw_|ninja_debug|ninja_ios_hint_v1|ninja_btn_pos_|ninja_ctl_cfg|ninja_haptics|ninja_abrir_mundos|ninja_prev_backup|ninja_fx_volume|ninja_mult_muted)/;
 var PREV='ninja_prev_backup';
 var LIMITE=2*1024*1024;
 
