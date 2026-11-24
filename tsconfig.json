@@ -37,6 +37,7 @@
     "engine/core/dispositivo.js",
     "engine/core/version.js",
     "engine/educativo/repaso-errores.js",
-    "types/globales-estricto.d.ts"
+    "types/globales-estricto.d.ts",
+    "types/modulos/*.d.ts"
   ]
 }
