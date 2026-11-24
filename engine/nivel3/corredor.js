@@ -55,6 +55,14 @@
     fx_estr: NA + 'efectos/estrellas.png', fx_iman: NA + 'efectos/iman.png', fx_choque: NA + 'efectos/choque.png',
     zo_run: [1, 2, 3, 4].map(i => NA + 'zorro/run_' + i + '.png'), zo_salto: NA + 'zorro/salto.png', zo_senala: NA + 'zorro/senala.png', zo_celebra: NA + 'zorro/celebra.png', zo_espera: NA + 'zorro/espera.png'
   });
+  // Decorado de los costados con el arte propio de los niveles 1 y 2 (mismo estilo que el resto del juego)
+  const D1 = 'assets/nivel1/decorado/', D2 = 'assets/nivel2/extras/', DL = NA + 'mundos/lights/';
+  Object.assign(ART, {
+    bambuN: [D1 + 'bambu_primer_plano.png', D1 + 'bambu_roca.png', D1 + 'bambu_primer_plano.png', D1 + 'bambu_roca.png', D1 + 'estatua_kitsune.png', DL + 'farol_templo.png', D1 + 'santuario_jizo.png', DL + 'toro_piedra.png'],
+    aldeaN: [DL + 'farol_templo.png', D1 + 'estandarte_colgante.png', D1 + 'carreta_madera.png', D2 + 'tambor_taiko.png', DL + 'toro_piedra.png', D1 + 'pilar_rojo.png', D1 + 'estandarte_emblema.png', DL + 'farol_templo.png'],
+    hieloN: [D2 + 'cristales_azules.png', D2 + 'cristales_azules.png', D2 + 'piedra_agrietada.png', D2 + 'cristales_azules.png', D1 + 'santuario_jizo.png', D1 + 'estatua_kitsune.png'],
+    truenoN: [D2 + 'tambor_taiko.png', D1 + 'pilar_rojo.png', D1 + 'estandarte_emblema.png', D2 + 'piedra_agrietada.png', DL + 'toro_piedra.png', D1 + 'estatua_kitsune.png', D1 + 'pilar_rojo.png', D2 + 'piedra_agrietada.png']
+  });
   const cache = {};
   function IMG(src) { let i = cache[src]; if (!i) { i = new Image(); i.src = src; cache[src] = i; } return i; }
   const listo = i => i && i.complete && i.naturalWidth > 0;
@@ -75,6 +83,7 @@
   const rgb = (c, a) => a == null ? 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')' : 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + a + ')';
   TEMAS.forEach(t => { t.rc1 = hexA(t.c1); t.rc2 = hexA(t.c2); t.rb = hexA(t.borde); t.rn = hexA(t.niebla); });
   TEMAS[1].pano = NA + 'mundos/pano_sakura.jpg'; TEMAS[3].pano = NA + 'mundos/pano_lava.jpg'; TEMAS[0].pano = NA + 'mundos/pano_bambu.jpg'; TEMAS[2].pano = NA + 'mundos/pano_aldea.jpg'; TEMAS[4].pano = NA + 'mundos/pano_hielo.jpg'; TEMAS[5].pano = NA + 'mundos/pano_trueno.jpg'; // fondos completos (reemplazan la franja de montañas)
+  [[0, 'bambuN', [230, 340]], [2, 'aldeaN', [200, 280]], [4, 'hieloN', [190, 270]], [5, 'truenoN', [200, 290]]].forEach(c => { TEMAS[c[0]].deco = c[1]; TEMAS[c[0]].dh = c[2]; });
 
   // ───────────────────────── sonido (sencillo, se puede silenciar) ─────────────────────────
   let AC = null, mudo = false;
