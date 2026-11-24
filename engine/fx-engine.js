@@ -6,7 +6,8 @@
 'use strict';
 if(/[?&]fx=0/.test(location.search))return;
 if(typeof render!=='function'||typeof update!=='function'||typeof CX==='undefined')return;
-const FX=window.FX={ts:1,tsT:1,hold:0,zoom:1,zoomT:1,bars:0,parts:[],rings:[],_slow:0,_punch:0,post:true,trauma:0,ghosts:[],weatherParts:[]};
+/** @type {any} TODO: describir la forma de FX; los métodos (slowmo, punch, burst…) se agregan más abajo */
+const FX=window.FX=/** @type {any} */ ({ts:1,tsT:1,hold:0,zoom:1,zoomT:1,bars:0,parts:[],rings:[],_slow:0,_punch:0,post:true,trauma:0,ghosts:[],weatherParts:[]});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lite=()=>typeof _perfMode!=='undefined'&&_perfMode==='lite';
 const reducedMotion=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -174,7 +175,7 @@ const music={
     const roots={prairie:220,night:196,ice:247,desert:220,jungle:262,water:196,storm:233,crypt:164,hell:185,galaxy:277,boss:147};
     this.root=roots[bg]||220;this.index=0;
     this.gain=AC.createGain();this.gain.gain.value=this.volume;
-    const volumeInput=document.getElementById('fxMusicVolume');if(volumeInput)volumeInput.value=String(this.volume);
+    const volumeInput=/** @type {HTMLInputElement|null} */ (document.getElementById('fxMusicVolume'));if(volumeInput)volumeInput.value=String(this.volume);
     this.gain.connect(AC.destination);
     this.timer=setInterval(()=>this.step(),280);this.step();
   },
@@ -370,8 +371,8 @@ window.render=function(){
   if(tr)CX.restore();
   post();
 };
-function hook(name,fn){const o=window[name];if(typeof o!=='function')return;
-  window[name]=function(){const r=o.apply(this,arguments);try{fn.apply(this,arguments);}catch(e){}return r;};}
+function hook(name,fn){const o=/** @type {any} */ (window)[name];if(typeof o!=='function')return;
+  /** @type {any} */ (window)[name]=function(){const r=o.apply(this,arguments);try{fn.apply(this,arguments);}catch(e){}return r;};}
 hook('killEnemy',(e,sx,sy)=>{FX.freeze(4);FX.punch(1.05);burst(sx+camX,sy+(e?e.h/2:0),26,'#ffd35a');rumble(50,.4);});
 hook('startLevel',()=>{setTimeout(collect,300);FX.wipe();});
 hook('doJump',()=>dust(P.x+P.w/2,P.y+P.h,6));

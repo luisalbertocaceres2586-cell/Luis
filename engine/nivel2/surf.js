@@ -52,7 +52,7 @@
   const ga = (g, id) => (GATE[g.amb] && GATE[g.amb][id]) || id, gAlto = g => g.amb === 'cielo' ? 128 : g.amb === 'mina' ? 104 : 98;
   const DEC = { dunas: ['cristales_azules', 'vagoneta_oro', 'tambor_taiko', 'piedra_agrietada'], mina: ['cristales_azules', 'cristales_azules', 'vagoneta_oro', 'caballete_madera'], cielo: ['nube_a', 'nube_b', 'isla_hierba', 'isla_cristal'], templo: ['tambor_taiko', 'piedra_agrietada', 'tambor_taiko'] };
 
-  const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1300, VSALTO = 620;
+  const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1500, GR_CAIDA = 2000, VSALTO = 666;   // mismo salto de ~148 px, pero se sube más ágil y se cae más rápido (antes flotaba ~0,95 s; ahora ~0,83 s)
   const COL = ['#3fe0cf', '#ffd35a', '#ff7fae'];
   const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
   const R = (a, b) => a + Math.random() * (b - a), RI = (a, b) => Math.floor(R(a, b + 1));
@@ -483,7 +483,9 @@
       S.ly += ((S.vuelo ? S.laneF : S.lane) - S.ly) * Math.min(1, dt * 11); S.fly += (S.ly - S.fly) * Math.min(1, dt * 5);
       if (S.inputs.salto) S.saltoBuf = .12; else if (S.saltoBuf > 0) S.saltoBuf -= dt;   // buffer: el toque justo antes de aterrizar no se pierde
       if (S.saltoBuf > 0 && S.z === 0) { S.vz = VSALTO; S.saltoBuf = 0; beep(420, .08, 'triangle'); } S.inputs.salto = false;
-      S.vz -= GR * dt; S.z = Math.max(0, S.z + S.vz * dt); if (S.z === 0 && S.vz < 0) S.vz = 0; S.fz += (S.z - S.fz) * Math.min(1, dt * 7);
+      { S.vz -= (S.vz > 0 ? GR : GR_CAIDA) * dt; S.z = Math.max(0, S.z + S.vz * dt); const vzI = S.vz; if (S.z === 0 && S.vz < 0) S.vz = 0;
+        if (window.FisicaVisual && !S.vuelo) { if (!S.fv) S.fv = FisicaVisual.nuevo(); const ev = FisicaVisual.paso(S.fv, dt, { suelo: S.z === 0, vy: -S.vz, vyImpacto: vzI, vx: 1, vmax: 1, vref: 800 });
+          if (ev && ev.tipo === 'aterriza') { chispas(X_H, laneY(S.d, S.ly) - 4, 4 + Math.round(8 * ev.f), ['#e8c890', '#d8b878'], 170, .5); if (ev.f > .45) beep(110, .09, 'triangle'); } else if (ev && ev.tipo === 'despega') chispas(X_H, laneY(S.d, S.ly) - 4, 3, ['#e8c890'], 110, .35); } } S.fz += (S.z - S.fz) * Math.min(1, dt * 7);
       S.v += (velObjetivo() - S.v) * Math.min(1, dt * 2.5); S.d += S.v * dt;
       const lh = clamp(Math.round(S.ly), 0, 2);
       // comodín: tacha una respuesta mala de la próxima puerta; dragón de origami decorativo en el cielo
@@ -511,7 +513,7 @@
       S.flags.forEach(f => { if (!f.tipo && !f.tomada && S.d >= f.x) checkpoint(f); });
       S.pows.forEach(pw => { if (!pw.ok && pw.l === lh && Math.abs(pw.x - S.d) < 34 && S.z < 100) recoger(pw); });
       S.cofres.forEach(c => { if (c.est === 0 && c.l === lh && Math.abs(c.x - S.d) < 34 && S.z < 45) { c.est = 1; c.t = .3; S.punt += c.oscuro ? 300 : 150; msg(c.oscuro ? '¡COFRE OSCURO! +300' : '¡COFRE! +150', 1.6); beep(780, .1, 'triangle'); setTimeout(() => beep(1040, .15), 100); } else if (c.est === 1) { c.t -= dt; if (c.t <= 0) c.est = 2; } });
-      S.pads.forEach(pd => { if (pd.t > 0) pd.t -= dt; if (!pd.ok && pd.l === lh && Math.abs(pd.x - S.d) < 28 && S.z < 40) { pd.ok = true; pd.t = .35; if (pd.tipo === 'trampolin') { S.vz = 900; beep(300, .15, 'square'); setTimeout(() => beep(600, .15, 'square'), 80); } else { S.boost = Math.max(S.boost, 1.3); beep(520, .12, 'sawtooth'); } } });
+      S.pads.forEach(pd => { if (pd.t > 0) pd.t -= dt; if (!pd.ok && pd.l === lh && Math.abs(pd.x - S.d) < 28 && S.z < 40) { pd.ok = true; pd.t = .35; if (pd.tipo === 'trampolin') { S.vz = 967; beep(300, .15, 'square'); setTimeout(() => beep(600, .15, 'square'), 80); } else { S.boost = Math.max(S.boost, 1.3); beep(520, .12, 'sawtooth'); } } });
       S.obs.forEach(ob => { if (ob.tipo === 'can' && !ob.fired && ob.x - S.d > 0 && ob.x - S.d < 650) { ob.fired = true; S.balas.push({ x: ob.x - 30, l: ob.l, hit: false }); beep(110, .25, 'sawtooth'); } });
       S.balas.forEach(b => { b.x -= 380 * dt; if (!b.hit && b.l === lh && Math.abs(b.x - S.d) < 26 && S.z < 44) { b.hit = true; if (daño()) msg('¡Bola de fuego!', 1.2); } });
       // zorro: avisa si hay un obstáculo cerca en tu carril
@@ -572,7 +574,7 @@
       cx.fillStyle = '#ffe9a8'; cx.beginPath(); cx.arc(800, 92, 38, 0, 7); cx.fill(); cx.fillStyle = '#2a1f55'; cx.beginPath(); cx.arc(815, 84, 34, 0, 7); cx.fill();
       cieloExtra(cam);
       cx.fillStyle = '#3a2a63'; const pc = -cam * .08 % 700; for (let i = -1; i < 3; i++) { const px = pc + i * 700 + 300; cx.beginPath(); cx.moveTo(px - 70, 262); cx.lineTo(px, 182); cx.lineTo(px + 70, 262); cx.fill(); }
-      [[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]].forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
+      /** @type {any[][]} */ ([[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]]).forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
     }
     function fondoAmb(amb, cam) {
       if (amb === 'dunas') return fondoDunas(cam);
@@ -583,7 +585,7 @@
         const x0 = k * w - off; if (x0 > W || x0 + w < 0) continue;
         cx.save(); if (k & 1) { cx.translate(x0 + w, 0); cx.scale(-1, 1); cx.drawImage(m, 0, 0, w, alto); } else cx.drawImage(m, x0, 0, w, alto); cx.restore();
       }
-      if (amb === 'cielo') [['nube_a', 0, 70, 52, .35], ['nube_b', 520, 150, 44, .5], ['nube_a', 1040, 215, 40, .65], ['nube_b', 1560, 105, 56, .4]].forEach(([id, ix, iy, al, pp]) => { const per = 2100, x = ((ix - cam * pp) % per + per) % per - 260; spr(id, 0, x, iy + al + Math.sin(S.t * .6 + ix) * 4, al, false, .8); });
+      if (amb === 'cielo') /** @type {any[][]} */ ([['nube_a', 0, 70, 52, .35], ['nube_b', 520, 150, 44, .5], ['nube_a', 1040, 215, 40, .65], ['nube_b', 1560, 105, 56, .4]]).forEach(([id, ix, iy, al, pp]) => { const per = 2100, x = ((ix - cam * pp) % per + per) % per - 260; spr(id, 0, x, iy + al + Math.sin(S.t * .6 + ix) * 4, al, false, .8); });
     }
     function fondo(cam) {
       if (S.ambT > 0 && S.ambPrev) { fondoAmb(S.ambPrev, cam); cx.globalAlpha = 1 - S.ambT; fondoAmb(S.amb, cam); cx.globalAlpha = 1; } else fondoAmb(S.amb, cam);
@@ -597,7 +599,7 @@
     // islas flotantes, puentes lejanos y dragón de origami en el cielo (parallax lento)
     function cieloExtra(cam) {
       const per = 1700, px = ix => ((ix - cam * .05) % per + per) % per - 160;
-      [['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]].forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
+      /** @type {any[][]} */ ([['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]]).forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
       spr('enredadera', 0, px(1180), 184 + Math.sin(S.t * .8 + 1180) * 6 + 30, 34, false, .85); spr('puente_colgante', 0, px(280), 205, 30, false, .7); spr('puente_piedra', 0, px(1020), 215, 34, false, .7);
       if (S.dragon) spr('dragon_origami', 0, S.dragon.x, S.dragon.y + 70 + Math.sin(S.t * 2) * 8, 70, true);
     }
@@ -719,7 +721,9 @@
     }
     function heroe() {
       const x = X_H, gy = laneY(S.d, S.ly), y = gy - S.z, ang = Math.atan((hY(S.d + 10) - hY(S.d - 10)) / 20) * .7;
-      cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58, 9, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58 * (1 - clamp(S.z / 420, 0, .3)), 9 * (1 - clamp(S.z / 420, 0, .3)), 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      const fvT = (window.FisicaVisual && S.fv && !S.vuelo) ? FisicaVisual.transformar(S.fv, { suelo: S.z === 0, vy: -S.vz, vx: 1, vmax: 1, vref: 800, bob: 0, amp: .8 }) : null;
+      cx.save(); if (fvT) { cx.translate(x, y); cx.scale(fvT.sx, fvT.sy); cx.translate(-x, -y); }
       const parp = S.inv > 0 && Math.floor(S.t * 14) % 2, alfa = parp ? .4 : 1;
       let ok;
       const vehA = vehAct();
@@ -733,6 +737,7 @@
       if (!ok) { cx.save(); cx.globalAlpha = alfa; cx.fillStyle = '#7a4a8c'; cx.fillRect(x - 40, y - 8, 80, 8); cx.fillStyle = kage ? '#4aa3ff' : '#ff6fa8'; cx.fillRect(x - 10, y - 50, 20, 40); cx.fillStyle = '#f2d1ad'; cx.beginPath(); cx.arc(x, y - 60, 12, 0, 7); cx.fill(); cx.restore(); }
       if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(x - 70 - i * 16, y - 20 + i * 12); cx.lineTo(x - 120 - i * 16, y - 20 + i * 12); cx.stroke(); } }
       if (S.escudo) { const gr = cx.createRadialGradient(x, y - 58, 20, x, y - 58, 78); gr.addColorStop(0, 'rgba(111,214,255,.04)'); gr.addColorStop(.8, 'rgba(111,214,255,.22)'); gr.addColorStop(1, 'rgba(190,240,255,.7)'); cx.fillStyle = gr; cx.beginPath(); cx.arc(x, y - 58, 78 + Math.sin(S.t * 6) * 2, 0, 7); cx.fill(); }
+      cx.restore();
     }
     // ── jefes: el escorpión persigue desde atrás, el gusano emerge delante, la esfinge y el faraón vigilan al fondo ──
     const poseJefe = () => { const j = S.jefe, A = j.atq; return S.est === 'gano' ? 'derrota' : j.golpe > 0 ? 'golpe' : A ? (A.t < 1.3 ? 'aviso' : 'ataque') : 'idle'; };
@@ -900,7 +905,7 @@
     const vis = () => { if (document.hidden && S && S.est === 'play') S.pausa = true; };
     document.addEventListener('visibilitychange', vis);
     if (touch) {
-      [['▲', 'right:14px;bottom:124px;width:76px;height:76px', () => { if (S.vuelo) S.hold.up = 1; else lane(S.lane - 1); }], ['▼', 'right:14px;bottom:40px;width:76px;height:76px', () => { if (S.vuelo) S.hold.down = 1; else lane(S.lane + 1); }], ['SALTAR', 'right:104px;bottom:40px;width:120px;height:76px', () => { if (S) S.inputs.salto = true; }]].forEach(([t, pos, fn]) => {
+      /** @type {[string, string, () => void][]} */ ([['▲', 'right:14px;bottom:124px;width:76px;height:76px', () => { if (S.vuelo) S.hold.up = 1; else lane(S.lane - 1); }], ['▼', 'right:14px;bottom:40px;width:76px;height:76px', () => { if (S.vuelo) S.hold.down = 1; else lane(S.lane + 1); }], ['SALTAR', 'right:104px;bottom:40px;width:120px;height:76px', () => { if (S) S.inputs.salto = true; }]]).forEach(([t, pos, fn]) => {
         const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'position:absolute;' + pos + ';border-radius:38px;border:2px solid #ffe27a;background:#ffffff26;color:#fff;font:bold 18px ' + FUENTE + ';touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none';
         b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, () => { if (S) S.hold = { up: 0, down: 0 }; })); root.appendChild(b);
       });

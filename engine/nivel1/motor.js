@@ -6,6 +6,9 @@
 (function () {
   'use strict';
   const W = 1280, H = 720, G = 560, DT = 1 / 60;
+  // Escala del héroe: antes medía ~113 px (el sensei ~175, el kappa ~120, el zorro ~120), así que se veía diminuto. ESC_HEROE agranda el dibujo (≈152 px)
+  // y ESC_CAJA el cuerpo de colisión (algo menos, para que siga siendo justo). Todo lo que sale del cuerpo (espada, kunai, antorcha, sombra, textos) se escala con ESC_HEROE.
+  const ESC_HEROE = 1.35, ESC_CAJA = 1.2;
   // Salto variable. PC: soltar corta el salto al instante (x0.55). CELULAR: un toque corto es ~80 ms, así que el salto se "compromete"
   // SALTO_MIN_MOVIL s antes de poder cortarse y el corte es suave (x0.8): un toque ya da ~90 % del salto, mantener da el 100 %.
   const SALTO_MIN_MOVIL = .18, SALTO_CORTE_MOVIL = .8, SALTO_CORTE_PC = .55;
@@ -121,11 +124,11 @@
     S = {
       heroeId: heroe, nivel2, M, plan, params: op.params, N, maestria, perfil: o.perfil || null, onSalir: o.onSalir || null, onSiguiente: o.onSiguiente || null,
       movil: o.dispositivo === 'movil' || /[?&]movil=1/.test(location.search),
-      h: { x: N.inicio.x, y: G, vx: 0, vy: 0, w: 34, h: 92, dir: 1, suelo: true, coyote: 0, buffer: 0, inv: 0, atk: 0, atkCd: 0, shCd: 0, kunaiT: 0, vida: 5, muerto: 0, aturdido: 0, pisando: null, anim: 0, lento: 0 },
+      h: { x: N.inicio.x, y: G, vx: 0, vy: 0, w: Math.round(34 * ESC_CAJA), h: Math.round(92 * ESC_CAJA), dir: 1, suelo: true, coyote: 0, buffer: 0, inv: 0, atk: 0, atkCd: 0, shCd: 0, kunaiT: 0, vida: 5, muerto: 0, aturdido: 0, pisando: null, anim: 0, lento: 0 },
       cam: 0, t: 0, tiempo: 0, vidaMax: 5, seguro: { x: N.inicio.x, y: G }, resp: { x: N.inicio.x, y: G },
       shur: [], part: [], hojas: [], textos: [], enemigos: N.enem, items: N.items.map(i => Object.assign({ tomado: false }, i)), est: N.est, ckp: N.ckp,
       pergaminos: 0, aciertos: 0, errores: 0, limpios: 0, pausa: false, fin: null, aviso: { t: 4, s: nivel2 ? 'DESIERTO NOCTURNO' : 'BOSQUE DE BAMBÚ' }, estSel: null, shake: 0, flash: 0,
-      alto: 100 / (M.idle[0].h || 200), flechas: [], luz: 330, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0, eligiendo: false, hab: null,
+      alto: 100 * ESC_HEROE / (M.idle[0].h || 200), flechas: [], luz: 330, osc: 0, mezcla: 0, zonaVista: 'bosque', apunta: null, tutoVisto: visto, tip: null, tipT: 0, movido: 0, saltos: 0, tajos: 0, rebotes: 0, tiros: 0, eligiendo: false, hab: null,
       mod: { g: 1, gc: 1, jv: 1, ag: 1, fr: 1, vv: 0, noche: 0 }, dir: null   // mod: gravedad, tope de caída, salto, agarre/fricción del suelo, viento y noche (los mueve el director)
     };
     N.plat.forEach(p => { p.X = p.x; p.Y = p.y; p.dX = 0; p.dY = 0; });
@@ -244,7 +247,7 @@
     if (window.N1hab) N1hab.alDanio();
     if (window.N1dir) N1dir.alDanio();
     h.vida -= cuanto; h.inv = 1.4; h.aturdido = .28; h.vy = -420; h.vx = (kx || -h.dir) * 260; h.suelo = false; S.shake = .25; S.flash = .2; S.apunta = null;
-    texto(h.x, h.y - 100, '-' + cuanto + ' ♥', '#ff6b6b'); chispas(h.x, h.y - 50, 10, '#ff6b6b'); if (h.vida <= 0) h.muerto = 1.2;
+    texto(h.x, h.y - 145, '-' + cuanto + ' ♥', '#ff6b6b'); chispas(h.x, h.y - 50, 10, '#ff6b6b'); if (h.vida <= 0) h.muerto = 1.2;
   }
   function reaparecer() {
     const h = S.h; if (h.vida <= 0) { if (window.N1dir) N1dir.alMuerte(); h.vida = 3; S.aviso = { t: 2.5, s: 'VUELVES AL ÚLTIMO PUNTO DE CONTROL' }; h.x = S.resp.x; } else h.x = S.seguro.x;
@@ -313,18 +316,19 @@
       t.cd = Math.max(0, (t.cd || 0) - dt); t.rebote = Math.max(0, (t.rebote || 0) - dt); const top = t.y - 52;
       if (t.cd <= 0 && Math.abs(h.x - t.x) < 60 && h.y >= top && h.y <= t.y + 12 && h.vy >= 0) { h.y = top; h.vy = -1320 * S.mod.jv; h.suelo = false; t.rebote = .3; t.cd = .35; S.rebotes++; chispas(t.x, top, 10, t.hongo ? '#7ff' : '#ffe27a'); texto(t.x, top - 40, t.hongo ? '¡BOING!' : '¡BOOM!', '#ffe27a'); apoyo = null; }
     }
-    const estaba = h.suelo;
+    const estaba = h.suelo, vyPre = h.vy;
     if (apoyo) {
       if (!estaba && h.vy > 500) chispas(h.x, apoyo.y, 5, '#c8b48a');
       h.y = apoyo.y; h.vy = 0; h.suelo = true; h.coyote = S.movil ? .14 : .1; h.pisando = apoyo;
       if (apoyo.tipo === 'suelo' && h.x > apoyo.s.x0 + 70 && h.x < apoyo.s.x1 - 70 && !hayEnemigoCerca()) S.seguro = { x: h.x, y: G };
       if (apoyo.tipo === 'plat') { const p = apoyo.p; if (p.tipo === 'piedra_num') pisarPiedra(p); if (p.fragil && p.estado === 'firme') { p.estado = 'cruje'; p.t = .4; } }
     } else { if (h.suelo && h.vy >= 0) h.coyote = S.movil ? .14 : .1; h.suelo = false; h.pisando = null; }
+    if (window.FisicaVisual) { if (!S.fv) S.fv = FisicaVisual.nuevo(); const ev = FisicaVisual.paso(S.fv, dt, { suelo: h.suelo, vy: h.vy, vyImpacto: vyPre, vx: h.vx, vmax: 340, vref: 1000 }); if (ev && ev.tipo === 'aterriza' && ev.f > .45) chispas(h.x, h.y, 3 + Math.round(5 * ev.f), '#c8b48a'); else if (ev && ev.tipo === 'despega') chispas(h.x, h.y, 3, '#c8b48a'); }
     if (h.y > H + 160) { if (h.vida > 1) { h.vida--; texto(h.x, 300, '-1 ♥', '#ff6b6b'); S.shake = .3; reaparecer(); } else { h.vida = 0; h.muerto = .4; } return; }
 
     const hb = rect(h.x - h.w / 2 + 4, h.y - h.h, h.w - 8, h.h - 4); S.hb = hb;
     N.haz.forEach(z => { if (cruza(hb, rect(z.x + 6, z.y + 8, z.w - 12, z.h))) danio('kunai', h.x < z.x + z.w / 2 ? -1 : 1); });
-    S.tajo = h.atk > .06 ? (window.N1hab ? N1hab.rectTajo(h, rect(h.dir > 0 ? h.x - 10 : h.x - 120, h.y - 150, 130, 160)) : rect(h.dir > 0 ? h.x - 10 : h.x - 120, h.y - 150, 130, 160)) : null; if (S.tajo) S.tajo.usado = !!h.tajoUsado;
+    S.tajo = h.atk > .06 ? (window.N1hab ? N1hab.rectTajo(h, rect(h.dir > 0 ? h.x - 13 : h.x - 162, h.y - 190, 175, 200)) : rect(h.dir > 0 ? h.x - 13 : h.x - 162, h.y - 190, 175, 200)) : null; if (S.tajo) S.tajo.usado = !!h.tajoUsado;
     if (window.N1hab) N1hab.despuesTajo();
 
     S.shur.forEach(s => {
@@ -412,10 +416,10 @@
   function empezarApuntar() {
     const e = S.estSel, h = S.h; const lst = e ? objetivos(e).filter(o => Math.abs(o.x - h.x) < 900) : [];
     if (lst.length) { lst.sort((a, b) => a.x - b.x); let k = 0, d = 1e9; lst.forEach((o, i) => { const dd = Math.abs(o.x - h.x - h.dir * 150); if (dd < d) { d = dd; k = i; } }); S.apunta = { e, sel: k, lst, t: 0 }; }
-    else if (h.shCd <= 0 && h.aturdido <= 0) { h.shCd = .45; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 30, y: h.y - 58, vx: 760 * h.dir, vy: 0, t: 1.2, a: 0, recto: true }); }
+    else if (h.shCd <= 0 && h.aturdido <= 0) { h.shCd = .45; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 40, y: h.y - 58 * ESC_HEROE, vx: 760 * h.dir, vy: 0, t: 1.2, a: 0, recto: true }); }
   }
   const cambiarObjetivo = d => { const a = S.apunta; if (a) a.sel = (a.sel + d + a.lst.length) % a.lst.length; };
-  function disparar(o, e) { const h = S.h; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 30, y: h.y - 58, vx: 0, vy: 0, t: 1.5, a: 0, obj: o, est: e }); }
+  function disparar(o, e) { const h = S.h; h.kunaiT = .34; S.tiros++; S.shur.push({ x: h.x + h.dir * 40, y: h.y - 58 * ESC_HEROE, vx: 0, vy: 0, t: 1.5, a: 0, obj: o, est: e }); }
   function lanzar() { const a = S.apunta; if (!a) return; S.apunta = null; const o = a.lst[a.sel]; if (o && (o.estado === 'listo' || o.estado === 'apagada')) disparar(o, a.e); }
   Object.assign(core, { objetivos, golpearObjetivo, pisarPiedra });
 
@@ -424,7 +428,7 @@
     if (!S.nivel2) Ruta.terminarActo(S.plan, {});
     if (S.perfil && window.Perfiles) Perfiles.actualizar(S.perfil.id, p => {
       p.maestria = S.maestria.estado; p.tutoriales = S.tutoVisto;
-      const progresoNivel = S.nivel2 ? (p.nivel2 = p.nivel2 || {}) : (p.nivel1 = p.nivel1 || {});
+      const progresoNivel = /** @type {Nivel1Datos & Nivel2Datos} */ (S.nivel2 ? (p.nivel2 = p.nivel2 || {}) : (p.nivel1 = p.nivel1 || {}));
       progresoNivel.plan = S.plan; progresoNivel.semilla = S.plan.semilla; progresoNivel.intentos = (progresoNivel.intentos || 0) + 1; progresoNivel.completados = (progresoNivel.completados || 0) + 1;
       p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aciertos; p.estadisticas.errores += S.errores; p.estadisticas.minutos += Math.round(seg / 6) / 10;
       p.progreso = p.progreso || { fase: 'easy', nivel: 0, puntos: 0 }; p.progreso.puntos += S.pergaminos * 10 + S.aciertos * 50;
@@ -652,11 +656,18 @@
     const groundOffset = h.suelo ? 4 : 0;
     if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
     if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
-    cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30, 7, 0, 0, 7); cx.fill();
-    cx.save(); cx.translate(h.x - S.cam, h.y + groundOffset); if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
-    if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14, -112, 52, 52 * img.antorchaAnim.height / fw); }
+    { const al = alturaSombra(h); cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); }
+    cx.save(); cx.translate(h.x - S.cam, h.y + groundOffset); { const T = fvTransform(h); if (T) { cx.translate(0, T.oy); cx.rotate(T.rot); cx.scale(T.sx, T.sy); } } if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
+    if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14 * ESC_HEROE, -112 * ESC_HEROE, 52 * ESC_HEROE, 52 * ESC_HEROE * img.antorchaAnim.height / fw); }
     cx.restore();
-    if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
+    if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60 * ESC_HEROE); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9 * ESC_HEROE; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10 * ESC_HEROE, 0, 86 * ESC_HEROE, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
+  }
+  const alturaSombra = h => Math.max(0, Math.min(1, ((h.pisando ? h.y : G) - h.y) / 220));
+  // peso visual (estirar/aplastar/inclinar); se omite en las habilidades que ya tienen su propia pose (pared, dash, planeo, gancho)
+  function fvTransform(h) {
+    const A = S.hab; if (!window.FisicaVisual || !S.fv) return null;
+    if (A && ((A.pared && A.pared.cling) || (A.dash && A.dash.t > 0) || A.planeando || (A.gancho && A.gancho.on)) || h.muerto > 0 || h.aturdido > 0) return null;
+    return FisicaVisual.transformar(S.fv, { suelo: h.suelo, vy: h.vy, vx: h.vx, vmax: 340, vref: 1000, amp: .55 });
   }
   function dibujarHeroe() {
     if (window.N1hab) N1hab.estelas();
@@ -668,11 +679,11 @@
     else if (set === 'hurt' || set === 'death') idx = Math.min(arr.length - 1, Math.floor(S.t * 12) % arr.length); else { h.anim += (1 / 60) * fps; idx = Math.floor(h.anim) % arr.length; }
     const f = arr[Math.min(idx, arr.length - 1)], im = img['h:' + set + ':' + Math.min(idx, arr.length - 1)] || img['h:idle:0']; if (!im || !f) return;
     const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s; if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh }; if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
-    cx.fillStyle = 'rgba(0,0,0,.25)'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30, 7, 0, 0, 7); cx.fill();
-    cx.save(); cx.translate(h.x - S.cam, h.y); if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
-    if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14, -112, 52, 52 * img.antorchaAnim.height / fw); }
+    { const al = alturaSombra(h); cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); }
+    cx.save(); cx.translate(h.x - S.cam, h.y); { const T = fvTransform(h); if (T) { cx.translate(0, T.oy); cx.rotate(T.rot); cx.scale(T.sx, T.sy); } } if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
+    if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14 * ESC_HEROE, -112 * ESC_HEROE, 52 * ESC_HEROE, 52 * ESC_HEROE * img.antorchaAnim.height / fw); }
     cx.restore();
-    if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10, 0, 86, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
+    if (h.atk > 0 && !h.tajoAbajo) { const p = 1 - h.atk / .28; cx.save(); cx.translate(h.x - S.cam, h.y - 60 * ESC_HEROE); cx.scale(h.dir, 1); cx.globalAlpha = Math.sin(p * Math.PI) * .9; cx.strokeStyle = '#fff6c2'; cx.lineWidth = 9 * ESC_HEROE; cx.lineCap = 'round'; cx.beginPath(); cx.arc(10 * ESC_HEROE, 0, 86 * ESC_HEROE, -1.1 + p * .9, .35 + p * .9); cx.stroke(); cx.strokeStyle = '#ffc93c'; cx.lineWidth = 4; cx.stroke(); cx.restore(); }
   }
   /* Luz propia de TODO lo que el estudiante tiene que leer o tocar en un acertijo (faroles, bloques, dianas, antorchas, piedras numeradas,
    * plataformas de la carreta), esté como esté, para que en la cueva nada quede a oscuras. Solo lo que está en pantalla (o casi). */

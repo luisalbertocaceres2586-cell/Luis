@@ -14,3 +14,5 @@ Originales en `assets/_originales/nivel3_arte/`. Cada pieza está recortada, con
 Sin usar todavía: `efectos/velocidad` solo con patineta y la hoja `sakura16` (repite cambio de carril y celebración).
 
 Ahora también: `potenciadores/reloj` = «tiempo ninja» (la pista va a 62 % durante 8 s, sale de la caja sorpresa junto con imán y escudo), `monedas/shuriken` = shuriken giratorio en el zigzag (+3) y `efectos/iman` = destello al tomar el imán.
+
+Paisajes completos de los 6 mundos en `mundos/`: pano_bambu, pano_sakura, pano_aldea, pano_lava, pano_hielo, pano_trueno (JPG de 1160 px; originales en `assets/_originales/nivel3_arte/`).

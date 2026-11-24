@@ -1,10 +1,10 @@
 /* Generador del Nivel 1 largo: Bosque de Bambú + Cueva de las Luciérnagas (a oscuras).
  * Junta "módulos" (cada uno es un reto distinto) y 16 estaciones de acertijo. Todo son datos; el motor
  * los dibuja y simula. Se puede probar en Node. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('./ruta.js'), require('./acertijos.js'));
   else root.GenNivel = factory(root.Ruta, root.Acertijos);
-})(typeof self !== 'undefined' ? self : this, function (Ruta, Ac) {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function (Ruta, Ac) {
   const G = 560;
 
   // segundos que tarda, de media, un estudiante en cada cosa (para estimar la duración)

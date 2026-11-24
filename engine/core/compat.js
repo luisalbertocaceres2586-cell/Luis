@@ -122,10 +122,11 @@ instalarRoundRect(window.OffscreenCanvasRenderingContext2D&&OffscreenCanvasRende
 
 /* ---------- 3) Canvas: filter (solo el brillo) ---------- */
 try{
+  /** @type {any} */
   var P2=window.CanvasRenderingContext2D&&CanvasRenderingContext2D.prototype;
   if(P2&&!('filter' in P2)&&!P2.__njFiltroImitado){
     var dibujar=P2.drawImage;
-    P2.drawImage=function(){
+    P2.drawImage=/** @this {any} */ function(){
       var f=this.filter;                                         // propiedad "suelta": Safari la acepta pero no hace nada
       if(f===undefined||f===''||f==='none')return dibujar.apply(this,arguments);
       var r=dibujar.apply(this,arguments);
@@ -166,7 +167,7 @@ if(typeof window.structuredClone!=='function'){
 }
 try{
   if(window.crypto&&typeof crypto.randomUUID!=='function'&&typeof crypto.getRandomValues==='function'){
-    crypto.randomUUID=function(){
+    /** @type {any} */ (crypto).randomUUID=function(){
       var b=new Uint8Array(16);crypto.getRandomValues(b);b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;
       var h=[],i;for(i=0;i<16;i++)h.push((b[i]+256).toString(16).slice(1));
       return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');

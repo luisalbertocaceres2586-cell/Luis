@@ -12,10 +12,10 @@
  * La parte "pura" (umbrales, argollas, física de la cuerda) no usa el navegador y se prueba en Node.
  * Las habilidades NO son obligatorias: el nivel se puede terminar sin ninguna; sirven para ir más rápido,
  * alcanzar tesoros (chimeneas de bambú) y tener más control sobre lo que pasa. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api; else root.N1hab = api;
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const G = 560;
 
@@ -71,7 +71,7 @@
     const v = Math.hypot(vx, vy); if (v > vmax) { vx *= vmax / v; vy *= vmax / v; }
     return { vx, vy };
   }
-  const rectTajo = (h, base) => (h.tajoAbajo ? { x: h.x - 70, y: h.y - 30, w: 140, h: 150 } : base);
+  const rectTajo = (h, base) => (h.tajoAbajo ? { x: h.x - 90, y: h.y - 30, w: 180, h: 175 } : base);
 
   // =================== navegador ===================
   const core = () => (typeof window !== 'undefined' ? window.N1core : null);
@@ -130,7 +130,7 @@
     const s = S(), A = s && s.hab; if (!A || !A.tiene.gancho || A.gancho.on || A.gancho.cd > 0 || s.fin || s.pausa || s.eligiendo) return;
     const h = s.h; if (h.aturdido > 0 || h.muerto > 0) return;
     const a = elegirAncla(A.anclas, h.x, h.y - 70, h.dir, P.ganchoRango);
-    if (!a) { if (s.t - A.sinAncla > 1.6) { A.sinAncla = s.t; core().texto(h.x, h.y - 130, 'Busca una argolla ◎', '#ffe27a'); } return; }
+    if (!a) { if (s.t - A.sinAncla > 1.6) { A.sinAncla = s.t; core().texto(h.x, h.y - 175, 'Busca una argolla ◎', '#ffe27a'); } return; }
     const g = A.gancho; g.on = true; g.ax = a.x; g.ay = a.y; g.L = Math.max(P.ganchoMin, Math.hypot(a.x - h.x, a.y - (h.y - 70))); g.t = 0; g.usos++; A.dash.t = 0;
     core().chispas(a.x, a.y, 10, '#ffe27a');
   }
@@ -142,7 +142,7 @@
   function pogo() {
     const s = S(), A = s.hab, h = s.h; if (A.pogoCd > 0) return;
     h.vy = P.pogoVy; h.suelo = false; h.cortado = true; h.tajoAbajo = false; recargar(A); A.pogoCd = .15; A.pogos++; s.shake = Math.max(s.shake, .08);
-    core().chispas(h.x, h.y + 10, 14, '#fff6c2'); core().texto(h.x, h.y - 100, '¡REBOTE!', '#fff6c2');
+    core().chispas(h.x, h.y + 10, 14, '#fff6c2'); core().texto(h.x, h.y - 145, '¡REBOTE!', '#fff6c2');
   }
   function pulsar(code) {
     if (DASH_KEYS.indexOf(code) >= 0) intentarDash(); else if (GANCHO_KEYS.indexOf(code) >= 0) intentarGancho();
@@ -206,7 +206,7 @@
   function alGolpear(via) { const s = S(); if (s && s.hab && via === 'tajo' && s.h.tajoAbajo) pogo(); }
   function invulnerable() {
     const s = S(), A = s && s.hab; if (!A || A.invT <= 0) return false;
-    if (A.esqCd <= 0) { A.esqCd = .5; core().texto(s.h.x, s.h.y - 110, '¡ESQUIVA!', '#9fe8ff'); }
+    if (A.esqCd <= 0) { A.esqCd = .5; core().texto(s.h.x, s.h.y - 155, '¡ESQUIVA!', '#9fe8ff'); }
     return true;
   }
   function alDanio() { const s = S(), A = s && s.hab; if (!A) return; soltarGancho(); A.dash.t = 0; }
@@ -312,7 +312,7 @@
   }
   function encima() {                                             // cuerda, tajo hacia abajo, aura del dash
     const s = S(), c = ctx(), h = s.h, A = s.hab, cam = s.cam; if (!A) return;
-    const hx = h.x - cam, hy = h.y - 70;
+    const hx = h.x - cam, hy = h.y - 95;
     if (A.gancho.on) {
       const g = A.gancho, k = Math.min(1, g.t / .09), ex = hx + (g.ax - cam - hx) * k, ey = hy + (g.ay - hy) * k;
       c.lineCap = 'round'; c.strokeStyle = '#4a2e14'; c.lineWidth = 5; c.beginPath(); c.moveTo(hx, hy); c.lineTo(ex, ey); c.stroke(); c.strokeStyle = '#d8b070'; c.lineWidth = 2; c.stroke();
@@ -321,7 +321,7 @@
     // (el planeo ya no dibuja paracaídas: lo muestra la capa del propio sprite — glide_start / glide)
     if (h.tajoAbajo && h.atk > 0) {
       const p = 1 - h.atk / .28; c.save(); c.translate(hx, h.y - 10); c.globalAlpha = Math.sin(p * Math.PI) * .95; c.lineCap = 'round';
-      c.strokeStyle = '#fff6c2'; c.lineWidth = 10; c.beginPath(); c.arc(0, 0, 78, .35 + p * .5, Math.PI - .35 - p * .5); c.stroke(); c.strokeStyle = '#ffc93c'; c.lineWidth = 4; c.stroke(); c.restore();
+      c.strokeStyle = '#fff6c2'; c.lineWidth = 10; c.beginPath(); c.arc(0, 0, 100, .35 + p * .5, Math.PI - .35 - p * .5); c.stroke(); c.strokeStyle = '#ffc93c'; c.lineWidth = 4; c.stroke(); c.restore();
     }
     if (A.dash.t > 0) { c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(hx, h.y - 50, 4, hx, h.y - 50, 70); g.addColorStop(0, 'rgba(160,230,255,.55)'); g.addColorStop(1, 'rgba(160,230,255,0)'); c.fillStyle = g; c.fillRect(hx - 70, h.y - 120, 140, 140); c.restore(); }
   }

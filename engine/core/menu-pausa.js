@@ -2,9 +2,12 @@
    Se carga en index.html (juego clásico + Nivel 1), nivel2.html y nivel3.html. No modifica los motores de los niveles: se conecta
    con lo que ya exponen (Nivel1._estado(), Nivel2._estado(), el panel de pausa del Nivel 3 y saveG() del juego clásico).
 
-   QUÉ HAY (y qué NO): en este juego no existen cuentas en línea ni servidor. Una "sesión" es un PERFIL guardado en este teléfono
-   o computador. "Cerrar sesión" deja que otra persona juegue (el avance de cada perfil NO se borra). Para llevar el avance a otro
-   aparato existe el botón 💾 Progreso (código para copiar y pegar).
+   SESIONES: hay dos clases y el menú las entiende.
+   · Sin cuenta: la "sesión" es un PERFIL guardado en este aparato. "Cerrar sesión" deja jugar a otra persona; el avance NO se borra.
+   · Con CUENTA EN LÍNEA (engine/nube.js, apodo + clave): "Guardar y salir" sube el progreso a la nube y ESPERA la confirmación
+     (hasta 7 s; sin internet se avisa y el progreso queda en el aparato, subiéndose al volver la conexión). "Cerrar sesión" además
+     cierra la cuenta, con las mismas salvaguardas que el panel ☁️ Cuenta: solo ofrece borrar los datos del aparato si la nube
+     confirmó el guardado.
 
    GUARDADO AUTOMÁTICO
    · Juego clásico: se guarda al abrir la pausa, al irse a segundo plano (otra app, llamada, bloqueo) y al pulsar Guardar y salir.
@@ -33,6 +36,42 @@ function cerrarSesionDatos(){
   try{sessionStorage.removeItem('ninja_abrir_mundos');}catch(e){}
 }
 function aIndice(){try{location.replace('index.html');}catch(e){location.href='index.html';}}
+
+/* ---------- cuenta en línea (engine/nube.js) ---------- */
+function nubeActiva(){try{var n=window.Nube&&Nube.instancia;return (n&&n.sesion&&n.sesion())?n:null;}catch(e){return null;}}
+function conTiempo(p,ms){return Promise.race([p,new Promise(function(r){setTimeout(function(){r({ok:false,error:'tiempo'});},ms);})]);}
+/* Sube YA el progreso y espera la respuesta (máx. ms). Devuelve {ok} · {sinNube:true} si no hay cuenta */
+function guardarNube(ms){
+  var n=nubeActiva();if(!n)return Promise.resolve({sinNube:true,ok:true});
+  var pr;try{pr=Promise.resolve(n.guardarYa({force:true}));}catch(e){return Promise.resolve({ok:false,error:'red'});}
+  return conTiempo(pr,ms||7000).then(function(r){return r||{ok:false};},function(){return {ok:false,error:'red'};});
+}
+/* Cierra la cuenta en línea. Solo pregunta por borrar los datos del aparato si la nube CONFIRMÓ el guardado. */
+function cerrarNube(guardoOk,preguntar){
+  var n=nubeActiva();if(!n)return Promise.resolve();
+  var borrar=false;
+  if(guardoOk&&preguntar){
+    try{borrar=window.confirm('¿Borrar también el progreso de ESTE dispositivo?\n(Tu progreso sigue guardado en la nube. Elige "Aceptar" si es un equipo compartido.)');}catch(e){}
+  }
+  try{return Promise.resolve(n.salir(borrar?{borrarLocal:true}:undefined)).catch(function(){});}catch(e){return Promise.resolve();}
+}
+
+/* Niveles 2 y 3 salen de la página al pulsar Salir: el cierre de la cuenta se hace al llegar a index.html (ya con todo subido). */
+var K_PEND='ninja_cerrar_nube_pend';
+function programarCierreNube(){try{sessionStorage.setItem(K_PEND,'1');}catch(e){}}
+if(esIndex){
+  var pend=false;try{pend=sessionStorage.getItem(K_PEND)==='1';sessionStorage.removeItem(K_PEND);}catch(e){}
+  if(pend){
+    var intentos=0,tm=setInterval(function(){
+      intentos++;
+      var n=nubeActiva();
+      if(!n&&intentos>40){clearInterval(tm);return;}                      // ~12 s sin cuenta que cerrar
+      if(!n)return;
+      clearInterval(tm);
+      guardarNube(7000).then(function(){return cerrarNube(false,false);}).then(function(){cerrarSesionDatos();});
+    },300);
+  }
+}
 
 /* ---------- estilos ---------- */
 var css=document.createElement('style');
@@ -92,9 +131,11 @@ function bloqueSalida(o){
   /* el jugador se elige DESPUÉS de cargar la página: cada vez que se muestra se decide si hay sesión que cerrar */
   w._ref=function(extra){
     var q=nombre(),qn=w.querySelector('.qn'),bs=w.querySelector('button[data-a=sesion]'),par=w.querySelector('.par');
-    qn.innerHTML=q?'Jugando como <b>'+esc(q)+'</b>'+(extra||''):'';qn.style.display=q?'':'none';
+    var nb=!!nubeActiva();
+    qn.innerHTML=q?'Jugando como <b>'+esc(q)+'</b>'+(nb?' ☁️':'')+(extra||''):'';qn.style.display=q?'':'none';
     bs.style.display=q?'':'none';par.className='par'+(q?'':' uno');
-    w.querySelector('button[data-a=salir] small').textContent=q?(o.salirTxt||'Vuelve a elegir mundo'):(o.salirSinPerfil||'Vuelve al menú');
+    w.querySelector('button[data-a=salir] small').textContent=q?(nb?'Se guarda en la nube ☁️':(o.salirTxt||'Vuelve a elegir mundo')):(o.salirSinPerfil||'Vuelve al menú');
+    bs.querySelector('small').textContent=nb?'Cierra tu cuenta en este aparato':'Para que juegue otra persona';
   };
   w._ref();
   var msg=w.querySelector('.msg'),ocupado=false;
@@ -107,14 +148,25 @@ function bloqueSalida(o){
     dec('💾 Guardando tu avance…',true);
     setTimeout(function(){
       var ok=true;try{if(o.guardar)o.guardar();}catch(err){ok=false;}
-      dec(ok?(o.okMsg||'✔ ¡Progreso guardado!'):'⚠ No se pudo guardar del todo, pero tu perfil sigue a salvo.',ok);
-      setTimeout(function(){
+      var hayNube=!!nubeActiva(),nubeOk=true;
+      var paso=Promise.resolve({ok:true});
+      if(hayNube){dec('☁️ Guardando en la nube…',true);paso=guardarNube(7000);}
+      paso.then(function(r){
+        nubeOk=!hayNube||!!(r&&r.ok);
+        if(hayNube)dec(nubeOk?'✔ ¡Guardado en la nube!':'⚠ Sin conexión: tu avance quedó en este aparato y se subirá cuando tengas internet.',nubeOk);
+        else dec(ok?(o.okMsg||'✔ ¡Progreso guardado!'):'⚠ No se pudo guardar del todo, pero tu perfil sigue a salvo.',ok);
+        return new Promise(function(res){setTimeout(res,nubeOk?700:1800);});
+      }).then(function(){
         try{
-          if(a==='sesion'){cerrarSesionDatos();if(o.cerrarSesion)o.cerrarSesion();}
-          else if(o.salir)o.salir();
+          if(a==='sesion'){
+            if(hayNube&&o.nubeDiferida){programarCierreNube();cerrarSesionDatos();if(o.cerrarSesion)o.cerrarSesion();return;}   // niveles 2 y 3: se cierra en index.html
+            return cerrarNube(nubeOk,true).then(function(){cerrarSesionDatos();if(o.cerrarSesion)o.cerrarSesion();});
+          }
+          if(o.salir)o.salir();
         }catch(err){}
-        ocupado=false;[].forEach.call(w.querySelectorAll('button'),function(x){x.disabled=false;});dec('',true);
-      },750);
+      }).then(function(){
+        ocupado=false;[].forEach.call(w.querySelectorAll('button'),function(x){x.disabled=false;});dec('',true);w._ref();
+      });
     },250);
   });
   return w;
@@ -219,7 +271,7 @@ function clicSalirN2(){
 function opcionesN2(){
   return {
     aviso:'💾 Se guarda en cada bandera. Si sales, vuelves a tu última bandera.',
-    salirTxt:'Vuelve a elegir mundo',okMsg:'✔ Guardado hasta tu última bandera',
+    salirTxt:'Vuelve a elegir mundo',okMsg:'✔ Guardado hasta tu última bandera',nubeDiferida:true,
     seguir:function(){var s=n2();if(s)s.pausa=false;},
     guardar:function(){},                                               // los checkpoints del Nivel 2 se guardan solos al cruzar cada bandera
     salir:function(){clicSalirN2();},
@@ -256,7 +308,11 @@ if(esN3){
       sal.innerHTML='💾 GUARDAR Y SALIR';                                // su SALIR ya guardaba las monedas y el avance
       if(!nombre())return;
       var b=document.createElement('button');b.type='button';b.id='njSes';b.className=sal.className;b.innerHTML='🚪 CERRAR SESIÓN';
-      b.addEventListener('click',function(){cerrarSesionDatos();sal.click();});   // guarda (su salir) y deja la sesión cerrada
+      b.addEventListener('click',function(){
+        b.disabled=true;
+        if(nubeActiva())programarCierreNube();      // con cuenta en línea: se sube todo y se cierra al llegar a index.html
+        cerrarSesionDatos();sal.click();            // su salir guarda las monedas/avance
+      });
       sal.after(b);
     }catch(e){}
   },200);

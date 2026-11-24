@@ -3,10 +3,10 @@
  * y en cada etapa el jugador elige entre 2 actos distintos. Lo que elige (y lo que consigue o pierde por el
  * camino: antorcha, armadura, aliados...) cambia las opciones siguientes y cómo es el jefe final.
  * Mismas decisiones + misma semilla = mismo nivel (así se puede guardar y continuar). */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Ruta = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
 
   // ---------- números aleatorios con semilla ----------
   function hash(str) { let h = 1779033703 ^ str.length; for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); } return () => { h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return (h ^= h >>> 16) >>> 0; }; }
@@ -74,7 +74,7 @@
 
   /** Crea una ruta nueva. Solo conoce la etapa 1; las siguientes salen de las decisiones. */
   function nuevoPlan(semilla) {
-    const plan = { v: 1, semilla: semilla || nuevaSemilla(), etapa: 1, jugados: [], banderas: [], decisiones: [], opciones: null, vidas: 3 };
+    const plan = { v: 1, semilla: semilla || nuevaSemilla(), etapa: 1, jugados: [], banderas: [], decisiones: [], opciones: /** @type {any} */ (null), vidas: 3 };
     plan.opciones = [opcion(plan, 'bosque', 1)];
     return plan;
   }
@@ -84,7 +84,7 @@
     const e = ETAPAS[plan.etapa - 1];
     if (e.fijo) return [opcion(plan, e.fijo, plan.etapa)];
     const rng = crearRng(plan.semilla, 'etapa/' + plan.etapa + '/' + plan.jugados.join(','));
-    let libres = e.pool.filter(a => plan.jugados.indexOf(a) < 0);
+    let libres = (e.pool || []).filter(a => plan.jugados.indexOf(a) < 0);
     if (config.soloListos) libres = libres.filter(a => ACTOS[a].listo);
     // consecuencias: sin el secreto del dojo/jardín no aparece el Portal Azul
     if (plan.etapa === 6 && !(tiene(plan, 'llave_dojo') || tiene(plan, 'bendicion_zorro'))) libres = libres.filter(a => a !== 'secreto');
