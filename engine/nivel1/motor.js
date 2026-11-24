@@ -324,6 +324,7 @@
       if (apoyo.tipo === 'plat') { const p = apoyo.p; if (p.tipo === 'piedra_num') pisarPiedra(p); if (p.fragil && p.estado === 'firme') { p.estado = 'cruje'; p.t = .4; } }
     } else { if (h.suelo && h.vy >= 0) h.coyote = S.movil ? .14 : .1; h.suelo = false; h.pisando = null; }
     if (window.FisicaVisual) { if (!S.fv) S.fv = FisicaVisual.nuevo(); const ev = FisicaVisual.paso(S.fv, dt, { suelo: h.suelo, vy: h.vy, vyImpacto: vyPre, vx: h.vx, vmax: 340, vref: 1000 }); if (ev && ev.tipo === 'aterriza' && ev.f > .45) chispas(h.x, h.y, 3 + Math.round(5 * ev.f), '#c8b48a'); else if (ev && ev.tipo === 'despega') chispas(h.x, h.y, 3, '#c8b48a'); }
+    S.polvoT = (S.polvoT || 0) - dt; if (S.polvoT <= 0 && h.suelo && Math.abs(h.vx) > 150 && h.aturdido <= 0) { S.polvoT = .11; S.part.push({ x: h.x - h.dir * 16, y: h.y - 2, vx: -h.dir * (20 + Math.random() * 50), vy: -(25 + Math.random() * 60), t: .22 + Math.random() * .22, col: S.nivel2 ? '#e0c08a' : S.mezcla > .5 ? '#8fa3b8' : '#c8b48a', r: 2 + Math.random() * 2.5 }); }
     if (h.y > H + 160) { if (h.vida > 1) { h.vida--; texto(h.x, 300, '-1 ♥', '#ff6b6b'); S.shake = .3; reaparecer(); } else { h.vida = 0; h.muerto = .4; } return; }
 
     const hb = rect(h.x - h.w / 2 + 4, h.y - h.h, h.w - 8, h.h - 4); S.hb = hb;

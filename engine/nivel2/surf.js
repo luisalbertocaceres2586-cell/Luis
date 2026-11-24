@@ -532,6 +532,12 @@
       banner(AMBS[a].n, a === 'cielo' ? '¡Vuelo libre! Mantén ▲ ▼ o arrastra el dedo' : a === 'mina' ? 'Tu vagoneta va sobre rieles · tira de la palanca correcta' : a === 'templo' ? 'El jefe te espera al final' : '', 3.2, '#8fe9ff');
     }
     function fxUpdate(dt) {
+      // estela del héroe: arena, chispas de la vagoneta o polvo de estrellas de la alfombra
+      S.estelaT = (S.estelaT || 0) - dt;
+      if (S.estelaT <= 0 && S.est === 'play' && S.fase !== 'puente' && S.v > 60 && (S.z <= 2 || AMBS[S.amb].vuelo)) {
+        S.estelaT = S.amb === 'cielo' ? .04 : .055; const gy = laneY(S.d, S.ly) - (AMBS[S.amb].vuelo ? S.z + 10 : 0), cols = S.amb === 'mina' ? ['#ffd35a', '#ff9a3a'] : S.amb === 'cielo' ? ['#d9c4ff', '#fff3b0', '#9ad8ff'] : S.amb === 'templo' ? ['#d9a77a', '#c08560'] : ['#e8c890', '#d8b878'];
+        S.fx.push({ x: X_H - 34 + R(-6, 6), y: gy + R(-4, 6), vx: -(S.v * .55) + R(-30, 10), vy: R(-50, -10), t: R(.25, .45), t0: .45, c: pick(cols), r: R(2, 3.6) });
+      }
       S.fx.forEach(p => { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 420 * dt * (p.t0 > .6 && p.r > 2 ? 1 : .2); }); S.fx = S.fx.filter(p => p.t > 0);
       S.pops.forEach(p => { p.t -= dt; p.y -= 46 * dt; }); S.pops = S.pops.filter(p => p.t > 0);
       S.vuelos.forEach(v => { v.t += dt * 1.8; const k = Math.min(1, v.t), e = k * k * (3 - 2 * k); v.x = v.sx + (v.tx - v.sx) * e; v.y = v.sy + (v.ty - v.sy) * e - Math.sin(Math.PI * e) * 60; }); S.vuelos = S.vuelos.filter(v => v.t < 1);
@@ -605,6 +611,57 @@
       if (S.dragon) spr('dragon_origami', 0, S.dragon.x, S.dragon.y + 70 + Math.sin(S.t * 2) * 8, 70, true);
     }
     function curva(l, cam, dy, f) { for (let x = 0; x <= W + 12; x += 12) { const y = laneY(cam + x, l) + dy; f(x, y, x === 0); } }
+    // ───────────────────────── detalle visual del suelo, estela y luz final ─────────────────────────
+    const hashN = (a, b) => { let n = (Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+    const GRADO = { dunas: ['#ffb36b', '#ff6a9a'], mina: ['#4cc9ff', '#2a3cff'], cielo: ['#b88cff', '#ffd0f0'], templo: ['#ffd27a', '#ff8a4a'] };
+    let vigC = null;
+    // marcas del suelo ancladas al mundo (se mueven exactamente con el carril): ondas de arena, piedrecitas, destellos de cristal, jirones de nube, juntas del templo
+    function texturaBanda(l, cam) {
+      const amb = S.amb, ai = amb === 'dunas' ? 1 : amb === 'mina' ? 2 : amb === 'cielo' ? 3 : 4, paso = amb === 'templo' ? 140 : 56;
+      cx.save(); cx.lineCap = 'round';
+      for (let i = Math.floor(cam / paso) - 1; i * paso < cam + W + paso; i++) {
+        const h = hashN(i, l * 7 + ai), h2 = hashN(i + 91, l * 5 + ai), wx = i * paso + h2 * 20, x = wx - cam, y = laneY(wx, l) + (hashN(i + 7, l + ai) - .5) * (CARR - 18);
+        if (amb === 'dunas') {
+          if (h < .55) { const L = 24 + h2 * 22; cx.strokeStyle = 'rgba(110,60,35,.2)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, y); cx.quadraticCurveTo(x + L / 2, y - 4, x + L, y); cx.stroke(); cx.strokeStyle = 'rgba(255,228,175,.16)'; cx.beginPath(); cx.moveTo(x, y + 3); cx.quadraticCurveTo(x + L / 2, y - 1, x + L, y + 3); cx.stroke(); }
+          else if (h > .9) { cx.fillStyle = 'rgba(80,45,30,.3)'; cx.beginPath(); cx.ellipse(x, y, 4 + h2 * 3, 2.5, 0, 0, 7); cx.fill(); }
+        } else if (amb === 'mina') {
+          if (h < .3) { cx.fillStyle = 'rgba(8,12,40,.45)'; cx.beginPath(); cx.ellipse(x, y, 6 + h2 * 6, 3, 0, 0, 7); cx.fill(); }
+          else if (h > .82) { const a = .25 + .35 * Math.abs(Math.sin(S.t * 2.2 + i)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(120,225,255,' + a + ')'; cx.fillRect(x - 5, y, 10, 1.6); cx.fillRect(x - .8, y - 5, 1.6, 10); cx.globalCompositeOperation = 'source-over'; }
+        } else if (amb === 'cielo') {
+          if (h < .38) { cx.fillStyle = 'rgba(255,255,255,.1)'; cx.beginPath(); cx.ellipse(x, y, 26 + h2 * 38, 4, 0, 0, 7); cx.fill(); }
+          else if (h > .88) { const a = .3 + .4 * Math.abs(Math.sin(S.t * 2.6 + i)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(255,240,190,' + a + ')'; cx.fillRect(x - 3, y, 6, 1.4); cx.fillRect(x - .7, y - 3, 1.4, 6); cx.globalCompositeOperation = 'source-over'; }
+        } else {
+          cx.strokeStyle = 'rgba(40,18,10,.28)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, laneY(wx, l) - CARR / 2 + 3); cx.lineTo(x, laneY(wx, l) + CARR / 2 - 3); cx.stroke();
+          if (h < .35) { cx.fillStyle = 'rgba(230,190,130,.18)'; cx.beginPath(); cx.ellipse(x + 30, y, 12 + h2 * 14, 3, 0, 0, 7); cx.fill(); }
+        }
+      }
+      cx.restore();
+    }
+    // primer plano: bajo el último carril, marcas grandes que pasan más rápido (paralaje) para dar profundidad
+    function primerPlano(cam) {
+      const amb = S.amb, ai = amb === 'dunas' ? 1 : amb === 'mina' ? 2 : amb === 'cielo' ? 3 : 4, par = 1.45, paso = 84, c2 = cam * par;
+      cx.save(); cx.lineCap = 'round';
+      for (let i = Math.floor(c2 / paso) - 1; i * paso < c2 + W + paso; i++) {
+        const h = hashN(i, 31 + ai), h2 = hashN(i + 17, 53 + ai), h3 = hashN(i + 5, 71 + ai), x = i * paso + h2 * 40 - c2, y0 = laneY(cam + x, 2) + CARR / 2, y = y0 + 16 + h3 * Math.max(10, H - y0 - 34), k = .75 + (y - y0) / Math.max(40, H - y0) * .6;
+        if (amb === 'dunas') {
+          if (h < .55) { const L = (46 + h2 * 50) * k; cx.strokeStyle = 'rgba(100,52,30,.24)'; cx.lineWidth = 3 * k; cx.beginPath(); cx.moveTo(x, y); cx.quadraticCurveTo(x + L / 2, y - 6 * k, x + L, y); cx.stroke(); cx.strokeStyle = 'rgba(255,230,180,.18)'; cx.beginPath(); cx.moveTo(x, y + 4 * k); cx.quadraticCurveTo(x + L / 2, y - 2 * k, x + L, y + 4 * k); cx.stroke(); }
+          else if (h > .86) { cx.fillStyle = 'rgba(70,38,26,.34)'; cx.beginPath(); cx.ellipse(x, y, (7 + h2 * 7) * k, 4 * k, 0, 0, 7); cx.fill(); cx.fillStyle = 'rgba(255,225,170,.14)'; cx.beginPath(); cx.ellipse(x - 1, y - 2 * k, (5 + h2 * 5) * k, 2 * k, 0, 0, 7); cx.fill(); }
+        } else if (amb === 'mina') {
+          if (h < .4) { cx.fillStyle = 'rgba(6,8,30,.5)'; cx.beginPath(); cx.ellipse(x, y, (10 + h2 * 10) * k, 5 * k, 0, 0, 7); cx.fill(); }
+          else if (h > .8) { const a2 = .3 + .4 * Math.abs(Math.sin(S.t * 2 + i)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(110,220,255,' + a2 + ')'; cx.fillRect(x - 8 * k, y, 16 * k, 2); cx.fillRect(x - 1, y - 8 * k, 2, 16 * k); cx.globalCompositeOperation = 'source-over'; }
+        } else if (amb === 'cielo') {
+          if (h < .5) { cx.fillStyle = 'rgba(255,255,255,.12)'; cx.beginPath(); cx.ellipse(x, y, (40 + h2 * 60) * k, 7 * k, 0, 0, 7); cx.fill(); }
+        } else { if (h < .45) { cx.strokeStyle = 'rgba(40,18,10,.26)'; cx.lineWidth = 3 * k; cx.beginPath(); cx.moveTo(x, y - 14 * k); cx.lineTo(x + 18 * k, y + 14 * k); cx.stroke(); } else if (h > .8) { cx.fillStyle = 'rgba(230,190,130,.2)'; cx.beginPath(); cx.ellipse(x, y, 24 * k, 5 * k, 0, 0, 7); cx.fill(); } }
+      }
+      cx.restore();
+    }
+    // viñeta (se dibuja una sola vez en un lienzo aparte) + corrección de color suave según el ambiente
+    function luzFinal() {
+      if (!vigC) { vigC = document.createElement('canvas'); vigC.width = W; vigC.height = H; const x = vigC.getContext('2d'), g = x.createRadialGradient(W / 2, H * .55, H * .36, W / 2, H * .55, H * .98); g.addColorStop(0, 'rgba(5,2,18,0)'); g.addColorStop(1, 'rgba(5,2,18,.52)'); x.fillStyle = g; x.fillRect(0, 0, W, H); const b = x.createLinearGradient(0, H * .72, 0, H); b.addColorStop(0, 'rgba(0,0,0,0)'); b.addColorStop(1, 'rgba(0,0,0,.28)'); x.fillStyle = b; x.fillRect(0, H * .72, W, H * .28); }
+      cx.drawImage(vigC, 0, 0);
+      const gr = GRADO[S.amb] || GRADO.dunas, g2 = cx.createLinearGradient(0, 0, 0, H); g2.addColorStop(0, gr[0]); g2.addColorStop(1, gr[1]);
+      cx.save(); cx.globalCompositeOperation = 'soft-light'; cx.globalAlpha = .26; cx.fillStyle = g2; cx.fillRect(0, 0, W, H); cx.restore();
+    }
     function banda(l, cam) {
       const base = BAND[S.amb][l];
       cx.fillStyle = base; cx.beginPath(); cx.moveTo(0, H); curva(l, cam, -CARR / 2, (x, y) => cx.lineTo(x, y)); cx.lineTo(W + 12, H); cx.fill();
@@ -778,10 +835,10 @@
       fondo(cam);
       viento.forEach(w => { const x = ((w.x - cam * .9 * w.s) % (W + 120) + (W + 120)) % (W + 120) - 60; cx.strokeStyle = 'rgba(255,230,190,.16)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, w.y); cx.lineTo(x - w.l, w.y + 2); cx.stroke(); });
       if (S.jefe) jefeFondo(cam);
-      if (S.fase === 'puente') dibujarPuente(); else for (let l = 0; l < 3; l++) { banda(l, cam); if (S.amb === 'mina') rieles(l, cam); guias(l, cam); dibujarLane(l, cam); }
+      if (S.fase === 'puente') dibujarPuente(); else for (let l = 0; l < 3; l++) { banda(l, cam); texturaBanda(l, cam); if (l === 2) primerPlano(cam); if (S.amb === 'mina') rieles(l, cam); guias(l, cam); dibujarLane(l, cam); }
       jefeRayos(cam); numerosPuertas(cam); dibujarBuitre();
       S.fx.forEach(p => { cx.globalAlpha = clamp(p.t / p.t0, 0, 1); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); }); cx.globalAlpha = 1;
-      cx.restore(); hud();
+      cx.restore(); luzFinal(); hud();
     }
 
     // ───────────────────────── interfaz ─────────────────────────
