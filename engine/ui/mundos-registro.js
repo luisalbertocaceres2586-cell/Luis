@@ -141,19 +141,30 @@
       progreso: () => ({ estado: 'en_curso', estrellas: 0 })
     },
     {
-      id: 'proximo',
-      nombre: '???',
+      id: 'negativo',
+      nombre: 'El Mundo Negativo',
       nivel: 'MUNDO 4',
-      lema: 'Un nuevo mundo está en camino…',
-      tablas: '—', duracion: '—', dificultad: 0,
-      acento: '#8fb6ff', acento2: '#5a7fd0',
-      cielo: ['#0b1230', '#2c4a85'],
-      fases: [{ nombre: 'Próximamente', far: EN + 'backgrounds/themes/montanas_ice.png', suelo: ['#44608f', '#16223f'] }],
-      props: [],
+      lema: 'Gira la sala, cambia la gravedad y devuélvele el color al mundo.',
+      tablas: 'Repaso de todas las tablas',
+      duracion: '10–15 min',
+      dificultad: 3,
+      acento: '#9fb4d8', acento2: '#5a6f9c',
+      cielo: ['#05060f', '#2b3550'],
+      fases: [{ nombre: 'Mundo en negativo', far: EN + 'backgrounds/themes/montanas_ice.png', suelo: ['#44608f', '#16223f'] }],
+      props: [
+        { img: EN + 'props/crystals/crystal_blue_d.png', x: 12, h: 44, capa: 'medio' },
+        { img: EN + 'props/crystals/crystal_purple_b.png', x: 70, h: 40, capa: 'medio' }
+      ],
+      extra: { img: N1 + 'enemigos/guardia_piedra.png', lado: 'der', h: 42, y: 0 },
       heroe: 'corre',
+      demo: { tipo: 'lateral' },
       particulas: 'cristales',
-      bloqueado: true,
-      progreso: () => ({ estado: 'bloqueado', estrellas: 0 })
+      progreso: p => {
+        const n = (p && p.nivel4) || {};
+        const est = n.completado ? 'completado' : (numero(n.intentos) > 0 || numero(n.salaMax) > 0 ? 'en_curso' : 'nuevo');
+        return { estado: est, estrellas: numero(n.estrellas), mejor: numero(n.mejor), veces: numero(n.intentos) };
+      },
+      url: p => 'nivel4.html?' + qs(p)
     }
   ];
 
