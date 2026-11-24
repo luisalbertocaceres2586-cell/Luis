@@ -83,7 +83,9 @@
   const rgb = (c, a) => a == null ? 'rgb(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ')' : 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + a + ')';
   TEMAS.forEach(t => { t.rc1 = hexA(t.c1); t.rc2 = hexA(t.c2); t.rb = hexA(t.borde); t.rn = hexA(t.niebla); });
   TEMAS[1].pano = NA + 'mundos/pano_sakura.jpg'; TEMAS[3].pano = NA + 'mundos/pano_lava.jpg'; TEMAS[0].pano = NA + 'mundos/pano_bambu.jpg'; TEMAS[2].pano = NA + 'mundos/pano_aldea.jpg'; TEMAS[4].pano = NA + 'mundos/pano_hielo.jpg'; TEMAS[5].pano = NA + 'mundos/pano_trueno.jpg'; // fondos completos (reemplazan la franja de montañas)
-  [[0, 'bambuN', [230, 340]], [2, 'aldeaN', [200, 280]], [4, 'hieloN', [190, 270]], [5, 'truenoN', [200, 290]]].forEach(c => { TEMAS[c[0]].deco = c[1]; TEMAS[c[0]].dh = c[2]; });
+  /** @type {[number, string, number[]][]} */
+  const DECO_N = [[0, 'bambuN', [230, 340]], [2, 'aldeaN', [200, 280]], [4, 'hieloN', [190, 270]], [5, 'truenoN', [200, 290]]];
+  DECO_N.forEach(c => { TEMAS[c[0]].deco = c[1]; TEMAS[c[0]].dh = c[2]; });
 
   // ───────────────────────── sonido (sencillo, se puede silenciar) ─────────────────────────
   let AC = null, mudo = false;
