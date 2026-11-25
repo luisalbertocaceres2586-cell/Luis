@@ -31,6 +31,9 @@
     n_losa0: A + 'nivel4/bloques/losa_apagada.png', n_losa1: A + 'nivel4/bloques/losa_encendida.png', n_pinchos: A + 'nivel4/bloques/pinchos_sombra.png',
     n_sw0: A + 'nivel4/objetos/interruptor_apagado.png', n_sw1: A + 'nivel4/objetos/interruptor_encendido.png',
     n_portal0: A + 'nivel4/objetos/portal_cerrado.png', n_portal1: A + 'nivel4/objetos/portal_abierto.png', n_golem: A + 'nivel4/objetos/sombra_de_piedra.png',
+    h_caer_1: A + 'nivel4/heroe/sakura/caer_1.png', h_caer_2: A + 'nivel4/heroe/sakura/caer_2.png', h_aterrizar: A + 'nivel4/heroe/sakura/aterrizar.png',
+    h_girar_mundo: A + 'nivel4/heroe/sakura/girar_mundo.png', h_pensando: A + 'nivel4/heroe/sakura/pensando.png', h_asustada: A + 'nivel4/heroe/sakura/asustada.png',
+    h_celebrar_1: A + 'nivel4/heroe/sakura/celebrar_1.png', h_celebrar_2: A + 'nivel4/heroe/sakura/celebrar_2.png',
     n_g1: A + 'nivel4/objetos/gema_cian.png', n_g2: A + 'nivel4/objetos/gema_magenta.png', n_g3: A + 'nivel4/objetos/gema_dorada.png'
   };
   const cache = {};
@@ -94,7 +97,7 @@
       // evitar repetir las preguntas que el niño ya domina: pesa más lo que falló
       Lg.rellenar(E, def.tablas, Math.random, null);
       pila = [];
-      V = { hx: E.hero.x, hy: E.hero.y, en: E.enemigos.map(e => ({ x: e.x, y: e.y })), ang: 0, angObj: 0, mira: 1, mov: 0, cola: [], seg: null, pend: null, inks: /** @type {any[]} */ ([]), ordenRest: [], restPos: {}, t0: performance.now() / 1000, pista: null, tShake: {}, aviso: performance.now() / 1000, erroresSala: 0, pistasSala: 0, ganaT: 0, muertoT: 0, rVis: 0 };
+      V = { hx: E.hero.x, hy: E.hero.y, en: E.enemigos.map(e => ({ x: e.x, y: e.y })), ang: 0, angObj: 0, mira: 1, mov: 0, cola: [], seg: null, pend: null, inks: /** @type {any[]} */ ([]), ordenRest: [], restPos: {}, t0: performance.now() / 1000, pista: null, ultimaAccion: performance.now() / 1000, aterrizaT: 0, susto: 0, tShake: {}, aviso: performance.now() / 1000, erroresSala: 0, pistasSala: 0, ganaT: 0, muertoT: 0, rVis: 0 };
       if (def.tinte0 > 0) V.inks.push({ cx: 0, cy: 0, t0: -99, rMax: def.tinte0 * 14 * T, base: true, lobes: lobulos(i + 7) });
       const ex = findXY('X'); if (ex && V.inks[0]) { V.inks[0].cx = (ex[0] + .5) * T; V.inks[0].cy = (ex[1] + .5) * T; }
       particulas = [];
@@ -111,7 +114,7 @@
       const antes = Lg.clonar(E), rAntes = E.r;
       const res = Lg.aplicar(E, a, true);
       if (!res.valida) { if (a === 'L' || a === 'R') { V.tShake.hero = performance.now() / 1000; tono(110, 0.08, 'square', 0.04); } return; }
-      pila.push(antes); if (pila.length > 200) pila.shift(); tot.pasos++;
+      pila.push(antes); if (pila.length > 200) pila.shift(); tot.pasos++; V.ultimaAccion = performance.now() / 1000;
       V.mira = (a === 'L') ? -1 : (a === 'R') ? 1 : V.mira;
       const trazo = res.trazo || [];
       if (a === 'CW' || a === 'CCW') { V.angObj += a === 'CW' ? 90 : -90; V.cola.push({ tipo: 'giro', dur: SPEED.giro, desde: V.ang, hasta: V.angObj }); sfx.giro(); }
@@ -134,7 +137,7 @@
       }
       if (!V.seg && !V.cola.length) { V.mov = 0; V.hx = E.hero.x; V.hy = E.hero.y; V.en = E.enemigos.map(e => ({ x: e.x, y: e.y })); if (V.pend) { const p = V.pend; V.pend = null; accion(p); } }
     }
-    function sfxAter(s) { if (s.a.hero.x === E.hero.x && s.a.hero.y === E.hero.y && !V.cola.some(c => c.tipo === 'cae')) sfx.aterriza(); }
+    function sfxAter(s) { if (s.a.hero.x === E.hero.x && s.a.hero.y === E.hero.y && !V.cola.some(c => c.tipo === 'cae')) { sfx.aterriza(); V.aterrizaT = performance.now() / 1000; } }
 
     function finAccion(ev) {
       const ahora = performance.now() / 1000;
@@ -148,7 +151,7 @@
         } else if (e.t === 'acierto') { sfx.bien(); tot.aciertos++; registrar(retoMult(), true); }
         else if (e.t === 'paso') { sfx.losa(); chispas((e.x + .5) * T, (e.y + .5) * T, '#ffffff', 10); }
         else if (e.t === 'error') {
-          sfx.error(); V.tShake['p' + e.pad] = ahora; tot.errores++; V.erroresSala++;
+          sfx.error(); V.susto = ahora; V.tShake['p' + e.pad] = ahora; tot.errores++; V.erroresSala++;
           const r = E.retos.find(r => r.pads && r.pads[e.pad]);
           if (r && r.tipo === 'mult') { registrar(r, false); toast('Casi… ' + r.q.T + ' × ' + r.q.n + ' no es ' + r.pads[e.pad].n + '. ¡Inténtalo otra vez!', '#ffb3b3', 3); }
           else toast('Ese no era el siguiente. ¡Empieza la secuencia de nuevo!', '#ffb3b3', 3);
@@ -164,7 +167,7 @@
     function registrar(r, ok) { if (!r || !r.q || !r.q.T || !r.q.n) return; const k = r.q.T + 'x' + r.q.n; fallos[k] = Math.max(0, (fallos[k] || 0) + (ok ? -1 : 2)); if (!fallos[k]) delete fallos[k]; }
 
     function reaparecer() {
-      E.muerto = false; E.muertes++; E.r = 0; E.hero.x = E.inicio.x; E.hero.y = E.inicio.y;
+      E.muerto = false; V.muertoT = 0; E.muertes++; E.r = 0; E.hero.x = E.inicio.x; E.hero.y = E.inicio.y;
       let g = 0; while ((E.mapa[E.hero.y][E.hero.x] !== '.' && E.mapa[E.hero.y][E.hero.x] !== 'H') && g++ < 20) E.hero.y--;
       Lg.caer(E, null);
       const d = ((0 - V.angObj) % 360 + 540) % 360 - 180; V.angObj += d;
@@ -282,8 +285,31 @@
       const im = IMG(listo(IMG(RUTA.n_golem)) ? RUTA.n_golem : RUTA.guardia); g.fillStyle = 'rgba(10,6,30,.5)'; g.beginPath(); g.ellipse(0, T / 2 - 2, T * .38, 6, 0, 0, 6.283); g.fill();
       if (listo(im)) { const h = T * 1.08 + Math.sin(now * 2) * 1.2, w = h * im.naturalWidth / im.naturalHeight; g.drawImage(im, -w / 2, T / 2 - h + 2, w, h); } else { g.fillStyle = '#777'; g.fillRect(-T / 3, -T / 3, T * .66, T * .8); }
     }
+    /** Poses propias de Sakura en este mundo (si no hay imagen o es otro héroe, se usan los cuadros normales). */
+    function poseSakura(now) {
+      if (heroe !== 'sakura') return null;
+      if (V.ganaT) return (Math.floor((now - V.ganaT) * 2) % 2) ? 'celebrar_2' : 'celebrar_1';
+      if (V.muertoT && now - V.muertoT < 1.3) return 'asustada';
+      if (V.susto && now - V.susto < 0.9) return 'asustada';
+      if (V.seg && V.seg.tipo === 'giro') return 'girar_mundo';
+      if (V.seg && V.seg.tipo === 'cae' && (V.seg.de.hero.x !== V.seg.a.hero.x || V.seg.de.hero.y !== V.seg.a.hero.y)) return (Math.floor(now * 9) % 2) ? 'caer_2' : 'caer_1';
+      if (V.mov) return null;
+      if (V.aterrizaT && now - V.aterrizaT < 0.25) return 'aterrizar';
+      if ((V.pista && now < V.pista.hasta) || (enJuego && !pausa && now - V.ultimaAccion > 8)) return 'pensando';
+      return null;
+    }
     function dibujaHeroe(g, now) {
       g.fillStyle = 'rgba(10,6,30,.5)'; g.beginPath(); g.ellipse(0, T / 2 - 2, T * .3, 5.5, 0, 0, 6.283); g.fill();
+      const pn = poseSakura(now);
+      if (pn) {
+        const pim = IMG(RUTA['h_' + pn]), ref = IMG(RUTA.h_pensando);
+        if (listo(pim) && listo(ref)) {
+          const k = (T * 1.3) / ref.naturalHeight, w = pim.naturalWidth * k, h = pim.naturalHeight * k, dis0 = V.muertoT ? clamp((now - V.muertoT) / 1.1, 0, 1) : 0;
+          g.save(); g.translate(0, T / 2 - 2); g.scale(V.mira < 0 ? -1 : 1, 1); if (dis0 > 0) g.globalAlpha = 1 - dis0 * .6;
+          if (pn.indexOf('celebrar') === 0) g.translate(0, -Math.abs(Math.sin((now - V.ganaT) * 5)) * 7);
+          g.drawImage(pim, -w / 2, -h, w, h); g.restore(); return;
+        }
+      }
       const anim = V.mov ? 'walk' : 'idle', lst = frames(anim); if (!lst.length) { g.fillStyle = '#fff'; g.fillRect(-10, -T / 2, 20, T); return; }
       const ref = frames('idle')[0] || lst[0], k = (T * 1.3) / ref.h;
       const f = lst[Math.floor(now * fps(anim)) % lst.length], im = IMG(HM.base + f.file);
