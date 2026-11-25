@@ -70,3 +70,5 @@ Casi nunca se pierde. En orden:
 ## Ideas para más adelante (cambian la forma del código, por eso no se hicieron aún)
 - Partir `juego-principal.js` y `corredor.js` en archivos por tema (física, dibujo, jefes…): archivos más chicos = menos choques.
 - Un solo archivo con la lista de scripts que carga el juego, en vez de editar `index.html` a mano.
+
+> **Automático:** el *asistente de avances* puede abrir, poner al día y aceptar tus solicitudes solo. Mira `docs/ASISTENTE_PRS.md`.

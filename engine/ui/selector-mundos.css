@@ -275,3 +275,7 @@
 .mw-card.demo-on .mw-fase,.mw-card.demo-on .mw-sombra,.mw-card.demo-on .mw-spr,.mw-card.demo-on .mw-flota,.mw-card.demo-on .mw-part{visibility:hidden}
 
 .mw-anim-off{width:auto!important;border-radius:999px!important;padding:0 14px!important;font-size:13px!important;font-weight:700;color:#ffe9a8;border-color:#ffb44a!important;background:#ffb44a22!important;white-space:nowrap}
+
+/* Mundo 4 · El Mundo Negativo: la tarjeta se ve en negativo (gris, invertida y con contraste) y recupera el color al completarlo */
+.mw-card[data-id=negativo] .mw-escena{filter:grayscale(1) invert(.92) contrast(1.5) brightness(.55);transition:filter 1.4s ease}
+.mw-card[data-id=negativo][data-estado=completado] .mw-escena{filter:none}

@@ -144,6 +144,7 @@ ok('adaptativo: el estudiante que falla 2x7 lo ve más que los hechos que domina
   assert(veces['2x7'] > media * 1.3, '2x7 salió ' + veces['2x7'] + ' veces vs media ' + media.toFixed(0) + ' del resto');
   assert(otros.length >= 8, 'sigue repasando casi toda la tabla');
 });
+
 console.log('\n' + n + ' pruebas OK');
 
 // ---------- Generador del Nivel 1 largo ----------
@@ -191,4 +192,40 @@ ok('Nivel 2 alterna las tablas 4, 5 y 6 en sus 16 estaciones', () => {
     N.est.forEach((e, i) => assert.strictEqual(+e.ac.hecho.split('x')[0], [4, 5, 6][i % 3], 'tabla estación ' + i + ', semilla ' + seed));
   }
 });
+
+console.log('\nDecorado (rediseño visual)');
+ok('el decorado respeta separación, zonas reservadas, suelo firme y densidad (150 semillas)', () => {
+  const ANCHO = Gen.ANCHO_DECO, GRANDE = { cerezo: 1, pino: 1, valla: 1, farolitos: 1, rocas: 1, helechos: 1, arco: 1 };
+  for (let seed = 1; seed <= 150; seed++) {
+    const N = Gen.generar({ semilla: seed, tablas: [2] }, null), R = N.decoInfo.reservadas, base = N.deco.filter(d => !d.techo);
+    base.forEach((d, i) => {
+      const w = ANCHO[d.tipo], x0 = d.x - w * .42, x1 = d.x + w * .42, ctx = ' (semilla ' + seed + ', ' + d.tipo + ' en ' + Math.round(d.x) + ')';
+      assert(!R.some(r => x1 > r[0] && x0 < r[1]), 'decorado sobre zona reservada' + ctx);
+      assert(N.suelo.some(s => s.zona === d.zona && d.x - w / 2 >= s.x0 && d.x + w / 2 <= s.x1), 'decorado flotando sobre un hueco' + ctx);
+      if (d.zona === 'bosque') assert(['cristal', 'hongo', 'hongoGigante', 'columna', 'floresLuz', 'altar', 'paredMineral', 'arco'].indexOf(d.tipo) < 0, 'decorado de cueva en el bosque' + ctx);
+      const p = base[i - 1]; if (p && p.zona === d.zona) { assert(d.x - w * .45 - (p.x + ANCHO[p.tipo] * .45) >= 90 - 1e-6, 'demasiado cerca del anterior' + ctx); assert(!(p.tipo === d.tipo && d.x - p.x < 900), 'mismo tipo seguido' + ctx); }
+      const mis = base.filter(o => o.zona === d.zona), k = mis.indexOf(d); if (mis[k + 3]) assert(mis[k + 3].x - d.x >= 1280, 'más de 3 piezas en una pantalla' + ctx);
+      const gs = mis.filter(o => GRANDE[o.tipo]), g = gs.indexOf(d); if (g >= 0 && gs[g + 2]) assert(gs[g + 2].x - d.x >= 1280, 'más de 2 piezas grandes en una pantalla' + ctx);
+    });
+    assert(base.every(d => d.x > 300), 'decorado sobre el punto de salida (semilla ' + seed + ')');
+  }
+});
+ok('el decorado no cambia la forma del nivel y el bosque no trae corredores de cueva', () => {
+  for (let seed = 1; seed <= 60; seed++) {
+    const N = Gen.generar({ semilla: seed, tablas: [2] }, null), z = N.zonas[0];
+    assert(N.enem.filter(e => e.x < z.x1).every(e => e.kind !== 'murcielago'), 'murciélago en el bosque, semilla ' + seed);
+    assert(N.deco.filter(d => d.zona === 'bosque').every(d => d.tipo !== 'cristal' && d.tipo !== 'hongo'), 'cristales en el bosque, semilla ' + seed);
+  }
+});
+ok('los carteles avisan de lo que viene y los premios están repartidos', () => {
+  let carteles = 0, premios = 0, niveles = 0;
+  for (let seed = 1; seed <= 40; seed++) {
+    const N = Gen.generar({ semilla: seed, tablas: [2] }, null); niveles++;
+    N.deco.filter(d => d.tipo === 'cartel').forEach(d => { carteles++; assert(typeof d.msg === 'string' && d.msg.length > 5 && d.msg.length < 60); });
+    const pr = N.deco.filter(d => d.premio); premios += pr.length;
+    pr.forEach((d, i) => { assert(d.zona === 'bosque'); if (i) assert(d.x - pr[i - 1].x >= 1500, 'premios muy juntos'); });
+  }
+  assert(carteles >= niveles, 'casi no hay carteles'); assert(premios / niveles >= 4, 'muy pocos premios ocultos: ' + premios / niveles);
+});
+
 console.log('\n' + n + ' pruebas OK');

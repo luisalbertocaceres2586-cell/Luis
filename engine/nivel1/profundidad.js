@@ -146,8 +146,6 @@
     });
     L.colinas2 = baldosa(TW, th, 2, sd + 2, (c, R, tw) => { cresta(c, R, tw, th, th - 60, 120, rgb(mezcla('#2c4a5c', hor, .5)), rgb(mezcla(luz, hor, .2), .4)); });
     const bb = { luz, hoja: null, ramas: true };
-    L.lejos = baldosa(TW, th, 2.2, sd + 3, (c, R, tw) => bosqueDeBambu(c, R, tw, th, Object.assign({}, bb, { n: 22, w: [5, 8], col: mezcla('#4a6f8a', hor, .66), col2: mezcla('#5a7f92', hor, .62), brillo: .3, corona: .3, hoja: rgb(mezcla('#4a7088', hor, .66), .85), ramas: false })));
-    L.medio = baldosa(TW, th, 1.1, sd + 4, (c, R, tw) => bosqueDeBambu(c, R, tw, th, Object.assign({}, bb, { n: 10, w: [11, 17], col: mezcla('#2f6a58', hor, .4), col2: mezcla('#3b7c62', hor, .34), brillo: .3, corona: .4, hoja: rgb(mezcla('#2f6e58', hor, .38), .95) })));
     L.cerca = baldosa(TW, th, 0, sd + 5, (c, R, tw) => bosqueDeBambu(c, R, tw, th, Object.assign({}, bb, { n: 4, w: [22, 30], col: mezcla('#1f5c3e', hor, .08), col2: mezcla('#2a6e48', hor, .06), brillo: .3, corona: .25, hoja: rgb(mezcla('#1f6a42', hor, .08), 1) })));
     // Primer plano: muy desenfocado y oscuro (pasa por delante del héroe)
     L.frente = (() => {
@@ -250,8 +248,8 @@
       const g = cx.createLinearGradient(0, 0, 0, G + 40); g.addColorStop(0, sk[0]); g.addColorStop(.55, sk[1]); g.addColorStop(1, sk[2]); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
       // Sol con halo (los rayos nacen de aquí)
       const sx = 880 - (S.cam * .02) % 2000, sy = 190;
-      const hg = cx.createRadialGradient(sx, sy, 20, sx, sy, 300); hg.addColorStop(0, 'rgba(255,236,190,' + .5 * alfa + ')'); hg.addColorStop(1, 'rgba(255,200,140,0)'); cx.fillStyle = hg; cx.fillRect(sx - 300, sy - 300, 600, 600);
-      cx.globalAlpha = alfa; cx.fillStyle = 'rgba(255,240,200,.95)'; cx.beginPath(); cx.arc(sx, sy, 62, 0, 7); cx.fill(); cx.fillStyle = 'rgba(255,240,200,.22)'; cx.beginPath(); cx.arc(sx, sy, 98, 0, 7); cx.fill();
+      const sg = cx.createRadialGradient(sx, sy, 10, sx, sy, 190); sg.addColorStop(0, 'rgba(255,244,210,.95)'); sg.addColorStop(.3, 'rgba(255,236,190,.55)'); sg.addColorStop(1, 'rgba(255,220,170,0)');
+      cx.globalAlpha = alfa; cx.fillStyle = sg; cx.fillRect(sx - 200, -10, 400, 400); cx.fillStyle = 'rgba(255,248,226,.96)'; cx.beginPath(); cx.arc(sx, sy, 50, 0, 7); cx.fill();
       const nube = k.img.nube; if (nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - S.t * (8 + i * 3) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alfa * .75; cx.drawImage(nube, x, 60 + i * 55, w, nube.height * w / nube.width); }
       // Capas, de lo más lejano a lo más cercano
       if (L.montes) pegar(L.montes, .05, G - L.montes.th + 30, S, k, alfa);
@@ -259,9 +257,12 @@
       { const v = cx.createLinearGradient(0, G - 230, 0, G + 40); v.addColorStop(0, rgb(L.hor, 0)); v.addColorStop(.55, rgb(L.hor, .3)); v.addColorStop(1, rgb(L.hor, .36)); cx.globalAlpha = alfa; cx.fillStyle = v; cx.fillRect(0, G - 230, W, 270); }   // velo de horizonte
       if (calid > 1) pegar(L.colinas2, .15, base - L.colinas2.th, S, k, alfa);
       if (calid > 1) bancos(L, S, k, 0, alfa, 0, .27);
-      pegar(L.lejos, .22, base - L.lejos.th, S, k, alfa * .96);
+      // Bambú lejano y medio: las ilustraciones del rediseño visual (motor.js → tilesBosque), cada una con su paralaje; yo añado la niebla entre ellas
+      const T = k.tilesBosque ? k.tilesBosque() : [];
+      const capa = (t, a) => { const tw = t.cv.width, o = -((S.cam * t.par) % tw); cx.globalAlpha = a; for (let x = o; x < W; x += tw) cx.drawImage(t.cv, Math.floor(x), 0); };
+      if (T[0]) capa(T[0], alfa);
       if (calid > 1) bancos(L, S, k, 0, alfa, .27, .4);
-      pegar(L.medio, .36, base - L.medio.th, S, k, alfa);
+      if (T[1]) capa(T[1], alfa);
       if (calid > 1) rayos(S, k, sx, sy, [255, 214, 150], .1 * alfa);
       pegar(L.cerca, .58, base - L.cerca.th, S, k, alfa);
       // Neblina baja delante de todo el bosque (profundidad atmosférica hacia el suelo)

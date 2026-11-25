@@ -244,7 +244,7 @@
           let m, tries = 0;
           if (e > 0 && must.length && (quedan <= must.length || rng.chance(must.length / quedan * 1.15)) && ant[ant.length - 1] !== must[0]) m = must.shift();
           else {
-            do { m = (e === 0 && k === 0 ? rng.pick(FACIL) : rng.pick(SEGUROS[nombre])); tries++; }
+            do { m = (e === 0 && k === 0 ? rng.pick(FACIL) : rng.pick(SEGUROS[nombre])); if (nombre === 'bosque' && m === 'pasillo') m = 'llano'; tries++; }   // 'pasillo' es de la cueva: en el bosque se cambia por un llano
             while ((ant.length && ant[ant.length - 1] === m) || (LIMITE[m] && (usados[nombre + m] || 0) >= LIMITE[m]) || (e === 0 && ['emboscada', 'roca', 'sierras', 'fragil', 'moviles', 'taikos', 'barranco', 'estacas'].indexOf(m) >= 0 && tries < 40));
           }
           quedan--; usados[nombre + m] = (usados[nombre + m] || 0) + 1; ant.push(m); MOD[m](); N.costo += COSTO[m] || 10;
@@ -273,7 +273,93 @@
     suelo(x, x + 300); N.zonas.push({ tipo: 'cueva', x0: z2, x1: x + 300 }); x += 300;
     N.meta = { x: x - 150 };
     N.ancho = x; N.params = params; N.costoMin = Math.round(N.costo / 60 * 10) / 10;
+    N.decoInfo = repartirDeco(N, rng.derivar('deco'));
     return N;
+  }
+
+
+  // ---------------- REPARTO DEL DECORADO (rediseño visual) ----------------
+  // Antes el decorado se tiraba cada ~240 px con azar: podía quedar encima de puertas, faroles de acertijo, muros o huecos,
+  // y a veces 3-4 cosas grandes en la misma pantalla. Ahora, ya generado el nivel, se reparte con reglas:
+  //   · separación mínima entre bordes · máximo 2 piezas grandes y 3 en total por pantalla (1280 px)
+  //   · nada sobre zonas reservadas (puertas, objetos de acertijo, puntos de control, NPC, muros, tambores, estacas, arenas)
+  //   · todo apoyado en suelo firme (nunca flotando sobre un hueco) · sin repetir el mismo tipo seguido
+  // Usa su propio azar derivado: NO cambia la forma del nivel (enemigos, retos y suelo salen igual que antes).
+  // Los anchos deben coincidir con la tabla DECO de motor.js.
+  const ANCHO = { bambu: 130, toro: 110, kitsune: 110, estandarte: 100, cristal: 110, hongo: 100, cerezo: 330, pino: 250, rocas: 180, valla: 210, fuente: 150, farolitos: 190, cartel: 115, helechos: 200,
+    columna: 140, hongoGigante: 150, floresLuz: 120, altar: 130, arco: 270, paredMineral: 150, cristalesTecho: 150, raices: 170 };
+  const GRANDE = { cerezo: 1, pino: 1, valla: 1, farolitos: 1, rocas: 1, helechos: 1, arco: 1 };
+  const POOL = { bosque: { grande: ['cerezo', 'pino', 'valla', 'rocas', 'helechos', 'farolitos'], medio: ['bambu', 'toro', 'kitsune', 'estandarte', 'fuente', 'cartel'] },
+    cueva: { grande: ['arco'], medio: ['cristal', 'hongo', 'hongoGigante', 'columna', 'floresLuz', 'altar', 'paredMineral'] } };
+  const PREMIABLE = { cerezo: 'pergaminos', helechos: 'pergaminos', rocas: 'pergaminos', toro: 'pergaminos', fuente: 'cura' };   // se abren de un tajo (solo bosque)
+  const AVISO_ENEM = { arquero: '¡Un arquero! Salta sus flechas', lancero: '¡Un lancero embiste!', tengu: '¡Cuervos tengu en el aire!', rana: '¡Ranas que saltan!', kappa: '¡Un kappa!', zorro: '¡Un zorro veloz!', ninjaAtk: '¡Ninjas que embisten!', ninja: 'Hay ninjas adelante' };
+  const AVISO_ELEM = { roca: '¡Una roca gigante te perseguirá! Corre', emb: '¡Emboscada! Prepárate', sierra: 'Sierras de shuriken: mira el ritmo', kunaiR: 'Kunai a ritmo: espera y pasa', viento: 'Una corriente de viento te sube', carreta: 'Empuja la carreta contra el muro', palanca: 'Busca la palanca para abrir la reja', jefe: '¡El Oni rojo te espera!' };
+  function repartirDeco(N, rng) {
+    const R = [], res = (a, b) => R.push([a, b]);
+    N.est.forEach(e => {
+      if (e.puertaX != null) res(e.puertaX - 140, e.puertaX + 140);
+      if (e.mecanica !== 'piedras') (e.objetos || []).forEach(o => { if (o.x != null) res(o.x - 120, o.x + 120); });
+      if (e.mecanica === 'empujar_carreta') res(e.x0, e.x0 + e.ancho);   // zona de empuje y casillas: sin nada detrás
+    });
+    N.ckp.forEach(c => res(c.x - 150, c.x + 150));
+    N.tambores.forEach(t => res(t.x - 130, t.x + 130));
+    N.muros.forEach(m => res(m.x - 70, m.x + m.w + 70));
+    N.haz.forEach(z => res(z.x - 40, z.x + z.w + 40));
+    N.elem.forEach(e => {
+      if (e.t === 'npc') res(e.x - 120, e.x + 120);
+      else if (e.t === 'emb' || e.t === 'jefe') res(e.x0 - 60, e.x1 + 60);
+      else if (e.t === 'carreta') res(e.min - 40, e.max + e.w + 40);
+      else if (e.x != null && e.t !== 'roca') res(e.x - 120, e.x + (e.w || 0) + 120);
+    });
+    res(0, 300); res(N.meta.x - 230, N.meta.x + 230); res(N.cueva.x - 110, N.cueva.x + 530);
+    const libre = (x0, x1) => !R.some(r => x1 > r[0] && x0 < r[1]);
+    const sobreSuelo = (x0, x1, zona) => N.suelo.some(s => s.zona === zona && x0 >= s.x0 + 24 && x1 <= s.x1 - 24);
+    const peligros = [];
+    N.haz.forEach(z => peligros.push({ x: z.x, msg: 'Estacas adelante: ¡salta!' }));
+    N.gaps.forEach(g => peligros.push({ x: g.x0, msg: 'El camino se corta: salta o usa las plataformas' }));
+    N.enem.forEach(e => { if (AVISO_ENEM[e.kind]) peligros.push({ x: e.x, msg: AVISO_ENEM[e.kind] }); });
+    N.elem.forEach(e => { const k = e.t, m = AVISO_ELEM[k]; if (m) peligros.push({ x: e.x0 !== undefined ? e.x0 : e.x, msg: m }); });
+    N.est.forEach(e => peligros.push({ x: e.x0, msg: 'Un acertijo: resuelve la cuenta para abrir la puerta' }));
+    const aviso = x => { let mejor = null; peligros.forEach(p => { if (p.x > x + 260 && p.x < x + 1400 && (!mejor || p.x < mejor.x)) mejor = p; }); return mejor ? mejor.msg : null; };
+
+    const techos = N.deco.filter(d => d.techo), base = N.deco.filter(d => !d.techo).sort((a, b) => a.x - b.x), ok = [];
+    base.forEach(d => {
+      const zona = d.zona || 'bosque', pool = POOL[zona] || POOL.bosque;
+      if (!ANCHO[d.tipo]) return;
+      let alt;   // tipo de reemplazo (se elige una sola vez, solo si hace falta)
+      for (const off of [0, 40, -40, 80, -80, 120, -120, 170, -170, 230, -230]) {
+        const x = d.x + off, prev = ok[ok.length - 1], ante = ok[ok.length - 2];
+        let tipo = d.tipo;
+        if (prev && prev.zona === zona && prev.tipo === tipo && x - prev.x < 900) {   // sin repetir el mismo tipo seguido
+          if (alt === undefined) { const cat = (GRANDE[tipo] ? pool.grande : pool.medio).filter(t => t !== prev.tipo && (!ante || t !== ante.tipo)); alt = cat.length ? rng.pick(cat) : null; }
+          if (!alt) continue; tipo = alt;
+        }
+        const w = ANCHO[tipo], grande = !!GRANDE[tipo], x0 = x - w * .42, x1 = x + w * .42;
+        if (!libre(x0, x1) || !sobreSuelo(x - w / 2, x + w / 2, zona)) continue;
+        if (prev && prev.zona === zona) { const sep = (grande || GRANDE[prev.tipo]) ? 150 : 90; if (x - w * .45 - (prev.x + ANCHO[prev.tipo] * .45) < sep) continue; }
+        const rec = ok.filter(o => o.zona === zona), gr = rec.filter(o => GRANDE[o.tipo]);     // máx. 3 piezas (y 2 grandes) en cualquier tramo de 1280 px
+        if (rec.length >= 3 && x - rec[rec.length - 3].x < 1280) continue; if (grande && gr.length >= 2 && x - gr[gr.length - 2].x < 1280) continue;
+        if (tipo === 'farolitos' && ok.some(o => o.tipo === 'farolitos' && x - o.x < 1800)) continue;
+        if (tipo === 'cartel' && ok.some(o => o.tipo === 'cartel' && x - o.x < 1500)) continue;
+        ok.push(Object.assign(d, { x, tipo, zona })); break;
+      }
+    });
+    // 'frente' (bambú delante del héroe): solo en tramos despejados y como mucho uno cada 1800 px
+    let ultFrente = -1e9;
+    ok.forEach(d => {
+      if (d.capa !== 'frente') return;
+      const estorba = !libre(d.x - 260, d.x + 260) || N.enem.some(e => Math.abs(e.x - d.x) < 260) || N.items.some(i => Math.abs(i.x - d.x) < 120) || d.x - ultFrente < 1800;
+      if (estorba) d.capa = 'atras'; else ultFrente = d.x;
+    });
+    // objetos que reaccionan (se mecen al pasar y al tajo); algunos esconden un premio (a lo sumo uno cada ~1500 px)
+    let ultPremio = -1e9;
+    ok.forEach(d => {
+      d.w = ANCHO[d.tipo];
+      if (d.zona === 'bosque' && PREMIABLE[d.tipo] && d.x - ultPremio > 1500 && d.x > 900 && rng.chance(.7)) { d.premio = PREMIABLE[d.tipo]; ultPremio = d.x; }
+      if (d.tipo === 'cartel') d.msg = aviso(d.x) || 'Sigue el camino, aprendiz';
+    });
+    N.deco = techos.concat(ok).sort((a, b) => a.x - b.x);
+    return { reservadas: R };
   }
 
   function validar(N) {
@@ -304,5 +390,5 @@
     });
     return f;
   }
-  return { generar, validar, G, COSTO };
+  return { generar, validar, G, COSTO, ANCHO_DECO: ANCHO };
 });

@@ -14,7 +14,11 @@ ok('ids únicos y datos completos', () => {
   const ids = Reg.lista.map(m => m.id); assert.strictEqual(new Set(ids).size, ids.length);
   Reg.lista.forEach(m => { assert.ok(m.nombre && m.fases.length && m.cielo.length === 2, m.id); assert.ok(m.acento && m.acento2, m.id); });
 });
-ok('el mundo bloqueado no cuenta como progreso', () => { assert.strictEqual(Reg.obtener('proximo').progreso(null).estado, 'bloqueado'); });
+ok('el Mundo 4 (negativo) es jugable y su progreso se deriva del perfil', () => {
+  const m = Reg.obtener('negativo'); assert.ok(m && !m.bloqueado && /nivel4\.html/.test(m.url({ id: 'a', avatar: 'sakura' })));
+  assert.strictEqual(m.progreso(null).estado, 'nuevo'); assert.strictEqual(m.progreso({ nivel4: { salaMax: 2 } }).estado, 'en_curso');
+  assert.strictEqual(m.progreso({ nivel4: { completado: true, estrellas: 2 } }).estado, 'completado');
+});
 
 console.log('Estado derivado del perfil');
 ok('jugador nuevo: todo "nuevo" y se sugiere La Senda', () => {
@@ -29,7 +33,7 @@ ok('nivel 2 con estrellas y nivel 3 completado', () => {
   const p = base({ nivel1: { completados: 1 }, nivel2: { completados: 1, estrellas: 3 }, nivel3: { completado: true, estrellas: 2 } });
   const e = Object.fromEntries(Sel.estado(p).map(x => [x.mundo.id, x.prog]));
   assert.strictEqual(e.viaje.estado, 'completado'); assert.strictEqual(e.viaje.estrellas, 3); assert.strictEqual(e.farolillos.estado, 'completado');
-  assert.strictEqual(Sel.siguiente(p), null);
+  assert.strictEqual(Sel.siguiente(p), 'negativo');
 });
 ok('"en curso" cuando hay intentos sin terminar', () => { assert.strictEqual(Sel.estado(base({ nivel3: { intentos: 2 } })).find(x => x.mundo.id === 'farolillos').prog.estado, 'en_curso'); });
 ok('Torneo Clásico solo si hay progreso antiguo', () => {
@@ -58,7 +62,7 @@ ok('la tabla más débil es la del 7; sin datos no hay recomendación', () => {
 });
 ok('resumen para compartir menciona nombre, racha y la tabla a reforzar', () => {
   const t = Sel.textoResumen(base({ maestria: mae, racha: { ultimo: hoy(), dias: 3, mejor: 5 }, nivel1: { completados: 1 } }));
-  assert.ok(t.includes('Ana') && t.includes('Racha: 3 días') && t.includes('tabla del 7') && t.includes('1 de 3'));
+  assert.ok(t.includes('Ana') && t.includes('Racha: 3 días') && t.includes('tabla del 7') && t.includes('1 de 4'));
 });
 
 console.log('Perfiles.registrarHechos');
