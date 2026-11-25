@@ -228,4 +228,17 @@ ok('los carteles avisan de lo que viene y los premios están repartidos', () => 
   assert(carteles >= niveles, 'casi no hay carteles'); assert(premios / niveles >= 4, 'muy pocos premios ocultos: ' + premios / niveles);
 });
 
+console.log('\nViento común y luz');
+ok('el viento es suave, tiene ráfagas que viajan por el nivel y el parpadeo de las llamas se mantiene cerca de 1', () => {
+  const vm = require('vm'), fs = require('fs'); let T = 0;
+  const core = { W: 1280, G: 560, img: {}, clamp: (v, a, b) => Math.max(a, Math.min(b, v)), rect: () => null, cruza: () => false, S: () => ({ t: T }) };
+  const win = { N1core: core }; vm.runInNewContext(fs.readFileSync(require('path').join(__dirname, '../engine/nivel1/ambiente.js'), 'utf8'), { window: win, document: {}, Math, console });
+  const A = win.N1amb; let min = 9, max = 0, rafagas = 0, previo = 0;
+  for (let t = 0; t < 60; t += .1) { const v = A.viento(3000, t); min = Math.min(min, v); max = Math.max(max, v); if (v > 1 && previo <= 1) rafagas++; previo = v; }
+  assert(min > .05 && min < .45, 'la calma debe ser suave: ' + min); assert(max > 1 && max < 1.5, 'la ráfaga debe notarse sin ser brusca: ' + max); assert(rafagas >= 4 && rafagas <= 8, 'ráfagas en 60 s: ' + rafagas);
+  // la ráfaga viaja: en dos puntos distintos del nivel no llega a la vez
+  let difieren = 0; for (let t = 0; t < 30; t += .5) if (Math.abs(A.viento(0, t) - A.viento(2500, t)) > .25) difieren++; assert(difieren > 6, 'el viento debe viajar de un punto a otro');
+  for (let t = 0; t < 20; t += .07) { T = t; const f = A.parpadeo(1234 + t * 50, 200); assert(f > .9 && f < 1.1, 'parpadeo fuera de rango: ' + f); }
+});
+
 console.log('\n' + n + ' pruebas OK');
