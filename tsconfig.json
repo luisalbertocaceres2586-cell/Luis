@@ -1,0 +1,43 @@
+// REVISIÓN ESTRICTA (nivel 1). Aquí van los archivos "listos": cada uno pasa con strict:true
+// (comprobación de null/undefined, propiedades inexistentes, argumentos incorrectos).
+// El resto de engine/ se revisa en tsconfig.basico.json (nivel 2, más permisivo).
+// Para subir un archivo de nivel: arréglalo hasta que pase aquí y agrégalo a "include".
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": []
+  },
+  "include": [
+    "types/juego.d.ts",
+    "types/globales.d.ts",
+    "types/node-minimo.d.ts",
+    "engine/ui/mundos-registro.js",
+    "engine/ui/selector-mundos.js",
+    "engine/nivel1/perfiles.js",
+    "engine/nivel1/ruta.js",
+    "engine/nivel1/acertijos.js",
+    "engine/nivel1/director.js",
+    "engine/nivel1/elementos.js",
+    "engine/ui/achievements.js",
+    "engine/combate/racha.js",
+    "engine/core/dispositivo.js",
+    "engine/core/version.js",
+    "engine/educativo/repaso-errores.js",
+    "types/globales-estricto.d.ts",
+    "types/modulos/*.d.ts"
+  ]
+}

@@ -1,0 +1,41 @@
+name: Publicar versión
+
+# Cuando algo se fusiona en main, GitHub escribe la versión nueva en version.json e index.html (window.NJ_BUILD).
+# Así NADIE edita version.json a mano en sus ramas y desaparecen los conflictos que provocaba.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - version.json
+  workflow_dispatch:      # lo pide el robot de fusión cuando fusiona con su llave normal (esa llave no dispara 'push')
+
+concurrency:
+  group: publicar-version
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    # el propio commit del robot no vuelve a lanzar esto (GITHUB_TOKEN no dispara otros flujos, esto es doble seguro)
+    if: github.event_name == 'workflow_dispatch' || github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/publicar-version.js --sha "${{ github.sha }}"
+      - name: Guardar si cambió
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.json index.html
+          if git diff --cached --quiet; then
+            echo "Sin cambios de versión."
+          else
+            git commit -m "Versión automática ${GITHUB_SHA::7} [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

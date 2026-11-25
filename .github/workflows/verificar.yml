@@ -1,0 +1,31 @@
+name: Verificar (tipos y pruebas)
+
+# Se ejecuta en cada Pull Request y en cada push a main.
+# Si algo falla, GitHub muestra una ✗ roja ANTES de publicar el juego.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Revisión de tipos (TypeScript)
+        run: npm run typecheck
+      - name: Pruebas
+        run: npm test
+      - name: Aviso - version.json se genera solo
+        if: github.event_name == 'pull_request'
+        run: |
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qx "version.json"; then
+            echo "::warning title=version.json::Este PR cambia version.json. Ya no hace falta: GitHub lo actualiza solo al fusionar en main. Quitarlo evita conflictos con otras pestañas."
+          fi

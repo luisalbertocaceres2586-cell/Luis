@@ -33,7 +33,7 @@
     const s = S(), h = s.h; if (!e.vivo) return; if (Math.abs(e.x - h.x) > 1500 && e.kind !== 'oni') return;
     const dx = h.x - e.x; e.inv = Math.max(0, (e.inv || 0) - dt);
     switch (e.kind) {
-      case 'ninja': case 'arana': e.x += e.vx * dt; if (e.x < e.min || e.x > e.max) e.vx = -e.vx; e.dir = e.vx > 0 ? 1 : -1; e.caja = rect(e.x - 26, e.y - 84, 52, 84); break;
+      case 'ninja': case 'arana': e.x += e.vx * dt; if (e.x < e.min || e.x > e.max) e.vx = -e.vx; e.dir = e.vx > 0 ? 1 : -1; e.caja = e.kind === 'ninja' ? rect(e.x - 30, e.y - 97, 60, 97) : rect(e.x - 26, e.y - 84, 52, 84); break;
       case 'ninjaAtk': case 'lancero': case 'serpiente': {
         const P = EMB[e.kind]; e.t = (e.t || 0) + dt; e.dir = e.dir || 1;
         if (e.fase === 'carga') { e.x += e.dir * (e.chargeSpeed || P[2]) * dt; e.f -= dt; if (e.f <= 0) { e.fase = 'cd'; e.f = P[4]; } }
@@ -41,13 +41,13 @@
         else if (e.fase === 'cd') { e.f -= dt; if (e.f <= 0) e.fase = null; }
         else { e.x += e.vx * dt; if (e.x < e.min || e.x > e.max) e.vx = -e.vx; e.dir = e.vx > 0 ? 1 : -1; if (Math.abs(dx) < P[0] && Math.abs(h.y - e.y) < 120 && h.y >= G - 10) { e.fase = 'aviso'; e.f = P[1]; e.dir = dx > 0 ? 1 : -1; } }
         e.x = clamp(e.x, e.min - 130, e.max + 130);
-        e.caja = e.kind === 'lancero' && e.fase === 'carga' ? rect(e.dir > 0 ? e.x - 26 : e.x - 124, e.y - 84, 150, 84) : e.kind === 'serpiente' ? rect(e.x - 45, e.y - 70, 90, 70) : rect(e.x - 26, e.y - 84, 52, 84); break;
+        e.caja = e.kind === 'lancero' && e.fase === 'carga' ? rect(e.dir > 0 ? e.x - 30 : e.x - 142, e.y - 97, 172, 97) : e.kind === 'serpiente' ? rect(e.x - 45, e.y - 70, 90, 70) : rect(e.x - 30, e.y - 97, 60, 97); break;
       }
       case 'arquero': {
         e.dir = dx > 0 ? 1 : -1; e.cd = (e.cd || 0) - dt;
-        if (e.fase === 'aviso') { e.f -= dt; if (e.f <= 0) { s.flechas.push({ x: e.x + e.dir * 46, y: e.y - 62, vx: e.dir * 540, t: 2.4 }); e.fase = null; e.cd = 2.3; } }
+        if (e.fase === 'aviso') { e.f -= dt; if (e.f <= 0) { s.flechas.push({ x: e.x + e.dir * 56, y: e.y - 76, vx: e.dir * 540, t: 2.4 }); e.fase = null; e.cd = 2.3; } }
         else if (e.cd <= 0 && Math.abs(dx) < 780 && Math.abs(h.y - e.y) < 260) { e.fase = 'aviso'; e.f = .55; }
-        e.caja = rect(e.x - 30, e.y - 90, 60, 90); break;
+        e.caja = rect(e.x - 34, e.y - 104, 68, 104); break;
       }
       case 'escarabajo': e.x += e.vx * dt; if (e.x < e.min || e.x > e.max) e.vx = -e.vx; e.dir = e.vx > 0 ? 1 : -1; e.caja = rect(e.x - 58, e.y - 70, 116, 70); break;
       case 'rana': case 'kappa': {
@@ -211,6 +211,11 @@
   E.dibujarMuro = function (m) {
     const s = S(), c = cx(), x = m.x - s.cam;
     if (m.tipo === 'sello') { if (img.sello) sprite(img.sello, x, m.y, m.w, m.h); return; }
+    if (m.tipo === 'reja' && img.rejaBambu) {   // reja de bambú con sello: al abrirse sube y se desvanece
+      if (m.abierta && m._t0 === undefined) m._t0 = s.t; const k = m.abierta ? clamp((s.t - m._t0) / .7, 0, 1) : 0; if (k >= 1) return;
+      c.save(); c.globalAlpha = 1 - k; core.tira(img.rejaBambu, x - 20, m.y - 8 - k * 90, m.w + 40, m.h + 8); c.restore(); return;
+    }
+    if (m.tipo !== 'reja' && m.tipo !== 'sello' && img.muroPiedra) { c.drawImage(img.muroPiedra, x - 6, m.y - 4, m.w + 12, m.h + 4); return; }
     if (m.tipo === 'reja') {
       const k = m.abierta ? 0 : 1; c.save(); c.globalAlpha = m.abierta ? .0 : 1; c.fillStyle = '#6b8f3a'; for (let i = 0; i < 3; i++) { c.fillRect(x + i * 11, m.y, 8, m.h); } c.fillStyle = '#3d5a1c'; for (let y = m.y + 30; y < m.y + m.h; y += 60) c.fillRect(x - 2, y, m.w + 4, 6); c.restore();
       if (m.abierta) { c.fillStyle = 'rgba(160,200,90,.35)'; c.fillRect(x, m.y, 3, 40); } return;
@@ -222,11 +227,11 @@
   function dibujarEnemigo(e) {
     const s = S(), c = cx(); if (!e.vivo || e.x < s.cam - 200 || e.x > s.cam + W + 200) return; const x = e.x - s.cam;
     switch (e.kind) {
-      case 'ninja': { const b = Math.abs(Math.sin(s.t * 8 + e.x)) * 4; core.porAncho(piel(e, [img.ninja, img.ninjaLancero, img.ninjaArquero, img.kappa, img.ranaG, img.zorroFuego], img.ninja), x, e.y - b, 96, e.dir < 0); break; }
-      case 'ninjaAtk': { const sk = piel(e, [null, img.samuraiF, img.guardiaPiedra], null), im = sk || (e.fase === 'carga' ? img.ninjaAtk : img.ninja); if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.4)'; c.beginPath(); c.arc(x, e.y - 90, 18 + Math.sin(s.t * 40) * 4, 0, 7); c.fill(); } core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 130 : 96, e.dir < 0); break; }
+      case 'ninja': { const b = Math.abs(Math.sin(s.t * 8 + e.x)) * 4; core.porAncho(piel(e, [img.ninja, img.ninjaLancero, img.ninjaArquero, img.kappa, img.ranaG, img.zorroFuego], img.ninja), x, e.y - b, 120, e.dir < 0); break; }
+      case 'ninjaAtk': { const sk = piel(e, [null, img.samuraiF, img.guardiaPiedra], null), im = sk || (e.fase === 'carga' ? img.ninjaAtk : img.ninja); if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.4)'; c.beginPath(); c.arc(x, e.y - 112, 18 + Math.sin(s.t * 40) * 4, 0, 7); c.fill(); } core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 162 : 120, e.dir < 0); break; }
       case 'tengu': core.porAncho(img.tengu, x, e.y + 20, 120, e.dir < 0); break;
-      case 'arquero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 112); } core.porAncho(img.arquero, x, e.y, 124, e.dir < 0); break; }
-      case 'lancero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 108); } core.porAncho(img.lancero, x + (e.fase === 'carga' ? e.dir * 14 : 0), e.y, 138, e.dir < 0); break; }
+      case 'arquero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 138); } core.porAncho(img.arquero, x, e.y, 155, e.dir < 0); break; }
+      case 'lancero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 134); } core.porAncho(img.lancero, x + (e.fase === 'carga' ? e.dir * 14 : 0), e.y, 172, e.dir < 0); break; }
       case 'serpiente': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 30px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 90); } core.porAncho(img.serpiente, x, e.y + 4, 120, e.dir < 0); break; }
       case 'escarabajo': core.porAncho(img.escarabajo, x, e.y + 4, 132, e.dir < 0); break;
       case 'rana': { const sq = e.z > 0 ? 1.12 : 1; c.save(); c.translate(x, e.y - (e.z || 0) + 4); c.scale(1 / sq, sq); core.porAncho(img.rana, 0, 0, 100, e.dir < 0); c.restore(); break; }
@@ -262,7 +267,7 @@
   }
   const anchoCache = new Map();
   function baseW(im) {   // ancho de la base de un sprite (para que dos poses del mismo objeto queden alineadas)
-    if (anchoCache.has(im)) return anchoCache.get(im); const w = Math.min(200, im.width), h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.drawImage(im, 0, 0, w, h);
+    if (anchoCache.has(im)) return anchoCache.get(im); const w = Math.min(200, im.width), h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = h; const g = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')); g.drawImage(im, 0, 0, w, h);
     const d = g.getImageData(0, Math.floor(h * .86), w, Math.floor(h * .1) || 1).data; let mn = w, mx = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 80) { const px = (i / 4) % w; if (px < mn) mn = px; if (px > mx) mx = px; }
     const r = Math.max(10, (mx - mn)) / w * im.width; anchoCache.set(im, r); return r;
   }
@@ -291,7 +296,7 @@
   E.ojos = function () {
     const s = S(), c = cx(); s.enemigos.forEach(e => {
       if (!e.vivo || Math.abs(e.x - s.h.x) > 760 || e.x < s.cam - 40 || e.x > s.cam + W + 40) return; if (['murcielago', 'arana', 'aranaTecho', 'ninja', 'ninjaAtk', 'serpiente', 'escarabajo', 'lancero', 'arquero'].indexOf(e.kind) < 0) return;
-      if (Math.floor(s.t * 1.6 + e.x) % 5 === 0) return; const x = e.x - s.cam, y = e.y - (e.kind === 'ninja' || e.kind === 'ninjaAtk' || e.kind === 'lancero' || e.kind === 'arquero' ? 64 : e.kind === 'serpiente' ? 56 : e.kind === 'escarabajo' ? 40 : 0), col = e.kind === 'murcielago' || e.kind === 'serpiente' ? '#ffe040' : e.kind === 'escarabajo' ? '#6ff' : '#ff3a3a';
+      if (Math.floor(s.t * 1.6 + e.x) % 5 === 0) return; const x = e.x - s.cam, y = e.y - (e.kind === 'ninja' || e.kind === 'ninjaAtk' || e.kind === 'lancero' || e.kind === 'arquero' ? 80 : e.kind === 'serpiente' ? 56 : e.kind === 'escarabajo' ? 40 : 0), col = e.kind === 'murcielago' || e.kind === 'serpiente' ? '#ffe040' : e.kind === 'escarabajo' ? '#6ff' : '#ff3a3a';
       c.fillStyle = col; c.shadowColor = col; c.shadowBlur = 10; c.beginPath(); c.arc(x - 9, y, 3.2, 0, 7); c.arc(x + 9, y, 3.2, 0, 7); c.fill(); c.shadowBlur = 0;
     });
   };

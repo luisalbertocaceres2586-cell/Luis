@@ -1,9 +1,9 @@
 /* Logros locales de Ninja Multiplicación: ocho insignias, guardadas por navegador. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   else { root.NinjaAchievements = api; api.attach(root); }
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const KEY = 'ninja_achievements_v1';
   const DEFINITIONS = [

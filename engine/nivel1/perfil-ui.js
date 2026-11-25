@@ -151,10 +151,16 @@
     (kids || []).forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
     return e;
   }
-  function imgAvatar(av) { const i = document.querySelector('.hcard[data-c="' + AV[av].char + '"] img'); return i ? i.src : ''; }
+  function imgAvatar(av) { const i = document.querySelector('.hcard[data-c="' + AV[av].char + '"] img'); return i ? /** @type {HTMLImageElement} */ (i).src : ''; }
   function esTactil() { return ('ontouchstart' in window) || navigator.maxTouchPoints > 0; }
   // El dispositivo ya no se elige: se detecta solo cada vez que se juega (un mismo jugador puede abrir desde PC y desde el celular).
   function dispo() { return window.NinjaDevice ? NinjaDevice.tipo() : (esTactil() ? 'movil' : 'pc'); }
+  /* Con cuenta iniciada (☁️) el jugador es el apodo de la cuenta: no se pide el nombre ni se elige jugador. */
+  function cuentaNick() { try { return (window.Nube && Nube.nickActivo && Nube.nickActivo()) || null; } catch (e) { return null; } }
+  function perfilCuenta() {
+    const nick = cuentaNick(); if (!nick) return null;
+    try { return Perfiles.paraCuenta(nick, heroeActual(), dispo()); } catch (e) { return null; }
+  }
   function heroeActual() { try { return _char === 'peach' ? 'kage' : 'sakura'; } catch (e) { return 'sakura'; } }
 
   function aplicar(p) {
@@ -172,8 +178,8 @@
   function cargarNivel1() {
     if (window.Nivel1) return Promise.resolve();
     if (cargaN1) return cargaN1;
-    const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos', 'habilidades', 'director'];
-    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=12'; s.onload = ok; s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
+    const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos', 'ambiente', 'habilidades', 'director'];
+    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=12'; s.onload = () => ok(); s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
     return cargaN1;
   }
   function nivel2Nuevo(p) {
@@ -202,6 +208,7 @@
       perfil: Perfiles.obtener(p.id),
       lanzar: { senda: q => jugarNivel1(q), viaje: q => nivel2Nuevo(q), farolillos: q => nivel3Nuevo(q), clasico: q => continuar(q) },
       onCerrarSesion: () => {            // para que otra persona pueda jugar: el avance de cada perfil queda guardado
+        if (cuentaNick() && window.Nube && Nube.abrir) { Nube.abrir(); return; }   // con cuenta: se cierra desde ☁️ Cuenta
         try { sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
         if (Perfiles.cerrarSesion) Perfiles.cerrarSesion();
         listo = false; actualizarChip(); abrir('lista');
@@ -209,13 +216,19 @@
     });
   }
   function jugarNuevo(p) { abrirMundos(p); }
+  let pasarClasico = false;   // deja pasar el clic de JUGAR cuando el selector lanza el torneo clásico
   function continuar(p) {
-    if ((p.progreso.nivel || 0) === 0) return abrirMundos(p);
+    if ((p.progreso.nivel || 0) === 0) {          // torneo clásico desde cero (con el jugador ya identificado)
+      aplicar(p); listo = true; cerrar();
+      const b = document.getElementById('btnStart'); if (!b) return abrirMundos(p);
+      pasarClasico = true; try { b.click(); } finally { pasarClasico = false; }
+      return;
+    }
     aplicar(p); listo = true; cerrar();
     try {
       GS.phase = p.progreso.fase || 'easy'; GS.level = p.progreso.nivel || 0; GS.totalScore = p.progreso.puntos || 0;
       startLevel(GS.level, GS.phase);
-    } catch (e) { const b = document.getElementById('btnStart'); if (b) b.click(); }
+    } catch (e) { const b = document.getElementById('btnStart'); if (b) { pasarClasico = true; try { b.click(); } finally { pasarClasico = false; } } }
   }
 
   function vistaLista(card) {
@@ -253,7 +266,7 @@
     borrador.dispositivo = dispo();
     card.appendChild(el('h2', { text: '¿CÓMO TE LLAMAS?' }));
     card.appendChild(el('p', { class: 'pf-sub', text: 'Con tu nombre guardamos tu avance. Jugarás con ' + AV[borrador.avatar].nombre + '.' }));
-    const inp = el('input', { type: 'text', maxlength: '14', placeholder: 'TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
+    const inp = el('input', { type: 'text', maxlength: '16', placeholder: 'TU NOMBRE', autocomplete: 'off', value: borrador.nombre });
     inp.addEventListener('input', () => { borrador.nombre = inp.value; });
     card.appendChild(el('div', { class: 'pf-campo pf-name' }, [inp]));
     const err = el('div', { class: 'pf-err' });
@@ -310,16 +323,22 @@
     const a = Perfiles.activo(); let c = document.getElementById('pfChip');
     if (!c) {
       const b = document.getElementById('btnStart'); if (!b || !b.parentNode) return;
-      c = el('div', { id: 'pfChip', onclick: () => abrir('lista') }); b.parentNode.insertBefore(c, b);
+      c = el('div', { id: 'pfChip', onclick: () => { if (cuentaNick() && window.Nube && Nube.abrir) Nube.abrir(); else abrir('lista'); } }); b.parentNode.insertBefore(c, b);
     }
-    c.textContent = a ? '👤 ' + a.nombre.toUpperCase() + ' · CAMBIAR' : '👤 ¿QUIÉN JUEGA?';
+    const nk = cuentaNick();
+    c.textContent = nk ? '👤 ' + nk.toUpperCase() + ' · CUENTA' : a ? '👤 ' + a.nombre.toUpperCase() + ' · CAMBIAR' : '👤 ¿QUIÉN JUEGA?';
   }
 
   function iniciar() {
     document.head.appendChild(el('style', { text: css }));
     const b = document.getElementById('btnStart'); if (!b) return;
     // 1) JUGAR exige elegir jugador primero
-    b.addEventListener('click', e => { if (!listo) { e.stopImmediatePropagation(); e.preventDefault(); abrir(Perfiles.listar().length ? 'lista' : 'crear'); } }, true);
+    b.addEventListener('click', e => {
+      const pc = pasarClasico ? null : perfilCuenta();
+      if (pc) { e.stopImmediatePropagation(); e.preventDefault(); abrirMundos(pc); return; }   // con cuenta: directo a los mundos
+      if (!listo) { e.stopImmediatePropagation(); e.preventDefault(); abrir(Perfiles.listar().length ? 'lista' : 'crear'); }
+      else if (!pasarClasico && Perfiles.activo()) { e.stopImmediatePropagation(); e.preventDefault(); abrirMundos(Perfiles.activo()); }   // JUGAR = elegir mundo
+    }, true);
     // 2) tras el arranque normal, el marcador usa el nombre real del jugador
     b.addEventListener('click', () => { const a = Perfiles.activo(); if (a && listo) { try { GS.name = a.nombre.toUpperCase(); } catch (e) {} } });
     const old = document.getElementById('btnCont'); if (old) old.style.setProperty('display', 'none', 'important');
@@ -329,6 +348,13 @@
       try { if (orig) orig.apply(this, arguments); } catch (e) {}
       try { const a = Perfiles.activo(); if (a) Perfiles.actualizar(a.id, p => { p.progreso = { fase: GS.phase, nivel: GS.level, puntos: GS.totalScore || 0 }; }); } catch (e) {}
     };
+    // Entra o sale una cuenta: se crea/elige el jugador con el apodo (o se suelta al salir)
+    if (window.Nube && Nube.alCambiarSesion) Nube.alCambiarSesion((nick, motivo) => {
+      if (nick) { perfilCuenta(); }
+      else if (motivo === 'salir') { try { if (Perfiles.cerrarSesion) Perfiles.cerrarSesion(); } catch (e) {} listo = false; }
+      actualizarChip();
+    });
+    if (cuentaNick()) perfilCuenta();
     actualizarChip();
     // los niveles 2 y 3 regresan con ?mundos=1: se vuelve directo al selector con el jugador activo
     let flag = false; try { flag = sessionStorage.getItem('ninja_abrir_mundos') === '1'; } catch (e) {}

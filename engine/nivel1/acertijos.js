@@ -3,10 +3,10 @@
  * ninja interactúa (romper un bloque, empujar una carreta, encender un farol, lanzar un shuriken, saltar a
  * la piedra correcta...). Este módulo decide QUÉ se pregunta (según lo que el estudiante domina) y CÓMO se
  * responde (qué mecánica), y genera la descripción de los objetos. El dibujo y la física los pone el motor. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Acertijos = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
 
   // ---------- maestría: qué hechos domina el estudiante ----------
   // estado[hecho] = { a: aciertos, e: errores, caja: 0..4, t: turno de la última vez }
@@ -83,7 +83,7 @@
     const b = parseInt(hecho.split('x')[1], 10);
     const tipo = rng.pick(m.tipos);
     const q = TIPOS[tipo](tabla, b);
-    const out = { mecanica: mec, tipo: tipo, hecho: q.hecho, concepto: q.concepto, enunciado: m.verbo + ' ' + q.texto, penalizacion: m.penal, objetos: [] }; if (q.secuencia) { out.secuencia = q.secuencia; if (tipo === 'salto') out.enunciado = m.verbo.replace('con la respuesta:', 'con el número que sigue:') + ' ' + q.secuencia.join(', ') + ', ?  (cuenta de ' + tabla + ' en ' + tabla + ')'; }
+    const out = { mecanica: mec, tipo: tipo, hecho: q.hecho, concepto: q.concepto, enunciado: m.verbo + ' ' + q.texto, penalizacion: m.penal, objetos: /** @type {any[]} */ ([]) }; if (q.secuencia) { out.secuencia = q.secuencia; if (tipo === 'salto') out.enunciado = m.verbo.replace('con la respuesta:', 'con el número que sigue:') + ' ' + q.secuencia.join(', ') + ', ?  (cuenta de ' + tabla + ' en ' + tabla + ')'; }
 
     if (mec === 'dial') {
       out.objetos = [{ valor: q.respuesta, correcto: true, digitos: String(q.respuesta).length }];

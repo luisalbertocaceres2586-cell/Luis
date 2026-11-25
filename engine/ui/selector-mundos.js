@@ -9,14 +9,15 @@
  *   SelectorMundos.cerrar();   SelectorMundos.estado(perfil);   SelectorMundos.siguiente(perfil);
  *
  * El estado de cada mundo (nuevo / en curso / completado / estrellas) se DERIVA del perfil: los niveles ya lo guardan. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(root);
   else root.SelectorMundos = factory(root);
-})(typeof self !== 'undefined' ? self : this, function (root) {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function (root) {
   'use strict';
-  const doc = typeof document !== 'undefined' ? document : null;
+  /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
+  const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
-  const CSS_HREF = 'engine/ui/selector-mundos.css?v=1';
+  const CSS_HREF = 'engine/ui/selector-mundos.css?v=4';
 
   const pad = (n, w) => String(n).padStart(w || 2, '0');
   const rango = (pre, a, b, suf, w) => { const r = []; for (let i = a; i <= b; i++) r.push(pre + pad(i, w) + suf); return r; };
@@ -73,6 +74,49 @@
     try { const v = leerVisto(); v[pid] = Object.assign(v[pid] || {}, ids); root.localStorage.setItem(VISTO_KEY, JSON.stringify(v)); } catch (e) {}
   }
 
+  // ---------- racha diaria 🔥 (días seguidos practicando) ----------
+  const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  function hoyAyer() { const h = new Date(), a = new Date(h.getFullYear(), h.getMonth(), h.getDate() - 1); return { hoy: ymd(h), ayer: ymd(a) }; }
+  /** Estado de la racha para mostrarla: {dias, activa (ya jugó hoy), enPeligro (jugó ayer, falta hoy)} */
+  function estadoRacha(perfil) {
+    const r = (perfil && perfil.racha) || {}, f = hoyAyer(), dias = r.dias | 0;
+    if (!dias || !r.ultimo) return { dias: 0, activa: false, enPeligro: false, mejor: r.mejor | 0 };
+    if (r.ultimo === f.hoy) return { dias, activa: true, enPeligro: false, mejor: r.mejor | 0 };
+    if (r.ultimo === f.ayer) return { dias, activa: false, enPeligro: true, mejor: r.mejor | 0 };
+    return { dias: 0, activa: false, enPeligro: false, mejor: r.mejor | 0 };   // se rompió
+  }
+  /** Se llama al EMPEZAR a jugar un mundo: cuenta el día de práctica. */
+  function registrarPractica(perfil) {
+    if (!perfil || !root.Perfiles || !root.Perfiles.actualizar) return;
+    const f = hoyAyer();
+    try {
+      root.Perfiles.actualizar(perfil.id, q => {
+        const r = q.racha || {};
+        if (r.ultimo === f.hoy) return;
+        const dias = r.ultimo === f.ayer ? (r.dias | 0) + 1 : 1;
+        q.racha = { ultimo: f.hoy, dias, mejor: Math.max(r.mejor | 0, dias) };
+      });
+    } catch (e) {}
+  }
+
+  // ---------- dominio por tabla (a partir de perfil.maestria: claves "TxB" → {a, e, caja}) ----------
+  /** Resumen de las tablas 2..10: aciertos, errores, % de acierto y estado (sin_datos | practicar | casi | dominada). */
+  function resumenTablas(perfil) {
+    const m = (perfil && perfil.maestria) || {}, out = [];
+    for (let t = 2; t <= 10; t++) {
+      let a = 0, e = 0, vistos = 0;
+      Object.keys(m).forEach(k => { const p = k.split('x'); if (+p[0] === t && m[k]) { a += m[k].a | 0; e += m[k].e | 0; vistos++; } });
+      const n = a + e, acc = n ? a / n : 0;
+      out.push({ t, a, e, n, vistos, acc, estado: n < 4 ? 'sin_datos' : acc >= .85 ? 'dominada' : acc >= .6 ? 'casi' : 'practicar' });
+    }
+    return out;
+  }
+  /** La tabla con más fallos que ya tiene datos suficientes (o null si no hay ninguna por reforzar). */
+  function tablaDebil(perfil) {
+    const r = resumenTablas(perfil).filter(x => x.estado === 'practicar' || x.estado === 'casi');
+    r.sort((x, y) => x.acc - y.acc || y.e - x.e); return r[0] || null;
+  }
+
   // ---------- utilidades DOM ----------
   function el(tag, cls, html) { const e = doc.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function img(src, cls) { const i = doc.createElement('img'); i.src = src; i.alt = ''; i.draggable = false; if (cls) i.className = cls; return i; }
@@ -81,7 +125,12 @@
     const l = doc.createElement('link'); l.rel = 'stylesheet'; l.href = CSS_HREF; l.setAttribute('data-mw-css', '1'); doc.head.appendChild(l);
   }
   function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-  const reducido = () => root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ANIM_KEY = 'ninja_mundos_anim_v1';
+  const prefAnim = () => { try { return root.localStorage.getItem(ANIM_KEY); } catch (e) { return null; } };
+  const osReducido = () => !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // Las tarjetas se animan SIEMPRE, aunque el sistema pida «menos movimiento» (en muchos PC de colegio ese ajuste viene activado sin que nadie lo sepa).
+  // Solo se apagan si la persona toca el botón 🎞 (queda guardado). El resto de la accesibilidad del juego no cambia.
+  const reducido = () => prefAnim() === '0';
   const sinHover = () => root.matchMedia && root.matchMedia('(hover: none)').matches;
 
   // ---------- partículas ----------
@@ -187,6 +236,7 @@
       const ch = el('div', 'mw-chips');
       ch.appendChild(el('span', '', '✖ ' + m.tablas)); ch.appendChild(el('span', '', '⏱ ' + m.duracion));
       if (p.mejor > 0) ch.appendChild(el('span', '', '🏆 ' + p.mejor));
+      if (m.id === 'senda' && ctx.debil) ch.appendChild(el('span', 'mw-refuerzo', '🎯 Refuerza el ×' + ctx.debil.t));
       if (ctx.ultimo === m.id) ch.appendChild(el('span', 'mw-ult', '🕘 Último'));
       ch.appendChild(el('span', 'mw-dif', '★'.repeat(m.dificultad) + '<u>' + '★'.repeat(Math.max(0, 3 - m.dificultad)) + '</u>'));
       info.appendChild(ch);
@@ -196,7 +246,9 @@
     go.type = 'button'; go.tabIndex = -1; info.appendChild(go);
     card.appendChild(info);
 
-    return { m, p, card, esc, heroe, sprites, fasesBack, fasesFront, fasenom, dots: info.querySelector('.mw-dots'), fase: 0, anims: [], vis: true, activo: false, bgIdx: i };
+    const tj = { m, p, card, esc, heroe, sprites, fasesBack, fasesFront, fasenom, dots: info.querySelector('.mw-dots'), fase: 0, anims: [], vis: true, activo: false, bgIdx: i };
+    if (!m.bloqueado && root.PreviewMundos && m.demo) tj.demo = root.PreviewMundos.montar(esc, card, m, ctx.heroe, { pausa: reducido });
+    return tj;
   }
 
   // ---------- animaciones (Web Animations API: se aceleran con playbackRate) ----------
@@ -219,7 +271,7 @@
     });
     fijarRitmo(t);
   }
-  function fijarRitmo(t) { const r = t.activo ? 4 : 1; t.anims.forEach(a => { try { a.updatePlaybackRate(r); } catch (e) {} }); }
+  function fijarRitmo(t) { const r = t.activo ? 4 : (sinHover() ? 1 : 3); t.anims.forEach(a => { try { a.updatePlaybackRate(r); } catch (e) {} }); }
   function activar(t, on) {
     if (t.activo === on) return; t.activo = on; t.card.classList.toggle('mw-act', on && sinHover());
     fijarRitmo(t);
@@ -234,7 +286,7 @@
       R.tarjetas.forEach(t => {
         if (!t.vis) return;
         t.sprites.forEach(s => {
-          const lista = t.activo ? s.activo : s.reposo, fps = t.activo ? s.fpsA : s.fpsR;
+          const act = t.activo || !sinHover(), lista = act ? s.activo : s.reposo, fps = act ? s.fpsA : s.fpsR;
           if (lista.length < 2) return;
           s.t += dt * fps; const f = lista[Math.floor(s.t) % lista.length];
           if (s.last !== f) { s.last = f; s.el.src = f; }
@@ -252,15 +304,44 @@
     if (t.dots) Array.prototype.forEach.call(t.dots.children, (d, k) => d.classList.toggle('on', k === t.fase));
   }
 
+  // ---------- precarga: las tarjetas aparecen ya completas (útil con internet lento) ----------
+  let precargado = false, LOAD = null;
+  function precargar(urls, max, alAvanzar) {
+    return new Promise(/** @param {(v?: void) => void} res */ res => {
+      let n = 0; const total = urls.length; if (!total) return res();
+      const fin = () => { clearTimeout(tm); res(); };
+      const tm = setTimeout(res, max);
+      urls.forEach(u => { const i = new Image(); const ok = () => { n++; alAvanzar && alAvanzar(n / total); if (n >= total) fin(); }; i.onload = ok; i.onerror = ok; i.src = u; });
+    });
+  }
+  function urlsNecesarias(heroeId) {
+    const reg = (root.MundosRegistro && root.MundosRegistro.imagenes) ? root.MundosRegistro.imagenes() : [];
+    const h = HEROES[heroeId] || HEROES.sakura;
+    return reg.concat(h.idle, h.run, h.alfombra);
+  }
+
   // ---------- abrir / cerrar ----------
   function abrir(opts) {
     if (!doc) return; opts = opts || {};
     cerrar(true); asegurarCss();
+    if (!precargado && !opts._pre) {
+      quitarCarga();
+      const heroeP = (opts.perfil && opts.perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
+      const l = el('div', 'mw-root mw-ini', '<div class="mw-ini-c"><div class="mw-ini-s">✦</div><b>Preparando mundos…</b><div class="mw-bar"><i></i></div></div>');
+      doc.body.appendChild(l); LOAD = l;
+      const barra = l.querySelector('.mw-bar i');
+      precargar(urlsNecesarias(heroeP), 6000, f => { barra.style.width = Math.round(f * 100) + '%'; }).then(() => {
+        precargado = true; if (LOAD !== l) return;           // si ya se canceló, no se abre
+        quitarCarga(); abrir(Object.assign({}, opts, { _pre: true }));
+      });
+      return;
+    }
+    quitarCarga();
     const perfil = opts.perfil || null;
     const heroeId = (perfil && perfil.avatar === 'kage') ? 'kage' : (opts.heroe === 'kage' ? 'kage' : 'sakura');
     const items = estado(perfil), sig = siguiente(perfil);
     const pid = (perfil && perfil.id) || '_', visto = (leerVisto()[pid]) || {};
-    const ctx = { heroe: heroeId, sig, visto, ultimo: perfil && perfil.mundos && perfil.mundos.ultimo };
+    const ctx = { debil: tablaDebil(perfil), heroe: heroeId, sig, visto, ultimo: perfil && perfil.mundos && perfil.mundos.ultimo };
 
     const rootEl = el('div', 'mw-root'); rootEl.setAttribute('role', 'dialog'); rootEl.setAttribute('aria-label', 'Elige tu mundo');
     const bg = el('div', 'mw-bg'); items.forEach((it, i) => { const b = el('i'); b.style.backgroundImage = 'url("' + it.mundo.fases[0].far + '")'; bg.appendChild(b); });
@@ -268,11 +349,40 @@
 
     const jugables = items.filter(x => !x.mundo.bloqueado && !x.mundo.fueraDeProgreso), hechos = jugables.filter(x => x.prog.estado === 'completado').length;
     const top = el('header', 'mw-top');
-    const tit = el('div', 'mw-title', '<small>' + (perfil ? '👤 ' : '') + '<span class="mw-nom"></span></small><h1>' + (jugables.length && hechos === jugables.length ? '¡ERES UN MAESTRO NINJA!' : 'ELIGE TU MUNDO') + '</h1>');
+    const tit = el('div', 'mw-title', '<small>' + (perfil ? '<span class="mw-avatar"><img alt="" draggable="false"></span>' : '') + '<span class="mw-nom"></span></small><h1>' + (jugables.length && hechos === jugables.length ? '¡ERES UN MAESTRO NINJA!' : 'ELIGE TU MUNDO') + '</h1>');
+    const av = tit.querySelector('.mw-avatar img'); if (av) av.src = (HEROES[heroeId] || HEROES.sakura).idle[0];
     tit.querySelector('.mw-nom').textContent = perfil ? String(perfil.nombre || '').toUpperCase() : 'MUNDOS';
     top.appendChild(tit);
+    const maestro = jugables.length > 0 && hechos === jugables.length;
+    if (maestro) {
+      rootEl.classList.add('mw-maestro');
+      let ya = false; try { ya = root.sessionStorage.getItem('mw_maestro_' + pid) === '1'; root.sessionStorage.setItem('mw_maestro_' + pid, '1'); } catch (e) {}
+      if (!ya && !reducido()) {
+        const cf = el('div', 'mw-confeti'), cols = ['#ffe27a', '#ff9d4a', '#ff7aa8', '#7ad7ff', '#9dff9d', '#c9a3ff'], rr = rng(7);
+        for (let k = 0; k < 46; k++) { const c = el('i'); c.style.left = (rr() * 100) + '%'; c.style.background = cols[k % cols.length]; c.style.setProperty('--d', (2.8 + rr() * 2.6).toFixed(1) + 's'); c.style.setProperty('--w', (rr() * 1.6).toFixed(2) + 's'); c.style.setProperty('--r', Math.round(rr() * 720 - 360) + 'deg'); cf.appendChild(c); }
+        rootEl.appendChild(cf); setTimeout(() => cf.remove(), 7000);
+        setTimeout(() => { tono(523, .16, 'triangle', .05); tono(659, .16, 'triangle', .05, null, .15); tono(784, .16, 'triangle', .05, null, .3); tono(1047, .5, 'triangle', .06, null, .45); }, 500);
+      }
+    }
+    const rc = estadoRacha(perfil);
+    if (perfil) {
+      const chip = el('div', 'mw-racha' + (rc.activa ? ' activa' : rc.enPeligro ? ' peligro' : ''),
+        '<span class="mw-fuego">🔥</span><b>' + rc.dias + '</b><span class="mw-racha-t">' + (rc.dias === 1 ? ' día' : ' días') + '</span>');
+      chip.title = rc.activa ? '¡Racha activa! Ya practicaste hoy.' : rc.enPeligro ? '¡Juega hoy para no perder tu racha de ' + rc.dias + ' días!' : 'Juega cada día para armar tu racha';
+      if (!rc.dias) chip.querySelector('.mw-racha-t').textContent = ' Empieza tu racha';
+      top.appendChild(chip);
+    }
     const pr = el('div', 'mw-prog', '🏯 <span><b>' + hechos + '</b> de ' + jugables.length + ' mundos</span><div class="mw-bar"><i></i></div>');
     top.appendChild(pr);
+    if (perfil) {
+      const tb = el('button', 'mw-mute mw-tablas', '📊'); tb.type = 'button'; tb.title = 'Mis tablas'; tb.setAttribute('aria-label', 'Ver cómo voy en cada tabla');
+      tb.onclick = e => { e.stopPropagation(); R.ultimoFoco = doc.activeElement; abrirPanelTablas(); };
+      top.appendChild(tb);
+    }
+    // botón de animaciones: si el sistema pide «menos movimiento», aquí el niño o el profe puede activarlas (se recuerda)
+    const an = el('button', 'mw-mute mw-anim' + (reducido() ? ' mw-anim-off' : ''), reducido() ? '⏸ Activar animaciones' : '🎞'); an.type = 'button'; an.title = reducido() ? 'Animaciones apagadas: tocar para activarlas' : 'Animaciones activadas: tocar para apagarlas'; an.setAttribute('aria-label', 'Activar o apagar las animaciones de las tarjetas');
+    an.onclick = e => { e.stopPropagation(); try { root.localStorage.setItem(ANIM_KEY, reducido() ? '1' : '0'); } catch (x) {} const o = R && R.opts; cerrar(true); if (o) abrir(o); };
+    top.appendChild(an);
     const mu = el('button', 'mw-mute', silenciado() ? '🔇' : '🔊'); mu.type = 'button'; mu.title = 'Sonido de los menús'; mu.setAttribute('aria-label', 'Activar o silenciar el sonido de los menús');
     mu.onclick = e => { e.stopPropagation(); const quiere = !silenciado(); try { root.localStorage.setItem(MUTE_KEY, quiere ? '1' : '0'); } catch (er) {} mu.textContent = quiere ? '🔇' : '🔊'; if (!quiere) SND.mover(); };
     top.appendChild(mu);
@@ -293,15 +403,24 @@
       b.onclick = e => { e.stopPropagation(); track.scrollBy({ left: dir * Math.max(200, tarjetas[0].card.offsetWidth + 20), behavior: reducido() ? 'auto' : 'smooth' }); }; rootEl.appendChild(b); return b; };
     const bIzq = nav(-1), bDer = nav(1);
     const actualizarNav = () => { const max = track.scrollWidth - track.clientWidth; bIzq.classList.toggle('on', max > 6 && track.scrollLeft > 6); bDer.classList.toggle('on', max > 6 && track.scrollLeft < max - 6); };
+    let arr = null, arrastro = false;
+    track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; arr = { x: e.clientX, sl: track.scrollLeft, mov: false }; });
+    root.addEventListener('pointermove', e => {
+      if (!arr) return; const dx = e.clientX - arr.x;
+      if (!arr.mov && Math.abs(dx) > 7) { arr.mov = true; track.classList.add('mw-arr'); }
+      if (arr.mov) track.scrollLeft = arr.sl - dx;
+    });
+    root.addEventListener('pointerup', () => { if (arr && arr.mov) { arrastro = true; setTimeout(() => { arrastro = false; }, 60); } arr = null; track.classList.remove('mw-arr'); });
+    track.addEventListener('click', e => { if (arrastro) { e.stopPropagation(); e.preventDefault(); } }, true);
     track.addEventListener('scroll', actualizarNav, { passive: true }); root.addEventListener('resize', actualizarNav); setTimeout(actualizarNav, 400);
-    rootEl.appendChild(el('footer', 'mw-pie', 'Elige el mundo que más te guste · puedes jugarlos en el orden que quieras · <kbd>←</kbd> <kbd>→</kbd> <kbd>Enter</kbd>'));
+    rootEl.appendChild(el('footer', 'mw-pie', 'Elige el mundo que más te guste · puedes jugarlos en el orden que quieras · <kbd>←</kbd> <kbd>→</kbd> <kbd>Enter</kbd> · <kbd>1</kbd>–<kbd>4</kbd>'));
     const iris = el('div', 'mw-iris', '<small>PREPÁRATE</small><h2></h2><div class="mw-carga"><i></i></div>'); rootEl.appendChild(iris);
 
     // el juego escucha el teclado en todo el documento: aquí las teclas son solo del selector
     ['keydown', 'keyup', 'keypress'].forEach(ev => rootEl.addEventListener(ev, e => e.stopPropagation()));
     doc.body.appendChild(rootEl);
 
-    R = { sonar: false, root: rootEl, track, tarjetas, perfil, opts, bg, ctx, timers: [], io: null, raf: 0, lanzando: false,
+    R = { sonar: false, root: rootEl, track, tarjetas, perfil, opts, bg, ctx, timers: /** @type {number[]} */ ([]), io: /** @type {IntersectionObserver | null} */ (null), raf: 0, lanzando: false, onKey: /** @type {((e: KeyboardEvent) => void) | null} */ (null),
       fondo(idx) { Array.prototype.forEach.call(bg.children, (b, k) => b.classList.toggle('on', k === idx)); } };
     const first = tarjetas.findIndex(t => t.m.id === sig); R.fondo(first >= 0 ? first : 0);
     root.requestAnimationFrame(() => { pr.querySelector('.mw-bar i').style.width = (jugables.length ? Math.round(hechos / jugables.length * 100) : 0) + '%'; });
@@ -326,7 +445,7 @@
     if ('IntersectionObserver' in root) {
       R.io = new IntersectionObserver(es => es.forEach(en => {
         const t = tarjetas.find(x => x.card === en.target); if (!t) return;
-        t.vis = en.isIntersecting; t.anims.forEach(a => { try { t.vis ? a.play() : a.pause(); } catch (e) {} });
+        t.vis = en.isIntersecting; if (t.demo) t.demo.visible(t.vis); t.anims.forEach(a => { try { t.vis ? a.play() : a.pause(); } catch (e) {} });
         if (sinHover()) activar(t, en.intersectionRatio > .7 && !t.m.bloqueado);
       }), { root: track, threshold: [0, .7] });
       tarjetas.forEach(t => R.io.observe(t.card));
@@ -334,6 +453,7 @@
 
     const onKey = e => {
       if (!R || R.root !== rootEl) return;
+      if (R.panel) { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); cerrarPanel(); return; } if (e.key !== 'Tab') { e.stopImmediatePropagation(); if (e.key === 'Enter' || e.key === ' ') return; e.preventDefault(); return; } return; }
       e.stopImmediatePropagation();   // el juego no debe reaccionar a teclas mientras el selector está abierto
       const idx = tarjetas.findIndex(t => t.card === doc.activeElement);
       const ir = k => { const t = tarjetas[Math.max(0, Math.min(tarjetas.length - 1, k))]; t.card.focus({ preventScroll: true }); t.card.scrollIntoView({ behavior: reducido() ? 'auto' : 'smooth', inline: 'center', block: 'nearest' }); };
@@ -341,6 +461,7 @@
       else if (e.key === 'ArrowLeft') { e.preventDefault(); ir(idx < 0 ? 0 : idx - 1); }
       else if (e.key === 'Home') { e.preventDefault(); ir(0); } else if (e.key === 'End') { e.preventDefault(); ir(tarjetas.length - 1); }
       else if ((e.key === 'Enter' || e.key === ' ') && idx >= 0) { e.preventDefault(); elegir(tarjetas[idx]); }
+      else if (/^[1-9]$/.test(e.key) && tarjetas[+e.key - 1]) { e.preventDefault(); const t = tarjetas[+e.key - 1]; t.card.focus({ preventScroll: true }); elegir(t); }
       else if (e.key === 'Escape' && opts.cerrable) { e.preventDefault(); cerrar(); }
     };
     root.addEventListener('keydown', onKey, true);
@@ -350,6 +471,17 @@
     const foco = tarjetas[first >= 0 ? first : 0];
     setTimeout(() => { if (!R) return; try { foco.card.focus({ preventScroll: true }); foco.card.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) {} }, 60);
     R.raf = root.requestAnimationFrame(bucle);
+
+    // ayuda para la primera visita de cada jugador
+    const guiaKey = 'mw_guia_v1_' + pid; let vista = false; try { vista = root.localStorage.getItem(guiaKey) === '1'; } catch (e) {}
+    if (!vista && perfil && !reducido()) {
+      const objetivo = tarjetas[first >= 0 ? first : 0];
+      const g = el('div', 'mw-guia', '👆 Toca un mundo para jugar.<br><small>¡Puedes elegir el que más te guste!</small>');
+      objetivo.card.appendChild(g);
+      const quitar = () => { g.classList.add('fuera'); setTimeout(() => g.remove(), 400); try { root.localStorage.setItem(guiaKey, '1'); } catch (e) {} };
+      R.timers.push(root.setTimeout(quitar, 9000));
+      track.addEventListener('pointerdown', quitar, { once: true }); rootEl.addEventListener('keydown', quitar, { once: true });
+    }
 
     // sonido de hover solo después del arranque (evita el "tic" inicial) + sello con golpe y chispas
     setTimeout(() => { if (R) R.sonar = true; }, 900);
@@ -371,10 +503,67 @@
     }
   }
 
+  /** Texto corto con el avance del jugador, listo para pegar en WhatsApp o un correo. */
+  function textoResumen(perfil) {
+    const items = estado(perfil), jug = items.filter(x => !x.mundo.bloqueado && !x.mundo.fueraDeProgreso), hechos = jug.filter(x => x.prog.estado === 'completado');
+    const rc = estadoRacha(perfil), res = resumenTablas(perfil), debil = tablaDebil(perfil);
+    const L = ['📒 Ninja Multiplicación — avance de ' + String((perfil && perfil.nombre) || 'jugador'), ''];
+    L.push('🌍 Mundos terminados: ' + hechos.length + ' de ' + jug.length + (hechos.length ? ' (' + hechos.map(x => x.mundo.nombre).join(', ') + ')' : ''));
+    L.push('🔥 Racha: ' + rc.dias + (rc.dias === 1 ? ' día' : ' días') + (rc.mejor > rc.dias ? ' (mejor: ' + rc.mejor + ')' : ''));
+    const con = res.filter(x => x.estado !== 'sin_datos');
+    if (con.length) {
+      L.push('', '📊 Tablas:');
+      con.forEach(x => L.push('  ×' + x.t + ': ' + Math.round(x.acc * 100) + '% de aciertos (' + x.a + ' bien, ' + x.e + ' mal) — ' + ({ dominada: 'dominada', casi: 'casi', practicar: 'a practicar' }[x.estado])));
+      if (debil) L.push('', '🎯 Conviene reforzar la tabla del ' + debil.t + '.');
+    } else L.push('', '📊 Todavía no hay respuestas registradas.');
+    return L.join('\n');
+  }
+  function copiarTexto(txt) {
+    const respaldo = () => { try { const t = doc.createElement('textarea'); t.value = txt; t.style.cssText = 'position:fixed;left:-9999px;top:0'; doc.body.appendChild(t); t.select(); const ok = doc.execCommand('copy'); t.remove(); return Promise.resolve(!!ok); } catch (e) { return Promise.resolve(false); } };
+    if (root.navigator && root.navigator.clipboard && root.navigator.clipboard.writeText) return root.navigator.clipboard.writeText(txt).then(() => true, respaldo);
+    return respaldo();
+  }
+
+  function abrirPanelTablas() {
+    if (!R || R.panel || R.lanzando) return;
+    const perfil = R.perfil, res = resumenTablas(perfil), debil = tablaDebil(perfil), hay = res.some(x => x.estado !== 'sin_datos');
+    const NOM = { sin_datos: 'Sin practicar', practicar: 'A practicar', casi: 'Casi la dominas', dominada: '¡Dominada!' };
+    const p = el('div', 'mw-panel'); p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Mis tablas');
+    const caja = el('div', 'mw-panel-c');
+    caja.appendChild(el('h3', '', '📊 MIS TABLAS'));
+    const barras = el('div', 'mw-tbl');
+    res.forEach(x => {
+      const b = el('div', 'mw-tb ' + x.estado); b.title = x.t + ' × — ' + NOM[x.estado] + (x.n ? ' (' + x.a + ' bien, ' + x.e + ' mal)' : '');
+      b.innerHTML = '<span class="mw-tb-p">' + (x.n >= 4 ? Math.round(x.acc * 100) + '%' : '') + '</span><div class="mw-tb-v"><i style="height:' + (x.n >= 4 ? Math.max(6, Math.round(x.acc * 100)) : 6) + '%"></i></div><b>×' + x.t + '</b>';
+      barras.appendChild(b);
+    });
+    caja.appendChild(barras);
+    const leyenda = el('div', 'mw-ley', '<span class="dominada">● Dominada</span><span class="casi">● Casi</span><span class="practicar">● A practicar</span><span class="sin_datos">● Sin datos</span>');
+    caja.appendChild(leyenda);
+    const msg = el('p', 'mw-panel-m');
+    if (!hay) msg.textContent = 'Aún no hay datos. Juega La Senda del Aprendiz y aquí verás cómo vas en cada tabla.';
+    else if (debil) msg.innerHTML = 'Te conviene reforzar la <b>tabla del ' + debil.t + '</b> (' + Math.round(debil.acc * 100) + '% de aciertos). La Senda del Aprendiz pone más preguntas de lo que más te cuesta.';
+    else msg.textContent = '¡Muy bien! Dominas las tablas que has practicado. Sigue explorando mundos.';
+    caja.appendChild(msg);
+    const fila = el('div', 'mw-panel-b');
+    const senda = R.tarjetas.find(t => t.m.id === 'senda');
+    if (senda && (debil || !hay)) { const g = el('button', 'mw-go', hay ? '▶ PRACTICAR EN LA SENDA' : '▶ EMPEZAR EN LA SENDA'); g.type = 'button'; g.onclick = () => { cerrarPanel(); elegir(senda); }; fila.appendChild(g); }
+    const cp = el('button', 'mw-go sec', '📋 COPIAR RESUMEN'); cp.type = 'button';
+    cp.onclick = () => copiarTexto(textoResumen(perfil)).then(ok => { cp.textContent = ok ? '✔ ¡COPIADO!' : 'No se pudo copiar'; setTimeout(() => { cp.textContent = '📋 COPIAR RESUMEN'; }, 2200); });
+    fila.appendChild(cp);
+    const c = el('button', 'mw-go sec', 'CERRAR'); c.type = 'button'; c.onclick = cerrarPanel; fila.appendChild(c);
+    caja.appendChild(fila);
+    caja.appendChild(el('small', 'mw-panel-f', 'Cuenta tus respuestas en todos los mundos.'));
+    p.appendChild(caja); p.addEventListener('click', e => { if (e.target === p) cerrarPanel(); });
+    R.root.appendChild(p); R.panel = p; SND.mover();
+    setTimeout(() => { const f = p.querySelector('button'); if (f) f.focus({ preventScroll: true }); }, 50);
+  }
+  function cerrarPanel() { if (!R || !R.panel) return; const p = R.panel; R.panel = null; p.classList.add('fuera'); setTimeout(() => p.remove(), 220); const t = R.tarjetas.find(x => x.card === R.ultimoFoco); if (t) t.card.focus({ preventScroll: true }); }
+
   function elegir(t) {
     if (!R || R.lanzando) return;
     if (t.m.bloqueado) { SND.bloqueado(); t.card.animate([{ translate: '0' }, { translate: '-7px' }, { translate: '7px' }, { translate: '-4px' }, { translate: '0' }], { duration: 320 }); return; }
-    R.lanzando = true; SND.elegir();
+    R.lanzando = true; SND.elegir(); registrarPractica(R.perfil);
     try { root.sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
     const rc = R.root.getBoundingClientRect(), b = t.card.getBoundingClientRect();
     const iris = R.root.querySelector('.mw-iris'); iris.style.setProperty('--ix', ((b.left + b.width / 2 - rc.left) / rc.width * 100).toFixed(1) + '%'); iris.style.setProperty('--iy', ((b.top + b.height / 2 - rc.top) / rc.height * 100).toFixed(1) + '%');
@@ -392,13 +581,15 @@
     }, espera);
   }
 
+  function quitarCarga() { if (LOAD) { LOAD.remove(); LOAD = null; } }
+
   function cerrar(silencioso) {
-    if (!R) return; const r = R; R = null;
+    if (!R) { quitarCarga(); return; } const r = R; R = null;
     root.cancelAnimationFrame(r.raf); if (r.onKey) root.removeEventListener('keydown', r.onKey, true); r.timers.forEach(i => root.clearInterval(i)); if (r.io) r.io.disconnect();
-    r.tarjetas.forEach(t => t.anims.forEach(a => { try { a.cancel(); } catch (e) {} }));
+    r.tarjetas.forEach(t => { t.anims.forEach(a => { try { a.cancel(); } catch (e) {} }); if (t.demo) t.demo.destruir(); });
     r.root.remove();
     if (!silencioso && r.opts.onCerrar) r.opts.onCerrar();
   }
 
-  return { abrir, cerrar, estado, siguiente, HEROES };
+  return { abrir, cerrar, estado, siguiente, estadoRacha, resumenTablas, tablaDebil, textoResumen, HEROES };
 });

@@ -18,10 +18,10 @@
  *
  * Este archivo trae decisión, efectos y dibujo. motor.js solo llama a unos ganchos (N1dir.paso, fondo, mundo, encima, hud, luces...)
  * y lee los modificadores S.mod (gravedad, fricción, viento, noche). La parte "pura" se prueba en Node. */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api; else root.N1dir = api;
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const G = 560, W = 1280, H = 720;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
@@ -136,7 +136,7 @@
   function salir(a, motivo) {
     const s = S(), D = s.dir; if (!a || a.sale) return; a.sale = true; a.motivo = motivo;
     if (a.id === 'fuego' && D.fuego && !D.fuego.tocado && (motivo === 'natural' || motivo === 'refugio')) {
-      s.pergaminos += 5; core().texto(s.h.x, s.h.y - 130, '+5 📜 ¡A SALVO!', '#ffd54a'); core().chispas(s.h.x, s.h.y - 60, 24, '#ffd54a'); s.aviso = { t: 2.6, s: '🔥 ¡ESCAPASTE DEL FUEGO!  +5 📜' };
+      s.pergaminos += 5; core().texto(s.h.x, s.h.y - 175, '+5 📜 ¡A SALVO!', '#ffd54a'); core().chispas(s.h.x, s.h.y - 60, 24, '#ffd54a'); s.aviso = { t: 2.6, s: '🔥 ¡ESCAPASTE DEL FUEGO!  +5 📜' };
     }
     D.espera = intervalo(D.dom, zonaDe(s.N, s.h.x), D.rng());
   }

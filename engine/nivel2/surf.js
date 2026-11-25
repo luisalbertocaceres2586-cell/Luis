@@ -49,10 +49,11 @@
   const ambPorRonda = r => r < 2 ? 'dunas' : r < 4 ? 'mina' : r < 6 ? 'cielo' : 'templo';
   const BAND = { dunas: ['#b9764f', '#cf8a58', '#e3a066'], mina: ['#141a4a', '#1a2260', '#222c78'], cielo: ['rgba(88,52,190,.55)', 'rgba(108,68,206,.5)', 'rgba(130,86,224,.45)'], templo: ['#7a4a3c', '#93593f', '#ad6c46'] };
   const GATE = { mina: { compuerta_neutral: 'palanca_verde', compuerta_correcta: 'palanca_verde', compuerta_incorrecta: 'palanca_roja', compuerta_usada: 'palanca_roja' }, cielo: { compuerta_neutral: 'anillo_neutro', compuerta_correcta: 'anillo_ok', compuerta_incorrecta: 'anillo_mal', compuerta_usada: 'anillo_neutro' } };
-  const ga = (g, id) => (GATE[g.amb] && GATE[g.amb][id]) || id, gAlto = g => g.amb === 'cielo' ? 128 : g.amb === 'mina' ? 104 : 98;
+  const ga = (g, id) => (GATE[g.amb] && GATE[g.amb][id]) || id, gAlto = g => (g.amb === 'cielo' ? 128 : g.amb === 'mina' ? 104 : 98) * ESC_H;
   const DEC = { dunas: ['cristales_azules', 'vagoneta_oro', 'tambor_taiko', 'piedra_agrietada'], mina: ['cristales_azules', 'cristales_azules', 'vagoneta_oro', 'caballete_madera'], cielo: ['nube_a', 'nube_b', 'isla_hierba', 'isla_cristal'], templo: ['tambor_taiko', 'piedra_agrietada', 'tambor_taiko'] };
 
-  const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1300, VSALTO = 620;
+  const ESC_H = 1.25, ESC_O = 1.15;   // héroe+vehículo ×1.25 (antes ~122 px se veía pequeño) y obstáculos/puertas/adornos a su escala
+  const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1500, GR_CAIDA = 2000, VSALTO = 666;   // mismo salto de ~148 px, pero se sube más ágil y se cae más rápido (antes flotaba ~0,95 s; ahora ~0,83 s)
   const COL = ['#3fe0cf', '#ffd35a', '#ff7fae'];
   const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
   const R = (a, b) => a + Math.random() * (b - a), RI = (a, b) => Math.floor(R(a, b + 1));
@@ -204,7 +205,7 @@
     // ───────────────────────── generación del recorrido ─────────────────────────
     function addObs(x, l, tipo, v) {
       const h = ({ cac: v ? 44 : 68, roca: v === 2 ? 56 : v ? 30 : 52, rueda: 46, ser: 26, esc: 30, pin: 24, sie: 46, can: 44, oni: 64, cri: 40, nube: 54 })[tipo];
-      const alto = ({ cac: v ? 68 : 112, roca: v === 2 ? 92 : v ? 46 : 80, rueda: 74, ser: 34, esc: 58, pin: 46, sie: 72, can: 76, oni: 124, cri: 78, nube: 96 })[tipo];
+      const alto = Math.round(({ cac: v ? 68 : 112, roca: v === 2 ? 92 : v ? 46 : 80, rueda: 74, ser: 34, esc: 58, pin: 46, sie: 72, can: 76, oni: 124, cri: 78, nube: 96 })[tipo] * (tipo === 'oni' ? 1.3 : ESC_O));
       const ob = { x, l, tipo, v, h, alto, hit: false, cd: -1, cambio: false }; S.obs.push(ob); return ob;
     }
     const addGota = (x, l, y) => S.drops.push({ x, l, y, ok: false });
@@ -255,7 +256,7 @@
         const tra = Math.random() < .55; S.pads.push({ x: p.x, l: p.l, tipo: tra ? 'trampolin' : 'cinta_transportadora', ok: false, t: 0 });
         if (tra) [[80, 150], [160, 240], [240, 270], [320, 240], [400, 150]].forEach(([dx, y]) => addGota(p.x + dx, p.l, y));
       }
-      for (let k = 0; k < 3; k++) S.decor.push({ x: x0 + RI(0, largo), id: pick(DEC[amb || 'dunas']), alto: amb === 'cielo' ? RI(40, 64) : RI(54, 86), amb, dy: amb === 'cielo' ? -RI(30, 120) : 0 });
+      for (let k = 0; k < 3; k++) S.decor.push({ x: x0 + RI(0, largo), id: pick(DEC[amb || 'dunas']), alto: Math.round((amb === 'cielo' ? RI(40, 64) : RI(54, 86)) * ESC_O), amb, dy: amb === 'cielo' ? -RI(30, 120) : 0 });
     }
     function recoger(p) {
       p.ok = true; beep(900, .08, 'sine'); const px = X_H, py = laneY(S.d, S.lane) - 150;
@@ -398,9 +399,11 @@
 
     // ───────────────────────── reglas ─────────────────────────
     // primer error de una puerta: no quita corazón, enseña la cuenta y la misma tabla vuelve a salir un poco más adelante
+    // aciertos/errores por operación ("7x8"): al terminar la partida se suman a la maestría del perfil
+    function hecho(k, ok) { if (!S) return; const h = (S.hechos = S.hechos || {}); (h[k] = h[k] || { a: 0, e: 0 })[ok ? 'a' : 'e']++; }
     function segundaOportunidad(g, gx, gy) {
       const [a, b] = g.q.key.split('x').map(Number), nx = S.d + 1150, lej = x => x < S.d - 60 || x > nx + 150;
-      S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; S.zorro = { est: 'alerta', t: 2 };
+      S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; hecho(g.q.key, false); S.zorro = { est: 'alerta', t: 2 };
       chispas(gx, gy, 16, ['#ffb347', '#ffe27a'], 220, .8); msg('¡Casi! ' + a + ' × ' + b + ' = ' + a * b + ' · ¡otra oportunidad!', 2.8); beep(300, .18, 'triangle');
       S.obs = S.obs.filter(ob => lej(ob.x)); S.drops = S.drops.filter(d => lej(d.x)); S.pows = S.pows.filter(p => lej(p.x)); S.cofres = S.cofres.filter(c => lej(c.x)); S.pads = S.pads.filter(p => lej(p.x)); S.balas = [];
       const ng = nuevaPuerta(nx, pregunta(S.fallos, false, [a, b]), true); ng.reint = true; ng.amb = g.amb; S.gates.sort((u, v) => u.x - v.x);
@@ -414,14 +417,14 @@
       if (!ok && CONFIG.SEGUNDA && !g.reint) return segundaOportunidad(g, gx, gy);
       S.respondidas++;
       if (ok) {
-        S.aci++; S.racha++; S.errSeg = 0; const pts = 100 + Math.min(S.racha, 6) * 25; S.punt += pts; S.boost = .9; S.flash = .22; S.zorro = { est: 'celebra', t: 1.3 };
+        S.aci++; hecho(g.q.key, true); S.racha++; S.errSeg = 0; const pts = 100 + Math.min(S.racha, 6) * 25; S.punt += pts; S.boost = .9; S.flash = .22; S.zorro = { est: 'celebra', t: 1.3 };
         chispas(gx, gy, 34, ['#53e08a', '#ffe27a', '#fff', '#6fd6ff'], 320, 1.1); pop('+' + pts, gx, gy - 40, '#53e08a', 34); sonidoOk();
         msg(S.racha >= 3 ? '¡RACHA ×' + S.racha + '!' : '¡CORRECTO! ' + g.q.txt.replace('?', g.q.ans), 1.6);
         if (CONFIG.RACHA_VIDA && S.racha % 3 === 0 && S.vidas < CONFIG.VIDAS) { S.vidas++; msg('¡RACHA ×' + S.racha + '! +1 corazón', 2.2); pop('+1 ♥', gx, gy - 80, '#ff6f8f', 34); }
         if (S.jefe) { S.jefe.hp--; S.jefe.golpe = 1; S.jefe.atq = null; S.shake = .5; if (S.jefe.hp <= 0) return terminar(true); }
       } else {
         const [a, b] = g.q.key.split('x').map(Number);
-        S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; S.zorro = { est: 'alerta', t: 1.8 };
+        S.err++; S.racha = 0; S.errSeg++; S.fallos[g.q.key] = (S.fallos[g.q.key] || 0) + 1; hecho(g.q.key, false); S.zorro = { est: 'alerta', t: 1.8 };
         chispas(gx, gy, 18, ['#ff5a5a', '#ffb0a0'], 240, .8); msg('¡Era ' + a + ' × ' + b + ' = ' + a * b + '!', 2.4);
         daño(); if (S.errSeg === CONFIG.PISTA_TRAS_ERRORES) setTimeout(() => S && S.est === 'play' && msg('Zorrito te ayudará con una pista ✨', 2.2), 1400);
       }
@@ -481,7 +484,9 @@
       S.ly += ((S.vuelo ? S.laneF : S.lane) - S.ly) * Math.min(1, dt * 11); S.fly += (S.ly - S.fly) * Math.min(1, dt * 5);
       if (S.inputs.salto) S.saltoBuf = .12; else if (S.saltoBuf > 0) S.saltoBuf -= dt;   // buffer: el toque justo antes de aterrizar no se pierde
       if (S.saltoBuf > 0 && S.z === 0) { S.vz = VSALTO; S.saltoBuf = 0; beep(420, .08, 'triangle'); } S.inputs.salto = false;
-      S.vz -= GR * dt; S.z = Math.max(0, S.z + S.vz * dt); if (S.z === 0 && S.vz < 0) S.vz = 0; S.fz += (S.z - S.fz) * Math.min(1, dt * 7);
+      { S.vz -= (S.vz > 0 ? GR : GR_CAIDA) * dt; S.z = Math.max(0, S.z + S.vz * dt); const vzI = S.vz; if (S.z === 0 && S.vz < 0) S.vz = 0;
+        if (window.FisicaVisual && !S.vuelo) { if (!S.fv) S.fv = FisicaVisual.nuevo(); const ev = FisicaVisual.paso(S.fv, dt, { suelo: S.z === 0, vy: -S.vz, vyImpacto: vzI, vx: 1, vmax: 1, vref: 800 });
+          if (ev && ev.tipo === 'aterriza') { chispas(X_H, laneY(S.d, S.ly) - 4, 4 + Math.round(8 * ev.f), ['#e8c890', '#d8b878'], 170, .5); if (ev.f > .45) beep(110, .09, 'triangle'); } else if (ev && ev.tipo === 'despega') chispas(X_H, laneY(S.d, S.ly) - 4, 3, ['#e8c890'], 110, .35); } } S.fz += (S.z - S.fz) * Math.min(1, dt * 7);
       S.v += (velObjetivo() - S.v) * Math.min(1, dt * 2.5); S.d += S.v * dt;
       const lh = clamp(Math.round(S.ly), 0, 2);
       // comodín: tacha una respuesta mala de la próxima puerta; dragón de origami decorativo en el cielo
@@ -509,7 +514,7 @@
       S.flags.forEach(f => { if (!f.tipo && !f.tomada && S.d >= f.x) checkpoint(f); });
       S.pows.forEach(pw => { if (!pw.ok && pw.l === lh && Math.abs(pw.x - S.d) < 34 && S.z < 100) recoger(pw); });
       S.cofres.forEach(c => { if (c.est === 0 && c.l === lh && Math.abs(c.x - S.d) < 34 && S.z < 45) { c.est = 1; c.t = .3; S.punt += c.oscuro ? 300 : 150; msg(c.oscuro ? '¡COFRE OSCURO! +300' : '¡COFRE! +150', 1.6); beep(780, .1, 'triangle'); setTimeout(() => beep(1040, .15), 100); } else if (c.est === 1) { c.t -= dt; if (c.t <= 0) c.est = 2; } });
-      S.pads.forEach(pd => { if (pd.t > 0) pd.t -= dt; if (!pd.ok && pd.l === lh && Math.abs(pd.x - S.d) < 28 && S.z < 40) { pd.ok = true; pd.t = .35; if (pd.tipo === 'trampolin') { S.vz = 900; beep(300, .15, 'square'); setTimeout(() => beep(600, .15, 'square'), 80); } else { S.boost = Math.max(S.boost, 1.3); beep(520, .12, 'sawtooth'); } } });
+      S.pads.forEach(pd => { if (pd.t > 0) pd.t -= dt; if (!pd.ok && pd.l === lh && Math.abs(pd.x - S.d) < 28 && S.z < 40) { pd.ok = true; pd.t = .35; if (pd.tipo === 'trampolin') { S.vz = 967; beep(300, .15, 'square'); setTimeout(() => beep(600, .15, 'square'), 80); } else { S.boost = Math.max(S.boost, 1.3); beep(520, .12, 'sawtooth'); } } });
       S.obs.forEach(ob => { if (ob.tipo === 'can' && !ob.fired && ob.x - S.d > 0 && ob.x - S.d < 650) { ob.fired = true; S.balas.push({ x: ob.x - 30, l: ob.l, hit: false }); beep(110, .25, 'sawtooth'); } });
       S.balas.forEach(b => { b.x -= 380 * dt; if (!b.hit && b.l === lh && Math.abs(b.x - S.d) < 26 && S.z < 44) { b.hit = true; if (daño()) msg('¡Bola de fuego!', 1.2); } });
       // zorro: avisa si hay un obstáculo cerca en tu carril
@@ -527,6 +532,12 @@
       banner(AMBS[a].n, a === 'cielo' ? '¡Vuelo libre! Mantén ▲ ▼ o arrastra el dedo' : a === 'mina' ? 'Tu vagoneta va sobre rieles · tira de la palanca correcta' : a === 'templo' ? 'El jefe te espera al final' : '', 3.2, '#8fe9ff');
     }
     function fxUpdate(dt) {
+      // estela del héroe: arena, chispas de la vagoneta o polvo de estrellas de la alfombra
+      S.estelaT = (S.estelaT || 0) - dt;
+      if (S.estelaT <= 0 && S.est === 'play' && S.fase !== 'puente' && S.v > 60 && (S.z <= 2 || AMBS[S.amb].vuelo)) {
+        S.estelaT = S.amb === 'cielo' ? .04 : .055; const gy = laneY(S.d, S.ly) - (AMBS[S.amb].vuelo ? S.z + 10 : 0), cols = S.amb === 'mina' ? ['#ffd35a', '#ff9a3a'] : S.amb === 'cielo' ? ['#d9c4ff', '#fff3b0', '#9ad8ff'] : S.amb === 'templo' ? ['#d9a77a', '#c08560'] : ['#e8c890', '#d8b878'];
+        S.fx.push({ x: X_H - 34 + R(-6, 6), y: gy + R(-4, 6), vx: -(S.v * .55) + R(-30, 10), vy: R(-50, -10), t: R(.25, .45), t0: .45, c: pick(cols), r: R(2, 3.6) });
+      }
       S.fx.forEach(p => { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 420 * dt * (p.t0 > .6 && p.r > 2 ? 1 : .2); }); S.fx = S.fx.filter(p => p.t > 0);
       S.pops.forEach(p => { p.t -= dt; p.y -= 46 * dt; }); S.pops = S.pops.filter(p => p.t > 0);
       S.vuelos.forEach(v => { v.t += dt * 1.8; const k = Math.min(1, v.t), e = k * k * (3 - 2 * k); v.x = v.sx + (v.tx - v.sx) * e; v.y = v.sy + (v.ty - v.sy) * e - Math.sin(Math.PI * e) * 60; }); S.vuelos = S.vuelos.filter(v => v.t < 1);
@@ -570,7 +581,7 @@
       cx.fillStyle = '#ffe9a8'; cx.beginPath(); cx.arc(800, 92, 38, 0, 7); cx.fill(); cx.fillStyle = '#2a1f55'; cx.beginPath(); cx.arc(815, 84, 34, 0, 7); cx.fill();
       cieloExtra(cam);
       cx.fillStyle = '#3a2a63'; const pc = -cam * .08 % 700; for (let i = -1; i < 3; i++) { const px = pc + i * 700 + 300; cx.beginPath(); cx.moveTo(px - 70, 262); cx.lineTo(px, 182); cx.lineTo(px + 70, 262); cx.fill(); }
-      [[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]].forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
+      /** @type {any[][]} */ ([[.12, 258, '#3a2a63', 90], [.28, 292, '#5b3a6e', 60]]).forEach(([p, b, c, a]) => { cx.fillStyle = c; cx.beginPath(); cx.moveTo(0, H); for (let x = 0; x <= W; x += 16) cx.lineTo(x, b + Math.sin((x + cam * p) / 230) * a * .5); cx.lineTo(W, H); cx.fill(); });
     }
     function fondoAmb(amb, cam) {
       if (amb === 'dunas') return fondoDunas(cam);
@@ -581,7 +592,7 @@
         const x0 = k * w - off; if (x0 > W || x0 + w < 0) continue;
         cx.save(); if (k & 1) { cx.translate(x0 + w, 0); cx.scale(-1, 1); cx.drawImage(m, 0, 0, w, alto); } else cx.drawImage(m, x0, 0, w, alto); cx.restore();
       }
-      if (amb === 'cielo') [['nube_a', 0, 70, 52, .35], ['nube_b', 520, 150, 44, .5], ['nube_a', 1040, 215, 40, .65], ['nube_b', 1560, 105, 56, .4]].forEach(([id, ix, iy, al, pp]) => { const per = 2100, x = ((ix - cam * pp) % per + per) % per - 260; spr(id, 0, x, iy + al + Math.sin(S.t * .6 + ix) * 4, al, false, .8); });
+      if (amb === 'cielo') /** @type {any[][]} */ ([['nube_a', 0, 70, 52, .35], ['nube_b', 520, 150, 44, .5], ['nube_a', 1040, 215, 40, .65], ['nube_b', 1560, 105, 56, .4]]).forEach(([id, ix, iy, al, pp]) => { const per = 2100, x = ((ix - cam * pp) % per + per) % per - 260; spr(id, 0, x, iy + al + Math.sin(S.t * .6 + ix) * 4, al, false, .8); });
     }
     function fondo(cam) {
       if (S.ambT > 0 && S.ambPrev) { fondoAmb(S.ambPrev, cam); cx.globalAlpha = 1 - S.ambT; fondoAmb(S.amb, cam); cx.globalAlpha = 1; } else fondoAmb(S.amb, cam);
@@ -595,11 +606,62 @@
     // islas flotantes, puentes lejanos y dragón de origami en el cielo (parallax lento)
     function cieloExtra(cam) {
       const per = 1700, px = ix => ((ix - cam * .05) % per + per) % per - 160;
-      [['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]].forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
+      /** @type {any[][]} */ ([['isla_desierto', 90, 150, 62], ['isla_cristal', 470, 98, 68], ['isla_hielo', 800, 168, 58], ['isla_hierba', 1180, 120, 64], ['isla_lava', 1470, 160, 60]]).forEach(([id, ix, iy, al]) => spr(id, 0, px(ix), iy + al + Math.sin(S.t * .8 + ix) * 6, al, false, .92));
       spr('enredadera', 0, px(1180), 184 + Math.sin(S.t * .8 + 1180) * 6 + 30, 34, false, .85); spr('puente_colgante', 0, px(280), 205, 30, false, .7); spr('puente_piedra', 0, px(1020), 215, 34, false, .7);
       if (S.dragon) spr('dragon_origami', 0, S.dragon.x, S.dragon.y + 70 + Math.sin(S.t * 2) * 8, 70, true);
     }
     function curva(l, cam, dy, f) { for (let x = 0; x <= W + 12; x += 12) { const y = laneY(cam + x, l) + dy; f(x, y, x === 0); } }
+    // ───────────────────────── detalle visual del suelo, estela y luz final ─────────────────────────
+    const hashN = (a, b) => { let n = (Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+    const GRADO = { dunas: ['#ffb36b', '#ff6a9a'], mina: ['#4cc9ff', '#2a3cff'], cielo: ['#b88cff', '#ffd0f0'], templo: ['#ffd27a', '#ff8a4a'] };
+    let vigC = null;
+    // marcas del suelo ancladas al mundo (se mueven exactamente con el carril): ondas de arena, piedrecitas, destellos de cristal, jirones de nube, juntas del templo
+    function texturaBanda(l, cam) {
+      const amb = S.amb, ai = amb === 'dunas' ? 1 : amb === 'mina' ? 2 : amb === 'cielo' ? 3 : 4, paso = amb === 'templo' ? 140 : 56;
+      cx.save(); cx.lineCap = 'round';
+      for (let i = Math.floor(cam / paso) - 1; i * paso < cam + W + paso; i++) {
+        const h = hashN(i, l * 7 + ai), h2 = hashN(i + 91, l * 5 + ai), wx = i * paso + h2 * 20, x = wx - cam, y = laneY(wx, l) + (hashN(i + 7, l + ai) - .5) * (CARR - 18);
+        if (amb === 'dunas') {
+          if (h < .55) { const L = 24 + h2 * 22; cx.strokeStyle = 'rgba(110,60,35,.2)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, y); cx.quadraticCurveTo(x + L / 2, y - 4, x + L, y); cx.stroke(); cx.strokeStyle = 'rgba(255,228,175,.16)'; cx.beginPath(); cx.moveTo(x, y + 3); cx.quadraticCurveTo(x + L / 2, y - 1, x + L, y + 3); cx.stroke(); }
+          else if (h > .9) { cx.fillStyle = 'rgba(80,45,30,.3)'; cx.beginPath(); cx.ellipse(x, y, 4 + h2 * 3, 2.5, 0, 0, 7); cx.fill(); }
+        } else if (amb === 'mina') {
+          if (h < .3) { cx.fillStyle = 'rgba(8,12,40,.45)'; cx.beginPath(); cx.ellipse(x, y, 6 + h2 * 6, 3, 0, 0, 7); cx.fill(); }
+          else if (h > .82) { const a = .25 + .35 * Math.abs(Math.sin(S.t * 2.2 + i)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(120,225,255,' + a + ')'; cx.fillRect(x - 5, y, 10, 1.6); cx.fillRect(x - .8, y - 5, 1.6, 10); cx.globalCompositeOperation = 'source-over'; }
+        } else if (amb === 'cielo') {
+          if (h < .38) { cx.fillStyle = 'rgba(255,255,255,.1)'; cx.beginPath(); cx.ellipse(x, y, 26 + h2 * 38, 4, 0, 0, 7); cx.fill(); }
+          else if (h > .88) { const a = .3 + .4 * Math.abs(Math.sin(S.t * 2.6 + i)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(255,240,190,' + a + ')'; cx.fillRect(x - 3, y, 6, 1.4); cx.fillRect(x - .7, y - 3, 1.4, 6); cx.globalCompositeOperation = 'source-over'; }
+        } else {
+          cx.strokeStyle = 'rgba(40,18,10,.28)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, laneY(wx, l) - CARR / 2 + 3); cx.lineTo(x, laneY(wx, l) + CARR / 2 - 3); cx.stroke();
+          if (h < .35) { cx.fillStyle = 'rgba(230,190,130,.18)'; cx.beginPath(); cx.ellipse(x + 30, y, 12 + h2 * 14, 3, 0, 0, 7); cx.fill(); }
+        }
+      }
+      cx.restore();
+    }
+    // primer plano: bajo el último carril, marcas grandes que pasan más rápido (paralaje) para dar profundidad
+    function primerPlano(cam) {
+      const amb = S.amb, ai = amb === 'dunas' ? 1 : amb === 'mina' ? 2 : amb === 'cielo' ? 3 : 4, par = 1.45, paso = 84, c2 = cam * par;
+      cx.save(); cx.lineCap = 'round';
+      for (let i = Math.floor(c2 / paso) - 1; i * paso < c2 + W + paso; i++) {
+        const h = hashN(i, 31 + ai), h2 = hashN(i + 17, 53 + ai), h3 = hashN(i + 5, 71 + ai), x = i * paso + h2 * 40 - c2, y0 = laneY(cam + x, 2) + CARR / 2, y = y0 + 16 + h3 * Math.max(10, H - y0 - 34), k = .75 + (y - y0) / Math.max(40, H - y0) * .6;
+        if (amb === 'dunas') {
+          if (h < .55) { const L = (46 + h2 * 50) * k; cx.strokeStyle = 'rgba(100,52,30,.24)'; cx.lineWidth = 3 * k; cx.beginPath(); cx.moveTo(x, y); cx.quadraticCurveTo(x + L / 2, y - 6 * k, x + L, y); cx.stroke(); cx.strokeStyle = 'rgba(255,230,180,.18)'; cx.beginPath(); cx.moveTo(x, y + 4 * k); cx.quadraticCurveTo(x + L / 2, y - 2 * k, x + L, y + 4 * k); cx.stroke(); }
+          else if (h > .86) { cx.fillStyle = 'rgba(70,38,26,.34)'; cx.beginPath(); cx.ellipse(x, y, (7 + h2 * 7) * k, 4 * k, 0, 0, 7); cx.fill(); cx.fillStyle = 'rgba(255,225,170,.14)'; cx.beginPath(); cx.ellipse(x - 1, y - 2 * k, (5 + h2 * 5) * k, 2 * k, 0, 0, 7); cx.fill(); }
+        } else if (amb === 'mina') {
+          if (h < .4) { cx.fillStyle = 'rgba(6,8,30,.5)'; cx.beginPath(); cx.ellipse(x, y, (10 + h2 * 10) * k, 5 * k, 0, 0, 7); cx.fill(); }
+          else if (h > .8) { const a2 = .3 + .4 * Math.abs(Math.sin(S.t * 2 + i)); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = 'rgba(110,220,255,' + a2 + ')'; cx.fillRect(x - 8 * k, y, 16 * k, 2); cx.fillRect(x - 1, y - 8 * k, 2, 16 * k); cx.globalCompositeOperation = 'source-over'; }
+        } else if (amb === 'cielo') {
+          if (h < .5) { cx.fillStyle = 'rgba(255,255,255,.12)'; cx.beginPath(); cx.ellipse(x, y, (40 + h2 * 60) * k, 7 * k, 0, 0, 7); cx.fill(); }
+        } else { if (h < .45) { cx.strokeStyle = 'rgba(40,18,10,.26)'; cx.lineWidth = 3 * k; cx.beginPath(); cx.moveTo(x, y - 14 * k); cx.lineTo(x + 18 * k, y + 14 * k); cx.stroke(); } else if (h > .8) { cx.fillStyle = 'rgba(230,190,130,.2)'; cx.beginPath(); cx.ellipse(x, y, 24 * k, 5 * k, 0, 0, 7); cx.fill(); } }
+      }
+      cx.restore();
+    }
+    // viñeta (se dibuja una sola vez en un lienzo aparte) + corrección de color suave según el ambiente
+    function luzFinal() {
+      if (!vigC) { vigC = document.createElement('canvas'); vigC.width = W; vigC.height = H; const x = vigC.getContext('2d'), g = x.createRadialGradient(W / 2, H * .55, H * .36, W / 2, H * .55, H * .98); g.addColorStop(0, 'rgba(5,2,18,0)'); g.addColorStop(1, 'rgba(5,2,18,.52)'); x.fillStyle = g; x.fillRect(0, 0, W, H); const b = x.createLinearGradient(0, H * .72, 0, H); b.addColorStop(0, 'rgba(0,0,0,0)'); b.addColorStop(1, 'rgba(0,0,0,.28)'); x.fillStyle = b; x.fillRect(0, H * .72, W, H * .28); }
+      cx.drawImage(vigC, 0, 0);
+      const gr = GRADO[S.amb] || GRADO.dunas, g2 = cx.createLinearGradient(0, 0, 0, H); g2.addColorStop(0, gr[0]); g2.addColorStop(1, gr[1]);
+      cx.save(); cx.globalCompositeOperation = 'soft-light'; cx.globalAlpha = .26; cx.fillStyle = g2; cx.fillRect(0, 0, W, H); cx.restore();
+    }
     function banda(l, cam) {
       const base = BAND[S.amb][l];
       cx.fillStyle = base; cx.beginPath(); cx.moveTo(0, H); curva(l, cam, -CARR / 2, (x, y) => cx.lineTo(x, y)); cx.lineTo(W + 12, H); cx.fill();
@@ -641,7 +703,7 @@
         const x = g.x - cam; if (x < -70 || x > W + 70) return;
         const dx = Math.abs(g.x - S.d), alfa = g.res ? 1 : clamp(dx / 110, .2, 1);
         for (let l = 0; l < 3; l++) {
-          const y = laneY(g.x, l) - 52, mia = g.res && g.lane === l, corr = g.res && l === g.corr, txt = String(g.q.ops[l]);
+          const y = laneY(g.x, l) - 52 * ESC_H, mia = g.res && g.lane === l, corr = g.res && l === g.corr, txt = String(g.q.ops[l]);
           const col = !g.res ? '#fff' : (mia ? (g.ok ? '#d6ffe4' : '#ffd0d0') : corr ? '#d6ffe4' : '#a79fc4');
           cx.globalAlpha = alfa * (g.tach === l && !g.res ? .35 : 1); T(txt, x, y + 12, txt.length > 2 ? 30 : 36, col, 'center', 7); cx.globalAlpha = 1;
         }
@@ -695,10 +757,10 @@
     }
 
     function zorro() {
-      const x = X_H - 102, wy = S.d - 102, y = laneY(wy, S.fly) - S.fz, e = S.zorro.t > 0 ? S.zorro.est : '';
-      cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, laneY(wy, S.fly) + 4, 30, 6, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      const x = X_H - 125, wy = S.d - 125, y = laneY(wy, S.fly) - S.fz, e = S.zorro.t > 0 ? S.zorro.est : '';
+      cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, laneY(wy, S.fly) + 4, 30 * ESC_H, 6 * ESC_H, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
       const salto = e === 'celebra' ? Math.abs(Math.sin(S.t * 9)) * 14 : 0;
-      const ok = e === 'celebra' ? spr('zorro_celebra', 0, x, y + 4 - salto, 84) : e === 'alerta' ? spr('zorro_alerta', 0, x, y + 4, 84) : spr('zorro_run', S.t * 11, x, y + 3, 62);
+      const ok = e === 'celebra' ? spr('zorro_celebra', 0, x, y + 4 - salto, 84 * ESC_H) : e === 'alerta' ? spr('zorro_alerta', 0, x, y + 4, 84 * ESC_H) : spr('zorro_run', S.t * 11, x, y + 3, 62 * ESC_H);
       if (!ok) { cx.fillStyle = '#f2a040'; cx.beginPath(); cx.ellipse(x, y - 20, 26, 16, 0, 0, 7); cx.fill(); }
     }
     function dibujarSprite() {      // personaje corriendo sobre la tabla (vehículo "tabla")
@@ -706,31 +768,34 @@
       if (!fr || !fr.length) return false;
       const i = a === 'jump' ? clamp(S.vz > 200 ? 0 : S.vz > 0 ? 1 : S.vz > -250 ? 2 : 3, 0, fr.length - 1) : Math.floor(S.t * 10) % fr.length, im = fr[i];
       if (!im || !im.complete || !im.naturalWidth) return false;
-      if (ANT && im._ay) { const k = 118 / 235; cx.drawImage(im, -im._ax * k, -im._ay * k + 6, im.naturalWidth * k, im.naturalHeight * k); return true; }   // Antarez: se alinea por su ancla (pies)
-      const h = 118, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
+      if (ANT && im._ay) { const k = 118 * ESC_H / 235; cx.drawImage(im, -im._ax * k, -im._ay * k + 6, im.naturalWidth * k, im.naturalHeight * k); return true; }   // Antarez: se alinea por su ancla (pies)
+      const h = 118 * ESC_H, w = im.naturalWidth * h / im.naturalHeight; cx.drawImage(im, -w * .5, -h + 6, w, h); return true;
     }
     function heroeEn(x, gy, z, ang, alfa) {     // el héroe parado/andando en cualquier punto (puente)
-      const y = gy - z, vehA = vehAct(); cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 52, 8, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
-      if (vehA === 'vagoneta') return spr('vagoneta_' + hero + '_rueda', S.t * 12, x, y + 4, 128, false, alfa, ang);
-      if (vehA === 'alfombra') return spr('alfombra_' + hero + '_planeo', S.t * 5, x, y - 6 + Math.sin(S.t * 5) * 3, 122, false, alfa, ang);
-      cx.save(); cx.translate(x, y); spr(tablaId, 0, 0, 22, 54); const ok = dibujarSprite(); cx.restore(); return ok;
+      const y = gy - z, vehA = vehAct(); cx.globalAlpha = .3; cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 52 * ESC_H, 8 * ESC_H, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      if (vehA === 'vagoneta') return spr('vagoneta_' + hero + '_rueda', S.t * 12, x, y + 4, 128 * ESC_H, false, alfa, ang);
+      if (vehA === 'alfombra') return spr('alfombra_' + hero + '_planeo', S.t * 5, x, y - 6 + Math.sin(S.t * 5) * 3, 122 * ESC_H, false, alfa, ang);
+      cx.save(); cx.translate(x, y); spr(tablaId, 0, 0, 22 * ESC_H, 54 * ESC_H); const ok = dibujarSprite(); cx.restore(); return ok;
     }
     function heroe() {
       const x = X_H, gy = laneY(S.d, S.ly), y = gy - S.z, ang = Math.atan((hY(S.d + 10) - hY(S.d - 10)) / 20) * .7;
-      cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58, 9, 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      cx.globalAlpha = clamp(.38 - S.z / 380, .08, .38); cx.fillStyle = '#000'; cx.beginPath(); cx.ellipse(x, gy + 5, 58 * ESC_H * (1 - clamp(S.z / 420, 0, .3)), 9 * ESC_H * (1 - clamp(S.z / 420, 0, .3)), 0, 0, 7); cx.fill(); cx.globalAlpha = 1;
+      const fvT = (window.FisicaVisual && S.fv && !S.vuelo) ? FisicaVisual.transformar(S.fv, { suelo: S.z === 0, vy: -S.vz, vx: 1, vmax: 1, vref: 800, bob: 0, amp: .8 }) : null;
+      cx.save(); if (fvT) { cx.translate(x, y); cx.scale(fvT.sx, fvT.sy); cx.translate(-x, -y); }
       const parp = S.inv > 0 && Math.floor(S.t * 14) % 2, alfa = parp ? .4 : 1;
       let ok;
       const vehA = vehAct();
-      if (vehA === 'vagoneta') { const id = S.z > 8 ? 'vagoneta_' + hero + '_salto' : 'vagoneta_' + hero + '_rueda'; ok = spr(id, S.t * 12, x, y + 4, 128, false, alfa, ang); }
-      else if (vehA === 'alfombra') { const bob = S.z === 0 ? Math.sin(S.t * 5) * 3 : 0, id = S.vz > 160 ? 'alfombra_' + hero + '_sube' : S.vz < -160 ? 'alfombra_' + hero + '_baja' : 'alfombra_' + hero + '_planeo'; ok = spr(id, S.t * 5, x, y - 6 + bob, 122, false, alfa, ang); }
+      if (vehA === 'vagoneta') { const id = S.z > 8 ? 'vagoneta_' + hero + '_salto' : 'vagoneta_' + hero + '_rueda'; ok = spr(id, S.t * 12, x, y + 4, 128 * ESC_H, false, alfa, ang); }
+      else if (vehA === 'alfombra') { const bob = S.z === 0 ? Math.sin(S.t * 5) * 3 : 0, id = S.vz > 160 ? 'alfombra_' + hero + '_sube' : S.vz < -160 ? 'alfombra_' + hero + '_baja' : 'alfombra_' + hero + '_planeo'; ok = spr(id, S.t * 5, x, y - 6 + bob, 122 * ESC_H, false, alfa, ang); }
       else {
         cx.save(); cx.globalAlpha = alfa; cx.translate(x, y); cx.rotate(ang * .8);
-        if (!spr(tablaId, 0, 0, 22, 54)) { cx.fillStyle = '#7a4a8c'; cx.beginPath(); cx.ellipse(0, 4, 40, 8, 0, 0, 7); cx.fill(); }
+        if (!spr(tablaId, 0, 0, 22 * ESC_H, 54 * ESC_H)) { cx.fillStyle = '#7a4a8c'; cx.beginPath(); cx.ellipse(0, 4, 40, 8, 0, 0, 7); cx.fill(); }
         ok = dibujarSprite(); cx.restore();
       }
       if (!ok) { cx.save(); cx.globalAlpha = alfa; cx.fillStyle = '#7a4a8c'; cx.fillRect(x - 40, y - 8, 80, 8); cx.fillStyle = kage ? '#4aa3ff' : '#ff6fa8'; cx.fillRect(x - 10, y - 50, 20, 40); cx.fillStyle = '#f2d1ad'; cx.beginPath(); cx.arc(x, y - 60, 12, 0, 7); cx.fill(); cx.restore(); }
-      if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(x - 70 - i * 16, y - 20 + i * 12); cx.lineTo(x - 120 - i * 16, y - 20 + i * 12); cx.stroke(); } }
-      if (S.escudo) { const gr = cx.createRadialGradient(x, y - 58, 20, x, y - 58, 78); gr.addColorStop(0, 'rgba(111,214,255,.04)'); gr.addColorStop(.8, 'rgba(111,214,255,.22)'); gr.addColorStop(1, 'rgba(190,240,255,.7)'); cx.fillStyle = gr; cx.beginPath(); cx.arc(x, y - 58, 78 + Math.sin(S.t * 6) * 2, 0, 7); cx.fill(); }
+      if (S.boost > 0) { cx.strokeStyle = 'rgba(111,214,255,.8)'; cx.lineWidth = 3; for (let i = 0; i < 3; i++) { cx.beginPath(); cx.moveTo(x - 88 - i * 20, y - 25 + i * 15); cx.lineTo(x - 150 - i * 20, y - 25 + i * 15); cx.stroke(); } }
+      if (S.escudo) { const gr = cx.createRadialGradient(x, y - 72, 25, x, y - 72, 98); gr.addColorStop(0, 'rgba(111,214,255,.04)'); gr.addColorStop(.8, 'rgba(111,214,255,.22)'); gr.addColorStop(1, 'rgba(190,240,255,.7)'); cx.fillStyle = gr; cx.beginPath(); cx.arc(x, y - 72, 98 + Math.sin(S.t * 6) * 2, 0, 7); cx.fill(); }
+      cx.restore();
     }
     // ── jefes: el escorpión persigue desde atrás, el gusano emerge delante, la esfinge y el faraón vigilan al fondo ──
     const poseJefe = () => { const j = S.jefe, A = j.atq; return S.est === 'gano' ? 'derrota' : j.golpe > 0 ? 'golpe' : A ? (A.t < 1.3 ? 'aviso' : 'ataque') : 'idle'; };
@@ -770,10 +835,10 @@
       fondo(cam);
       viento.forEach(w => { const x = ((w.x - cam * .9 * w.s) % (W + 120) + (W + 120)) % (W + 120) - 60; cx.strokeStyle = 'rgba(255,230,190,.16)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, w.y); cx.lineTo(x - w.l, w.y + 2); cx.stroke(); });
       if (S.jefe) jefeFondo(cam);
-      if (S.fase === 'puente') dibujarPuente(); else for (let l = 0; l < 3; l++) { banda(l, cam); if (S.amb === 'mina') rieles(l, cam); guias(l, cam); dibujarLane(l, cam); }
+      if (S.fase === 'puente') dibujarPuente(); else for (let l = 0; l < 3; l++) { banda(l, cam); texturaBanda(l, cam); if (l === 2) primerPlano(cam); if (S.amb === 'mina') rieles(l, cam); guias(l, cam); dibujarLane(l, cam); }
       jefeRayos(cam); numerosPuertas(cam); dibujarBuitre();
       S.fx.forEach(p => { cx.globalAlpha = clamp(p.t / p.t0, 0, 1); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); }); cx.globalAlpha = 1;
-      cx.restore(); hud();
+      cx.restore(); luzFinal(); hud();
     }
 
     // ───────────────────────── interfaz ─────────────────────────
@@ -866,6 +931,7 @@
       if (S.est !== 'play') return; S.est = gano ? 'gano' : 'perdio'; if (gano) ganadasSesion++; beep(gano ? 988 : 120, .6, gano ? 'sine' : 'sawtooth');
       if (gano) { guardar(KCP, null); S.zorro = { est: 'celebra', t: 9 }; chispas(W / 2, 220, 60, ['#ffe27a', '#53e08a', '#fff', '#ff7fae'], 420, 1.6); }
       const estr = !gano ? 0 : S.caidas > 0 ? (S.err <= 5 ? 2 : 1) : S.err <= 1 ? 3 : S.err <= 4 ? 2 : 1;
+      if (o.perfil && window.Perfiles && Perfiles.registrarHechos) { try { Perfiles.registrarHechos(o.perfil.id, S.hechos); } catch (e) {} }
       if (o.perfil && window.Perfiles) { try { Perfiles.actualizar(o.perfil.id, p => { p.nivel2 = p.nivel2 || {}; p.nivel2.fallos = S.fallos; p.nivel2.mejor = Math.max(p.nivel2.mejor || 0, S.punt); p.nivel2.intentos = (p.nivel2.intentos || 0) + 1; p.nivel2.estrellas = Math.max(p.nivel2.estrellas || 0, estr); if (gano) p.nivel2.completados = (p.nivel2.completados || 0) + 1; p.estadisticas = p.estadisticas || { aciertos: 0, errores: 0, minutos: 0 }; p.estadisticas.aciertos += S.aci; p.estadisticas.errores += S.err; p.estadisticas.minutos += Math.round(S.t / 6) / 10; }); } catch (e) {} }
       setTimeout(() => {
         const p = document.createElement('div'); p.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000000b0;color:#fff;text-align:center;padding:20px';
@@ -897,7 +963,7 @@
     const vis = () => { if (document.hidden && S && S.est === 'play') S.pausa = true; };
     document.addEventListener('visibilitychange', vis);
     if (touch) {
-      [['▲', 'right:14px;bottom:124px;width:76px;height:76px', () => { if (S.vuelo) S.hold.up = 1; else lane(S.lane - 1); }], ['▼', 'right:14px;bottom:40px;width:76px;height:76px', () => { if (S.vuelo) S.hold.down = 1; else lane(S.lane + 1); }], ['SALTAR', 'right:104px;bottom:40px;width:120px;height:76px', () => { if (S) S.inputs.salto = true; }]].forEach(([t, pos, fn]) => {
+      /** @type {[string, string, () => void][]} */ ([['▲', 'right:14px;bottom:124px;width:76px;height:76px', () => { if (S.vuelo) S.hold.up = 1; else lane(S.lane - 1); }], ['▼', 'right:14px;bottom:40px;width:76px;height:76px', () => { if (S.vuelo) S.hold.down = 1; else lane(S.lane + 1); }], ['SALTAR', 'right:104px;bottom:40px;width:120px;height:76px', () => { if (S) S.inputs.salto = true; }]]).forEach(([t, pos, fn]) => {
         const b = document.createElement('button'); b.textContent = t; b.style.cssText = 'position:absolute;' + pos + ';border-radius:38px;border:2px solid #ffe27a;background:#ffffff26;color:#fff;font:bold 18px ' + FUENTE + ';touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none';
         b.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); fn(); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, () => { if (S) S.hold = { up: 0, down: 0 }; })); root.appendChild(b);
       });

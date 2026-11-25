@@ -17,10 +17,10 @@
  *   bloqueado            true = tarjeta "Próximamente"
  *   visible(perfil)      false = no se muestra (opcional)
  */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.MundosRegistro = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   const A = 'assets/';
   const EN = A + 'environment/';
@@ -33,6 +33,7 @@
   }
   function numero(v) { return typeof v === 'number' && isFinite(v) ? v : 0; }
 
+  /** @type {Mundo[]} */
   const lista = [
     {
       id: 'senda',
@@ -56,6 +57,7 @@
       ],
       extra: { img: N1 + 'enemigos/ninja_sombra.png', lado: 'izq', h: 40, y: 0 },
       heroe: 'corre',
+      demo: { tipo: 'lateral' },
       particulas: 'luciernagas',
       progreso: p => {
         const n = (p && p.nivel1) || {};
@@ -85,6 +87,7 @@
       ],
       extra: { frames: [0, 1, 2].map(i => N2 + 'companero/zorro_run_0' + i + '.png'), lado: 'der', h: 24, y: 0, fps: 9 },
       heroe: 'vuela',
+      demo: { tipo: 'vuelo' },
       particulas: 'arena',
       progreso: p => {
         const n = (p && p.nivel2) || {};
@@ -97,8 +100,8 @@
       id: 'farolillos',
       nombre: 'Carrera de los Farolillos',
       nivel: 'MUNDO 3',
-      lema: 'Corre de noche, esquiva barriles y sigue la cadena de múltiplos.',
-      tablas: 'Cadenas y múltiplos',
+      lema: 'Corre de noche, junta monedas, vuela en tabla de nube y elige con calma la respuesta.',
+      tablas: 'Tablas del 7, 8 y 9',
       duracion: '8–12 min',
       dificultad: 2,
       acento: '#ffd24a', acento2: '#e8892b',
@@ -112,6 +115,7 @@
         { img: EN + 'props/lights/hanging_lantern_c.png', x: 70, h: 40, capa: 'cerca', alto: true }
       ],
       heroe: 'corre',
+      demo: { tipo: 'carril', ruta: ['#4b3f7c', '#2b2152'], pano: 'assets/nivel3/arte/mundos/pano_aldea.jpg' },
       particulas: 'farolillos',
       progreso: p => {
         const n = (p && p.nivel3) || {};
@@ -133,23 +137,34 @@
       heroe: 'corre',
       particulas: 'brasas',
       fueraDeProgreso: true,
-      visible: p => !!(p && p.progreso && p.progreso.nivel > 0),
+      visible: p => !!(p && p.progreso && (p.progreso.nivel > 0 || p.progreso.puntos > 0)),
       progreso: () => ({ estado: 'en_curso', estrellas: 0 })
     },
     {
-      id: 'proximo',
-      nombre: '???',
+      id: 'negativo',
+      nombre: 'El Mundo Negativo',
       nivel: 'MUNDO 4',
-      lema: 'Un nuevo mundo está en camino…',
-      tablas: '—', duracion: '—', dificultad: 0,
-      acento: '#8fb6ff', acento2: '#5a7fd0',
-      cielo: ['#0b1230', '#2c4a85'],
-      fases: [{ nombre: 'Próximamente', far: EN + 'backgrounds/themes/montanas_ice.png', suelo: ['#44608f', '#16223f'] }],
-      props: [],
+      lema: 'Gira la sala, cambia la gravedad y devuélvele el color al mundo.',
+      tablas: 'Repaso de todas las tablas',
+      duracion: '10–15 min',
+      dificultad: 3,
+      acento: '#9fb4d8', acento2: '#5a6f9c',
+      cielo: ['#05060f', '#2b3550'],
+      fases: [{ nombre: 'Mundo en negativo', far: EN + 'backgrounds/themes/montanas_ice.png', suelo: ['#44608f', '#16223f'] }],
+      props: [
+        { img: EN + 'props/crystals/crystal_blue_d.png', x: 12, h: 44, capa: 'medio' },
+        { img: EN + 'props/crystals/crystal_purple_b.png', x: 70, h: 40, capa: 'medio' }
+      ],
+      extra: { img: N1 + 'enemigos/guardia_piedra.png', lado: 'der', h: 42, y: 0 },
       heroe: 'corre',
+      demo: { tipo: 'lateral' },
       particulas: 'cristales',
-      bloqueado: true,
-      progreso: () => ({ estado: 'bloqueado', estrellas: 0 })
+      progreso: p => {
+        const n = (p && p.nivel4) || {};
+        const est = n.completado ? 'completado' : (numero(n.intentos) > 0 || numero(n.salaMax) > 0 ? 'en_curso' : 'nuevo');
+        return { estado: est, estrellas: numero(n.estrellas), mejor: numero(n.mejor), veces: numero(n.intentos) };
+      },
+      url: p => 'nivel4.html?' + qs(p)
     }
   ];
 

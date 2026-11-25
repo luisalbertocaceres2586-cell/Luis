@@ -2,20 +2,22 @@
  * Varios jugadores en el mismo computador, cada uno con su nombre, avatar, dispositivo y progreso.
  * Todo se guarda en localStorage (clave ninja_perfiles_v1). También se puede exportar/importar con un código
  * para pasar la partida a otro computador. Funciona en navegador y en Node (para las pruebas). */
-(function (root, factory) {
+(/** @param {any} root @param {(...deps: any[]) => any} factory */ function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.Perfiles = factory();
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : this, function () {
   const KEY = 'ninja_perfiles_v1';
+  /** @type {Storage | {getItem(k: string): string | null, setItem(k: string, v: string): void, removeItem(k: string): void} | null} */
   let store = (typeof localStorage !== 'undefined') ? localStorage : null;
 
   function usarAlmacen(s) { store = s; }
   function leer() {
+    if (!store) return { v: 1, activo: null, perfiles: {} };
     try { const d = JSON.parse(store.getItem(KEY) || 'null'); if (d && d.v === 1 && d.perfiles) return d; } catch (e) {}
     return { v: 1, activo: null, perfiles: {} };
   }
-  function escribir(d) { try { store.setItem(KEY, JSON.stringify(d)); return true; } catch (e) { return false; } }
-  function limpiarNombre(n) { return String(n == null ? '' : n).replace(/[<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14); }
+  function escribir(d) { if (!store) return false; try { store.setItem(KEY, JSON.stringify(d)); return true; } catch (e) { return false; } }
+  function limpiarNombre(n) { return String(n == null ? '' : n).replace(/[<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
   function idDe(nombre) { return limpiarNombre(nombre).toLowerCase().replace(/[^a-z0-9áéíóúñü]+/g, '-'); }
 
   function nuevoPerfil(nombre, avatar, dispositivo) {
@@ -42,11 +44,34 @@
     d.perfiles[id] = p; d.activo = id;
     return escribir(d) ? { ok: true, perfil: p } : { ok: false, error: 'No se pudo guardar (almacenamiento bloqueado).' };
   }
+  /* Jugador ligado a una cuenta (apodo): lo crea si no existe, o adopta uno local con el mismo nombre,
+     y lo deja como jugador activo. Así el juego no vuelve a pedir el nombre. */
+  function paraCuenta(nick, avatar, dispositivo) {
+    const nombre = limpiarNombre(nick), id = idDe(nombre);
+    if (nombre.length < 2 || !id) return null;
+    const d = leer();
+    const p = d.perfiles[id] || (d.perfiles[id] = nuevoPerfil(nombre, avatar, dispositivo));
+    p.cuenta = String(nick).toLowerCase(); p.ultimo = Date.now(); d.activo = id;
+    return escribir(d) ? p : null;
+  }
   function listar() {
     return Object.values(leer().perfiles).sort((a, b) => b.ultimo - a.ultimo);
   }
   function obtener(id) { return leer().perfiles[id] || null; }
   function activo() { const d = leer(); return d.activo ? d.perfiles[d.activo] || null : null; }
+  /* Suma aciertos/errores por operación ("7x8": {a, e}) a la maestría del perfil. Lo usan los niveles 2 y 3
+     (el nivel 1 la maneja con su propio modelo). Misma regla de cajas: acierto +1, error −2, entre 0 y 4. */
+  function registrarHechos(id, hechos) {
+    if (!hechos) return null;
+    return actualizar(id, p => {
+      const m = p.maestria = p.maestria || {};
+      Object.keys(hechos).forEach(k => {
+        if (!/^\d+x\d+$/.test(k)) return;
+        const h = hechos[k] || {}, r = m[k] || (m[k] = { a: 0, e: 0, caja: 0, t: 0 });
+        r.a += h.a | 0; r.e += h.e | 0; r.caja = Math.max(0, Math.min(4, (r.caja | 0) + (h.a | 0) - 2 * (h.e | 0)));
+      });
+    });
+  }
   /* Cierra la sesión: nadie queda como jugador activo (los datos de los perfiles NO se borran). */
   function cerrarSesion() { const d = leer(); d.activo = null; return escribir(d); }
   function elegir(id) {
@@ -91,5 +116,5 @@
     } catch (e) { return { ok: false, error: 'Código no válido.' }; }
   }
 
-  return { crear, listar, obtener, activo, elegir, cerrarSesion, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
+  return { crear, paraCuenta, idDe, listar, obtener, activo, elegir, cerrarSesion, registrarHechos, actualizar, actualizarActivo, borrar, exportar, importar, usarAlmacen, limpiarNombre, KEY };
 });

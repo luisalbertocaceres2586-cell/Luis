@@ -12,16 +12,17 @@ if(window.NinjaMods)return;
 const KEY='ninja_mods_v1';
 let off={};try{off=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){}
 const master=!/[?&]mods=0/.test(location.search);
+/** @type {any} TODO: describir la API de NinjaMods (util, congelar, abrir, pausaMundo…) */
 const M=window.NinjaMods={list:[],changed:false,
   enabled(id){return master&&off[id]!==false;},
   register(m){this.list.push(m);
     if(this.enabled(m.id)){try{if(m.init)m.init();m._on=true;}catch(e){console.warn('[Mejoras] '+m.id+' no se pudo iniciar:',e);}}},
   set(id,on){off[id]=!!on;this.changed=true;try{localStorage.setItem(KEY,JSON.stringify(off));}catch(e){}},
   /* envolver una función global: antes / después de ejecutarla */
-  after(name,fn){const o=window[name];if(typeof o!=='function')return false;
-    window[name]=function(){const r=o.apply(this,arguments);try{fn.apply(this,arguments);}catch(e){}return r;};return true;},
-  before(name,fn){const o=window[name];if(typeof o!=='function')return false;
-    window[name]=function(){try{fn.apply(this,arguments);}catch(e){}return o.apply(this,arguments);};return true;},
+  after(name,fn){const o=/** @type {any} */ (window)[name];if(typeof o!=='function')return false;
+    /** @type {any} */ (window)[name]=function(){const r=o.apply(this,arguments);try{fn.apply(this,arguments);}catch(e){}return r;};return true;},
+  before(name,fn){const o=/** @type {any} */ (window)[name];if(typeof o!=='function')return false;
+    /** @type {any} */ (window)[name]=function(){try{fn.apply(this,arguments);}catch(e){}return o.apply(this,arguments);};return true;},
   /* toque corto de una tecla virtual (el juego detecta pulsaciones por cuadro, así que se mantiene ~90 ms) */
   tap(code,ms){K[code]=1;setTimeout(()=>{K[code]=0;},ms||90);}
 };
