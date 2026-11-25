@@ -183,33 +183,19 @@
   function ajustar() { if (!cv) return; const k = Math.min(innerWidth / W, innerHeight / H); cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; }
   function crearTactil() {
     const izq = document.createElement('div'), der = document.createElement('div'); izq.className = der.className = 'n1Tac'; izq.style.left = '14px'; der.style.right = '14px';
-    // Un toque muy rápido (< 1 cuadro) podía empezar y terminar entre dos pasos de física y perderse (ataque, esquiva...).
-    // Por eso la tecla soltada se mantiene hasta que corra al menos un paso (máx. ~70 ms).
     const mkBtn = (txt, clase) => { const e = document.createElement('button'); e.textContent = txt; if (clase) e.className = clase; e.addEventListener('contextmenu', ev => ev.preventDefault()); return e; };
-    const b = (txt, tecla, cont, clase) => {
-      const e = mkBtn(txt, clase); let t0 = -1, tok = 0;
-      const liberar = (mio, n) => {
-        if (mio !== tok || !keys[tecla]) return;
-        if (S && S.t === t0 && n < 6) { setTimeout(() => liberar(mio, n + 1), 12); return; }
-        soltar(tecla); keys[tecla] = 0;
-      };
-      // pointerdown responde al instante (sin el retraso del "click"). Se captura el puntero para que, si el dedo se desliza un poco,
-      // el botón siga pulsado (antes el salto se cortaba). El salto siempre registra el toque, aunque la tecla se hubiera quedado pegada.
-      const on = ev => { ev.preventDefault(); try { e.setPointerCapture(ev.pointerId); } catch (_) {} tok++; t0 = S ? S.t : -1; e.classList.add('on'); if (!keys[tecla] || tecla === 'Space') pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} },
-            off = ev => { ev.preventDefault(); e.classList.remove('on'); liberar(tok, 0); };
-      e.addEventListener('pointerdown', on); ['pointerup', 'pointerleave', 'pointercancel', 'lostpointercapture'].forEach(t => e.addEventListener(t, off)); cont.appendChild(e);
+    // Todos los botones se registran en la capa táctil común (engine/core/tactil.js): halo de tolerancia, cruceta ◀▶ deslizable,
+    // multitáctil independiente, toque mínimo (un toque más corto que un cuadro no se pierde) y soltado seguro (sin teclas pegadas).
+    const reg = (e, tecla, o) => {
+      const dn = () => { pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} };
+      const up = () => { if (keys[tecla]) { soltar(tecla); keys[tecla] = 0; } };
+      if (window.NinjaTouch) { window.NinjaTouch.add(e, Object.assign({ id: 'n1' + tecla, clase: 'on', down: dn, up }, o)); return; }
+      let pid = null;   // respaldo sin la capa común: un puntero por botón
+      e.addEventListener('pointerdown', ev => { ev.preventDefault(); pid = ev.pointerId; try { e.setPointerCapture(pid); } catch (_) {} e.classList.add('on'); dn(); });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => e.addEventListener(t, ev => { if (ev.pointerId !== pid) return; pid = null; e.classList.remove('on'); up(); }));
     };
-    // ◀ ▶ como una cruceta: el dedo puede deslizarse de un lado al otro sin levantarlo, y toda la zona (incluido el hueco) responde.
-    const cruceta = cont => {
-      const bi = mkBtn('◀'), bd = mkBtn('▶'); let pid = null;
-      const poner = (code, el, on) => { if (on && !keys[code]) { pulsar(code); keys[code] = 1; el.classList.add('on'); } else if (!on && keys[code]) { soltar(code); keys[code] = 0; el.classList.remove('on'); } };
-      const aplicar = x => { const r = cont.getBoundingClientRect(), izqOn = x < r.left + r.width / 2; poner('ArrowLeft', bi, izqOn); poner('ArrowRight', bd, !izqOn); };
-      const fin = ev => { if (pid === null || (ev && ev.pointerId !== pid)) return; pid = null; poner('ArrowLeft', bi, false); poner('ArrowRight', bd, false); };
-      cont.addEventListener('pointerdown', ev => { if (pid !== null) return; ev.preventDefault(); pid = ev.pointerId; try { cont.setPointerCapture(pid); } catch (_) {} aplicar(ev.clientX); });
-      cont.addEventListener('pointermove', ev => { if (ev.pointerId === pid) { ev.preventDefault(); aplicar(ev.clientX); } });
-      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => cont.addEventListener(t, fin));
-      cont.appendChild(bi); cont.appendChild(bd);
-    };
+    const b = (txt, tecla, cont, clase) => { const e = mkBtn(txt, clase); reg(e, tecla, { minHold: tecla === 'Space' ? 0 : 34 }); cont.appendChild(e); };
+    const cruceta = cont => { const bi = mkBtn('◀'), bd = mkBtn('▶'); reg(bi, 'ArrowLeft', { grupo: 'dir', tol: .7, minHold: 40 }); reg(bd, 'ArrowRight', { grupo: 'dir', tol: .7, minHold: 40 }); cont.appendChild(bi); cont.appendChild(bd); };
     cruceta(izq); b('💬', 'KeyE', der); b('🗡', 'KeyC', der); b('✦', 'KeyF', der); b('⤒', 'Space', der, 'n1Salto'); root.appendChild(izq); root.appendChild(der);
   }
 

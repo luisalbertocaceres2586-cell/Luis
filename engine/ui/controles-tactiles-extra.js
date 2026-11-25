@@ -29,9 +29,15 @@ NinjaMods.register({id:'botones-extra',carpeta:'ui',nombre:'Botones táctiles ex
     const place=()=>{const w=b.offsetWidth||44,l=lay()[key];b.style.left=Math.round(innerWidth*l[0]-w/2)+'px';b.style.top=Math.round(innerHeight*l[1]-w/2)+'px';};
     colocar.push(place);
     const hold=code==='KeyS';
-    b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('on');if(hold){K['KeyS']=1;K['ArrowDown']=1;}else NinjaMods.tap(code,110);});
-    const up=()=>{b.classList.remove('on');if(hold){K['KeyS']=0;K['ArrowDown']=0;}};
-    b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);
+    const dn=()=>{if(hold){K['KeyS']=1;K['ArrowDown']=1;}else NinjaMods.tap(code,110);};
+    const upf=()=>{if(hold){K['KeyS']=0;K['ArrowDown']=0;}};
+    if(window.NinjaTouch)NinjaTouch.add(b,{id:'x'+code,clase:'on',minHold:hold?34:0,down:dn,up:upf});   // halo, multitáctil y soltado seguro (engine/core/tactil.js)
+    else{   // respaldo sin la capa común
+      let pid=null;
+      b.addEventListener('pointerdown',e=>{e.preventDefault();pid=e.pointerId;try{b.setPointerCapture(pid);}catch(_){}b.classList.add('on');dn();});
+      const fin=e=>{if(e.pointerId!==pid)return;pid=null;b.classList.remove('on');upf();};
+      ['pointerup','pointercancel','lostpointercapture'].forEach(t=>b.addEventListener(t,fin));
+    }
     m.appendChild(b);
   });
   const ponerTodo=()=>{if(!localStorage.getItem(SK)){const u=Math.max(48,Math.min(66,.14*innerHeight));document.documentElement.style.setProperty('--mbx',Math.round(u*.78)+'px');}colocar.forEach(f=>f());};
