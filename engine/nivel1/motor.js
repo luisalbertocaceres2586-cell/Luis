@@ -264,7 +264,7 @@
   function bucle(now) {
     raf = requestAnimationFrame(bucle); if (!S) return;
     acc += Math.min(0.1, (now - last) / 1000); last = now;
-    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1)); acc -= DT; }
+    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1) * (window.N1cam ? N1cam.escala() : 1)); acc -= DT; }
     dibujar();
   }
   const muroSolido = m => !(m.abierta || m.roto);
@@ -829,7 +829,7 @@
   }
   function dibujar() {
     if (!S || !cx) return;
-    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); cx.clearRect(-20, -20, W + 40, H + 40);
+    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); if (window.N1cam) N1cam.antes(cx); cx.clearRect(-20, -20, W + 40, H + 40);
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
@@ -843,12 +843,13 @@
     if (window.N1amb && !S.nivel2) N1amb.dibujar();
     if (!S.nivel2 && S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
     if (window.N1prof) N1prof.frente();   // primer plano desenfocado (pasa por delante del héroe)
+    if (window.N1cam) N1cam.luces(cx);    // luces aditivas (camara.js)
     oscuridad(); if (window.N1dir && !S.nivel2) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
     if (S.osc > .15) etiquetasAcertijos();
     if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(0, 0, W, H); }
-    if (S.apunta) mira(); cx.restore(); hud();
+    if (S.apunta) mira(); cx.restore(); if (window.N1cam) N1cam.encima(cx); hud();
   }
   function mira() {
     const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(0, 0, W, H);
