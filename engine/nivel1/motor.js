@@ -507,6 +507,7 @@
   Object.assign(core, { sprite, porAncho, etiqueta });
 
   function fondoDesiertoNoche(alpha) {
+    if (window.N1prof && N1prof.desierto(alpha)) return;   // profundidad 2.5D (profundidad.js); si falla, sigue el fondo original
     cx.globalAlpha = alpha;
     const sky = cx.createLinearGradient(0, 0, 0, G + 40);
     sky.addColorStop(0, '#070b28'); sky.addColorStop(.58, '#17143b'); sky.addColorStop(1, '#4b2940');
@@ -581,6 +582,7 @@
     return BG.tiles;
   }
   function fondoBosque(alpha) {
+    if (window.N1prof && N1prof.bosque(alpha)) return;
     cx.globalAlpha = alpha; const c = SKY[S.params.variante] || SKY.A, g = cx.createLinearGradient(0, 0, 0, G + 40);
     g.addColorStop(0, c[0]); g.addColorStop(.55, c[1]); g.addColorStop(1, c[2]); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     // sol con resplandor suave (antes: dos círculos duros que parecían un anillo)
@@ -600,6 +602,7 @@
     const f = cx.createLinearGradient(0, G - 230, 0, G + 20); f.addColorStop(0, 'rgba(255,240,220,0)'); f.addColorStop(1, 'rgba(255,240,220,.32)'); cx.fillStyle = f; cx.fillRect(0, G - 230, W, 250); cx.globalAlpha = 1;
   }
   function fondoCueva(alpha) {
+    if (window.N1prof && N1prof.cueva(alpha)) return;
     cx.globalAlpha = alpha; const g = cx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#07050f'); g.addColorStop(.6, '#150e2c'); g.addColorStop(1, '#241648'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     for (let capa = 0; capa < 2; capa++) {
       const par = capa ? .35 : .18, sep = capa ? 170 : 130; cx.fillStyle = capa ? 'rgba(46,36,84,.8)' : 'rgba(30,22,60,.7)'; const o = -((S.cam * par) % sep);
@@ -639,6 +642,7 @@
     columna: ['columna', 140], hongoGigante: ['hongoGigante', 150], floresLuz: ['floresLuz', 120], altar: ['altar', 130], arco: ['arco', 270], paredMineral: ['paredMineral', 150], cristalesTecho: ['cristalesTecho', 150], raices: ['raices', 170] };
   core.tira = function (im, x, y, w, h) { const sw = Math.min(im.width, im.height * w / h); cx.drawImage(im, (im.width - sw) / 2, 0, sw, im.height, x, y, w, h); };   // franja central de un sprite alto (para hitbox estrechas)
   core.DECO = DECO;   // lo usa ambiente.js para saber el tamaño de cada decorado
+  core.tilesBosque = tilesBosque;   // lo usa profundidad.js: las capas de bambú ilustradas se reutilizan en el parallax 2.5D
   function decorado(capa) {
     S.N.deco.forEach(d => {
       if (d.capa !== capa || d.x < S.cam - 300 || d.x > S.cam + W + 300) return; const q = DECO[d.tipo]; if (!q) return; const im = img[q[0]]; if (!im) return; const w = q[1], hh = im.height * w / im.width, x = d.x - S.cam;
@@ -756,7 +760,7 @@
     const groundOffset = h.suelo ? 4 : 0;
     if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
     if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
-    { const al = alturaSombra(h); cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); }
+    { const al = alturaSombra(h); if (!(window.N1prof && N1prof.sombraHeroe(h, al, ESC_HEROE))) { cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); } }
     cx.save(); cx.translate(h.x - S.cam, h.y + groundOffset); { const T = fvTransform(h); if (T) { cx.translate(0, T.oy); cx.rotate(T.rot); cx.scale(T.sx, T.sy); } } if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
     if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14 * ESC_HEROE, -112 * ESC_HEROE, 52 * ESC_HEROE, 52 * ESC_HEROE * img.antorchaAnim.height / fw); }
     cx.restore();
@@ -779,7 +783,7 @@
     else if (set === 'hurt' || set === 'death') idx = Math.min(arr.length - 1, Math.floor(S.t * 12) % arr.length); else { h.anim += (1 / 60) * fps; idx = Math.floor(h.anim) % arr.length; }
     const f = arr[Math.min(idx, arr.length - 1)], im = img['h:' + set + ':' + Math.min(idx, arr.length - 1)] || img['h:idle:0']; if (!im || !f) return;
     const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s; if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh }; if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
-    { const al = alturaSombra(h); cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); }
+    { const al = alturaSombra(h); if (!(window.N1prof && N1prof.sombraHeroe(h, al, ESC_HEROE))) { cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); } }
     cx.save(); cx.translate(h.x - S.cam, h.y); { const T = fvTransform(h); if (T) { cx.translate(0, T.oy); cx.rotate(T.rot); cx.scale(T.sx, T.sy); } } if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
     if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14 * ESC_HEROE, -112 * ESC_HEROE, 52 * ESC_HEROE, 52 * ESC_HEROE * img.antorchaAnim.height / fw); }
     cx.restore();
@@ -843,7 +847,7 @@
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
-    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
+    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1prof) N1prof.sombras(); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = { onigiri: img.onigiri, frasco: img.frasco, corazon: img.corazon, llave: img.llave }[i.tipo] || img.pergamino, w = { onigiri: 46, frasco: 46, corazon: 54, llave: 52 }[i.tipo] || 52; if (im) { const brilla = i.tipo === 'corazon' || i.tipo === 'llave'; if (brilla) { cx.save(); cx.shadowColor = '#ffe27a'; cx.shadowBlur = 14; } sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); if (brilla) cx.restore(); } });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.kfx.forEach(dibujarKunaiFx);
@@ -852,6 +856,7 @@
     S.part.forEach(p => { cx.globalAlpha = clamp(p.t * 2, 0, 1); cx.fillStyle = p.col; cx.fillRect(p.x - S.cam - p.r / 2, p.y - p.r / 2, p.r, p.r); }); cx.globalAlpha = 1;
     if (window.N1amb && !S.nivel2) N1amb.dibujar();
     if (!S.nivel2 && S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
+    if (window.N1prof) N1prof.frente();   // primer plano desenfocado (pasa por delante del héroe)
     oscuridad(); if (window.N1dir && !S.nivel2) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
