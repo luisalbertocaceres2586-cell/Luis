@@ -24,7 +24,7 @@ const img=src=>{const i=new Image();i.decoding='async';i.src=src;return i;};
 const ok=i=>i&&i.complete&&i.naturalWidth>0;
 
 /* ---------- arte del repositorio ---------- */
-const IM={bg:img('assets/embebidas/f6bc290b80.jpg'),logo:img('assets/embebidas/67423bd03d.png'),
+const IM={bg:img('assets/embebidas/f6bc290b80.jpg'),logo:img('assets/logo-ninja-x/logo_completo.webp'),aura:img('assets/logo-ninja-x/aura.webp'),
   isl:img('assets/environment/backgrounds/scenery/floating_islands_sakura.png'),vil:img('assets/characters/villain/portrait.png'),
   boom:img('assets/effects/explosion_magia_a.png'),crack:img('assets/effects/fx_grieta_cielo_magia.png'),petal:img('assets/intro-premium/petalo_sakura.png')};
 const CLOUDS=['c01','d01','d02','d03'].map(n=>img('assets/environment/sky/clouds/cloud_'+n+'.png'));
@@ -48,7 +48,7 @@ html.ipActive #tutorialModal{display:none!important}
 .n26bars i:first-child{top:0}.n26bars i:last-child{bottom:0}#n26.cin .n26bars i{height:9vh}
 #n26ld{position:absolute;left:0;right:0;top:0;bottom:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4vh,34px);transition:opacity .6s,transform .8s;padding-bottom:4vh}
 #n26ld.gone{opacity:0;transform:translateY(-12px) scale(.98);pointer-events:none}
-.n26logo{width:min(66vw,540px);max-height:34vh;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,150,30,.5)) drop-shadow(0 8px 14px rgba(0,0,0,.65));animation:n26float 5s ease-in-out infinite}
+.n26logo{width:min(60vw,500px);max-height:29vh;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,150,30,.5)) drop-shadow(0 8px 14px rgba(0,0,0,.65));animation:n26float 5s ease-in-out infinite}
 @keyframes n26float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .n26bar{position:relative;width:min(56vw,360px);height:4px;border-radius:9px;background:rgba(160,190,255,.16);overflow:visible}
 .n26fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:9px;background:linear-gradient(90deg,#8b5cf6,#3fa7ff 55%,#ffd36b);box-shadow:0 0 14px rgba(80,170,255,.7)}
@@ -237,8 +237,8 @@ function drawStory(){
   /* Acto 4 · título */
   if(D>0){const g=cx.createRadialGradient(VW/2,VH*.46,0,VW/2,VH*.46,Math.max(VW,VH)*.7);g.addColorStop(0,'rgba(120,60,20,'+.7*D+')');g.addColorStop(.5,'rgba(25,8,50,'+.82*D+')');g.addColorStop(1,'rgba(2,2,12,'+D+')');cx.fillStyle=g;cx.fillRect(0,0,VW,VH);
     cell(IM.boom,0,0,3,2,VW/2,VH*.46,VW*.55*(.4+eo((t-15)/.6)),1-ss(15.2,16.6,t));
-    const u=cl((t-15.1)/.55,0,1),sc=1+1.6*Math.pow(1-u,3),w=Math.min(VW*.74,640,VH*1.5),h=w*IM.logo.naturalHeight/(IM.logo.naturalWidth||1);
-    if(ok(IM.logo)){cx.save();cx.translate(VW/2,VH*.44+Math.sin(t*1.6)*4);cx.scale(sc,sc);cx.globalAlpha=cl(u*2.5,0,1);glow(0,0,w*.6,'rgba(255,150,30,.35)');cx.drawImage(IM.logo,-w/2,-h/2,w,h);cx.restore();
+    const u=cl((t-15.1)/.55,0,1),sc=1+1.6*Math.pow(1-u,3),w=Math.min(VW*.8,640,VH*.82),h=w*IM.logo.naturalHeight/(IM.logo.naturalWidth||1);
+    if(ok(IM.logo)){cx.save();cx.translate(VW/2,VH*.44+Math.sin(t*1.6)*4);cx.scale(sc,sc);cx.globalAlpha=cl(u*2.5,0,1);glow(0,0,w*.6,'rgba(255,150,30,.35)');if(ok(IM.aura)){cx.save();cx.rotate(t*.12);cx.globalAlpha*=.8;cx.drawImage(IM.aura,-w*.72,-w*.49,w*1.44,w*.97);cx.restore();}cx.drawImage(IM.logo,-w/2,-h/2,w,h);cx.restore();
       const ta=ss(16.2,17.2,t);if(ta>0){cx.save();cx.globalAlpha=ta*.9;cx.textAlign='center';cx.fillStyle='#ffe3a0';cx.font='800 '+Math.max(11,Math.min(VW*.014,16))+'px Inter,system-ui,sans-serif';
         const txt='A V E N T U R A   M A T E M Á T I C A';cx.fillText(txt,VW/2,VH*.44+h/2+VH*.07);cx.restore();}}}
   drawRings();
@@ -331,7 +331,7 @@ function build(opts){
   root=mk('div','n26',document.body);cv=mk('canvas','n26cv',root);cx=cv.getContext('2d');
   const bars=mk('div',null,root,'n26bars');mk('i',null,bars);mk('i',null,bars);
   mk('div','n26cap',root);
-  const ld=mk('div','n26ld',root);const lg=mk('img',null,ld,'n26logo');lg.src='assets/embebidas/67423bd03d.png';lg.alt='Ninja Multiplicación';lg.draggable=false;
+  const ld=mk('div','n26ld',root);const lg=mk('img',null,ld,'n26logo');lg.src='assets/logo-ninja-x/logo_completo.webp';lg.alt='NINJA X: Guardianes de las Tablas';lg.draggable=false;
   const bar=mk('div',null,ld,'n26bar');mk('i','n26fill',bar,'n26fill');const rc=mk('canvas','n26run',bar,'n26run');rc.width=rc.height=184;
   mk('div','n26pct',ld,'n26pct').textContent='0%';
   const tp=mk('button','n26tap',root);tp.type='button';tp.textContent='TOCA PARA COMENZAR';tp.addEventListener('click',e=>{e.stopPropagation();if(phase==='ready')startStory(true);});

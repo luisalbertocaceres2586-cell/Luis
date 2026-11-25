@@ -507,7 +507,7 @@
   function textoResumen(perfil) {
     const items = estado(perfil), jug = items.filter(x => !x.mundo.bloqueado && !x.mundo.fueraDeProgreso), hechos = jug.filter(x => x.prog.estado === 'completado');
     const rc = estadoRacha(perfil), res = resumenTablas(perfil), debil = tablaDebil(perfil);
-    const L = ['📒 Ninja Multiplicación — avance de ' + String((perfil && perfil.nombre) || 'jugador'), ''];
+    const L = ['📒 NINJA X — avance de ' + String((perfil && perfil.nombre) || 'jugador'), ''];
     L.push('🌍 Mundos terminados: ' + hechos.length + ' de ' + jug.length + (hechos.length ? ' (' + hechos.map(x => x.mundo.nombre).join(', ') + ')' : ''));
     L.push('🔥 Racha: ' + rc.dias + (rc.dias === 1 ? ' día' : ' días') + (rc.mejor > rc.dias ? ' (mejor: ' + rc.mejor + ')' : ''));
     const con = res.filter(x => x.estado !== 'sin_datos');

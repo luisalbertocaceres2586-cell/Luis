@@ -36,7 +36,7 @@
 #bootSplash i:after{content:"";position:absolute;top:0;bottom:0;width:36%;border-radius:9px;background:linear-gradient(90deg,#8b5cf6,#3fa7ff,#ffd36b);animation:bootRun 1.2s ease-in-out infinite}
 @keyframes bootRun{0%{left:-40%}100%{left:104%}}
 </style>
-<title>🥷 NINJA MULTIPLICACIÓN — Tablas con el Profe Luis · ColBolívar</title>
+<title>🥷 NINJA X: Guardianes de las Tablas — con el Profe Luis · ColBolívar</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -410,12 +410,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <link rel="stylesheet" href="engine/ui/interaccion-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/coreografia-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/rendimiento-2026.css?v=1">
+<link rel="stylesheet" href="engine/ui/logo-ninjax.css?v=1">
 <link rel="stylesheet" href="engine/ui/transicion-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/iconos-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/cambio-2026.css?v=1">
 </head>
 <body>
-<div id="bootSplash"><img src="assets/embebidas/67423bd03d.png" alt=""><i></i></div>
+<div id="bootSplash"><img src="assets/logo-ninja-x/logo_completo.webp" alt=""><i></i></div>
 <canvas id="c"></canvas>
 <!-- ADMIN LOCK — subtle bottom-right corner -->
 <div id="adminLock" onclick="_handleGodIconClick()" title="" style="
@@ -568,7 +569,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <!-- Beat 2: big logo burst -->
   <div id="cineBeat2" class="cineBeat" style="z-index:10;opacity:0">
-    <img id="cineLogo" src="assets/embebidas/67423bd03d.png" alt="Ninja Multiplicación"
+    <img id="cineLogo" src="assets/logo-ninja-x/logo_completo.webp" alt="NINJA X: Guardianes de las Tablas"
       style="display:block;width:min(86vw,640px);max-height:34vh;height:auto;object-fit:contain;margin:0 auto;
       filter:drop-shadow(0 0 50px rgba(255,150,0,.8)) drop-shadow(0 8px 12px rgba(0,0,0,.8))">
     <div style="font-family:'Press Start 2P';font-size:clamp(9px,2vw,15px);color:#FFD700;letter-spacing:5px;margin-top:14px;text-shadow:0 0 20px rgba(255,215,0,.9),2px 2px 0 #000">✖️ TABLAS CON EL PROFE LUIS ✖️</div>
@@ -635,10 +636,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 
       <!-- GAME LOGO (artwork by Profe Luis) -->
-      <img id="introTitle" src="assets/embebidas/67423bd03d.png" alt="Ninja Multiplicación"
-        style="display:block;width:min(88vw,620px);max-height:26vh;height:auto;object-fit:contain;margin:0 auto;
-        filter:drop-shadow(0 0 30px rgba(255,150,0,.55)) drop-shadow(0 6px 10px rgba(0,0,0,.7));
-        animation:logoFloat 4s ease-in-out infinite;will-change:transform">
+      <div id="introTitle" class="nxl" role="img" aria-label="NINJA X: Guardianes de las Tablas">
+        <img class="nxl-base" src="assets/logo-ninja-x/logo_completo.webp" alt="NINJA X: Guardianes de las Tablas" style="display:block;width:100%;height:auto">
+      </div>
       <h1 id="menuTypewriter" aria-label="Domina las tablas">¡DOMINA LAS TABLAS!</h1>
 
     </div>
@@ -838,7 +838,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         filter:drop-shadow(3px 3px 0 rgba(0,0,0,.9)) drop-shadow(0 0 20px rgba(255,180,0,.6));
         margin-bottom:4px">🏆 CAMPEONES</div>
-      <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:rgba(255,215,0,.6);letter-spacing:2px">NINJA MULTIPLICACIÓN — COLBOLÍVAR</div>
+      <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:rgba(255,215,0,.6);letter-spacing:2px">NINJA X: GUARDIANES DE LAS TABLAS — COLBOLÍVAR</div>
     </div>
     <div style="border:1px solid rgba(255,200,0,.2);border-radius:8px;overflow:hidden">
       <div id="lbRows"></div>
@@ -925,7 +925,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <canvas id="creditsBg" style="position:fixed;inset:0;z-index:0;pointer-events:none"></canvas>
   <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:100vh;padding:20px">
     <div class="card" style="max-width:480px;background:rgba(0,0,20,.85);border-color:rgba(0,200,255,.4);box-shadow:0 0 60px rgba(0,150,255,.2),0 0 120px rgba(150,0,255,.1)">
-      <div class="ttl" style="font-size:clamp(14px,3vw,24px);background:linear-gradient(90deg,#00FFFF,#FF00FF,#FFD700,#00FF88,#00FFFF);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:neonSlide 3s linear infinite">🥷 NINJA MULTIPLICACIÓN</div>
+      <div class="ttl" style="font-size:clamp(14px,3vw,24px);background:linear-gradient(90deg,#00FFFF,#FF00FF,#FFD700,#00FF88,#00FFFF);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:neonSlide 3s linear infinite">🥷 NINJA X</div>
 
       <!-- Animated neon author credit -->
       <div style="text-align:center;margin:12px 0 4px">
@@ -1000,7 +1000,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
 <script src="engine/ui/preview-mundos.js?v=6"></script>
 <script src="engine/ui/mundos-registro.js?v=3"></script>
-<script src="engine/ui/intro-2026.js?v=an4"></script>
+<script src="engine/ui/intro-2026.js?v=an6"></script>
 <script src="engine/ui/carga-2026.js?v=1"></script>
 <script src="engine/ui/interaccion-2026.js?v=1"></script>
 <script src="engine/ui/coreografia-2026.js?v=1"></script>
@@ -1014,6 +1014,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="engine/escenario/islas.js?v=4"></script>
 <script src="engine/escenario/fondos-tema.js?v=14"></script>
 <script src="engine/ui/menu-2026.js?v=an2"></script>
+<script src="engine/ui/logo-ninjax.js?v=1"></script>
 <script src="engine/ui/rendimiento-2026.js?v=1"></script>
 <script src="engine/ui/escena-2026.js?v=1"></script>
 <script src="engine/ui/ninjas-fx-2026.js?v=1"></script>
