@@ -24,7 +24,14 @@
     fondo: A + 'environment/backgrounds/themes/montanas_ice.png', guardia: A + 'nivel1/enemigos/guardia_piedra.png',
     pinchos: A + 'nivel2/extras/pinchos.png', cristal: A + 'nivel2/extras/cristales_azules.png', portal: A + 'nivel2/extras/portal_piedra.png',
     interr: A + 'nivel2/extras/teletransporte.png', farol: A + 'nivel1/decorado/farol_templo.png', kitsune: A + 'nivel1/decorado/estatua_kitsune.png',
-    bambu: A + 'nivel1/decorado/bambu_primer_plano.png', torii: A + 'nivel1/decorado/torii_activo.png'
+    bambu: A + 'nivel1/decorado/bambu_primer_plano.png', torii: A + 'nivel1/decorado/torii_activo.png',
+    // arte propio del Mundo 4 (hojas 1 y 2). Si alguna falta, el juego sigue con el dibujo por código.
+    n_muro: A + 'nivel4/bloques/muro_piedra.png', n_fantasma: A + 'nivel4/bloques/bloque_fantasma.png',
+    n_b1: A + 'nivel4/bloques/bloque_cian.png', n_b2: A + 'nivel4/bloques/bloque_magenta.png', n_b3: A + 'nivel4/bloques/bloque_dorado.png',
+    n_losa0: A + 'nivel4/bloques/losa_apagada.png', n_losa1: A + 'nivel4/bloques/losa_encendida.png', n_pinchos: A + 'nivel4/bloques/pinchos_sombra.png',
+    n_sw0: A + 'nivel4/objetos/interruptor_apagado.png', n_sw1: A + 'nivel4/objetos/interruptor_encendido.png',
+    n_portal0: A + 'nivel4/objetos/portal_cerrado.png', n_portal1: A + 'nivel4/objetos/portal_abierto.png', n_golem: A + 'nivel4/objetos/sombra_de_piedra.png',
+    n_g1: A + 'nivel4/objetos/gema_cian.png', n_g2: A + 'nivel4/objetos/gema_magenta.png', n_g3: A + 'nivel4/objetos/gema_dorada.png'
   };
   const cache = {};
   function IMG(src) { let i = cache[src]; if (!i) { i = new Image(); i.src = src; cache[src] = i; } return i; }
@@ -222,6 +229,7 @@
     }
     function bloque(g, t, x, y) {
       const fan = Lg.esFantasma(t), c = fan ? COL[+t - 1] : null;
+      const spr = IMG(fan ? RUTA['n_b' + t] : RUTA.n_muro); if (listo(spr)) { g.drawImage(spr, -T / 2 - 1, -T / 2 - 1, T + 2, T + 2); return; }
       const gr = g.createLinearGradient(-T / 2, -T / 2, T / 2, T / 2);
       if (fan) { gr.addColorStop(0, '#fff'); gr.addColorStop(.3, c); gr.addColorStop(1, '#2a2a6a'); } else { gr.addColorStop(0, '#6e4fb0'); gr.addColorStop(.5, '#46307f'); gr.addColorStop(1, '#25173f'); }
       g.fillStyle = gr; rr(g, -T / 2, -T / 2, T, T, 6); g.fill();
@@ -234,18 +242,19 @@
     }
     function fantasma(g, n, x, y, now) {
       const c = COL[n - 1], pulso = .5 + .5 * Math.sin(now * 2.2 + x + y);
+      const sp = IMG(RUTA.n_fantasma); if (listo(sp)) { g.globalAlpha = .38 + .2 * pulso; g.drawImage(sp, -T / 2, -T / 2, T, T); g.globalAlpha = 1; }
       g.fillStyle = c; g.globalAlpha = .1 + .08 * pulso; rr(g, -T / 2 + 3, -T / 2 + 3, T - 6, T - 6, 6); g.fill(); g.globalAlpha = .85;
       g.strokeStyle = c; g.lineWidth = 2; g.setLineDash([6, 5]); g.lineDashOffset = -now * 12; rr(g, -T / 2 + 3, -T / 2 + 3, T - 6, T - 6, 6); g.stroke(); g.setLineDash([]);
       g.globalAlpha = .5; g.lineWidth = 1.2; g.beginPath(); for (let i = -2; i <= 2; i++) { g.moveTo(-T / 2 + 6, i * 11 + 6 * Math.sin(now * 2 + i)); g.lineTo(T / 2 - 6, i * 11 - 8); } g.stroke(); g.globalAlpha = 1;
     }
     function texto(g, s, x, y, tam, col, borde, alin) { g.font = 'bold ' + tam + 'px ' + FUENTE; g.textAlign = alin || 'center'; g.textBaseline = 'middle'; if (borde) { g.lineWidth = Math.max(3, tam / 5); g.strokeStyle = borde; g.lineJoin = 'round'; g.strokeText(s, x, y); } g.fillStyle = col; g.fillText(s, x, y); }
     function especial(g, t, x, y, now) {
-      if (t === '^') { const im = IMG(RUTA.pinchos); if (listo(im)) { const w = T * .95, h = w * im.naturalHeight / im.naturalWidth; g.drawImage(im, -w / 2, T / 2 - h, w, h); } return; }
-      if (t === 'S') { const im = IMG(RUTA.interr); const k = V.hecho3 ? 1 : .8 + .2 * Math.sin(now * 3); if (listo(im)) { const w = T * 1.05, h = w * im.naturalHeight / im.naturalWidth; g.globalAlpha = .75 + .25 * k; g.drawImage(im, -w / 2, T / 2 - h + 2, w, h); g.globalAlpha = 1; } else { g.fillStyle = COL[2]; g.fillRect(-T / 3, T / 2 - 8, T * .66, 8); } return; }
+      if (t === '^') { const im = IMG(listo(IMG(RUTA.n_pinchos)) ? RUTA.n_pinchos : RUTA.pinchos); if (listo(im)) { const w = T * .95, h = w * im.naturalHeight / im.naturalWidth; g.drawImage(im, -w / 2, T / 2 - h, w, h); } return; }
+      if (t === 'S') { const on = E.retos.some((r, i) => r.tipo === 'sombra' && E.hechoReto[i]), nuevo = IMG(on ? RUTA.n_sw1 : RUTA.n_sw0); if (listo(nuevo)) { const h = T * (on ? 1.25 : 1.05), w = h * nuevo.naturalWidth / nuevo.naturalHeight; g.drawImage(nuevo, -w / 2, T / 2 - h + 2, w, h); return; } const im = IMG(RUTA.interr); const k = on ? 1 : .8 + .2 * Math.sin(now * 3); if (listo(im)) { const w = T * 1.05, h = w * im.naturalHeight / im.naturalWidth; g.globalAlpha = .75 + .25 * k; g.drawImage(im, -w / 2, T / 2 - h + 2, w, h); g.globalAlpha = 1; } else { g.fillStyle = COL[2]; g.fillRect(-T / 3, T / 2 - 8, T * .66, 8); } return; }
       if (t === 'X') {
-        const abierto = E.rest === E.req, im = IMG(RUTA.portal);
-        if (listo(im)) { const h = T * 1.05, w = h * im.naturalWidth / im.naturalHeight; g.globalAlpha = abierto ? 1 : .45; g.drawImage(im, -w / 2, T / 2 - h, w, h); g.globalAlpha = 1; }
-        if (abierto) { g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 3; g.beginPath(); g.arc(0, 0, T * .42 + 3 * Math.sin(now * 5), 0, 6.283); g.stroke(); }
+        const abierto = E.rest === E.req, nuevoP = IMG(abierto ? RUTA.n_portal1 : RUTA.n_portal0), im = listo(nuevoP) ? nuevoP : IMG(RUTA.portal);
+        if (listo(im)) { const h = T * 1.1, w = h * im.naturalWidth / im.naturalHeight; g.globalAlpha = listo(nuevoP) ? 1 : (abierto ? 1 : .45); g.drawImage(im, -w / 2, T / 2 - h, w, h); g.globalAlpha = 1; }
+        if (abierto && !listo(nuevoP)) { g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 3; g.beginPath(); g.arc(0, 0, T * .42 + 3 * Math.sin(now * 5), 0, 6.283); g.stroke(); }
         return;
       }
       // losas de respuesta (a b c) y de secuencia (p q r)
@@ -253,15 +262,25 @@
       const pad = reto.pads[t], c = COL[reto.cristal - 1], hecho = E.hechoReto[E.retos.indexOf(reto)];
       const sh = V.tShake['p' + t] ? clamp(1 - (now - V.tShake['p' + t]) / 0.5, 0, 1) : 0, dx = Math.sin(now * 60) * 5 * sh;
       const iluminada = reto.tipo === 'sec' && E.prog[E.retos.indexOf(reto)] > reto.orden.indexOf(t);
-      g.translate(dx, 0); g.fillStyle = 'rgba(10,6,30,.55)'; rr(g, -T * .44, T / 2 - 14, T * .88, 14, 5); g.fill();
+      g.translate(dx, 0);
+      const lo = IMG(hecho || iluminada ? RUTA.n_losa1 : RUTA.n_losa0);
+      if (listo(lo)) {
+        const w = T * .92, h = w * lo.naturalHeight / lo.naturalWidth, hunde = sh > 0 ? 2 : 0;
+        g.globalAlpha = .3 + .12 * Math.sin(now * 3 + x); g.fillStyle = c; g.beginPath(); g.ellipse(0, T / 2 - h * .5, T * .5, h * .55, 0, 0, 6.283); g.fill(); g.globalAlpha = 1;
+        g.drawImage(lo, -w / 2, T / 2 - h + 1 + hunde, w, h);
+        if (sh > 0) { g.globalAlpha = .45 * sh; g.fillStyle = '#ff3b3b'; g.fillRect(-w / 2, T / 2 - h + 1, w, h); g.globalAlpha = 1; }
+        texto(g, String(pad.n), 0, T / 2 - h / 2 + 1, pad.n > 99 ? 19 : 23, '#fff', 'rgba(10,0,40,.9)');
+        return;
+      }
+      g.fillStyle = 'rgba(10,6,30,.55)'; rr(g, -T * .44, T / 2 - 14, T * .88, 14, 5); g.fill();
       const gr = g.createLinearGradient(0, T / 2 - 14, 0, T / 2); gr.addColorStop(0, sh > 0 ? '#ff6a6a' : (hecho || iluminada ? '#fff' : c)); gr.addColorStop(1, '#222'); g.fillStyle = gr; rr(g, -T * .44, T / 2 - 14, T * .88, 11, 5); g.fill();
       g.globalAlpha = .28 + .12 * Math.sin(now * 3 + x); g.fillStyle = c; g.beginPath(); g.arc(0, 0, T * .36, 0, 6.283); g.fill(); g.globalAlpha = 1;
       texto(g, String(pad.n), 0, -2, pad.n > 99 ? 20 : 24, '#fff', 'rgba(10,0,40,.85)');
       if (reto.tipo === 'sec') texto(g, '', 0, -T * .5, 10, '#fff');
     }
     function enemigo(g, now) {
-      const im = IMG(RUTA.guardia); g.fillStyle = 'rgba(10,6,30,.5)'; g.beginPath(); g.ellipse(0, T / 2 - 2, T * .38, 6, 0, 0, 6.283); g.fill();
-      if (listo(im)) { const h = T * 1.12 + Math.sin(now * 2) * 1.2, w = h * im.naturalWidth / im.naturalHeight; g.drawImage(im, -w / 2, T / 2 - h + 2, w, h); } else { g.fillStyle = '#777'; g.fillRect(-T / 3, -T / 3, T * .66, T * .8); }
+      const im = IMG(listo(IMG(RUTA.n_golem)) ? RUTA.n_golem : RUTA.guardia); g.fillStyle = 'rgba(10,6,30,.5)'; g.beginPath(); g.ellipse(0, T / 2 - 2, T * .38, 6, 0, 0, 6.283); g.fill();
+      if (listo(im)) { const h = T * 1.08 + Math.sin(now * 2) * 1.2, w = h * im.naturalWidth / im.naturalHeight; g.drawImage(im, -w / 2, T / 2 - h + 2, w, h); } else { g.fillStyle = '#777'; g.fillRect(-T / 3, -T / 3, T * .66, T * .8); }
     }
     function dibujaHeroe(g, now) {
       g.fillStyle = 'rgba(10,6,30,.5)'; g.beginPath(); g.ellipse(0, T / 2 - 2, T * .3, 5.5, 0, 0, 6.283); g.fill();
@@ -313,7 +332,14 @@
       else { g.font = '22px ' + FUENTE; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText({ deshacer: '↶', reiniciar: '↺', pista: '💡', pausa: 'II' }[b.id], 0, 1); }
       g.restore();
     }
+    const gris = {};
+    function gemaGris(im, n) { if (gris[n]) return gris[n]; const c = document.createElement('canvas'); c.width = 64; c.height = 64; const k = c.getContext('2d'); const r = Math.min(64 / im.naturalWidth, 64 / im.naturalHeight); k.drawImage(im, 32 - im.naturalWidth * r / 2, 32 - im.naturalHeight * r / 2, im.naturalWidth * r, im.naturalHeight * r); k.globalCompositeOperation = 'saturation'; k.fillStyle = '#808080'; k.fillRect(0, 0, 64, 64); k.globalCompositeOperation = 'source-atop'; k.fillStyle = 'rgba(15,15,35,.55)'; k.fillRect(0, 0, 64, 64); gris[n] = c; return c; }
     function gema(g, x, y, n, on, now) {
+      const im = IMG(RUTA['n_g' + n]);
+      if (listo(im)) { const r = Math.min(40 / im.naturalWidth, 40 / im.naturalHeight), w = im.naturalWidth * r, h = im.naturalHeight * r;
+        if (on) { g.save(); g.shadowColor = COL[n - 1]; g.shadowBlur = 14 + 6 * Math.sin(now * 3); g.drawImage(im, x - w / 2, y - h / 2, w, h); g.restore(); }
+        else g.drawImage(gemaGris(im, n), x - 20, y - 20, 40, 40);
+        return; }
       g.save(); g.translate(x, y); const c = COL[n - 1];
       g.beginPath(); g.moveTo(0, -16); g.lineTo(13, -4); g.lineTo(8, 14); g.lineTo(-8, 14); g.lineTo(-13, -4); g.closePath();
       if (on) { const gr = g.createLinearGradient(-13, -16, 13, 14); gr.addColorStop(0, '#fff'); gr.addColorStop(.4, c); gr.addColorStop(1, c); g.fillStyle = gr; g.shadowColor = c; g.shadowBlur = 14 + 6 * Math.sin(now * 3); g.fill(); g.shadowBlur = 0; }
