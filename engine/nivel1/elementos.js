@@ -211,6 +211,11 @@
   E.dibujarMuro = function (m) {
     const s = S(), c = cx(), x = m.x - s.cam;
     if (m.tipo === 'sello') { if (img.sello) sprite(img.sello, x, m.y, m.w, m.h); return; }
+    if (m.tipo === 'reja' && img.rejaBambu) {   // reja de bambú con sello: al abrirse sube y se desvanece
+      if (m.abierta && m._t0 === undefined) m._t0 = s.t; const k = m.abierta ? clamp((s.t - m._t0) / .7, 0, 1) : 0; if (k >= 1) return;
+      c.save(); c.globalAlpha = 1 - k; core.tira(img.rejaBambu, x - 20, m.y - 8 - k * 90, m.w + 40, m.h + 8); c.restore(); return;
+    }
+    if (m.tipo !== 'reja' && m.tipo !== 'sello' && img.muroPiedra) { c.drawImage(img.muroPiedra, x - 6, m.y - 4, m.w + 12, m.h + 4); return; }
     if (m.tipo === 'reja') {
       const k = m.abierta ? 0 : 1; c.save(); c.globalAlpha = m.abierta ? .0 : 1; c.fillStyle = '#6b8f3a'; for (let i = 0; i < 3; i++) { c.fillRect(x + i * 11, m.y, 8, m.h); } c.fillStyle = '#3d5a1c'; for (let y = m.y + 30; y < m.y + m.h; y += 60) c.fillRect(x - 2, y, m.w + 4, 6); c.restore();
       if (m.abierta) { c.fillStyle = 'rgba(160,200,90,.35)'; c.fillRect(x, m.y, 3, 40); } return;
