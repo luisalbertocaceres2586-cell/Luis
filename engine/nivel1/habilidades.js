@@ -298,7 +298,9 @@
     });
   }
   function dibujarPared(m) {                                      // pared de bambú de la chimenea
-    const s = S(), c = ctx(), x = m.x - s.cam, g = c.createLinearGradient(x, 0, x + m.w, 0);
+    const s = S(), c = ctx(), x = m.x - s.cam, P = window.N1core && window.N1core.img.paredBambu;
+    if (P) { window.N1core.tira(P, x - 8, m.y - 6, m.w + 16, m.h + 6); return; }
+    const g = c.createLinearGradient(x, 0, x + m.w, 0);
     g.addColorStop(0, '#2f6b3a'); g.addColorStop(.35, '#7fc16a'); g.addColorStop(.7, '#4f9a4f'); g.addColorStop(1, '#23512d'); c.fillStyle = g; c.fillRect(x, m.y, m.w, m.h);
     c.fillStyle = '#1d4425'; for (let y = m.y + 10; y < m.y + m.h; y += 64) { c.fillRect(x - 3, y, m.w + 6, 7); c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(x + 6, y - 40, 5, 34); c.fillStyle = '#1d4425'; }
     c.strokeStyle = 'rgba(0,0,0,.4)'; c.lineWidth = 2; c.strokeRect(x, m.y, m.w, m.h);

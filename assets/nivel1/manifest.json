@@ -530,6 +530,21 @@
    "ruta": "assets/nivel1/objetos_extra/corazon_jade.png",
    "w": 311,
    "h": 277
+  },
+  "reja_bambu": {
+   "ruta": "assets/nivel1/muros/reja_bambu.png",
+   "w": 342,
+   "h": 955
+  },
+  "pared_bambu": {
+   "ruta": "assets/nivel1/muros/pared_bambu.png",
+   "w": 412,
+   "h": 949
+  },
+  "muro_piedra": {
+   "ruta": "assets/nivel1/muros/muro_piedra.png",
+   "w": 330,
+   "h": 948
   }
  },
  "animaciones": {
