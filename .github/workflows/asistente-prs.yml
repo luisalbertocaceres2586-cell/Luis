@@ -1,0 +1,48 @@
+name: Asistente de avances
+
+# Cada vez que subes una rama (o cada 2 horas, por si algo quedó pendiente) este asistente:
+# abre la solicitud, la pone al día con main, resuelve los choques tontos, corre los chequeos y la acepta.
+# De una en una (concurrency), así dos avances nunca se pisan. Guía: docs/ASISTENTE_PRS.md
+on:
+  push:
+    branches-ignore: [main]
+  schedule:
+    - cron: '23 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      rama:
+        description: 'Rama a procesar (vacío = todas las solicitudes abiertas)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: asistente-de-avances
+  cancel-in-progress: false
+
+jobs:
+  asistente:
+    if: github.event.deleted != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ secrets.BOT_TOKEN || secrets.GITHUB_TOKEN }}
+      BOT_TOKEN_PRESENTE: ${{ secrets.BOT_TOKEN != '' && '1' || '' }}
+      PRUEBAS_NAVEGADOR: ${{ vars.PRUEBAS_NAVEGADOR || '1' }}
+      RAMA_PUSH: ${{ github.event_name == 'push' && github.ref_name || '' }}
+      RAMA_MANUAL: ${{ github.event_name == 'workflow_dispatch' && inputs.rama || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_TOKEN || secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Procesar avances
+        run: bash tools/asistente-prs.sh "$RAMA_PUSH$RAMA_MANUAL"

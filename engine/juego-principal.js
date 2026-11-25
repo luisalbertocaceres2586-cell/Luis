@@ -8643,8 +8643,9 @@ function drawMiniPeach(canvasId){
     document.body.appendChild(d);const c=getComputedStyle(d),r={t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0};d.remove();return r;
   }
   function njLayout(){
-    const w=window.innerWidth,h=window.innerHeight,u=Math.max(48,Math.min(66,0.14*h)),sa=njSafe();
-    const xm=Math.max(16,sa.l+10),xr=Math.max(16,sa.r+10),ym=Math.max(12,sa.b+10);
+    const w=window.innerWidth,h=window.innerHeight,u=Math.max(52,Math.min(76,0.15*h)),sa=njSafe();
+    // ≥30 px del borde: el borde de la pantalla es la zona del gesto "atrás" de Android/iPhone, que cancela el toque
+    const xm=Math.max(30,sa.l+14),xr=Math.max(30,sa.r+14),ym=Math.max(14,sa.b+10);
     const bl=(dx,dy)=>[(xm+dx)/w,(h-ym-dy)/h],br=(dx,dy)=>[(w-xr-dx)/w,(h-ym-dy)/h];
     const o={L:bl(.5*u,.5*u),R:bl(1.75*u,.5*u),B:bl(1.125*u,1.7*u),
            J:br(.75*u,.75*u),A:br(2.1*u,.5*u),D:br(3.55*u,.5*u),X:br(1.0*u,2.25*u),P:br(1.0*u,2.25*u),C:br(2.45*u,1.95*u)};
@@ -8672,7 +8673,9 @@ function drawMiniPeach(canvasId){
 
   let editMode=false;
   const eb=document.getElementById('mbEdit'), rb=document.getElementById('mbReset');
-  eb.addEventListener('click',()=>{ editMode=!editMode; box.classList.toggle('edit',editMode); eb.textContent=editMode?'✔ LISTO':'✥ MOVER'; });
+  eb.addEventListener('click',()=>{ editMode=!editMode; box.classList.toggle('edit',editMode); eb.textContent=editMode?'✔ LISTO':'✥ MOVER'; if(window.NinjaTouch) NinjaTouch.edicion(editMode); });
+  // al ocultarse los controles (fin de partida, menú) se suelta todo: nunca queda una tecla pegada
+  new MutationObserver(()=>{ if(!box.classList.contains('on')&&window.NinjaTouch) NinjaTouch.liberarTodo(true); }).observe(box,{attributes:true,attributeFilter:['class']});
   rb.addEventListener('click',()=>{ custom=false; try{localStorage.removeItem(KEY);}catch(e){} placeAll(); });
   box.addEventListener('contextmenu',e=>e.preventDefault());
 
@@ -8684,59 +8687,55 @@ function drawMiniPeach(canvasId){
       // AHORA: igual que la tecla ↑ — el salto solo ocurre en el suelo (o con el margen "coyote"),
       // y mantener pulsado da salto más alto. El buffer asegura que un toque rápido no se pierda.
       K.ArrowUp=1; if(P&&P.alive!==false) P.jumpBuffer=10;
+      if(window.NinjaTouchJump) NinjaTouchJump.down();   // pulsación mínima ~190 ms: un toque rápido = salto completo
     }
     else if(k==='P') K.KeyX=1;
     else if(k==='A') doAttack();
   }
-  function release(k){ if(k==='L') K.ArrowLeft=0; else if(k==='R') K.ArrowRight=0; else if(k==='J') K.ArrowUp=0; else if(k==='P') K.KeyX=0; }
+  function release(k){ if(k==='L') K.ArrowLeft=0; else if(k==='R') K.ArrowRight=0; else if(k==='J'){ K.ArrowUp=0; if(window.NinjaTouchJump) NinjaTouchJump.up(); } else if(k==='P') K.KeyX=0; }
 
+  // Toda la entrada de estos botones pasa por engine/core/tactil.js (NinjaTouch): halos de tolerancia, cruceta ◀▶ deslizable,
+  // multitáctil independiente, toque mínimo y soltado seguro. Aquí solo se define QUÉ hace cada botón y el modo "mover".
   Object.keys(btns).forEach(k=>{
     const el=btns[k]; let st=null;
-    el.addEventListener('pointerdown',e=>{
-      e.preventDefault();
-      try{el.setPointerCapture(e.pointerId);}catch(_){}
-      st={id:e.pointerId,sx:e.clientX,sy:e.clientY,drag:false,timer:null,ox:0,oy:0};
-      el.classList.add('down');
-      const startDrag=()=>{
-        st.drag=true; release(k);
-        el.classList.remove('down'); el.classList.add('drag');
-        const r=el.getBoundingClientRect();
-        st.ox=st.sx-(r.left+r.width/2); st.oy=st.sy-(r.top+r.height/2);
-        if(navigator.vibrate) try{navigator.vibrate(30);}catch(_){}
-      };
-      if(editMode){ startDrag(); }
-      else{
-        press(k);
-        // Mantener ~0.8 s sin mover el dedo en ⬆ / ⚔️ activa el modo mover.
-        // ◀ ▶ se mueven con el botón ✥ MOVER para no interrumpir la caminata.
-        if(k==='J'||k==='A'||k==='P') st.timer=setTimeout(()=>{
-          // Con la partida en marcha, mantener ⬆ es para saltar más alto/planear: no se convierte en "mover botón" (soltaba el salto).
-          // Para recolocar los botones se usa ✥ MOVER.
-          if(k==='J' && typeof GS!=='undefined' && GS.running) return;
-          if(st&&!st.drag) startDrag();
-        },HOLD_MS);
-      }
-    });
-    el.addEventListener('pointermove',e=>{
-      if(!st||e.pointerId!==st.id) return;
-      if(!st.drag){
-        if(st.timer && Math.hypot(e.clientX-st.sx,e.clientY-st.sy)>MOVE_TOL){ clearTimeout(st.timer); st.timer=null; }
-        return;
-      }
-      e.preventDefault();
-      pos[k]=[(e.clientX-st.ox)/window.innerWidth,(e.clientY-st.oy)/window.innerHeight];
-      place(k);
-    });
-    const end=e=>{
-      if(!st||(e&&e.pointerId!==st.id)) return;
-      clearTimeout(st.timer);
-      release(k);
-      if(st.drag) save();
-      el.classList.remove('down','drag'); st=null;
+    const startDrag=()=>{
+      st.drag=true; release(k);
+      el.classList.remove('down'); el.classList.add('drag');
+      const r=el.getBoundingClientRect();
+      st.ox=st.sx-(r.left+r.width/2); st.oy=st.sy-(r.top+r.height/2);
+      if(navigator.vibrate) try{navigator.vibrate(30);}catch(_){}
     };
-    el.addEventListener('pointerup',end);
-    el.addEventListener('pointercancel',end);
-    el.addEventListener('lostpointercapture',end);
+    const o={
+      id:k, grupo:(k==='L'||k==='R')?'dir':null, tol:(k==='L'||k==='R')?0.7:undefined,   // ◀ ▶: zona de toque mucho más generosa
+      minHold:(k==='L'||k==='R')?40:(k==='J'?0:34),      // un toque más corto que un cuadro de juego no se pierde
+      down(i){
+        st={sx:i.x,sy:i.y,drag:false,timer:null,ox:0,oy:0};
+        if(editMode){ startDrag(); return; }
+        press(k);
+        // Mantener ~0.8 s sin mover el dedo en ⚔️ / ✨ activa el modo mover. ◀ ▶ ⬆ se mueven con ✥ MOVER para no interrumpir
+        // la caminata ni cortar los saltos largos / planeos.
+        if(k==='A'||k==='P') st.timer=setTimeout(()=>{ if(st&&!st.drag) startDrag(); },HOLD_MS);
+      },
+      move(i){
+        if(!st) return;
+        if(!st.drag){ if(st.timer && Math.hypot(i.x-st.sx,i.y-st.sy)>MOVE_TOL){ clearTimeout(st.timer); st.timer=null; } return; }
+        pos[k]=[(i.x-st.ox)/window.innerWidth,(i.y-st.oy)/window.innerHeight]; place(k);
+      },
+      up(){
+        if(!st) return;
+        clearTimeout(st.timer); release(k);
+        if(st.drag){ save(); el.classList.remove('drag'); }
+        st=null;
+      }
+    };
+    if(window.NinjaTouch) NinjaTouch.add(el,o);
+    else{   // respaldo si no cargó tactil.js: un puntero por botón (sin halos)
+      let pid=null;
+      el.addEventListener('pointerdown',e=>{ e.preventDefault(); pid=e.pointerId; try{el.setPointerCapture(pid);}catch(_){} el.classList.add('down'); o.down({x:e.clientX,y:e.clientY}); });
+      el.addEventListener('pointermove',e=>{ if(e.pointerId===pid) o.move({x:e.clientX,y:e.clientY}); });
+      const fin=e=>{ if(e.pointerId!==pid) return; pid=null; el.classList.remove('down'); o.up(); };
+      ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,fin));
+    }
   });
   window.addEventListener('blur',()=>{ K.ArrowLeft=0; K.ArrowRight=0; K.ArrowUp=0; K.KeyX=0; });
 })();

@@ -32,6 +32,9 @@
   };
   // arte extra (decorado, cueva, terreno, enemigos, objetos, hojas del Oni): se carga en segundo plano, sin alargar la pantalla de carga
   const IMGS_EXTRA = {
+    rejaBambu: 'muros/reja_bambu', paredBambu: 'muros/pared_bambu', muroPiedra: 'muros/muro_piedra',
+    bgLejosA: '../environment/levels/nivel1/n1_bg_bambu_lejos_a', bgLejosB: '../environment/levels/nivel1/n1_bg_bambu_lejos_b',
+    bgMedioA: '../environment/levels/nivel1/n1_bg_bambu_medio_a', bgMedioB: '../environment/levels/nivel1/n1_bg_bambu_medio_b', bgMedioC: '../environment/levels/nivel1/n1_bg_bambu_medio_c',
     cerezo: 'decorado_extra/cerezo_sakura', pino: 'decorado_extra/pino_bonsai', rocasMusgo: 'decorado_extra/rocas_musgo', valla: 'decorado_extra/valla_madera', cartel: 'decorado_extra/cartel_flecha',
     fuenteBambu: 'decorado_extra/fuente_bambu', farolitos: 'decorado_extra/farolitos_cuerda', helechos: 'decorado_extra/helechos_luciernagas', farolTemplo: 'decorado/farol_templo', pilar: 'decorado/pilar_rojo',
     jizo: 'decorado/santuario_jizo', bambuRoca: 'decorado/bambu_roca', emblema: 'decorado/estandarte_emblema', portalAzul: 'decorado/portal_azul',
@@ -135,6 +138,7 @@
     for (let i = 0; i < 26; i++) S.hojas.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: Math.random() * 6, s: 5 + Math.random() * 6 });
     oc = document.createElement('canvas'); oc.width = W; oc.height = H; ox = oc.getContext('2d');
     if (S.movil) crearTactil();
+    if (window.N1amb) N1amb.reiniciar();
     if (window.N1hab) N1hab.iniciar(S, nivel2 ? Object.assign({}, o, { habilidades: ['dash', 'doble', 'planeo', 'pared', 'tajoAereo', 'gancho'] }) : o);
     if (window.N1dir && !nivel2) N1dir.iniciar(S, o);
     window.addEventListener('keydown', onKey, true); window.addEventListener('keyup', onKeyUp, true); window.addEventListener('resize', ajustar);
@@ -179,33 +183,19 @@
   function ajustar() { if (!cv) return; const k = Math.min(innerWidth / W, innerHeight / H); cv.style.width = Math.floor(W * k) + 'px'; cv.style.height = Math.floor(H * k) + 'px'; }
   function crearTactil() {
     const izq = document.createElement('div'), der = document.createElement('div'); izq.className = der.className = 'n1Tac'; izq.style.left = '14px'; der.style.right = '14px';
-    // Un toque muy rápido (< 1 cuadro) podía empezar y terminar entre dos pasos de física y perderse (ataque, esquiva...).
-    // Por eso la tecla soltada se mantiene hasta que corra al menos un paso (máx. ~70 ms).
     const mkBtn = (txt, clase) => { const e = document.createElement('button'); e.textContent = txt; if (clase) e.className = clase; e.addEventListener('contextmenu', ev => ev.preventDefault()); return e; };
-    const b = (txt, tecla, cont, clase) => {
-      const e = mkBtn(txt, clase); let t0 = -1, tok = 0;
-      const liberar = (mio, n) => {
-        if (mio !== tok || !keys[tecla]) return;
-        if (S && S.t === t0 && n < 6) { setTimeout(() => liberar(mio, n + 1), 12); return; }
-        soltar(tecla); keys[tecla] = 0;
-      };
-      // pointerdown responde al instante (sin el retraso del "click"). Se captura el puntero para que, si el dedo se desliza un poco,
-      // el botón siga pulsado (antes el salto se cortaba). El salto siempre registra el toque, aunque la tecla se hubiera quedado pegada.
-      const on = ev => { ev.preventDefault(); try { e.setPointerCapture(ev.pointerId); } catch (_) {} tok++; t0 = S ? S.t : -1; e.classList.add('on'); if (!keys[tecla] || tecla === 'Space') pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} },
-            off = ev => { ev.preventDefault(); e.classList.remove('on'); liberar(tok, 0); };
-      e.addEventListener('pointerdown', on); ['pointerup', 'pointerleave', 'pointercancel', 'lostpointercapture'].forEach(t => e.addEventListener(t, off)); cont.appendChild(e);
+    // Todos los botones se registran en la capa táctil común (engine/core/tactil.js): halo de tolerancia, cruceta ◀▶ deslizable,
+    // multitáctil independiente, toque mínimo (un toque más corto que un cuadro no se pierde) y soltado seguro (sin teclas pegadas).
+    const reg = (e, tecla, o) => {
+      const dn = () => { pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} };
+      const up = () => { if (keys[tecla]) { soltar(tecla); keys[tecla] = 0; } };
+      if (window.NinjaTouch) { window.NinjaTouch.add(e, Object.assign({ id: 'n1' + tecla, clase: 'on', down: dn, up }, o)); return; }
+      let pid = null;   // respaldo sin la capa común: un puntero por botón
+      e.addEventListener('pointerdown', ev => { ev.preventDefault(); pid = ev.pointerId; try { e.setPointerCapture(pid); } catch (_) {} e.classList.add('on'); dn(); });
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => e.addEventListener(t, ev => { if (ev.pointerId !== pid) return; pid = null; e.classList.remove('on'); up(); }));
     };
-    // ◀ ▶ como una cruceta: el dedo puede deslizarse de un lado al otro sin levantarlo, y toda la zona (incluido el hueco) responde.
-    const cruceta = cont => {
-      const bi = mkBtn('◀'), bd = mkBtn('▶'); let pid = null;
-      const poner = (code, el, on) => { if (on && !keys[code]) { pulsar(code); keys[code] = 1; el.classList.add('on'); } else if (!on && keys[code]) { soltar(code); keys[code] = 0; el.classList.remove('on'); } };
-      const aplicar = x => { const r = cont.getBoundingClientRect(), izqOn = x < r.left + r.width / 2; poner('ArrowLeft', bi, izqOn); poner('ArrowRight', bd, !izqOn); };
-      const fin = ev => { if (pid === null || (ev && ev.pointerId !== pid)) return; pid = null; poner('ArrowLeft', bi, false); poner('ArrowRight', bd, false); };
-      cont.addEventListener('pointerdown', ev => { if (pid !== null) return; ev.preventDefault(); pid = ev.pointerId; try { cont.setPointerCapture(pid); } catch (_) {} aplicar(ev.clientX); });
-      cont.addEventListener('pointermove', ev => { if (ev.pointerId === pid) { ev.preventDefault(); aplicar(ev.clientX); } });
-      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => cont.addEventListener(t, fin));
-      cont.appendChild(bi); cont.appendChild(bd);
-    };
+    const b = (txt, tecla, cont, clase) => { const e = mkBtn(txt, clase); reg(e, tecla, { minHold: tecla === 'Space' ? 0 : 34 }); cont.appendChild(e); };
+    const cruceta = cont => { const bi = mkBtn('◀'), bd = mkBtn('▶'); reg(bi, 'ArrowLeft', { grupo: 'dir', tol: .7, minHold: 40 }); reg(bd, 'ArrowRight', { grupo: 'dir', tol: .7, minHold: 40 }); cont.appendChild(bi); cont.appendChild(bd); };
     cruceta(izq); b('💬', 'KeyE', der); b('🗡', 'KeyC', der); b('✦', 'KeyF', der); b('⤒', 'Space', der, 'n1Salto'); root.appendChild(izq); root.appendChild(der);
   }
 
@@ -274,7 +264,7 @@
   function bucle(now) {
     raf = requestAnimationFrame(bucle); if (!S) return;
     acc += Math.min(0.1, (now - last) / 1000); last = now;
-    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1)); acc -= DT; }
+    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1) * (window.N1cam ? N1cam.escala() : 1)); acc -= DT; }
     dibujar();
   }
   const muroSolido = m => !(m.abierta || m.roto);
@@ -354,7 +344,7 @@
     });
     S.ckp.forEach(c => { if (!c.activo && Math.abs(h.x - c.x) < 70 && h.y >= G - 4) { c.activo = true; S.resp = { x: c.x, y: G }; S.seguro = { x: c.x, y: G }; h.vida = Math.min(S.vidaMax, h.vida + 2); S.luz = 250; S.aviso = { t: 2.2, s: 'PUNTO DE CONTROL · +2 ♥' }; chispas(c.x, G - 120, 24, '#ffd54a'); } });
 
-    N1elem.paso(dt, hb); estaciones();
+    N1elem.paso(dt, hb); estaciones(); if (window.N1amb) N1amb.paso(dt);
 
     const cuevaX = N.cueva.x + 120, alC = S.nivel2 ? 0 : clamp((h.x - cuevaX) / 360, 0, 1);
     S.mezcla += (alC - S.mezcla) * Math.min(1, dt * 3); S.osc = Math.max(S.mezcla, S.mod.noche);
@@ -447,6 +437,7 @@
     { id: 'mover', txt: 'Camina', teclas: ['←', '→'], ok: () => S.movido > 160, cuando: () => S.t > .8 },
     { id: 'saltar', txt: 'Salta. Si mantienes la tecla, saltas más alto', teclas: ['ESPACIO'], ok: () => S.saltos > 1, cuando: () => S.movido > 200 },
     { id: 'tajo', txt: 'Pega con tu espada', teclas: ['C'], ok: () => S.tajos > 0, cuando: () => S.enemigos.some(e => e.vivo && e.kind !== 'oni' && e.x > S.h.x && e.x - S.h.x < 520 && Math.abs(e.y - S.h.y) < 250) },
+    { id: 'secreto', txt: 'Lo que brilla ✦ esconde un tesoro: ¡pégale con tu espada!', teclas: ['C'], ok: () => (S.secretos || 0) > 0, cuando: () => S.tutoVisto.tajo && window.N1amb && N1amb.cercaPremio(430) },
     { id: 'apuntar', txt: 'Para lanzar el shuriken: mantén F, elige la respuesta con ← → y suelta F', teclas: ['F'], ok: () => S.tiros > 0, cuando: () => S.estSel && objetivos(S.estSel).length && Math.abs(S.estSel.x0 + 260 - S.h.x) < 480 },
     { id: 'apuntar2', txt: 'También puedes saltar y golpear la respuesta con tu espada', teclas: ['C'], ok: () => S.tajos > 2 || S.estSel === null, cuando: () => S.tutoVisto.apuntar && S.estSel && S.estSel.errores > 0 },
     { id: 'tambor', txt: '¡Salta sobre el tambor para rebotar muy alto!', teclas: ['ESPACIO'], ok: () => S.rebotes > 0, cuando: () => S.N.tambores.some(t => Math.abs(t.x - S.h.x) < 380 && t.x > S.h.x - 60) },
@@ -502,6 +493,7 @@
   Object.assign(core, { sprite, porAncho, etiqueta });
 
   function fondoDesiertoNoche(alpha) {
+    if (window.N1prof && N1prof.desierto(alpha)) return;   // profundidad 2.5D (profundidad.js); si falla, sigue el fondo original
     cx.globalAlpha = alpha;
     const sky = cx.createLinearGradient(0, 0, 0, G + 40);
     sky.addColorStop(0, '#070b28'); sky.addColorStop(.58, '#17143b'); sky.addColorStop(1, '#4b2940');
@@ -523,20 +515,80 @@
     }
     cx.globalAlpha = 1;
   }
+  // ---- Fondo del bosque (rediseño): capas de bambú suaves, pre-dibujadas UNA vez en lienzos aparte ----
+  // Antes eran ~60 barras planas semitransparentes que se redibujaban cada cuadro y se veían como un "código de barras".
+  // Ahora: 2 capas lejanas (niebla azulada, casi sin contraste) + 1 capa media con nudos y hojas, todas con el cielo
+  // despejado arriba (la máscara las desvanece) para que no cansen la vista ni compitan con lo jugable.
+  const BG = { tiles: null };
+  function azarBg(sem) { let a = sem >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function tallo(c, x, w, y0, y1, col, nudo, brillo, r) {
+    const g = c.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+    g.addColorStop(0, col[0]); g.addColorStop(.38, col[1]); g.addColorStop(1, col[2]); c.fillStyle = g; c.fillRect(x - w / 2, y0, w, y1 - y0);
+    c.fillStyle = brillo; c.fillRect(x - w * .22, y0, Math.max(1, w * .16), y1 - y0);
+    let y = y1 - 40 - r() * 40; while (y > y0 + 20) { c.fillStyle = nudo; c.fillRect(x - w / 2 - 1, y, w + 2, Math.max(2, w * .16)); y -= 78 + r() * 52; }
+  }
+  function hojaBg(c, x, y, len, ang, col) {
+    c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = col; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(len * .5, -len * .2, len, 0); c.quadraticCurveTo(len * .5, len * .12, 0, 0); c.fill(); c.restore();
+  }
+  function tileBambu(o) {   // o: {ancho, alto, n, w:[min,max], col, nudo, brillo, hojas, alfa, semilla, tope}
+    const cv = document.createElement('canvas'); cv.width = o.ancho; cv.height = o.alto; const c = cv.getContext('2d'), r = azarBg(o.semilla), base = o.alto;
+    const xs = []; for (let i = 0; i < o.n; i++) xs.push((i + .15 + r() * .7) * o.ancho / o.n);   // reparto regular con tirón: nunca dos pegados
+    xs.forEach(x => {
+      const w = o.w[0] + r() * (o.w[1] - o.w[0]), top = r() * o.alto * o.tope;
+      [0, -o.ancho, o.ancho].forEach(dx => {   // se dibuja también a ambos lados para que la tira empalme sin costura
+        if (x + dx < -60 || x + dx > o.ancho + 60) return; tallo(c, x + dx, w, top, base, o.col, o.nudo, o.brillo, r);
+        if (o.hojas) for (let k = 0; k < 3; k++) { const hy = top + 60 + r() * (base - top) * .5, lado = r() < .5 ? -1 : 1; for (let j = 0; j < 3; j++) hojaBg(c, x + dx + lado * 2, hy + j * 7, 46 + r() * 30, (lado < 0 ? Math.PI : 0) + (r() - .5) * .9 - lado * .35, o.hojaCol); }
+      });
+    });
+    // desvanecer arriba: el cielo queda limpio y el bambú "nace" de la niebla del suelo
+    c.globalCompositeOperation = 'destination-in'; const m = c.createLinearGradient(0, 0, 0, o.alto);
+    m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(.28, 'rgba(0,0,0,' + (o.alfa * .55) + ')'); m.addColorStop(.7, 'rgba(0,0,0,' + o.alfa + ')'); m.addColorStop(1, 'rgba(0,0,0,' + o.alfa + ')'); c.fillStyle = m; c.fillRect(0, 0, o.ancho, o.alto);
+    return cv;
+  }
+  // Capas con las ilustraciones nuevas: se juntan en una tira, se enfrían un poco y se desvanecen arriba (una sola vez)
+  function tiraImagenes(lista, alfa, tinte, alto) {
+    const ws = lista.map(im => typeof im === 'number' ? im : Math.round(im.width * alto / im.height)), cv = document.createElement('canvas'); cv.width = ws.reduce((a, b) => a + b, 0); cv.height = alto; const c = cv.getContext('2d');
+    let x = 0; lista.forEach((im, i) => { if (typeof im !== 'number') c.drawImage(im, x, 0, ws[i], alto); x += ws[i]; });   // un número = hueco vacío (deja respirar el fondo)
+    if (tinte) { c.globalCompositeOperation = 'source-atop'; c.fillStyle = tinte; c.fillRect(0, 0, cv.width, alto); }
+    c.globalCompositeOperation = 'destination-in'; const m = c.createLinearGradient(0, 0, 0, alto);
+    m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(.3, 'rgba(0,0,0,' + (alfa * .55) + ')'); m.addColorStop(.72, 'rgba(0,0,0,' + alfa + ')'); m.addColorStop(1, 'rgba(0,0,0,' + alfa + ')'); c.fillStyle = m; c.fillRect(0, 0, cv.width, alto);
+    return cv;
+  }
+  function tilesBosque() {
+    const alto = G + 40, I = img;
+    if (!BG.conImagenes && I.bgLejosA && I.bgLejosB && I.bgMedioA && I.bgMedioB && I.bgMedioC) {
+      BG.conImagenes = true;
+      BG.tiles = [{ cv: tiraImagenes([I.bgLejosA, 260, I.bgLejosB, 260], .46, 'rgba(190,215,230,.2)', alto), par: .2 }, { cv: tiraImagenes([I.bgMedioA, 900, I.bgMedioC, 900, I.bgMedioB, 900], .3, 'rgba(120,170,195,.42)', alto), par: .36 }];
+    }
+    if (BG.tiles) return BG.tiles;
+    BG.tiles = [
+      { cv: tileBambu({ ancho: 1700, alto, n: 9, w: [8, 13], col: ['#8fb4c4', '#a9c8d2', '#86a9ba'], nudo: 'rgba(90,130,150,.55)', brillo: 'rgba(255,255,255,.18)', hojas: false, alfa: .34, semilla: 11, tope: .35 }), par: .20 },
+      { cv: tileBambu({ ancho: 1900, alto, n: 7, w: [13, 20], col: ['#4f8f78', '#6aab8d', '#45806a'], nudo: 'rgba(30,80,62,.6)', brillo: 'rgba(230,255,220,.2)', hojas: true, hojaCol: 'rgba(70,140,100,.55)', alfa: .5, semilla: 29, tope: .28 }), par: .36 }
+    ];
+    return BG.tiles;
+  }
   function fondoBosque(alpha) {
+    if (window.N1prof && N1prof.bosque(alpha)) return;
     cx.globalAlpha = alpha; const c = SKY[S.params.variante] || SKY.A, g = cx.createLinearGradient(0, 0, 0, G + 40);
     g.addColorStop(0, c[0]); g.addColorStop(.55, c[1]); g.addColorStop(1, c[2]); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
-    const sx = 880 - (S.cam * .02) % 2000; cx.fillStyle = 'rgba(255,240,200,.9)'; cx.beginPath(); cx.arc(sx, 190, 62, 0, 7); cx.fill(); cx.fillStyle = 'rgba(255,240,200,.25)'; cx.beginPath(); cx.arc(sx, 190, 96, 0, 7); cx.fill();
+    // sol con resplandor suave (antes: dos círculos duros que parecían un anillo)
+    const sx = 880 - (S.cam * .02) % 2000, sg = cx.createRadialGradient(sx, 190, 10, sx, 190, 190); sg.addColorStop(0, 'rgba(255,244,210,.95)'); sg.addColorStop(.3, 'rgba(255,236,190,.55)'); sg.addColorStop(1, 'rgba(255,220,170,0)'); cx.fillStyle = sg; cx.fillRect(sx - 200, -10, 400, 400);
+    cx.fillStyle = 'rgba(255,248,226,.96)'; cx.beginPath(); cx.arc(sx, 190, 50, 0, 7); cx.fill();
     if (img.nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - S.t * (8 + i * 3) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alpha * .75; cx.drawImage(img.nube, x, 60 + i * 55, w, img.nube.height * w / img.nube.width); }
     cx.globalAlpha = alpha;
     if (img.montanas) { const mw = 1400, mh = img.montanas.height * mw / img.montanas.width, off = -((S.cam * .12) % mw); for (let x = off; x < W; x += mw) cx.drawImage(img.montanas, x, G - mh + 30, mw, mh); }
-    for (let capa = 0; capa < 2; capa++) {
-      const par = capa ? .4 : .22, sep = capa ? 120 : 90; cx.fillStyle = capa ? 'rgba(30,88,64,.55)' : 'rgba(70,120,110,.35)'; const o = -((S.cam * par) % sep);
-      for (let x = o - sep; x < W + sep; x += sep) { const id = Math.floor((x + S.cam * par) / sep), j = (((id * 9301 + 49297) % 233280) + 233280) % 233280 / 233280, w = capa ? 14 : 10, top = 40 + j * 160; cx.fillRect(x + j * 30, top, w, G - top); for (let k = top + 50; k < G; k += 60 + j * 20) cx.fillRect(x + j * 30 - 2, k, w + 4, 4); }
-    }
-    const f = cx.createLinearGradient(0, G - 230, 0, G + 20); f.addColorStop(0, 'rgba(255,240,220,0)'); f.addColorStop(1, 'rgba(255,240,220,.35)'); cx.fillStyle = f; cx.fillRect(0, G - 230, W, 250); cx.globalAlpha = 1;
+    const T = tilesBosque(), fog = (y0, a) => { const f = cx.createLinearGradient(0, y0, 0, G + 30); f.addColorStop(0, 'rgba(255,236,214,0)'); f.addColorStop(1, 'rgba(255,236,214,' + a + ')'); cx.fillStyle = f; cx.fillRect(0, y0, W, G + 40 - y0); };
+    T.forEach((t, i) => {
+      const tw = t.cv.width, o = -((S.cam * t.par) % tw);
+      for (let x = o; x < W; x += tw) cx.drawImage(t.cv, x, 0);
+      fog(G - (i ? 190 : 260), i ? .22 : .3);      // niebla entre capas: la lejana se pierde, la media queda un poco más definida
+    }); cx.globalAlpha = alpha;
+    // rayos de luz muy suaves (dan vida sin añadir objetos)
+    cx.save(); cx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 3; i++) { const bx = ((i * 520 + 140 - S.cam * .08) % (W + 400) + (W + 400)) % (W + 400) - 200, a = .035 + .015 * Math.sin(S.t * .5 + i * 2); const rg = cx.createLinearGradient(bx, 0, bx + 160, G); rg.addColorStop(0, 'rgba(255,240,200,' + a + ')'); rg.addColorStop(1, 'rgba(255,240,200,0)'); cx.fillStyle = rg; cx.beginPath(); cx.moveTo(bx, 0); cx.lineTo(bx + 90, 0); cx.lineTo(bx + 260, G); cx.lineTo(bx + 60, G); cx.closePath(); cx.fill(); } cx.restore();
+    const f = cx.createLinearGradient(0, G - 230, 0, G + 20); f.addColorStop(0, 'rgba(255,240,220,0)'); f.addColorStop(1, 'rgba(255,240,220,.32)'); cx.fillStyle = f; cx.fillRect(0, G - 230, W, 250); cx.globalAlpha = 1;
   }
   function fondoCueva(alpha) {
+    if (window.N1prof && N1prof.cueva(alpha)) return;
     cx.globalAlpha = alpha; const g = cx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#07050f'); g.addColorStop(.6, '#150e2c'); g.addColorStop(1, '#241648'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     for (let capa = 0; capa < 2; capa++) {
       const par = capa ? .35 : .18, sep = capa ? 170 : 130; cx.fillStyle = capa ? 'rgba(46,36,84,.8)' : 'rgba(30,22,60,.7)'; const o = -((S.cam * par) % sep);
@@ -574,15 +626,21 @@
   }
   const DECO = { bambu: ['bambuDeco', 130], toro: ['toro', 110], kitsune: ['kitsune', 110], estandarte: ['estandarte', 100], cristal: ['cristal', 110], hongo: ['hongo', 100], cerezo: ['cerezo', 330], pino: ['pino', 250], rocas: ['rocasMusgo', 180], valla: ['valla', 210], fuente: ['fuente', 150], farolitos: ['farolitos', 190], cartel: ['cartel', 115], helechos: ['helechos', 200],
     columna: ['columna', 140], hongoGigante: ['hongoGigante', 150], floresLuz: ['floresLuz', 120], altar: ['altar', 130], arco: ['arco', 270], paredMineral: ['paredMineral', 150], cristalesTecho: ['cristalesTecho', 150], raices: ['raices', 170] };
+  core.tira = function (im, x, y, w, h) { const sw = Math.min(im.width, im.height * w / h); cx.drawImage(im, (im.width - sw) / 2, 0, sw, im.height, x, y, w, h); };   // franja central de un sprite alto (para hitbox estrechas)
+  core.DECO = DECO;   // lo usa ambiente.js para saber el tamaño de cada decorado
+  core.tilesBosque = tilesBosque;   // lo usa profundidad.js: las capas de bambú ilustradas se reutilizan en el parallax 2.5D
   function decorado(capa) {
     S.N.deco.forEach(d => {
       if (d.capa !== capa || d.x < S.cam - 300 || d.x > S.cam + W + 300) return; const q = DECO[d.tipo]; if (!q) return; const im = img[q[0]]; if (!im) return; const w = q[1], hh = im.height * w / im.width, x = d.x - S.cam;
       cx.globalAlpha = capa === 'frente' && Math.abs(d.x - S.h.x) < 170 ? .35 : 1;
+      const T = !d.techo && window.N1amb ? N1amb.pose(d, hh) : null; if (T) { cx.save(); cx.translate(x, T.py); cx.rotate(T.rot); cx.scale(1, T.sy); cx.translate(-x, -T.py); }
       if (d.techo) sprite(im, x - w / 2, -4, w, hh);
       else if (d.tipo === 'estandarte') sprite(im, x - w / 2, G - hh - 60, w, hh);
       else if (d.tipo === 'farolitos') { cx.strokeStyle = 'rgba(70,45,25,.85)'; cx.lineWidth = 3; cx.beginPath(); cx.moveTo(x - w * .38, G - 330); cx.lineTo(x - w * .38, 0); cx.moveTo(x + w * .38, G - 330); cx.lineTo(x + w * .38, 0); cx.stroke(); sprite(im, x - w / 2, G - 332, w, hh); }
       else sprite(im, x - w / 2, G + 4 - hh, w, hh);
+      if (T) cx.restore();
       cx.globalAlpha = 1;
+      if (!d.techo && window.N1amb) N1amb.extra(d, x, d.tipo === 'estandarte' ? G - hh - 60 : d.tipo === 'farolitos' ? G - 332 : G + 4 - hh, w);
     });
     if (capa === 'atras') {
       S.ckp.forEach(c => { if (c.zona === 'cueva') { const sw = c.activo ? Math.sin(S.t * 3) * .06 : 0; cx.save(); cx.translate(c.x - S.cam, G + 4); cx.rotate(sw); porAncho(img.campana, 0, 0, 175); cx.restore(); } else porAncho(c.activo ? img.toriiOn : img.toriiOff, c.x - S.cam, G + 6, 230); });
@@ -603,7 +661,9 @@
   function estacionesDibujo() {
     S.est.forEach(e => {
       if (e.x0 > S.cam + W + 100 || e.x0 + e.ancho < S.cam - 100) return;
-      if (e.puertaX !== null) { const alto = 480, px = e.puertaX - S.cam, k = e.resuelta ? (e.abre = Math.min(1, (e.abre || 0) + .03)) : 0; for (let i = -1; i <= 1; i++) { const im = img.bambuDeco; if (im) { cx.save(); cx.beginPath(); cx.rect(px - 40, G - alto, 80, alto); cx.clip(); sprite(im, px - 18 + i * 22, G - alto + k * (alto + 20), 54, alto + 20); cx.restore(); } } }
+      if (e.puertaX !== null) { const alto = 480, px = e.puertaX - S.cam, k = e.resuelta ? (e.abre = Math.min(1, (e.abre || 0) + .03)) : 0;
+        if (img.rejaBambu) { cx.save(); cx.beginPath(); cx.rect(px - 70, 0, 140, G + 4); cx.clip(); core.tira(img.rejaBambu, px - 40, G - alto - 14 + k * (alto + 30), 80, alto + 18); cx.restore(); }
+        else for (let i = -1; i <= 1; i++) { const im = img.bambuDeco; if (im) { cx.save(); cx.beginPath(); cx.rect(px - 40, G - alto, 80, alto); cx.clip(); sprite(im, px - 18 + i * 22, G - alto + k * (alto + 20), 54, alto + 20); cx.restore(); } } }
       if (e.mecanica === 'empujar_carreta') e.pads.forEach(p => { const px = p.x - S.cam; cx.fillStyle = p.estado === 'bien' ? '#3ac46a' : 'rgba(255,230,150,.9)'; cx.fillRect(px - 62, G - 6, 124, 10); cx.fillStyle = '#6b4a1c'; cx.fillRect(px - 62, G + 4, 124, 6); etiqueta(String(p.valor), px, G - 40, 26, '#fff'); cx.strokeStyle = 'rgba(255,255,255,.5)'; cx.setLineDash([6, 6]); cx.strokeRect(px - 62, G - 112, 124, 106); cx.setLineDash([]); });
       e.objetos.forEach(o => {
         if (e.mecanica === 'encender_farol') {
@@ -686,7 +746,7 @@
     const groundOffset = h.suelo ? 4 : 0;
     if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh };
     if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
-    { const al = alturaSombra(h); cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); }
+    { const al = alturaSombra(h); if (!(window.N1prof && N1prof.sombraHeroe(h, al, ESC_HEROE))) { cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); } }
     cx.save(); cx.translate(h.x - S.cam, h.y + groundOffset); { const T = fvTransform(h); if (T) { cx.translate(0, T.oy); cx.rotate(T.rot); cx.scale(T.sx, T.sy); } } if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
     if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14 * ESC_HEROE, -112 * ESC_HEROE, 52 * ESC_HEROE, 52 * ESC_HEROE * img.antorchaAnim.height / fw); }
     cx.restore();
@@ -709,7 +769,7 @@
     else if (set === 'hurt' || set === 'death') idx = Math.min(arr.length - 1, Math.floor(S.t * 12) % arr.length); else { h.anim += (1 / 60) * fps; idx = Math.floor(h.anim) % arr.length; }
     const f = arr[Math.min(idx, arr.length - 1)], im = img['h:' + set + ':' + Math.min(idx, arr.length - 1)] || img['h:idle:0']; if (!im || !f) return;
     const s = S.alto, w = f.w * s, hh = f.h * s, ax = f.ax * s, ay = f.ay * s; if (window.N1hab) N1hab.sprite = { im, ax, ay, w, hh }; if (h.inv > 0 && Math.floor(S.t * 20) % 2) return;
-    { const al = alturaSombra(h); cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); }
+    { const al = alturaSombra(h); if (!(window.N1prof && N1prof.sombraHeroe(h, al, ESC_HEROE))) { cx.fillStyle = 'rgba(0,0,0,' + (.25 * (1 - .5 * al)) + ')'; cx.beginPath(); cx.ellipse(h.x - S.cam, (h.pisando ? h.y : G) + 4, 30 * ESC_HEROE * (1 - .3 * al), 7 * ESC_HEROE * (1 - .3 * al), 0, 0, 7); cx.fill(); } }
     cx.save(); cx.translate(h.x - S.cam, h.y); { const T = fvTransform(h); if (T) { cx.translate(0, T.oy); cx.rotate(T.rot); cx.scale(T.sx, T.sy); } } if (h.dir < 0) cx.scale(-1, 1); cx.drawImage(im, -ax, -ay, w, hh);
     if (S.osc > .2 && img.antorchaAnim) { const fw = img.antorchaAnim.width / 10, fr = Math.floor(S.t * 14) % 10; cx.drawImage(img.antorchaAnim, fr * fw, 0, fw, img.antorchaAnim.height, 14 * ESC_HEROE, -112 * ESC_HEROE, 52 * ESC_HEROE, 52 * ESC_HEROE * img.antorchaAnim.height / fw); }
     cx.restore();
@@ -769,24 +829,27 @@
   }
   function dibujar() {
     if (!S || !cx) return;
-    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); cx.clearRect(-20, -20, W + 40, H + 40);
+    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); if (window.N1cam) N1cam.antes(cx); cx.clearRect(-20, -20, W + 40, H + 40);
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
-    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1hab) N1hab.mundo();
+    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1prof) N1prof.sombras(); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = { onigiri: img.onigiri, frasco: img.frasco, corazon: img.corazon, llave: img.llave }[i.tipo] || img.pergamino, w = { onigiri: 46, frasco: 46, corazon: 54, llave: 52 }[i.tipo] || 52; if (im) { const brilla = i.tipo === 'corazon' || i.tipo === 'llave'; if (brilla) { cx.save(); cx.shadowColor = '#ffe27a'; cx.shadowBlur = 14; } sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); if (brilla) cx.restore(); } });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.kfx.forEach(dibujarKunaiFx);
     S.shur.forEach(s => { if (s.kunai && dibujarKunai(s)) return; const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
     if (!S.nivel2) decorado('frente'); if (window.N1dir && !S.nivel2) N1dir.mundo();
     S.part.forEach(p => { cx.globalAlpha = clamp(p.t * 2, 0, 1); cx.fillStyle = p.col; cx.fillRect(p.x - S.cam - p.r / 2, p.y - p.r / 2, p.r, p.r); }); cx.globalAlpha = 1;
+    if (window.N1amb && !S.nivel2) N1amb.dibujar();
     if (!S.nivel2 && S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
+    if (window.N1prof) N1prof.frente();   // primer plano desenfocado (pasa por delante del héroe)
+    if (window.N1cam) N1cam.luces(cx);    // luces aditivas (camara.js)
     oscuridad(); if (window.N1dir && !S.nivel2) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
     if (S.osc > .15) etiquetasAcertijos();
     if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(0, 0, W, H); }
-    if (S.apunta) mira(); cx.restore(); hud();
+    if (S.apunta) mira(); cx.restore(); if (window.N1cam) N1cam.encima(cx); hud();
   }
   function mira() {
     const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(0, 0, W, H);

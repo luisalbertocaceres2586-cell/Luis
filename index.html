@@ -14,9 +14,10 @@
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <script src="engine/core/diagnostico.js?v=2"></script>
 <script src="engine/core/compat.js?v=1"></script>
+<script src="engine/core/tactil.js?v=1"></script>
 <script src="engine/core/orientacion.js?v=1"></script>
 <script src="engine/core/ios-fix.js?v=4"></script>
-<script src="engine/core/movil-comun.js?v=2"></script>
+<script src="engine/core/movil-comun.js?v=3"></script>
 <script src="engine/core/android-fix.js?v=1"></script>
 <script src="engine/core/ajustes-controles.js?v=2"></script>
 <script src="engine/core/progreso.js?v=3"></script>
@@ -199,7 +200,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   50%{color:#FF88BB;text-shadow:0 0 10px #FF88BB,0 0 22px #FF4488}
 }
 /* mobile — botones táctiles compactos, con brillo y movibles */
-#mctl{position:fixed;inset:0;display:none;z-index:95;pointer-events:none;--mbs:clamp(48px,14vh,66px)}
+#mctl{position:fixed;inset:0;display:none;z-index:95;pointer-events:none;--mbs:clamp(52px,15vh,76px)}
 #mctl.on{display:block}
 .mbt{position:absolute;width:var(--mbs);height:var(--mbs);transform:translate(-50%,-50%);border-radius:50%;
   border:3px solid rgba(0,225,255,.8);
@@ -987,9 +988,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 <script src="assets/environment/levels/nivel1/nubes.js"></script>
 <script src="assets/environment/platforms/islands/islas.js"></script>
-<script src="engine/juego-principal.js?v=1"></script>
+<script src="engine/juego-principal.js?v=2"></script>
 <script src="engine/fx-engine.js"></script>
-<script src="engine/mobile-fix.js?v=2"></script>
+<script src="engine/mobile-fix.js?v=3"></script>
 <script src="assets/characters/sakura/manifest.js"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
 <script src="assets/characters/kage/manifest.js"></script>
@@ -1007,7 +1008,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="engine/ui/transicion-2026.js?v=1"></script>
 <script src="engine/ui/iconos-2026.js?v=1"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-24-853d072";</script>
+<script>window.NJ_BUILD="2026-11-25-20f53bc";</script>
 <script src="engine/core/version.js?v=1"></script>
 <script src="engine/core/dispositivo.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
@@ -1024,7 +1025,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="engine/nivel1/perfil-ui.js?v=15"></script>
 <script src="engine/ui/pantalla-movil.js?v=12"></script>
 <script src="engine/ui/hud-nuevo.js?v=an2"></script>
-<script src="engine/ui/controles-tactiles-extra.js?v=11"></script>
+<script src="engine/ui/controles-tactiles-extra.js?v=12"></script>
 <script src="engine/ui/barra-progreso.js?v=4"></script>
 <script src="engine/movimiento/caida-rapida.js?v=4"></script>
 <script src="engine/combate/racha.js?v=4"></script>

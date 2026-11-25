@@ -62,6 +62,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    Aquí, si el dedo que empezó en ◀ cruza hacia ▶ (o al revés), se suelta uno y se pulsa el otro reutilizando
    la lógica del juego (se le envían los mismos eventos de puntero), así que no se toca ningún código existente. */
 (function(){
+  if(window.NinjaTouch)return;           // ahora la cruceta deslizable la resuelve engine/core/tactil.js (sin eventos falsos)
   const dedos=new Map();                 // pointerId -> 'mbL' | 'mbR'
   document.addEventListener('pointerdown',e=>{
     if(!e.isTrusted||e.pointerType!=='touch')return;
