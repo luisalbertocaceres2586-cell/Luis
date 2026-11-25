@@ -55,6 +55,34 @@ ok('el zoom nunca pasa de los límites y el giro es mínimo', () => {
   for (let i = 0; i < 40; i++) { C.golpe(.1, .05, 0); C.antes(fakeCtx()); }
   const E = C._estado(); assert(E.zPunch <= .16 + 1e-9); assert(Math.abs(E.rollPunch) <= .03 + 1e-9);
 });
+ok('al empezar el nivel hay dolly-in: zoom alto que se asienta', () => {
+  mundo(); const C = cam(); C.antes(fakeCtx()); const z0 = C._estado().z, i0 = C._estado().intro;
+  for (let i = 0; i < 150; i++) C.antes(fakeCtx());
+  const E = C._estado(); assert(i0 > .9 && E.intro === 0 && E.z < 1.07, 'intro termina y el zoom se asienta');
+});
+ok('el golpe recibido empuja la cámara pero con tope seguro (±8 px)', () => {
+  const S = mundo(), C = cam(); C.antes(fakeCtx());
+  for (let i = 0; i < 5; i++) { S.shake = 0; C.antes(fakeCtx()); S.shake = .3; C.antes(fakeCtx()); }
+  assert(Math.abs(C._estado().kx) <= 8 + 1e-9 && C._estado().kx !== 0);
+});
+ok('la cámara acompaña al kunai en vuelo y lo suelta al desaparecer', () => {
+  const S = mundo(), C = cam(); C.antes(fakeCtx());
+  S.h.kunaiT = .2; const k = { x: 900, y: 500, kunai: true }; S.shur.push(k); C.antes(fakeCtx());
+  for (let i = 0; i < 20; i++) C.antes(fakeCtx());
+  assert(C._estado().pf > .5, 'sigue'); S.shur.length = 0;
+  for (let i = 0; i < 40; i++) C.antes(fakeCtx());
+  assert(C._estado().pf < .1 && C._estado().seguir === null, 'suelta');
+});
+ok('los destellos anamórficos se dibujan y no fallan en modo lite', () => {
+  const S = mundo(), C = cam(); C.antes(fakeCtx()); S.hab.dash.t = .16; C.antes(fakeCtx());
+  const cx = fakeCtx(); C.luces(cx); assert(cx.calls.filter(c => c === 'scale').length >= 1);
+  C._estado().lite = true; const c2 = fakeCtx(); C.luces(c2); assert(c2.calls.filter(c => c === 'scale').length === 0);
+});
+ok('al apuntar aparecen barras de cine y tono frío', () => {
+  const S = mundo(), C = cam(); S.apunta = { sel: 0, lst: [{ x: 900, y: 400 }] };
+  for (let i = 0; i < 30; i++) C.antes(fakeCtx());
+  const cx = fakeCtx(); C.encima(cx); assert(cx.calls.filter(c => c === 'fillRect').length >= 4);
+});
 ok('_apagar desactiva todos los ganchos', () => {
   mundo(); const C = cam(); C._apagar(); const cx = fakeCtx(); C.antes(cx); C.luces(cx); C.encima(cx); assert.strictEqual(cx.calls.length, 0);
 });
