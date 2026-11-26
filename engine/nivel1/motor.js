@@ -45,7 +45,10 @@
     ninjaLancero: 'enemigos_extra/ninja_lancero', ninjaArquero: 'enemigos_extra/ninja_arquero', kappa: 'enemigos_extra/kappa', zorroFuego: 'enemigos_extra/zorro_fuego', samuraiF: 'enemigos_extra/samurai_fantasma',
     serpCueva: 'enemigos_extra/serpiente_cueva', ranaG: 'enemigos_extra/rana_gigante', escarabajo: 'enemigos_extra/escarabajo_cristal', guardiaPiedra: 'enemigos/guardia_piedra', sombraPers: 'enemigos/sombra_perseguidora',
     palancaOff: 'objetos_extra/palanca_apagada', palancaOn: 'objetos_extra/palanca_encendida', campana: 'objetos_extra/campana_templo', mercader: 'objetos_extra/mercader_tanuki', sensei: 'objetos_extra/maestro_sensei',
-    corazonJade: 'objetos_extra/corazon_jade', frascoLuz: 'objetos_extra/frasco_luz', oniCaminar: 'jefe/oni_caminar_8', oniAtaque: 'jefe/oni_ataque_6'
+    corazonJade: 'objetos_extra/corazon_jade', frascoLuz: 'objetos_extra/frasco_luz', oniCaminar: 'jefe/oni_caminar_8', oniAtaque: 'jefe/oni_ataque_6',
+    // v · animaciones de enemigos: tiras de 8 cuadros iguales en una fila (se cargan en segundo plano; si no llegan, se usa la imagen fija)
+    aNinjaCam: 'enemigos_anim/ninja_caminar_8', aNinjaCorrer: 'enemigos_anim/ninja_correr_8', aNinjaAtk: 'enemigos_anim/ninja_ataque_8',
+    aAranaRep: 'enemigos_anim/arana_reposo_8', aAranaAtk: 'enemigos_anim/arana_ataque_8', aFuegoFlot: 'enemigos_anim/fuego_flotar_8', aFuegoAlerta: 'enemigos_anim/fuego_alerta_8', aGuardia: 'enemigos_anim/guardia_caminar_8'
   };
   const SKY = { A: ['#2b2468', '#ff8f6b', '#ffe3a3'], B: ['#3d5a80', '#98c1d9', '#e8f1f2'], C: ['#5c2a6e', '#e86a5c', '#ffd08a'] };
   const BANDERAS = { antorcha: 'una antorcha', armadura: 'la armadura samurái', aliado_mercader: 'la ayuda del mercader', bendicion_zorro: 'la bendición del zorro', llave_dojo: 'la llave del dojo', llave_portal: 'la llave del portal', vista_torre: 'vista desde la torre', pergamino_dragon: 'el pergamino del dragón', ritmo_tejados: 'ritmo de tejados' };
@@ -264,7 +267,7 @@
   function bucle(now) {
     raf = requestAnimationFrame(bucle); if (!S) return;
     acc += Math.min(0.1, (now - last) / 1000); last = now;
-    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1)); acc -= DT; }
+    let n = 0; while (acc >= DT && n++ < 6) { if (!S.pausa && !S.fin && !S.eligiendo) paso(DT * (S.apunta ? .3 : 1) * (window.N1cam ? N1cam.escala() : 1)); acc -= DT; }
     dibujar();
   }
   const muroSolido = m => !(m.abierta || m.roto);
@@ -356,7 +359,7 @@
     const obj = clamp(h.x - 430 + h.dir * 70, 0, N.ancho - W); S.cam += (obj - S.cam) * Math.min(1, dt * 5);
     S.part.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.t -= dt; }); S.part = S.part.filter(p => p.t > 0);
     S.textos.forEach(t => { t.y -= 40 * dt; t.t -= dt; }); S.textos = S.textos.filter(t => t.t > 0);
-    S.hojas.forEach(l => { l.x -= l.v * dt; l.y += l.v * .5 * dt; l.r += dt; if (l.x < -10 || l.y > H + 10) { l.x = W + 10; l.y = Math.random() * H * .6; } });
+    S.hojas.forEach(l => { const wv = window.N1amb ? N1amb.viento(S.cam + l.x, S.t) : 0; l.x -= (l.v + wv * 70) * dt; l.y += l.v * .5 * dt * (1 - .25 * Math.min(wv, 1)); l.r += dt * (1 + wv); if (l.x < -10 || l.y > H + 10) { l.x = W + 10; l.y = Math.random() * H * .6; } });
     S.estSel = null; S.est.forEach(e => { if (!e.resuelta && h.x > e.x0 - 260 && h.x < e.x0 + e.ancho + 40) S.estSel = e; });
     tutoriales(dt);
     if (window.N1hab) N1hab.revisar();   // ¿toca elegir una habilidad nueva?
@@ -574,7 +577,7 @@
     // sol con resplandor suave (antes: dos círculos duros que parecían un anillo)
     const sx = 880 - (S.cam * .02) % 2000, sg = cx.createRadialGradient(sx, 190, 10, sx, 190, 190); sg.addColorStop(0, 'rgba(255,244,210,.95)'); sg.addColorStop(.3, 'rgba(255,236,190,.55)'); sg.addColorStop(1, 'rgba(255,220,170,0)'); cx.fillStyle = sg; cx.fillRect(sx - 200, -10, 400, 400);
     cx.fillStyle = 'rgba(255,248,226,.96)'; cx.beginPath(); cx.arc(sx, 190, 50, 0, 7); cx.fill();
-    if (img.nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - S.t * (8 + i * 3) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alpha * .75; cx.drawImage(img.nube, x, 60 + i * 55, w, img.nube.height * w / img.nube.width); }
+    if (img.nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - (S.t * (8 + i * 3) + (S.vd || 0) * (5 + i * 2)) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alpha * .75; cx.drawImage(img.nube, x, 60 + i * 55, w, img.nube.height * w / img.nube.width); }
     cx.globalAlpha = alpha;
     if (img.montanas) { const mw = 1400, mh = img.montanas.height * mw / img.montanas.width, off = -((S.cam * .12) % mw); for (let x = off; x < W; x += mw) cx.drawImage(img.montanas, x, G - mh + 30, mw, mh); }
     const T = tilesBosque(), fog = (y0, a) => { const f = cx.createLinearGradient(0, y0, 0, G + 30); f.addColorStop(0, 'rgba(255,236,214,0)'); f.addColorStop(1, 'rgba(255,236,214,' + a + ')'); cx.fillStyle = f; cx.fillRect(0, y0, W, G + 40 - y0); };
@@ -821,15 +824,15 @@
   }
   function oscuridad() {
     if (S.osc < .02) return; ox.globalCompositeOperation = 'source-over'; ox.clearRect(0, 0, W, H); ox.fillStyle = 'rgba(3,1,10,' + (.965 * S.osc) + ')'; ox.fillRect(0, 0, W, H); ox.globalCompositeOperation = 'destination-out';
-    luces().forEach(l => { const x = l.x - S.cam, y = l.y; if (x < -l.r || x > W + l.r) return; const g = ox.createRadialGradient(x, y, 0, x, y, l.r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.55, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ox.fillStyle = g; ox.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); });
+    luces().forEach(l0 => { const fl = window.N1amb ? N1amb.parpadeo(l0.x, l0.r) : 1, l = { x: l0.x, y: l0.y, r: l0.r * fl }, x = l.x - S.cam, y = l.y; if (x < -l.r || x > W + l.r) return; const g = ox.createRadialGradient(x, y, 0, x, y, l.r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.55, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ox.fillStyle = g; ox.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); });
     cx.drawImage(oc, 0, 0);
-    const AL = []; lucesAcertijos(AL); AL.forEach(l => { const x = l.x - S.cam, hg = cx.createRadialGradient(x, l.y, 0, x, l.y, l.r * .55); hg.addColorStop(0, 'rgba(255,214,130,' + .2 * S.osc + ')'); hg.addColorStop(1, 'rgba(255,214,130,0)'); cx.fillStyle = hg; cx.fillRect(x - l.r, l.y - l.r, l.r * 2, l.r * 2); });
-    const h = S.h, g = cx.createRadialGradient(h.x - S.cam, h.y - 70, 0, h.x - S.cam, h.y - 70, S.luz); g.addColorStop(0, 'rgba(255,170,60,' + .16 * S.osc + ')'); g.addColorStop(1, 'rgba(255,120,20,0)'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+    const AL = []; lucesAcertijos(AL); AL.forEach(l => { const x = l.x - S.cam, hg = cx.createRadialGradient(x, l.y, 0, x, l.y, l.r * .55); hg.addColorStop(0, 'rgba(255,214,130,' + .2 * S.osc * (window.N1amb ? N1amb.parpadeo(l.x, l.r) : 1) + ')'); hg.addColorStop(1, 'rgba(255,214,130,0)'); cx.fillStyle = hg; cx.fillRect(x - l.r, l.y - l.r, l.r * 2, l.r * 2); });
+    const h = S.h, lz = S.luz * (window.N1amb ? N1amb.parpadeo(h.x, S.luz) : 1), g = cx.createRadialGradient(h.x - S.cam, h.y - 70, 0, h.x - S.cam, h.y - 70, lz); g.addColorStop(0, 'rgba(255,170,60,' + .16 * S.osc + ')'); g.addColorStop(1, 'rgba(255,120,20,0)'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     N1elem.ojos();
   }
   function dibujar() {
     if (!S || !cx) return;
-    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); cx.clearRect(-20, -20, W + 40, H + 40);
+    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); if (window.N1cam) N1cam.antes(cx); cx.clearRect(-20, -20, W + 40, H + 40);
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
@@ -840,15 +843,16 @@
     S.shur.forEach(s => { if (s.kunai && dibujarKunai(s)) return; const im = img.shuriken; if (!im) return; const fw = im.width / 8, f = Math.floor(S.t * 20) % 8; cx.drawImage(im, f * fw, 0, fw, im.height, s.x - S.cam - 40, s.y - 40, 80, 80 * im.height / fw); });
     if (!S.nivel2) decorado('frente'); if (window.N1dir && !S.nivel2) N1dir.mundo();
     S.part.forEach(p => { cx.globalAlpha = clamp(p.t * 2, 0, 1); cx.fillStyle = p.col; cx.fillRect(p.x - S.cam - p.r / 2, p.y - p.r / 2, p.r, p.r); }); cx.globalAlpha = 1;
-    if (window.N1amb && !S.nivel2) N1amb.dibujar();
+    if (window.N1amb && !S.nivel2) { N1amb.dibujar(); N1amb.luces(); }
     if (!S.nivel2 && S.mezcla < .5) S.hojas.forEach(l => { cx.save(); cx.translate(l.x, l.y); cx.rotate(l.r); cx.fillStyle = 'rgba(120,200,90,.75)'; cx.beginPath(); cx.ellipse(0, 0, l.s, l.s * .35, 0, 0, 7); cx.fill(); cx.restore(); });
     if (window.N1prof) N1prof.frente();   // primer plano desenfocado (pasa por delante del héroe)
+    if (window.N1cam) N1cam.luces(cx);    // luces aditivas (camara.js)
     oscuridad(); if (window.N1dir && !S.nivel2) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
     if (S.osc > .15) etiquetasAcertijos();
     if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(0, 0, W, H); }
-    if (S.apunta) mira(); cx.restore(); hud();
+    if (S.apunta) mira(); cx.restore(); if (window.N1cam) N1cam.encima(cx); hud();
   }
   function mira() {
     const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(0, 0, W, H);

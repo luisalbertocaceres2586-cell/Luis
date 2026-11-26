@@ -1,0 +1,56 @@
+/* NINJA X: Guardianes de las Tablas — logo en capas con profundidad (assets/logo-ninja-x/).
+   Capas (de atrás hacia delante): halo oscuro (da contraste con el cielo naranja) · aura de energía · onda · pergamino · NINJA (con brillo que lo barre) · resplandor + emblema X · chispas y pétalos.
+   Todo se anima solo con transform/opacity (barato en celulares). Modo equipo modesto (html.fx-low) o "reducir movimiento": quedan las capas quietas. */
+#introTitle#introTitle#introTitle.nxl{display:block!important;position:relative;isolation:isolate;aspect-ratio:1475/680;height:auto!important;max-height:none!important;object-fit:fill;
+  width:min(88vw,620px,calc(var(--nx-h,17vh)*2.169))!important;margin:0 auto!important;filter:none!important;will-change:auto;overflow:visible;--px:0;--py:0}
+@media(min-width:900px){#introTitle#introTitle#introTitle.nxl{--nx-h:24vh}}
+@media(max-height:620px) and (orientation:landscape){#introTitle#introTitle#introTitle.nxl{--nx-h:16vh}}
+@media(max-height:430px) and (orientation:landscape){#introTitle#introTitle#introTitle.nxl{--nx-h:13vh}}
+.nxl>.l{position:absolute;pointer-events:none;user-select:none;-webkit-user-select:none;transform:translate3d(calc(var(--px)*var(--d,0)*1px),calc(var(--py)*var(--d,0)*1px),0);transition:transform .25s ease-out}
+.nxl img,.nxl i{display:block;pointer-events:none;-webkit-user-drag:none}
+.nxl .l img{width:100%;height:100%;object-fit:fill}
+/* posiciones en % del lienzo 1475×680 */
+.nxl .l-halo{left:-12%;top:-26%;width:124%;height:152%;--d:2;background:radial-gradient(ellipse at 50% 52%,rgba(12,4,38,.78) 0%,rgba(30,10,70,.52) 38%,rgba(30,10,70,0) 70%);filter:blur(2px)}
+.nxl .l-aura{left:-11%;top:-12%;width:122%;height:124%;--d:4}
+.nxl .l-aura img{animation:nxAura 70s linear infinite;opacity:.55}
+.nxl .l-onda{left:63%;top:-6%;width:37%;height:88%;--d:7}
+.nxl .l-onda img{opacity:0;animation:nxOnda 3.8s ease-out infinite 1.2s}
+.nxl .l-perg{left:2.71%;top:54.12%;width:61.02%;height:45.88%;--d:3}
+.nxl .l-perg img{transform-origin:50% 0;animation:nxSway 6s ease-in-out infinite alternate}
+.nxl .l-ninja{left:0;top:13.82%;width:67.8%;height:47.65%;--d:6}
+.nxl .l-brillo{left:0;top:13.82%;width:67.8%;height:47.65%;--d:6;-webkit-mask:url(../../assets/logo-ninja-x/ninja.webp) center/100% 100% no-repeat;mask:url(../../assets/logo-ninja-x/ninja.webp) center/100% 100% no-repeat;
+  background:linear-gradient(108deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 60%) 130% 0/300% 100% no-repeat;mix-blend-mode:screen;animation:nxBrillo 5s ease-in-out infinite 1.6s}
+.nxl .l-xglow{left:56%;top:-14%;width:50%;height:104%;--d:8;background:radial-gradient(circle at 50% 50%,rgba(255,80,220,.7) 0%,rgba(140,60,255,.34) 40%,rgba(140,60,255,0) 68%);mix-blend-mode:screen;animation:nxGlow 3s ease-in-out infinite}
+.nxl .l-x{left:63.05%;top:0;width:36.95%;height:76.47%;--d:10}
+.nxl .l-x img{animation:nxX 4.6s ease-in-out infinite}
+.nxl .l-fx{left:0;top:0;width:100%;height:100%;--d:14}
+.nxl .sp{position:absolute;left:var(--x);top:var(--y);width:var(--s);aspect-ratio:1;margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:var(--img) center/contain no-repeat;opacity:0;animation:nxTw var(--t) ease-in-out infinite var(--w)}
+.nxl .pt{position:absolute;left:var(--x);top:-8%;width:var(--s);aspect-ratio:1;background:url(../../assets/intro-premium/petalo_sakura.png) center/contain no-repeat;opacity:0;animation:nxPetalo var(--t) linear infinite var(--w)}
+/* entrada (solo cuando el logo aparece) */
+.nxl.pre .l{opacity:0}
+.nxl.in .l-halo{animation:nxIn .8s ease-out both}
+.nxl.in .l-aura{animation:nxAuraIn 1.1s cubic-bezier(.2,.9,.3,1) both}
+.nxl.in .l-perg{animation:nxPergIn .7s cubic-bezier(.2,1.2,.4,1) .45s both}
+.nxl.in .l-ninja{animation:nxNinjaIn .75s cubic-bezier(.2,1.5,.4,1) .1s both}
+.nxl.in .l-brillo{opacity:0;animation:nxFade .1s linear 1.2s both}
+.nxl.in .l-xglow,.nxl.in .l-fx,.nxl.in .l-onda{animation:nxFade .6s linear .8s both}
+.nxl.in .l-x{animation:nxXIn .9s cubic-bezier(.2,1.4,.35,1) .3s both}
+@keyframes nxIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes nxAuraIn{from{opacity:0;transform:scale(.45) rotate(-30deg)}to{opacity:1;transform:none}}
+@keyframes nxPergIn{from{opacity:0;transform:translateY(-30%) scaleY(.25)}to{opacity:1;transform:none}}
+@keyframes nxNinjaIn{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:none}}
+@keyframes nxXIn{from{opacity:0;transform:rotate(-40deg) scale(.15)}to{opacity:1;transform:none}}
+@keyframes nxFade{from{opacity:0}to{opacity:1}}
+@keyframes nxAura{to{transform:rotate(360deg)}}
+@keyframes nxOnda{0%{opacity:0;transform:scale(.45)}12%{opacity:.85}100%{opacity:0;transform:scale(1.7)}}
+@keyframes nxSway{from{transform:rotate(-.7deg)}to{transform:rotate(.7deg)}}
+@keyframes nxBrillo{0%{background-position:130% 0}45%,100%{background-position:-30% 0}}
+@keyframes nxGlow{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes nxX{0%,100%{transform:translateY(-1.5%) rotate(-1.6deg) scale(1)}50%{transform:translateY(1.5%) rotate(1.6deg) scale(1.035)}}
+@keyframes nxTw{0%,100%{opacity:0;transform:scale(.2) rotate(0)}45%,55%{opacity:1;transform:scale(1) rotate(45deg)}}
+@keyframes nxPetalo{0%{opacity:0;transform:translate3d(0,0,0) rotate(0)}10%{opacity:.95}50%{transform:translate3d(24px,70px,0) rotate(160deg)}90%{opacity:.9}100%{opacity:0;transform:translate3d(-10px,150px,0) rotate(330deg)}}
+/* pausa cuando no se ve y equipos modestos */
+.nxl.off *{animation-play-state:paused!important}
+html.fx-low .nxl .l-aura img,html.fx-low .nxl .l-brillo,html.fx-low .nxl .l-onda img,html.fx-low .nxl .l-fx,html.fx-low .nxl .l-perg img,html.fx-low .nxl .l-x img,html.fx-low .nxl .l-xglow{animation:none!important}
+html.fx-low .nxl .l-fx,html.fx-low .nxl .l-brillo,html.fx-low .nxl .l-onda{display:none}
+@media(prefers-reduced-motion:reduce){.nxl *{animation:none!important;transition:none!important}.nxl .l-fx,.nxl .l-brillo,.nxl .l-onda{display:none}.nxl.pre .l{opacity:1}}

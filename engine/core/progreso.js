@@ -160,7 +160,7 @@ function abrir(){
   });
   $('njProgShare').addEventListener('click',function(){
     if(!codigo)return;
-    if(navigator.share){navigator.share({title:'Mi progreso · Ninja Multiplicación',text:codigo}).catch(function(){});}
+    if(navigator.share){navigator.share({title:'Mi progreso · NINJA X',text:codigo}).catch(function(){});}
     else copiar(codigo,out).then(function(ok){msg(m1,ok?'✔ Copiado (este navegador no tiene “Compartir”).':'Mantén pulsado el texto para copiarlo.',ok);});
   });
   $('njProgGo').addEventListener('click',function(){

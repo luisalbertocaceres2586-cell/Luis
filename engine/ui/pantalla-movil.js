@@ -58,7 +58,7 @@ NinjaMods.register({id:'pantalla-movil',carpeta:'ui',nombre:'Pantalla de teléfo
   /* ---------- AVISO "GIRA EL TELÉFONO" ---------- */
   const av=document.createElement('div');av.id='rotarAviso';
   const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  av.innerHTML='<div style="display:flex;align-items:center;gap:18px"><div class="ra-tel"></div><div class="ra-flecha">⟳</div></div><h2>GIRA TU TELÉFONO</h2><p>Ninja Multiplicación se juega en horizontal para que tengas más espacio y mejores botones.</p>'+
+  av.innerHTML='<div style="display:flex;align-items:center;gap:18px"><div class="ra-tel"></div><div class="ra-flecha">⟳</div></div><h2>GIRA TU TELÉFONO</h2><p>NINJA X se juega en horizontal para que tengas más espacio y mejores botones.</p>'+
     (ios?'<p class="ra-ios" style="display:block">En iPhone: apaga el candado de rotación en el Centro de control 🔒 o toca Compartir ⬆ y “Añadir a pantalla de inicio”.</p>':'<button class="ra-auto" type="button">🔄 GIRAR AUTOMÁTICAMENTE</button>')+
     '<button class="ra-asi" type="button">Jugar así de todos modos</button>';
   document.body.appendChild(av);

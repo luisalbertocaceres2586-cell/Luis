@@ -7897,7 +7897,7 @@ function showReport(){
 function downloadReport(){
   const rows=_reportRows();
   const lines=[
-    'REPORTE DE TABLAS DE MULTIPLICAR — NINJA MULTIPLICACIÓN',
+    'REPORTE DE TABLAS DE MULTIPLICAR — NINJA X: GUARDIANES DE LAS TABLAS',
     'Generado: '+new Date().toLocaleString(),
     '',
     'Tabla | Aciertos | Fallos | % Acierto'
