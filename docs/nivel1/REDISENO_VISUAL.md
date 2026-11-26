@@ -20,3 +20,9 @@ Originales sin tocar: `assets/_originales/nivel1_arte2/` (hoja12_muros, fondo_le
 | `assets/environment/levels/nivel1/n1_bg_bambu_medio_a/b/c.png` | capa media de bambú (verde), repite sin costura |
 
 Los fondos están reducidos a 1024×683 y cuantizados a 256 colores (~110–160 KB c/u).
+
+## Viento común y luz de verdad (rama `viento-luz-nivel1`)
+- **Viento** (`ambiente.js` → `A.viento(x, t)`, expuesto como `N1core.viento`): una brisa de fondo (~0.15–0.4) más ráfagas (~1.0–1.35) que **viajan** por el nivel cada ~11 s y soplan hacia la izquierda. Lo usan: decorado (bambú, cerezo, helechos, farolitos, estandartes), pétalos y luciérnagas, hojas que caen, nubes, bancos de niebla, motas, las capas de bambú y el primer plano. `S.vd` guarda el viento acumulado para que nubes/niebla/motas aceleren en ráfaga sin saltos.
+- **Luz** (`A.luces()`, después de las partículas y antes del primer plano): brillos cálidos pre-dibujados en modo aditivo con parpadeo de llama, sin `shadowBlur`. Farolitos de cuerda (3 luces, siguen el balanceo), farol de piedra, faroles del torii (los del punto de control **se encienden al activarlo**) y la meta. Incluyen una mancha cálida sobre el piso (se omite si el equipo va lento).
+- **Cueva**: el agujero de luz, el halo de los acertijos y la antorcha del héroe ahora titilan como llama (`A.parpadeo`).
+- Prueba nueva en `tests/nivel1.test.js` (rango del viento, ráfagas, viaje por el nivel, parpadeo).
