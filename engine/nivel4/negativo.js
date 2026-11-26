@@ -13,6 +13,24 @@
   const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
   const COL = ['#35d6ff', '#ff5bd1', '#ffd84a'];
   const NOMBRE_RETO = { mult: 'Resultado', sec: 'Secuencia', sombra: 'Sombra' };
+  const SIMB = { L: '◀', R: '▶', CW: '⟳', CCW: '⟲' };
+  const ACC_TXT = { L: '◀ camina a la izquierda', R: '▶ camina a la derecha', CW: '⟳ gira la sala a la derecha', CCW: '⟲ gira la sala a la izquierda' };
+  const CIRC = ['①', '②', '③'];
+  // guía del primer nivel: se avanza sola cuando el jugador hace lo que se pide
+  const COACH = [
+    { ids: ['R', 'L'], msg: () => '👋 ¡Hola! Toca ▶' + (tactil() ? '' : ' (o la flecha →)') + ' para CAMINAR hacia la derecha.' },
+    { ids: ['CW', 'CCW'], msg: () => '¡Muy bien! Ahora toca ⟳' + (tactil() ? '' : ' (o la tecla E)') + ' para GIRAR la sala: el suelo cambia y Sakura cae hacia él.' },
+    { ids: [], msg: () => 'Lee la pregunta del panel y busca la losa con el resultado. ¡Camina y gira hasta pisarla!' }
+  ];
+  // explicación corta al entrar en cada sala nueva
+  const INTRO = {
+    2: ['👻 Las casillas de color con borde punteado son <b>fantasmas</b>: las atraviesas.', '💎 Resuelve la pregunta del <b>mismo color</b> y esas casillas se vuelven sólidas.', '① ② Hay <b>DOS preguntas</b>: cada una tiene su número y su color. Sus losas llevan ese mismo número.'],
+    3: ['🪨 La <b>sombra de piedra</b> también cae cuando giras la sala.', '◎ Tu meta: dejarla caer sobre el <b>interruptor</b>.', '⚠️ Los pinchos te mandan al inicio, ¡sin castigo!'],
+    4: ['Aquí vienen <b>las 3 preguntas</b> juntas: resultado, secuencia y sombra.', '👉 El panel marca cuál conviene hacer <b>PRIMERO</b>.', '💡 Si te pierdes, toca 💡: te muestra los próximos pasos.']
+  };
+  const AYUDA_HTML = '<h1>¿CÓMO SE JUEGA?</h1><div class="reglas"><span>⟲ ⟳ <b>GIRAR</b>: toda la sala gira y cambia el suelo. Sakura cae hacia el nuevo suelo.</span><span>◀ ▶ <b>CAMINAR</b> por el suelo.</span>' +
+    '<span>① ② ③ <b>PREGUNTAS</b>: cada una tiene su número y su color. Sus losas llevan ese mismo número y color.</span><span>👻 <b>FANTASMAS</b>: se atraviesan hasta que resuelvas la pregunta de su color.</span>' +
+    '<span>💎 Resuelve todas las preguntas y se abre el 🌀 <b>PORTAL</b>.</span><span>↶ Deshacer · ↺ Reiniciar · 💡 Pista: te dice el siguiente paso</span></div>';
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t;
   const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   const tactil = () => { try { return matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window; } catch (e) { return false; } };
@@ -103,7 +121,8 @@
       // evitar repetir las preguntas que el niño ya domina: pesa más lo que falló
       Lg.rellenar(E, def.tablas, Math.random, null);
       pila = [];
-      V = { hx: E.hero.x, hy: E.hero.y, en: E.enemigos.map(e => ({ x: e.x, y: e.y })), ang: 0, angObj: 0, mira: 1, mov: 0, cola: [], seg: null, pend: null, inks: /** @type {any[]} */ ([]), ordenRest: [], restPos: {}, t0: performance.now() / 1000, fx: [], pista: null, ultimaAccion: performance.now() / 1000, aterrizaT: 0, susto: 0, tShake: {}, aviso: performance.now() / 1000, erroresSala: 0, pistasSala: 0, ganaT: 0, muertoT: 0, rVis: 0 };
+      V = { hx: E.hero.x, hy: E.hero.y, en: E.enemigos.map(e => ({ x: e.x, y: e.y })), ang: 0, angObj: 0, mira: 1, mov: 0, cola: [], seg: null, pend: null, inks: /** @type {any[]} */ ([]), ordenRest: [], restPos: {}, t0: performance.now() / 1000, fx: [], pista: null, ultimaAccion: performance.now() / 1000, aterrizaT: 0, susto: 0, tShake: {}, aviso: performance.now() / 1000, erroresSala: 0, pistasSala: 0, ganaT: 0, muertoT: 0, rVis: 0, orden: /** @type {number[]} */ ([]), coach: null, guiaPasos: null, guiaMeta: 0, nudge: false, idle: false };
+      try { const pl = Lg.plan(E, 400000); if (pl) V.orden = pl.orden; } catch (e) { /* sin plan: no se marca «primero» */ }
       if (def.tinte0 > 0) V.inks.push({ cx: 0, cy: 0, t0: -99, rMax: def.tinte0 * 14 * T, base: true, lobes: lobulos(i + 7) });
       const ex = findXY('X'); if (ex && V.inks[0]) { V.inks[0].cx = (ex[0] + .5) * T; V.inks[0].cy = (ex[1] + .5) * T; }
       particulas = [];
@@ -120,7 +139,9 @@
       const antes = Lg.clonar(E), rAntes = E.r;
       const res = Lg.aplicar(E, a, true);
       if (!res.valida) { if (a === 'L' || a === 'R') { V.tShake.hero = performance.now() / 1000; tono(110, 0.08, 'square', 0.04); } return; }
-      pila.push(antes); if (pila.length > 200) pila.shift(); tot.pasos++; V.ultimaAccion = performance.now() / 1000;
+      pila.push(antes); if (pila.length > 200) pila.shift(); tot.pasos++; V.ultimaAccion = performance.now() / 1000; V.nudge = false; V.idle = false;
+      if (V.guiaPasos) { if (V.guiaPasos[0] === a) { V.guiaPasos.shift(); V.pista = V.guiaPasos.length ? { a: V.guiaPasos[0], hasta: Infinity } : null; if (!V.guiaPasos.length) V.guiaPasos = null; } else { V.guiaPasos = null; V.pista = null; } }
+      if (V.coach) { if (V.coach.paso === 0 && (a === 'L' || a === 'R')) V.coach.paso = 1; else if (V.coach.paso === 1 && (a === 'CW' || a === 'CCW')) V.coach.paso = 2; }
       V.mira = (a === 'L') ? -1 : (a === 'R') ? 1 : V.mira;
       const trazo = res.trazo || [];
       if (a === 'CW' || a === 'CCW') { V.angObj += a === 'CW' ? 90 : -90; V.cola.push({ tipo: 'giro', dur: SPEED.giro, desde: V.ang, hasta: V.angObj }); sfx.giro(); }
@@ -155,19 +176,21 @@
           chispas((e.x + .5) * T, (e.y + .5) * T, COL[e.n - 1], 46); sfx.cristal();
           efecto(V.ordenRest.length % 2 ? 'e_tinta1' : 'e_tinta2', e.x, e.y, ahora, 1.1, T * .6, T * 3.4); efecto('e_onda', e.x, e.y, ahora, 1.3, T * .8, T * 9); efecto('e_destello', e.x, e.y, ahora, .7, T * .8, T * 2.6); efecto('e_estrellas', e.x, e.y - .6, ahora + .15, 1.5, T * 1.2, T * 2.4);
           toast('✨ ¡Cristal ' + NOMBRE_RETO[retoDe(e.n).tipo].toLowerCase() + ' restaurado!', COL[e.n - 1], 2.4);
-        } else if (e.t === 'acierto') { sfx.bien(); tot.aciertos++; registrar(retoMult(), true); }
+        } else if (e.t === 'acierto') { sfx.bien(); tot.aciertos++; registrar(retoMult(), true); finCoach(); const rm = retoMult(); if (rm) rm.malos = 0; }
         else if (e.t === 'paso') { sfx.losa(); chispas((e.x + .5) * T, (e.y + .5) * T, '#ffffff', 10); }
         else if (e.t === 'error') {
           sfx.error(); V.susto = ahora; V.tShake['p' + e.pad] = ahora; tot.errores++; V.erroresSala++;
           const r = E.retos.find(r => r.pads && r.pads[e.pad]);
-          if (r && r.tipo === 'mult') { registrar(r, false); toast('Casi… ' + r.q.T + ' × ' + r.q.n + ' no es ' + r.pads[e.pad].n + '. ¡Inténtalo otra vez!', '#ffb3b3', 3); }
-          else toast('Ese no era el siguiente. ¡Empieza la secuencia de nuevo!', '#ffb3b3', 3);
+          finCoach(); if (r) r.malos = (r.malos || 0) + 1;
+          if (r && r.tipo === 'mult') { registrar(r, false); toast('Casi… ' + r.q.T + ' × ' + r.q.n + ' no es ' + r.pads[e.pad].n + '. ¡Inténtalo otra vez!', '#ffb3b3', 3); if (r.malos >= 2) toast('💡 Cuenta de ' + r.q.T + ' en ' + r.q.T + ': ' + Lg.cuentaDe(r.q.T, r.q.n).join(', ') + ', …', '#ffe27a', 5); }
+          else { toast('Ese no era el siguiente. ¡Empieza la secuencia de nuevo!', '#ffb3b3', 3); if (r && r.malos >= 2) toast('💡 Empieza por el ' + r.T + ', luego el ' + r.T * 2 + ', luego el ' + r.T * 3, '#ffe27a', 5); }
         } else if (e.t === 'interruptor') { chispas((e.x + .5) * T, (e.y + .5) * T, COL[2], 20); sfx.losa(); }
         else if (e.t === 'muerte') { sfx.muerte(); V.muertoT = ahora; setTimeout(() => { if (vivo) reaparecer(); }, 900); }
         else if (e.t === 'gana') { V.ganaT = ahora; for (let i = 0; i < 4; i++) efecto('e_petalos', 1 + i * 2, -1, ahora + i * .3, 2.8, T * 1.6, T * 1.6, 9.5); efecto('e_estrellas', E.hero.x, E.hero.y - 1, ahora, 1.6, T * 1.4, T * 2.8); sfx.gana(); setTimeout(() => { if (vivo) salaCompletada(); }, 1500); }
       });
       if (E.rest === E.req && !V.abierto && !E.gana) { V.abierto = true; toast('🌀 ¡El portal está abierto!', '#fff3b0', 2.6); }
     }
+    const finCoach = () => { if (V.coach) { V.coach = null; V0.coachHecho = true; } };
     const bits = m => { let n = 0; while (m) { n += m & 1; m >>= 1; } return n; };
     const retoDe = n => E.retos.find(r => r.cristal === n);
     const retoMult = () => E.retos.find(r => r.tipo === 'mult');
@@ -183,13 +206,13 @@
     }
     function deshacer() {
       if (!enJuego || pausa || V.seg || V.cola.length) return; if (!pila.length) { toast('No hay nada que deshacer', '#ffffff', 1.2); return; }
-      const e = pila.pop(); e.retos = E.retos; e.errores = E.errores; e.aciertos = E.aciertos; E = e; tot.deshacer++;
+      V.guiaPasos = null; V.pista = null; const e = pila.pop(); e.retos = E.retos; e.errores = E.errores; e.aciertos = E.aciertos; E = e; tot.deshacer++;
       const d = ((E.r * 90 - V.angObj) % 360 + 540) % 360 - 180; V.angObj += d; V.cola.push({ tipo: 'giro', dur: 0.3, desde: V.ang, hasta: V.angObj });
       V.hx = E.hero.x; V.hy = E.hero.y; V.en = E.enemigos.map(x => ({ x: x.x, y: x.y })); V.abierto = E.rest === E.req;
       V.inks = V.inks.filter(k => k.base || (E.rest & (1 << (k.n - 1)))); V.ordenRest = V.ordenRest.filter(n => E.rest & (1 << (n - 1))); sfx.paso();
     }
     function reiniciar() {
-      if (!enJuego || pausa) return; const nums = E.retos.map(r => JSON.parse(JSON.stringify({ q: r.q, pads: r.pads })));
+      if (!enJuego || pausa) return; V.guiaPasos = null; V.pista = null; const nums = E.retos.map(r => JSON.parse(JSON.stringify({ q: r.q, pads: r.pads })));
       const def = SA.copia(salaIdx); const antE = E.errores; const nuevoE = Lg.crear(def); nuevoE.retos.forEach((r, i) => { r.q = nums[i].q; r.pads = nums[i].pads; }); nuevoE.tablas = def.tablas; nuevoE.def = def; nuevoE.errores = antE;
       E = nuevoE; pila = []; V.cola = []; V.seg = null; V.pend = null; V.hx = E.hero.x; V.hy = E.hero.y; V.en = E.enemigos.map(e => ({ x: e.x, y: e.y }));
       const d = ((0 - V.angObj) % 360 + 540) % 360 - 180; V.angObj += d; V.cola.push({ tipo: 'giro', dur: 0.4, desde: V.ang, hasta: V.angObj });
@@ -197,10 +220,29 @@
     }
     function pista() {
       if (!enJuego || pausa || V.seg || V.cola.length) return;
-      const sol = Lg.resolver(E, 300000);
-      if (!sol) { toast('Desde aquí no hay salida. Usa ↶ Deshacer o ↺ Reiniciar.', '#ffe27a', 3.2); return; }
-      if (!sol.length) return; V.pista = { a: sol[0], hasta: performance.now() / 1000 + 3.5 }; tot.pistas++; V.pistasSala++;
-      toast('💡 Pista: ' + ({ L: 'camina a la izquierda ◀', R: 'camina a la derecha ▶', CW: 'gira la sala ⟳', CCW: 'gira la sala ⟲' })[sol[0]], '#ffe27a', 3);
+      const pl = Lg.plan(E, 300000);
+      if (!pl) { toast('Desde aquí no hay salida. Usa ↶ Deshacer o ↺ Reiniciar.', '#ffe27a', 3.2); return; }
+      if (!pl.sol.length) return;
+      V.guiaPasos = pl.sol.slice(0, 3); V.pista = { a: V.guiaPasos[0], hasta: Infinity }; tot.pistas++; V.pistasSala++;
+      const rr0 = pl.hitos.length ? E.retos.findIndex(r => r.cristal === pl.hitos[0].n) : -1; V.guiaMeta = rr0 + 1;
+      toast('💡 Siguiente paso: ' + ACC_TXT[pl.sol[0]], '#ffe27a', 3.4);
+    }
+    const recomendado = () => {
+      if (!E || E.retos.length < 2) return 0; const ord = V.orden || [];
+      for (let i = 0; i < ord.length; i++) if (!(E.rest & (1 << (ord[i] - 1)))) return ord[i];
+      const r = E.retos.find((q, i) => !E.hechoReto[i]); return r ? r.cristal : 0;
+    };
+    /** La meta de ahora, en una frase: la pregunta que conviene hacer primero (según el solucionador). */
+    function meta() {
+      if (E.rest === E.req) return { txt: '¡Todo restaurado! Corre al portal de salida', c: '#fff3b0', n: 0 };
+      const rc = recomendado(), r = rc ? retoDe(rc) : E.retos.find((q, i) => !E.hechoReto[i]); if (!r) return null;
+      const txt = r.tipo === 'mult' ? 'Resuelve ' + r.q.T + ' × ' + r.q.n + ' y pisa su resultado' : r.tipo === 'sec' ? 'Pisa ' + r.orden.map((_, i) => r.T * (i + 1)).join(' → ') + ' en orden' : 'Lleva la sombra de piedra al interruptor ◎';
+      return { txt, c: COL[r.cristal - 1], n: E.retos.indexOf(r) + 1 };
+    }
+    function ayuda() {
+      if (!enJuego || pausa || (E && E.gana)) return; pausa = true;
+      pantalla(AYUDA_HTML + '<button id="vale" type="button">▶ ¡A JUGAR!</button>', 'pausa');
+      document.getElementById('vale').onclick = () => { pausa = false; pantalla(''); V.ultimaAccion = performance.now() / 1000; };
     }
 
     // ───────────────────────── efectos con imagen (tinta, onda, destello, estrellas, pétalos) ─────────────────────────
@@ -368,8 +410,11 @@
     const BTN = [], presion = {};
     (function () { const y1 = 354, w = 76, gp = 10; ['CCW', 'L', 'R', 'CW'].forEach((a, i) => BTN.push({ id: a, x: PX + 8 + i * (w + gp), y: y1, w, h: 84 }));
       ['deshacer', 'reiniciar', 'pista', 'pausa'].forEach((a, i) => BTN.push({ id: a, x: PX + 8 + i * (w + gp), y: y1 + 92, w, h: 54 })); })();
+    BTN.push({ id: 'ayuda', x: RX + RS - 46, y: RY + 8, w: 38, h: 38 });   // «?» pequeño en la esquina del tablero (no tiene sprite)
+    const resaltado = id => { const t = performance.now() / 1000; return !!((V.pista && t < V.pista.hasta && V.pista.a === id) || (V.coach && COACH[V.coach.paso].ids.indexOf(id) >= 0) || (id === 'pista' && V.idle)); };
     function boton(g, b, now) {
-      const pistaA = V.pista && now < V.pista.hasta && V.pista.a === b.id, pulso = pistaA ? .5 + .5 * Math.sin(now * 9) : 0, im = IMG(RUTA['b_' + b.id]);
+      const pistaA = resaltado(b.id), pulso = pistaA ? .5 + .5 * Math.sin(now * 9) : 0, im = IMG(RUTA['b_' + b.id]);
+      if (b.id === 'ayuda') { const pr0 = presion.ayuda ? clamp(1 - (now - presion.ayuda) / 0.16, 0, 1) : 0, cx0 = b.x + b.w / 2, cy0 = b.y + b.h / 2; g.fillStyle = 'rgba(10,10,30,.88)'; g.beginPath(); g.arc(cx0, cy0, 18 - 2 * pr0, 0, 6.283); g.fill(); g.strokeStyle = '#ffe27a'; g.lineWidth = 2.5; g.stroke(); texto(g, '?', cx0, cy0 + 1, 22, '#ffe27a'); return; }
       const pr = presion[b.id] ? clamp(1 - (now - presion[b.id]) / 0.16, 0, 1) : 0, esc2 = 1 - .08 * pr;
       if (listo(im)) {
         g.save(); g.translate(b.x + b.w / 2, b.y + b.h / 2 + pr * 2); g.scale(esc2, esc2);
@@ -394,6 +439,66 @@
       else { g.fillStyle = '#2a2a3a'; g.fill(); g.strokeStyle = '#6a6a85'; g.lineWidth = 2; g.stroke(); }
       g.restore();
     }
+    /** Distintivo redondo con el número de la pregunta (① ② ③) en su color. */
+    function insignia(g, x, y, n, c, ok, r) {
+      g.save(); g.fillStyle = ok ? '#4fd17f' : c; g.strokeStyle = 'rgba(10,0,40,.9)'; g.lineWidth = 3; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.stroke(); g.fill();
+      texto(g, ok ? '✔' : String(n), x, y + 1, r * 1.3, '#10082e'); g.restore();
+    }
+    /** Pantalla (x, y) del centro de una casilla del mundo, con la sala girada. */
+    function pantallaDe(x, y) { const a = V.ang * Math.PI / 180, dx = (x + .5) * T - RS / 2, dy = (y + .5) * T - RS / 2; return [RX + RS / 2 + dx * Math.cos(a) - dy * Math.sin(a), RY + RS / 2 + dx * Math.sin(a) + dy * Math.cos(a)]; }
+    function etiqueta(g, s, x, y, c) { g.font = 'bold 13px ' + FUENTE; const w = g.measureText(s).width + 18; g.fillStyle = 'rgba(10,10,30,.88)'; rr(g, x - w / 2, y - 12, w, 24, 12); g.fill(); g.strokeStyle = c; g.lineWidth = 2; g.stroke(); texto(g, s, x, y + 1, 13, '#fff'); }
+    /** Capa EN COLOR sobre el tablero (el tablero va en negativo/gris): une cada losa, fantasma y sombra con su pregunta. */
+    function capaColor(g, now) {
+      g.save(); rr(g, RX, RY, RS, RS, 14); g.clip();
+      const a = V.ang * Math.PI / 180, pul = .5 + .5 * Math.sin(now * 4), num = r => E.retos.indexOf(r) + 1;
+      const anillo = (x, y, c, k) => { const p = pantallaDe(x, y); g.save(); g.translate(p[0], p[1]); g.rotate(a); g.globalAlpha = .12 + .1 * pul; g.fillStyle = c; rr(g, -T / 2 + 3, -T / 2 + 3, T - 6, T - 6, 9); g.fill(); g.globalAlpha = k; g.strokeStyle = c; g.lineWidth = 3; rr(g, -T / 2 + 3, -T / 2 + 3, T - 6, T - 6, 9); g.stroke(); g.restore(); };
+      const marca = (x, y, r, rad) => { const p = pantallaDe(x, y); insignia(g, p[0] - T / 2 + 11, p[1] - T / 2 + 11, num(r), COL[r.cristal - 1], false, rad || 10); };
+      const sombraReto = E.retos.find(q => q.tipo === 'sombra'), sombraPend = sombraReto && !E.hechoReto[E.retos.indexOf(sombraReto)];
+      for (let y = 0; y < E.h; y++) for (let x = 0; x < E.w; x++) {
+        const t = E.mapa[y][x]; if (t === '.' || t === '#') continue;
+        if (Lg.esFantasma(t)) { if (!solidoVis(x, y)) { const r = retoDe(+t); if (r) { anillo(x, y, COL[r.cristal - 1], .5); marca(x, y, r, 9); } } continue; }
+        const r = E.retos.find(q => q.pads && q.pads[t]);
+        if (r) {
+          const k = E.retos.indexOf(r); if (E.hechoReto[k]) continue; const c = COL[r.cristal - 1];
+          if (r.tipo === 'sec') {
+            const i = r.orden.indexOf(t); if (E.prog[k] > i) { anillo(x, y, '#7ee89a', .85); continue; }
+            anillo(x, y, c, E.prog[k] === i ? .6 + .4 * pul : .5); marca(x, y, r); const p = pantallaDe(x, y); texto(g, (i + 1) + 'º', p[0] + T / 2 - 12, p[1] - T / 2 + 11, 13, '#fff', 'rgba(10,0,40,.95)');
+          } else { anillo(x, y, c, .8); marca(x, y, r); }
+          continue;
+        }
+        if (t === 'S' && sombraPend) { anillo(x, y, COL[sombraReto.cristal - 1], .9); marca(x, y, sombraReto); }
+        if (t === 'X') { const p = pantallaDe(x, y), falta = bits(E.req) - bits(E.rest); if (falta <= 0) { g.strokeStyle = 'rgba(255,255,255,' + (.5 + .4 * pul) + ')'; g.lineWidth = 3; g.beginPath(); g.arc(p[0], p[1], T * .55 + 3 * pul, 0, 6.283); g.stroke(); etiqueta(g, '🌀 SALIDA', p[0], p[1] - T * .78, '#fff3b0'); } else etiqueta(g, '🔒 faltan ' + falta + ' 💎', p[0], p[1] - T * .78, '#9fb0ff'); }
+      }
+      if (sombraPend) V.en.forEach(e => { const p = pantallaDe(e.x, e.y); insignia(g, p[0], p[1] - T * .9, num(sombraReto), COL[sombraReto.cristal - 1], false, 10); });
+      g.restore();
+    }
+    /** Cuadro de texto con ajuste de línea, anclado por arriba (abajo = false) o por abajo (abajo = true). */
+    function pildora(g, s, yBase, c, tam, abajo) {
+      g.font = 'bold ' + tam + 'px ' + FUENTE; const mw = RS - 40, pal = s.split(' '), lin = []; let ln = '';
+      pal.forEach(p => { const t = ln ? ln + ' ' + p : p; if (g.measureText(t).width > mw - 30 && ln) { lin.push(ln); ln = p; } else ln = t; }); if (ln) lin.push(ln);
+      const w = Math.min(mw, Math.max.apply(null, lin.map(l => g.measureText(l).width)) + 30), h = lin.length * (tam + 5) + 12, x = RX + RS / 2 - w / 2, y = abajo ? yBase - h : yBase;
+      g.fillStyle = 'rgba(10,10,30,.9)'; rr(g, x, y, w, h, 14); g.fill(); g.strokeStyle = c; g.lineWidth = 2; g.stroke();
+      lin.forEach((l, i) => texto(g, l, RX + RS / 2, y + 6 + (tam + 5) * i + (tam + 5) / 2, tam, '#fff'));
+    }
+    /** Franja de arriba: la META de ahora. Franja de abajo: lo que toca hacer (guía, pista o consejo). */
+    function bandas(g, now) {
+      g.save(); rr(g, RX, RY, RS, RS, 14); g.clip();
+      const m = meta();
+      if (m) {
+        const maxW = RS - 100, pad = m.n ? 82 : 40; let tam = 17; g.font = 'bold ' + tam + 'px ' + FUENTE;
+        while (tam > 11 && g.measureText(m.txt).width + pad > maxW) { tam--; g.font = 'bold ' + tam + 'px ' + FUENTE; }
+        const w = Math.min(maxW, g.measureText(m.txt).width + pad), mid = RX + (RS - 50) / 2, x = mid - w / 2;   // deja libre la esquina del botón «?»
+        g.fillStyle = 'rgba(10,10,30,.9)'; rr(g, x, RY + 8, w, 36, 18); g.fill(); g.strokeStyle = m.c; g.lineWidth = 2; g.stroke();
+        if (m.n) { insignia(g, x + 22, RY + 26, m.n, m.c, false, 13); texto(g, '🎯 ' + m.txt, x + 42, RY + 27, tam, '#fff', null, 'left'); } else texto(g, '🌀 ' + m.txt, mid, RY + 27, tam, '#fff');
+      }
+      let msg = '', col = '#ffe27a';
+      if (V.guiaPasos && V.guiaPasos.length) msg = '💡 Ahora: ' + ACC_TXT[V.guiaPasos[0]] + (V.guiaPasos.length > 1 ? '   ·   luego: ' + V.guiaPasos.slice(1).map(a => SIMB[a]).join(' ') : '') + (V.guiaMeta ? '   ·   vas por ' + CIRC[V.guiaMeta - 1] : '');
+      else if (V.coach) msg = COACH[V.coach.paso].msg();
+      else if (V.idle) msg = '¿Te atascaste? Toca 💡 y te muestro el siguiente paso.';
+      else if (now - V.aviso < 12 && E.def.aviso) { msg = E.def.aviso; col = '#9fb0ff'; }
+      if (msg) pildora(g, msg, RY + RS - 10, col, 15, true);
+      g.restore();
+    }
     function panel(g, now) {
       g.fillStyle = 'rgba(12,12,32,.82)'; rr(g, PX - 6, 18, PW + 12, 504, 18); g.fill(); g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = 2; g.stroke();
       const imr = IMG(retrato); if (listo(imr)) { g.save(); g.beginPath(); g.arc(PX + PW - 34, 56, 30, 0, 6.283); g.clip(); g.drawImage(imr, PX + PW - 64, 26, 60, 60); g.restore(); g.strokeStyle = '#ffe27a'; g.lineWidth = 3; g.beginPath(); g.arc(PX + PW - 34, 56, 30, 0, 6.283); g.stroke(); }
@@ -403,20 +508,31 @@
       const ns = [1, 2, 3].filter(n => E.req & (1 << (n - 1)));
       ns.forEach((n, i) => { const x = PX + 30 + i * 52; gema(g, x, 112, n, !!(E.rest & (1 << (n - 1))), now); });
       texto(g, bits(E.rest) + ' / ' + bits(E.req) + ' cristales', PX + 30 + ns.length * 52 + 8, 112, 15, '#d7d4ee', null, 'left');
-      // retos
-      let y = 150; E.retos.forEach((r, k) => {
-        const ok = E.hechoReto[k] || !!(E.rest & (1 << (r.cristal - 1))); g.fillStyle = ok ? 'rgba(80,200,120,.18)' : 'rgba(255,255,255,.07)'; rr(g, PX, y, PW - 4, 58, 10); g.fill(); g.fillStyle = COL[r.cristal - 1]; g.fillRect(PX, y + 8, 5, 42);
-        let l1 = '', l2 = '';
-        if (r.tipo === 'mult') { l1 = r.q.T + ' × ' + r.q.n + ' = ?'; l2 = 'Pisa la losa con el resultado'; }
-        else if (r.tipo === 'sec') { l1 = 'Tabla del ' + r.T + ': ' + r.orden.map((_, i) => r.T * (i + 1)).join(' → '); l2 = 'Pisa las losas en ese orden (' + E.prog[k] + '/' + r.orden.length + ')'; }
-        else { l1 = 'Sombra de piedra'; l2 = 'Déjala caer sobre el interruptor'; }
-        texto(g, l1, PX + 16, y + 20, r.tipo === 'sec' ? 17 : 22, ok ? '#9fe8b0' : '#fff', null, 'left'); texto(g, l2, PX + 16, y + 43, 13, '#c9c6e6', null, 'left'); if (ok) texto(g, '✔', PX + PW - 24, y + 29, 26, '#7ee89a');
+      // retos: cada pregunta tiene su NÚMERO y su COLOR (los mismos que se ven en sus losas del tablero)
+      let y = 150; const rec = recomendado();
+      E.retos.forEach((r, k) => {
+        const ok = E.hechoReto[k] || !!(E.rest & (1 << (r.cristal - 1))), c = COL[r.cristal - 1], primero = !ok && rec === r.cristal && E.retos.length > 1;
+        g.fillStyle = ok ? 'rgba(80,200,120,.18)' : 'rgba(255,255,255,.07)'; rr(g, PX, y, PW - 4, 58, 10); g.fill();
+        if (primero) { g.strokeStyle = 'rgba(255,226,122,' + (.5 + .4 * Math.sin(now * 5)) + ')'; g.lineWidth = 2.5; rr(g, PX, y, PW - 4, 58, 10); g.stroke(); }
+        g.fillStyle = c; g.fillRect(PX, y + 8, 5, 42); insignia(g, PX + 25, y + 29, k + 1, c, ok, 15);
+        const tx = PX + 48; let l2 = '';
+        if (r.tipo === 'mult') { texto(g, r.q.T + ' × ' + r.q.n + ' = ?', tx, y + 20, 22, ok ? '#9fe8b0' : '#fff', null, 'left'); l2 = 'Pisa la losa con el resultado'; }
+        else if (r.tipo === 'sec') {
+          const n = r.orden.length, cw = 52, gap = 22;
+          for (let i = 0; i < n; i++) {
+            const cx0 = tx + i * (cw + gap), hecho = ok || E.prog[k] > i, sig = !ok && E.prog[k] === i;
+            g.fillStyle = hecho ? 'rgba(80,200,120,.35)' : 'rgba(255,255,255,.1)'; rr(g, cx0, y + 7, cw, 26, 8); g.fill(); g.strokeStyle = sig ? 'rgba(255,226,122,' + (.6 + .4 * Math.sin(now * 6)) + ')' : (hecho ? '#7ee89a' : c); g.lineWidth = sig ? 3 : 2; g.stroke();
+            texto(g, String(r.T * (i + 1)), cx0 + cw / 2, y + 21, 17, hecho ? '#c9ffd8' : '#fff');
+            if (i < n - 1) texto(g, '→', cx0 + cw + gap / 2, y + 21, 15, '#c9c6e6');
+          }
+          l2 = 'Pisa las losas en este orden (' + E.prog[k] + '/' + n + ')';
+        } else { texto(g, 'Sombra de piedra', tx, y + 20, 20, ok ? '#9fe8b0' : '#fff', null, 'left'); l2 = 'Llévala al interruptor ◎'; }
+        texto(g, l2, tx, y + 44, 12, '#c9c6e6', null, 'left');
+        if (ok) texto(g, '✔', PX + PW - 24, y + 44, 22, '#7ee89a'); else if (primero) texto(g, '👉 PRIMERO', PX + PW - 12, y + 44, 12, '#ffe27a', null, 'right');
         y += 64;
       });
-      // aviso de la sala
-      if (now - V.aviso < 14 && E.def.aviso && y + 56 < BTN[0].y) { g.fillStyle = 'rgba(255,226,122,.12)'; rr(g, PX, y + 2, PW - 4, 50, 10); g.fill(); ajusteTexto(g, E.def.aviso, PX + 10, y + 12, PW - 24, 13, '#ffe9a8'); }
       BTN.forEach(b => boton(g, b, now));
-      texto(g, tactil() ? 'Gira la sala y camina para llegar al portal' : '← → caminar · Q/E girar · Z deshacer · R reiniciar · H pista', PX + PW / 2, 512, 10.5, '#8e8cb8');
+      texto(g, tactil() ? 'Gira la sala y camina para llegar al portal' : '← → caminar · Q/E girar · Z deshacer · R reiniciar · H pista · ? ayuda', PX + PW / 2, 512, 10.5, '#8e8cb8');
     }
     function ajusteTexto(g, s, x, y, w, tam, col) { g.font = tam + 'px ' + FUENTE; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = col; const pal = s.split(' '); let ln = '', yy = y; pal.forEach(p => { const t = ln ? ln + ' ' + p : p; if (g.measureText(t).width > w && ln) { g.fillText(ln, x, yy); yy += tam + 3; ln = p; } else ln = t; }); if (ln) g.fillText(ln, x, yy); }
 
@@ -436,9 +552,10 @@
       g.save(); rr(g, RX, RY, RS, RS, 14); g.clip(); const vg = g.createRadialGradient(RX + RS / 2, RY + RS / 2, RS * .32, RX + RS / 2, RY + RS / 2, RS * .75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,12,.6)'); g.fillStyle = vg; g.fillRect(RX, RY, RS, RS);
       if (V.ganaT) { const k = clamp((now - V.ganaT) / 1.2, 0, 1); g.fillStyle = 'rgba(255,255,255,' + (.5 * (1 - k)) + ')'; g.fillRect(RX, RY, RS, RS); } g.restore();
       const col = bits(E.rest) ? COL[[1, 2, 3].filter(n => E.rest & (1 << (n - 1)))[0] - 1] : 'rgba(255,255,255,.35)'; g.strokeStyle = col; g.lineWidth = 3; g.shadowColor = col; g.shadowBlur = 14; rr(g, RX, RY, RS, RS, 14); g.stroke(); g.shadowBlur = 0;
+      if ((enJuego || pausa) && !E.gana) { capaColor(g, now); bandas(g, now); }
       panel(g, now);
       // avisos
-      let ty = 36; for (let i = toasts.length - 1; i >= 0; i--) { const t = toasts[i], e = now - t.t0; if (e > t.d) { toasts.splice(i, 1); continue; } }
+      let ty = 74; for (let i = toasts.length - 1; i >= 0; i--) { const t = toasts[i], e = now - t.t0; if (e > t.d) { toasts.splice(i, 1); continue; } }
       toasts.slice(-2).forEach((t, i) => { const e = now - t.t0, a = clamp(Math.min(e / 0.2, (t.d - e) / 0.4), 0, 1); g.globalAlpha = a; g.font = 'bold 18px ' + FUENTE; const w = g.measureText(t.t).width + 34; g.fillStyle = 'rgba(10,10,30,.88)'; rr(g, RX + RS / 2 - w / 2, ty + i * 44 - 4, w, 36, 18); g.fill(); g.strokeStyle = t.c; g.lineWidth = 2; g.stroke(); texto(g, t.t, RX + RS / 2, ty + i * 44 + 14, 18, t.c); g.globalAlpha = 1; });
     }
 
@@ -446,12 +563,21 @@
     function pantalla(html, clase) { ov.className = clase || ''; ov.innerHTML = html; ov.style.display = html ? 'flex' : 'none'; }
     const retratoH = () => '<div class="retrato"><img class="ret" src="' + retrato + '" alt=""><img class="mar" src="' + UI + 'marcos/medallon_marco.png" alt=""></div>';
     const BARRA = '<img class="barra" src="' + UI + 'extras/barra_ornamental_azul_dorada.png" alt="">';
+    let salaInicial = clamp((o.sala | 0) - 1, 0, SA.salas.length - 1);   // opcional: abrir directamente una sala (1–4), útil para probar
+    const arranca = () => { enJuego = true; V.aviso = V.ultimaAccion = performance.now() / 1000; if (salaIdx === 0 && !V0.coachHecho) V.coach = { paso: 0 }; };
+    /** Explicación corta al entrar en una sala nueva (si tiene); luego empieza el juego. */
+    function introSala(cb) {
+      const it = INTRO[SA.salas[salaIdx].id]; if (!it) { pantalla(''); cb(); return; }
+      enJuego = false;
+      pantalla(retratoH() + '<h1>SALA ' + SA.salas[salaIdx].id + ' · ' + SA.salas[salaIdx].nombre + '</h1>' + BARRA + '<div class="reglas">' + it.map(t => '<span>' + t + '</span>').join('') + '</div><button id="vamos" type="button">▶ ¡VAMOS!</button>');
+      document.getElementById('vamos').onclick = () => { pantalla(''); cb(); };
+    }
     function inicio() {
-      cargarSala(0); enJuego = false;
-      pantalla(retratoH() + '<h1>EL MUNDO NEGATIVO</h1>' + BARRA + '<p>El color se escapó de este mundo. <b>Gira las salas</b>, resuelve los retos de las tablas y <b>devuélvele el color</b>.</p>' +
-        '<div class="reglas"><span>⟲ ⟳ Gira TODA la sala: cambia la gravedad</span><span>◀ ▶ Camina</span><span>👻 Lo gris se atraviesa</span><span>💎 Cada reto restaura un cristal</span><span>🪨 La sombra de piedra también cae</span><span>↶ Deshacer sin castigo</span></div>' +
-        '<p class="ctl">' + (tactil() ? 'Usa los botones de abajo a la derecha.' : 'Flechas ← → caminan · Q / E giran la sala · Z deshace · R reinicia · H pista · P pausa') + '</p><button id="go" type="button">▶ JUGAR</button>');
-      document.getElementById('go').onclick = () => { try { ac() && ac().resume && ac().resume(); } catch (e) { } pantalla(''); enJuego = true; V.aviso = performance.now() / 1000; };
+      cargarSala(salaInicial); salaInicial = 0; enJuego = false;
+      pantalla(retratoH() + '<h1>EL MUNDO NEGATIVO</h1>' + BARRA + '<p>El color se escapó de este mundo. ¡Devuélveselo resolviendo las tablas!</p>' +
+        '<div class="reglas"><span>1️⃣ <b>GIRA</b> la sala ⟲ ⟳: el suelo cambia</span><span>2️⃣ <b>CAMINA</b> ◀ ▶ hasta la losa con la respuesta</span><span>3️⃣ Cada pregunta restaura un 💎 y abre el 🌀 portal</span></div>' +
+        '<p class="ctl">' + (tactil() ? 'Usa los botones de abajo a la derecha. Toca 💡 si necesitas ayuda y ? para ver las reglas.' : 'Flechas ← → caminan · Q / E giran la sala · Z deshace · R reinicia · H pista · ? ayuda · P pausa') + '</p><button id="go" type="button">▶ JUGAR</button>');
+      document.getElementById('go').onclick = () => { try { ac() && ac().resume && ac().resume(); } catch (e) { } pantalla(''); arranca(); };
     }
     function pausar() {
       if (!enJuego || (E && E.gana)) return; if (pausa) { pausa = false; pantalla(''); return; } pausa = true;
@@ -465,7 +591,7 @@
       const estH = '<div class="estrellas">' + [0, 1, 2].map(i => i < est ? '<span class="st" style="animation-delay:' + (0.3 + i * 0.35) + 's">⭐</span>' : '<span class="st0">⭐</span>').join('') + '</div>';
       if (!ultima) {
         pantalla(retratoH() + '<h1>¡SALA RESTAURADA!</h1>' + BARRA + estH + '<p>' + SA.salas[salaIdx].nombre + ' recuperó su color. Errores: <b>' + V.erroresSala + '</b> · Pistas: <b>' + V.pistasSala + '</b></p><button id="sig" type="button">SIGUIENTE SALA ▶</button><button id="sal2" type="button" class="sec">⟵ SALIR</button>', 'fin');
-        document.getElementById('sig').onclick = () => { const ant = V; cargarSala(salaIdx + 1); V.inks = V.inks; pantalla(''); enJuego = true; };
+        document.getElementById('sig').onclick = () => { V0.coachHecho = true; cargarSala(salaIdx + 1); introSala(arranca); };
         document.getElementById('sal2').onclick = () => salir();
       } else {
         const m = mediaEstrellas();
@@ -473,7 +599,7 @@
         document.getElementById('otra').onclick = () => { tot.errores = tot.aciertos = tot.pistas = 0; tot.estrellas = []; V0.guardado = false; inicio(); }; document.getElementById('sal3').onclick = () => salir();
       }
     }
-    const V0 = { guardado: false };
+    const V0 = { guardado: false, coachHecho: false };
     const mediaEstrellas = () => { const a = tot.estrellas.filter(Boolean); return a.length ? clamp(Math.round(a.reduce((s, x) => s + x, 0) / a.length), 1, 3) : 1; };
     function guardar(completo, est) {
       if (!o.perfil || !window.Perfiles) return;
@@ -491,25 +617,26 @@
       const k = e.key; if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].indexOf(k) >= 0) e.preventDefault();
       if (k === 'ArrowLeft' || k === 'a' || k === 'A') accion('L'); else if (k === 'ArrowRight' || k === 'd' || k === 'D') accion('R');
       else if (k === 'q' || k === 'Q' || k === 'ArrowUp') accion('CCW'); else if (k === 'e' || k === 'E' || k === 'ArrowDown') accion('CW');
-      else if (k === 'z' || k === 'Z' || k === 'Backspace') deshacer(); else if (k === 'r' || k === 'R') reiniciar(); else if (k === 'h' || k === 'H') pista();
+      else if (k === 'z' || k === 'Z' || k === 'Backspace') deshacer(); else if (k === 'r' || k === 'R') reiniciar(); else if (k === 'h' || k === 'H') pista(); else if (k === '?' || k === 'i' || k === 'I') ayuda();
       else if (k === 'p' || k === 'P' || k === 'Escape') pausar(); else if (k === 'm' || k === 'M') { mudo = !mudo; toast(mudo ? '🔇 Sonido apagado' : '🔊 Sonido activado', '#fff', 1.2); }
     });
     function punto(e) { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
     cv.addEventListener('pointerdown', e => {
       const p = punto(e); const b = BTN.find(b => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h); if (!b) return; e.preventDefault();
       try { ac() && ac().resume && ac().resume(); } catch (er) { }
-      presion[b.id] = performance.now() / 1000; if (b.id === 'deshacer') deshacer(); else if (b.id === 'reiniciar') reiniciar(); else if (b.id === 'pista') pista(); else if (b.id === 'pausa') pausar(); else accion(b.id);
+      presion[b.id] = performance.now() / 1000; if (b.id === 'deshacer') deshacer(); else if (b.id === 'reiniciar') reiniciar(); else if (b.id === 'pista') pista(); else if (b.id === 'ayuda') ayuda(); else if (b.id === 'pausa') pausar(); else accion(b.id);
     });
     document.addEventListener('visibilitychange', () => { if (document.hidden) pausar(); });
     window.addEventListener('pagehide', () => guardar(false));
 
     function bucle(t) {
       if (!vivo) return; raf = requestAnimationFrame(bucle); const dt = Math.min(0.05, (t - ultimo) / 1000 || 0); ultimo = t; const now = t / 1000;
+      if (V && enJuego && !pausa && !V.seg && !V.cola.length && E && !E.gana && !E.muerto && now - V.ultimaAccion > 18) { V.idle = true; if (!V.nudge) { V.nudge = true; toast('💡 ¿Te atascaste? Toca 💡 para ver el siguiente paso', '#ffe27a', 4); } }
       if (V) { if (!pausa) { avanzaCola(dt); for (let i = particulas.length - 1; i >= 0; i--) { const p = particulas[i]; p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 180 * dt; if (p.t > p.vida) particulas.splice(i, 1); } }
         dibuja(now); }
     }
     inicio(); raf = requestAnimationFrame(bucle);
-    return { accion, deshacer, reiniciar, pista, estado: () => E, visual: () => V };
+    return { accion, deshacer, reiniciar, pista, ayuda, estado: () => E, visual: () => V };
   }
 
   window.Nivel4 = { iniciar };

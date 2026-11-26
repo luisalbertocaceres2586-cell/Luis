@@ -100,4 +100,21 @@ ok('los dos héroes tienen sus 8 poses', () => {
   const fs = require('fs'), path = require('path');
   ['sakura', 'antarez'].forEach(h => ['caer_1', 'caer_2', 'aterrizar', 'girar_mundo', 'pensando', 'asustada', 'celebrar_1', 'celebrar_2'].forEach(p => assert.ok(fs.existsSync(path.join(__dirname, '../assets/nivel4/heroe', h, p + '.png')), 'falta ' + h + '/' + p)));
 });
+console.log('Ayudas (plan, orden recomendado, cuenta de la tabla)');
+ok('plan(): en TODAS las salas la ayuda gana SIN pisar ninguna losa equivocada y da un orden de cristales válido', () => {
+  S.salas.forEach((_, i) => {
+    const d = S.copia(i), E = L.crear(d); L.rellenar(E, d.tablas); const p = L.plan(E); assert.ok(p && p.sol.length > 0, 'sala ' + (i + 1));
+    const F = L.clonar(E); p.sol.forEach(a => L.aplicar(F, a)); assert.ok(F.gana, 'el plan gana en la sala ' + (i + 1)); assert.strictEqual(F.errores, 0, 'sin errores en la sala ' + (i + 1));
+    assert.deepStrictEqual(p.orden.slice().sort(), d.retos.map(r => r.cristal).sort(), 'un cristal por reto en la sala ' + (i + 1));
+  });
+});
+ok('plan(): sirve desde cualquier punto (tras un paso sigue habiendo plan más corto) y da null si no hay salida', () => {
+  const d = S.copia(1), E = L.crear(d); L.rellenar(E, d.tablas); const p0 = L.plan(E); L.aplicar(E, p0.sol[0]); const p1 = L.plan(E);
+  assert.ok(p1 && p1.sol.length === p0.sol.length - 1, 'avanzar un paso del plan lo acorta en uno');
+  const E2 = L.crear(sala(con([[3, 2, 'H'], [6, 7, 'X']]), [JSON.parse(JSON.stringify(mult))])); assert.strictEqual(L.plan(E2, 5000), null);
+});
+ok('cuentaDe(): da los primeros términos de la tabla SIN la respuesta', () => {
+  assert.deepStrictEqual(L.cuentaDe(3, 4), [3, 6, 9]); assert.deepStrictEqual(L.cuentaDe(7, 2), [7]); assert.deepStrictEqual(L.cuentaDe(8, 9), [8, 16, 24, 32, 40, 48, 56, 64]);
+  for (let T = 2; T <= 9; T++) for (let m = 2; m <= 9; m++) assert.ok(L.cuentaDe(T, m).indexOf(T * m) < 0, 'no debe incluir ' + T * m);
+});
 console.log('\n' + n + ' pruebas del Mundo 4 OK');

@@ -146,8 +146,9 @@
     return k;
   }
 
-  /** BFS: camino más corto hasta ganar. Devuelve array de acciones o null (sin solución) — máx. `tope` estados. */
-  function resolver(E0, tope) {
+  /** BFS: camino más corto hasta ganar. Devuelve array de acciones o null (sin solución) — máx. `tope` estados.
+      Con `evitaErrores` descarta los pasos que pisan una losa equivocada (para que las pistas nunca guíen a un error). */
+  function resolver(E0, tope, evitaErrores) {
     tope = tope || 400000;
     if (E0.gana) return [];
     const ini = clonar(E0); ini.muerto = false;
@@ -161,6 +162,7 @@
         for (let a = 0; a < ACCIONES.length; a++) {
           const F = clonar(E); const res = aplicar(F, ACCIONES[a], false);
           if (!res.valida || F.muerto) continue;
+          if (evitaErrores && res.ev.some(e => e.t === 'error')) continue;   // no pasar por una losa equivocada
           const kF = clave(F); if (vistos.has(kF)) continue;
           vistos.set(kF, true); padre.set(kF, [kE, ACCIONES[a]]);
           if (F.gana) { const cam = []; let k = kF; while (padre.has(k)) { const p = padre.get(k); cam.push(p[1]); k = p[0]; } return cam.reverse(); }
@@ -208,5 +210,16 @@
     return info;
   }
 
-  return { G, DER, ACCIONES, crear, clonar, aplicar, resolver, clave, caer, pregunta, rellenar, esFantasma, barajar };
+  /** Plan de ayuda desde el estado actual: la solución más corta y EN QUÉ ORDEN restaura los cristales
+      (p. ej. en la sala 4: sombra → secuencia → resultado). Devuelve {sol, orden, hitos} o null si no hay salida. */
+  function plan(E0, tope) {
+    const sol = resolver(E0, tope, true) || resolver(E0, tope, false); if (!sol) return null;   // 1º un camino SIN errores; si no existe, el más corto
+    const F = clonar(E0); F.muerto = false; const orden = [], hitos = [];
+    sol.forEach((a, i) => { const r = aplicar(F, a, false); r.ev.forEach(e => { if (e.t === 'cristal') { orden.push(e.n); hitos.push({ i, n: e.n }); } }); });
+    return { sol, orden, hitos };
+  }
+  /** Pista de cálculo sin regalar la respuesta: los primeros n-1 términos de la tabla de T (3 × 4 → [3, 6, 9]). */
+  function cuentaDe(T, n) { const a = []; for (let i = 1; i < n; i++) a.push(T * i); return a; }
+
+  return { G, DER, ACCIONES, crear, clonar, aplicar, resolver, clave, caer, pregunta, rellenar, esFantasma, barajar, plan, cuentaDe };
 });
