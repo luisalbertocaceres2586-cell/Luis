@@ -30,7 +30,7 @@
 #m26 #introTitle{display:block!important;width:min(70vw,470px)!important;max-height:15vh!important;height:auto!important;object-fit:contain;margin:0!important;animation:m26float 5s ease-in-out infinite!important;
   filter:drop-shadow(0 0 24px rgba(255,150,30,.5)) drop-shadow(0 6px 10px rgba(0,0,0,.65))!important}
 @keyframes m26float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-#m26 .m26-kick{font:800 clamp(9px,1.1vw,11px)/1 Inter,system-ui,sans-serif;letter-spacing:.34em;color:#9ee9ff;text-transform:uppercase;text-shadow:0 0 14px rgba(80,180,255,.6)}
+#m26 .m26-kick{font:800 clamp(11px,1.3vw,13px)/1 Inter,system-ui,sans-serif;letter-spacing:.3em;color:#9ee9ff;text-transform:uppercase;text-shadow:0 0 14px rgba(80,180,255,.6)}
 
 /* ---------- ninjas ---------- */
 #m26 .m26-stage{display:flex;align-items:flex-end;justify-content:center;gap:clamp(14px,5vw,80px);flex:1 1 auto;width:100%;touch-action:pan-y}
@@ -47,7 +47,7 @@
 #m26 .m26-hero canvas{position:relative;z-index:2;display:block;width:100%;height:var(--hh);pointer-events:none;filter:drop-shadow(0 14px 14px rgba(0,0,0,.5))}
 #m26 .m26-info{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:5px;height:clamp(40px,7vh,64px);justify-content:flex-start;padding-top:clamp(6px,1.2vh,12px)}
 #m26 .m26-nm{white-space:nowrap;font:900 clamp(15px,2.1vw,24px)/1 Inter,system-ui,sans-serif;letter-spacing:.16em;text-shadow:0 2px 14px rgba(0,0,0,.9);padding:2px 4px}
-#m26 .m26-tg{white-space:nowrap;font:700 clamp(9px,1vw,11px)/1 Inter,system-ui,sans-serif;letter-spacing:.2em;color:var(--a2);text-transform:uppercase;opacity:.9}
+#m26 .m26-tg{white-space:nowrap;font:700 clamp(11px,1.2vw,13px)/1 Inter,system-ui,sans-serif;letter-spacing:.14em;color:var(--a2);text-transform:uppercase;opacity:1}
 #m26 .m26-info:after{content:"";display:block;height:2px;width:0;background:var(--a);box-shadow:0 0 10px var(--a);border-radius:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
 #m26 .m26-hero.on .m26-info:after{width:56px}
 
@@ -55,7 +55,7 @@
 #m26 .m26-bottom{display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.6vh,14px);width:100%}
 #m26 .m26-play{display:flex;flex-direction:column;align-items:center;gap:clamp(6px,1.2vh,10px)}
 #m26 #pfChip{margin:0!important;display:inline-flex!important;align-items:center;gap:6px;padding:7px 14px!important;border-radius:99px!important;border:1px solid rgba(190,210,255,.22)!important;background:rgba(10,16,40,.55)!important;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#cfe0ff!important;font:700 11px/1 Inter,system-ui,sans-serif!important;letter-spacing:.12em;cursor:pointer}
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#cfe0ff!important;font:700 13px/1 Inter,system-ui,sans-serif!important;letter-spacing:.1em;cursor:pointer}
 #m26 #pfChip:hover{border-color:rgba(255,211,107,.6)!important;color:#ffe9b0!important}
 #m26 #btnStart{position:relative;overflow:hidden;display:flex!important;align-items:center;justify-content:center;gap:12px;min-width:min(78vw,300px);height:clamp(50px,8vh,62px);margin:0!important;padding:0 36px!important;border:0!important;border-radius:99px!important;
   background:linear-gradient(180deg,#ffe58f 0%,#ffb52e 58%,#ff8a1f 100%)!important;color:#2a1300;cursor:pointer;
@@ -70,9 +70,9 @@
 #m26 #btnStart .lb{font:900 clamp(15px,2vw,19px)/1 Inter,system-ui,sans-serif;letter-spacing:.26em;text-indent:.26em}
 #m26 .m26-dock{display:flex;gap:clamp(6px,1.4vw,14px);align-items:flex-start;justify-content:center;flex-wrap:wrap}
 #m26 .m26-d{display:flex;flex-direction:column;align-items:center;gap:5px;padding:0;margin:0;border:0;background:none;cursor:pointer;color:#c4d3f0;-webkit-tap-highlight-color:transparent;transition:transform .2s,color .2s}
-#m26 .m26-d .m26-i{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;font-style:normal;font-size:19px;line-height:1;border:1px solid rgba(190,210,255,.2);background:rgba(10,16,40,.55);
+#m26 .m26-d .m26-i{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;font-style:normal;font-size:20px;line-height:1;border:1px solid rgba(190,210,255,.2);background:rgba(10,16,40,.55);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:background .2s,border-color .2s,box-shadow .2s}
-#m26 .m26-d .m26-l{font:700 9px/1 Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+#m26 .m26-d .m26-l{font:700 11px/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.95}
 #m26 .m26-d:hover{transform:translateY(-2px);color:#fff}
 #m26 .m26-d:hover .m26-i{background:rgba(70,130,255,.25);border-color:rgba(130,190,255,.6);box-shadow:0 0 18px rgba(80,160,255,.35)}
 #m26 .m26-d:focus-visible .m26-i{outline:2px solid #ffd36b;outline-offset:2px}
@@ -99,7 +99,7 @@
   #m26 .m26-play{flex-direction:row;gap:12px}
   #m26 #btnStart{min-width:200px;height:46px;padding:0 24px!important}
   #m26 .m26-d .m26-l{display:none}
-  #m26 .m26-d .m26-i{width:36px;height:36px;font-size:16px}
+  #m26 .m26-d .m26-i{width:40px;height:40px;font-size:17px}
   #m26 .m26-dock{flex-wrap:nowrap}
 }
 @media(max-width:640px) and (orientation:portrait){
@@ -119,7 +119,7 @@
 #pfOverlay .pf-name input:focus{border-color:#ffd36b!important;box-shadow:0 0 0 4px rgba(255,211,107,.15)}
 #pfOverlay .pf-btn{font:900 13px/1 Inter,system-ui,sans-serif!important;letter-spacing:.14em;border-radius:99px!important;padding:14px 24px!important;box-shadow:0 8px 22px rgba(255,150,30,.28)!important}
 #pfOverlay .pf-btn.sec{box-shadow:none!important;border:1px solid rgba(190,210,255,.25)}
-#pfOverlay .pf-err{font:600 12px Inter,system-ui,sans-serif!important}
+#pfOverlay .pf-err{font:600 13px Inter,system-ui,sans-serif!important}
 
 /* ---------- "¿Quién juega?": tarjeta angosta, filas limpias, nada se sale ---------- */
 #pfOverlay .pf-card.pf-card-s{width:min(580px,94vw);display:flex;flex-direction:column;gap:14px;overflow-x:hidden}
@@ -129,7 +129,7 @@
 #pfOverlay .pf-card-s .pf-fila img{width:52px;height:52px;border-radius:12px;border:2px solid var(--c,#f6c768);object-fit:cover;object-position:top}
 #pfOverlay .pf-card-s .pf-info{display:flex;flex-direction:column;gap:3px;min-width:0}
 #pfOverlay .pf-card-s .pf-info b{font:900 15px/1.2 Inter,system-ui,sans-serif;letter-spacing:.08em;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pfOverlay .pf-card-s .pf-info small{font:600 12px/1.3 Inter,system-ui,sans-serif;color:#9fb0d2}
+#pfOverlay .pf-card-s .pf-info small{font:600 13px/1.3 Inter,system-ui,sans-serif;color:#9fb0d2}
 #pfOverlay .pf-card-s .pf-acc{display:flex;align-items:center;gap:6px}
 #pfOverlay .pf-card-s .pf-acc .pf-btn{min-height:40px;padding:0 16px;font-size:11px;white-space:nowrap;border-radius:99px!important;box-shadow:0 6px 16px rgba(255,150,30,.25)!important}
 #pfOverlay .pf-ic{width:36px;height:36px;flex:none;border-radius:50%;border:1px solid rgba(190,210,255,.22);background:rgba(10,16,40,.55);color:#dbe6ff;font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .2s,border-color .2s}
