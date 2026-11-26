@@ -139,7 +139,7 @@
     };
     N.plat.forEach(p => { p.X = p.x; p.Y = p.y; p.dX = 0; p.dY = 0; });
     for (let i = 0; i < 26; i++) S.hojas.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 30, r: Math.random() * 6, s: 5 + Math.random() * 6 });
-    oc = document.createElement('canvas'); oc.width = W; oc.height = H; ox = oc.getContext('2d');
+    oc = document.createElement('canvas'); oc.width = W + 120; oc.height = H + 700; ox = oc.getContext('2d');   // con margen: la cámara vertical desplaza el mundo
     if (S.movil) crearTactil();
     if (window.N1amb) N1amb.reiniciar();
     if (window.N1hab) N1hab.iniciar(S, nivel2 ? Object.assign({}, o, { habilidades: ['dash', 'doble', 'planeo', 'pared', 'tajoAereo', 'gancho'] }) : o);
@@ -227,7 +227,7 @@
   }
   function onKeyUp(e) { if (!S) return; if (keys[e.code]) soltar(e.code); keys[e.code] = 0; if (CTRL.indexOf(e.code) >= 0) { e.preventDefault(); e.stopImmediatePropagation(); } }
   function onPointer(e) {   // toque o clic sobre un objetivo: lo elige y lanza
-    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width + S.cam, py = (e.clientY - r.top) * H / r.height;
+    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), pm = window.N1cam ? N1cam.mundo((e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height) : { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }, px = pm.x + S.cam, py = pm.y;   // N1cam.mundo deshace el zoom y el desplazamiento de la cámara
     const est = S.estSel; if (!est) return; const lst = objetivos(est);
     let mejor = null, d = 70; lst.forEach(o => { const dd = Math.hypot(o.x - px, o.y - py); if (dd < d) { d = dd; mejor = o; } }); if (mejor) disparar(mejor, est);
   }
@@ -356,7 +356,7 @@
     if (Math.abs(h.x - N.meta.x) < 80 && h.y >= G - 4) { if (S.est.every(e => e.resuelta)) terminar(); else if (!(S.avisoMeta > 0)) { S.aviso = { t: 2.5, s: 'TE FALTAN PREGUNTAS POR RESOLVER' }; S.avisoMeta = 3; } }
     if (S.avisoMeta > 0) S.avisoMeta -= dt;
 
-    const obj = clamp(h.x - 430 + h.dir * 70, 0, N.ancho - W); S.cam += (obj - S.cam) * Math.min(1, dt * 5);
+    const obj = clamp(h.x - 430 + (window.N1cam ? N1cam.adelanto(h, dt) : h.dir * 70), 0, N.ancho - W); S.cam += (obj - S.cam) * Math.min(1, dt * 5);
     S.part.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 900 * dt; p.t -= dt; }); S.part = S.part.filter(p => p.t > 0);
     S.textos.forEach(t => { t.y -= 40 * dt; t.t -= dt; }); S.textos = S.textos.filter(t => t.t > 0);
     S.hojas.forEach(l => { const wv = window.N1amb ? N1amb.viento(S.cam + l.x, S.t) : 0; l.x -= (l.v + wv * 70) * dt; l.y += l.v * .5 * dt * (1 - .25 * Math.min(wv, 1)); l.r += dt * (1 + wv); if (l.x < -10 || l.y > H + 10) { l.x = W + 10; l.y = Math.random() * H * .6; } });
@@ -823,16 +823,16 @@
     N1elem.luces(L); if (window.N1dir) N1dir.luces(L); S.shur.forEach(s => L.push({ x: s.x, y: s.y, r: 55 })); return L;
   }
   function oscuridad() {
-    if (S.osc < .02) return; ox.globalCompositeOperation = 'source-over'; ox.clearRect(0, 0, W, H); ox.fillStyle = 'rgba(3,1,10,' + (.965 * S.osc) + ')'; ox.fillRect(0, 0, W, H); ox.globalCompositeOperation = 'destination-out';
+    if (S.osc < .02) return; ox.globalCompositeOperation = 'source-over'; ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, oc.width, oc.height); ox.setTransform(1, 0, 0, 1, 60, 420); ox.fillStyle = 'rgba(3,1,10,' + (.965 * S.osc) + ')'; ox.fillRect(-60, -420, W + 120, H + 700); ox.globalCompositeOperation = 'destination-out';
     luces().forEach(l0 => { const fl = window.N1amb ? N1amb.parpadeo(l0.x, l0.r) : 1, l = { x: l0.x, y: l0.y, r: l0.r * fl }, x = l.x - S.cam, y = l.y; if (x < -l.r || x > W + l.r) return; const g = ox.createRadialGradient(x, y, 0, x, y, l.r); g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(.55, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ox.fillStyle = g; ox.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); });
-    cx.drawImage(oc, 0, 0);
+    ox.setTransform(1, 0, 0, 1, 0, 0); cx.drawImage(oc, -60, -420);
     const AL = []; lucesAcertijos(AL); AL.forEach(l => { const x = l.x - S.cam, hg = cx.createRadialGradient(x, l.y, 0, x, l.y, l.r * .55); hg.addColorStop(0, 'rgba(255,214,130,' + .2 * S.osc * (window.N1amb ? N1amb.parpadeo(l.x, l.r) : 1) + ')'); hg.addColorStop(1, 'rgba(255,214,130,0)'); cx.fillStyle = hg; cx.fillRect(x - l.r, l.y - l.r, l.r * 2, l.r * 2); });
     const h = S.h, lz = S.luz * (window.N1amb ? N1amb.parpadeo(h.x, S.luz) : 1), g = cx.createRadialGradient(h.x - S.cam, h.y - 70, 0, h.x - S.cam, h.y - 70, lz); g.addColorStop(0, 'rgba(255,170,60,' + .16 * S.osc + ')'); g.addColorStop(1, 'rgba(255,120,20,0)'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
     N1elem.ojos();
   }
   function dibujar() {
     if (!S || !cx) return;
-    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); if (window.N1cam) N1cam.antes(cx); cx.clearRect(-20, -20, W + 40, H + 40);
+    const sh = S.shake > 0 ? (Math.random() - .5) * 10 * S.shake * 4 : 0; cx.save(); cx.translate(sh, sh); if (window.N1cam) N1cam.antes(cx); cx.clearRect(-60, -420, W + 120, H + 700);
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
@@ -849,13 +849,13 @@
     if (window.N1cam) N1cam.luces(cx);    // luces aditivas (camara.js)
     oscuridad(); if (window.N1dir && !S.nivel2) N1dir.encima();
     S.textos.forEach(t => { cx.globalAlpha = clamp(t.t * 2, 0, 1); etiqueta(t.s, t.x - S.cam, t.y, 22, t.col); }); cx.globalAlpha = 1;
-    const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(0, 0, W, H);
+    const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(-60, -420, W + 120, H + 700);
     if (S.osc > .15) etiquetasAcertijos();
-    if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(0, 0, W, H); }
+    if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(-60, -420, W + 120, H + 700); }
     if (S.apunta) mira(); cx.restore(); if (window.N1cam) N1cam.encima(cx); hud();
   }
   function mira() {
-    const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(0, 0, W, H);
+    const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(-60, -420, W + 120, H + 700);
     a.lst.forEach((q, i) => { const xx = q.x - S.cam; cx.strokeStyle = i === a.sel ? '#ffe27a' : 'rgba(255,255,255,.4)'; cx.lineWidth = i === a.sel ? 4 : 2; cx.beginPath(); cx.arc(xx, q.y, 56 + (i === a.sel ? Math.sin(a.t * 10) * 4 : 0), 0, 7); cx.stroke(); if (i === a.sel) { cx.setLineDash([10, 8]); cx.beginPath(); cx.moveTo(h.x - S.cam + h.dir * 30, h.y - 58); cx.lineTo(xx, q.y); cx.stroke(); cx.setLineDash([]); } });
     etiqueta('Elige con ← →  ·  suelta F para lanzar', W / 2, H - 70, 18, '#ffe27a');
   }

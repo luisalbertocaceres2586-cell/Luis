@@ -86,4 +86,48 @@ ok('al apuntar aparecen barras de cine y tono frío', () => {
 ok('_apagar desactiva todos los ganchos', () => {
   mundo(); const C = cam(); C._apagar(); const cx = fakeCtx(); C.antes(cx); C.luces(cx); C.encima(cx); assert.strictEqual(cx.calls.length, 0);
 });
+
+// ---------- cámara vertical, adelanto, zoom de velocidad y conversión de puntero ----------
+const sano = () => { globalThis.N1prof = { _estado: () => ({ dead: false }) }; };   // la cámara vertical solo funciona si profundidad.js está sano
+const frames = (C, n) => { for (let i = 0; i < n; i++) C.antes(fakeCtx()); };
+ok('cámara vertical: en el suelo no se desplaza; al saltar alto sube; en un foso baja; siempre dentro de los límites', () => {
+  sano(); const S = mundo(), C = cam(); frames(C, 60); assert(Math.abs(C.camY()) < 1, 'en el suelo ≈ 0');
+  S.h.y = 560 - 300; frames(C, 120); assert(C.camY() > 80 && C.camY() <= 120 + 1e-6, 'alto → sube: ' + C.camY());
+  S.h.y = 560 + 90; frames(C, 120); assert(C.camY() < -20 && C.camY() >= -45 - 1e-6, 'foso → baja: ' + C.camY());
+  S.h.y = 560 - 5000; frames(C, 200); assert(C.camY() <= 120 + 1e-6, 'tope superior');
+});
+ok('cámara vertical: se mueve con suavidad (sin saltos bruscos entre cuadros)', () => {
+  sano(); const S = mundo(), C = cam(); frames(C, 30); S.h.y = 560 - 300; let ant = C.camY(), maxPaso = 0;
+  for (let i = 0; i < 90; i++) { C.antes(fakeCtx()); maxPaso = Math.max(maxPaso, Math.abs(C.camY() - ant)); ant = C.camY(); }
+  assert(maxPaso < 8, 'paso máximo por cuadro ' + maxPaso.toFixed(2));
+});
+ok('cámara vertical: se apaga sola si profundidad.js falta o está caído (sus capas no tendrían margen)', () => {
+  const S = mundo(); delete globalThis.N1prof; let C = cam(); S.h.y = 560 - 300; frames(C, 120); assert.strictEqual(C.camY(), 0, 'sin N1prof');
+  globalThis.N1prof = { _estado: () => ({ dead: true }) }; C = cam(); frames(C, 120); assert.strictEqual(C.camY(), 0, 'N1prof caído');
+  sano(); C = cam(); frames(C, 120); assert(C.camY() > 50, 'con N1prof sano sí sube');
+  C._apagar(); assert.strictEqual(C.camY(), 0, 'cámara apagada → 0');
+});
+ok('adelanto: mira hacia donde corres, con giros suaves y límites', () => {
+  const S = mundo(), C = cam(); S.h.vx = 340; S.h.dir = 1; let a = 0; for (let i = 0; i < 90; i++) a = C.adelanto(S.h, 1 / 60);
+  assert(a > 100 && a <= 135, 'corriendo a la derecha: ' + a);
+  S.h.vx = -340; S.h.dir = -1; let prev = a, maxPaso = 0; for (let i = 0; i < 90; i++) { a = C.adelanto(S.h, 1 / 60); maxPaso = Math.max(maxPaso, Math.abs(a - prev)); prev = a; }
+  assert(a < -100 && a >= -135, 'corriendo a la izquierda: ' + a); assert(maxPaso < 16, 'giro suave (un giro completo son 262 px repartidos en ~1 s), paso máx ' + maxPaso.toFixed(2));
+  S.h.vx = 0; S.h.dir = 1; for (let i = 0; i < 200; i++) a = C.adelanto(S.h, 1 / 60); assert(Math.abs(a - 40) < 1, 'parado → 40 px hacia donde mira: ' + a);
+  S.h.vx = 5000; for (let i = 0; i < 200; i++) a = C.adelanto(S.h, 1 / 60); assert(a <= 135 + 1e-9, 'tope aunque vaya a velocidad absurda');
+  C._apagar(); assert.strictEqual(C.adelanto({ vx: 300, dir: -1 }, 1 / 60), -70, 'apagada → adelanto fijo de siempre');
+});
+ok('zoom de velocidad: se abre al correr, se cierra al parar y en el dash; nunca baja del mínimo', () => {
+  sano(); const S = mundo(), C = cam(); frames(C, 120); const reposo = C._estado().z;
+  S.h.vx = 340; frames(C, 120); const corriendo = C._estado().z; assert(corriendo < reposo - .015, 'correr abre el plano: ' + reposo.toFixed(3) + ' → ' + corriendo.toFixed(3));
+  S.h.vx = 0; frames(C, 120); assert(Math.abs(C._estado().z - reposo) < .004, 'al parar vuelve al reposo');
+  S.h.vx = 340; S.hab.dash.t = .2; frames(C, 20); assert(C._estado().z > corriendo, 'el dash acerca');
+  S.hab.dash.t = 0; S.h.vx = 340; S.h.vy = 900; frames(C, 200); assert(C._estado().z >= 1.045 - 1e-9, 'mínimo ' + C._estado().z);
+});
+ok('mundo(): invierte exactamente la transformación de la cámara (zoom, inclinación y desplazamiento vertical)', () => {
+  sano(); const S = mundo(), C = cam(); S.h.y = 560 - 250; S.h.vx = 300; frames(C, 90); C.golpe(.05, .01, 0); C.antes(fakeCtx());
+  const T = C._estado().tf; assert(T && T.Z >= 1.04);
+  const adelante = (wx, wy) => { let x = wx - T.fx + (T.dx || 0), y = wy - T.fy + T.dy; x *= T.Z; y *= T.Z; const c = Math.cos(T.R), s = Math.sin(T.R); return { x: T.fx + x * c - y * s, y: T.fy + x * s + y * c }; };
+  [[100, 100], [640, 360], [1200, 700], [20, 560]].forEach(([wx, wy]) => { const p = adelante(wx, wy), w = C.mundo(p.x, p.y); assert(Math.abs(w.x - wx) < 1e-6 && Math.abs(w.y - wy) < 1e-6, 'ida y vuelta ' + wx + ',' + wy); });
+  C._apagar(); const id = C.mundo(300, 200); assert.strictEqual(id.x, 300); assert.strictEqual(id.y, 200);
+});
 console.log(n + ' pruebas OK');

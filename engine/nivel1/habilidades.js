@@ -285,7 +285,7 @@
     A.anclas.forEach(a => {
       const x = a.x - cam; if (x < -60 || x > 1340) return;
       const activo = A.tiene.gancho, objetivo = A.cand === a, enUso = A.gancho.on && A.gancho.ax === a.x;
-      c.strokeStyle = activo ? 'rgba(130,90,45,.9)' : 'rgba(130,90,45,.35)'; c.lineWidth = 3; c.beginPath(); c.moveTo(x, 0); c.lineTo(x, a.y - 15); c.stroke();
+      c.strokeStyle = activo ? 'rgba(130,90,45,.9)' : 'rgba(130,90,45,.35)'; c.lineWidth = 3; c.beginPath(); c.moveTo(x, -500); c.lineTo(x, a.y - 15); c.stroke();
       if (objetivo || enUso) { const r = 44 + Math.sin(t * 8) * 4, g = c.createRadialGradient(x, a.y, 4, x, a.y, r); g.addColorStop(0, 'rgba(255,226,122,.75)'); g.addColorStop(1, 'rgba(255,226,122,0)'); c.fillStyle = g; c.fillRect(x - r, a.y - r, r * 2, r * 2); }
       c.globalAlpha = activo ? 1 : .4; c.lineWidth = 6; c.strokeStyle = '#8a6a22'; c.beginPath(); c.arc(x, a.y, 14, 0, 7); c.stroke(); c.lineWidth = 3; c.strokeStyle = '#ffd86a'; c.beginPath(); c.arc(x, a.y, 14, 3.4, 5.2); c.stroke(); c.globalAlpha = 1;
     });
