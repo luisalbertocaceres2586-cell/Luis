@@ -84,7 +84,7 @@
       if (d.tipo === 'farolitos') {
         const m = dim(d); if (!m) return; const T = A.pose(d, m.hh), x = d.x - cam, y0 = G - 332 + m.hh * .57; ini();
         FAROLITOS.forEach((q, i) => {
-          let px = x + q[0] * m.w, py = y0; if (T) { const ox = px - x, oy = y0 - T.py, cs = Math.cos(T.rot), sn = Math.sin(T.rot); px = x + ox * cs - oy * sn; py = T.py + ox * sn + oy * cs; }
+          let px = x + Number(q[0]) * m.w, py = y0; if (T) { const ox = px - x, oy = y0 - T.py, cs = Math.cos(T.rot), sn = Math.sin(T.rot); px = x + ox * cs - oy * sn; py = T.py + ox * sn + oy * cs; }
           luz(cx, glow(q[1][0], q[1][1], q[1][2]), px, py, 118, .5 * vis, d.x * .01 + i * 2.1, !lento && i === 1);
         });
       } else if (d.tipo === 'toro') {
