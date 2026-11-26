@@ -15,13 +15,14 @@
 <script src="engine/nivel1/ruta.js"></script>
 <script src="engine/nivel1/acertijos.js"></script>
 <script src="engine/nivel1/gen-nivel.js"></script>
-<script src="engine/nivel1/motor.js?v=6"></script>
+<script src="engine/nivel1/motor.js?v=7"></script>
 <script src="engine/nivel1/profundidad.js?v=1"></script>
 <script src="engine/nivel1/camara.js?v=2"></script>
 <script src="engine/nivel1/elementos.js?v=2"></script>
 <script src="engine/nivel1/ambiente.js"></script>
 <script src="engine/nivel1/habilidades.js?v=sp1"></script>
 <script src="engine/nivel1/director.js"></script>
+<script src="engine/nivel1/guia.js"></script>
 <script>
 const q=new URLSearchParams(location.search);
 function arrancar(){document.getElementById('ini').remove();Nivel1.iniciar({heroe:q.get('heroe')||'sakura',semilla:q.get('semilla')?+q.get('semilla'):undefined,dispositivo:q.get('movil')?'movil':'pc',habilidades:q.get('hab')?q.get('hab').split(','):undefined,director:q.get('director')==='0'?false:undefined,evento:q.get('evento')||undefined,onSalir:()=>location.reload()});}

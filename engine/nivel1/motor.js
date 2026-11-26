@@ -144,6 +144,7 @@
     if (window.N1amb) N1amb.reiniciar();
     if (window.N1hab) N1hab.iniciar(S, nivel2 ? Object.assign({}, o, { habilidades: ['dash', 'doble', 'planeo', 'pared', 'tajoAereo', 'gancho'] }) : o);
     if (window.N1dir && !nivel2) N1dir.iniciar(S, o);
+    if (window.N1guia) { try { N1guia.iniciar(S); } catch (e) {} }   // guía visual de los primeros minutos (guia.js)
     window.addEventListener('keydown', onKey, true); window.addEventListener('keyup', onKeyUp, true); window.addEventListener('resize', ajustar);
     cv.addEventListener('pointerdown', onPointer);
     ajustar(); last = performance.now(); acc = 0; raf = requestAnimationFrame(bucle);
@@ -190,6 +191,7 @@
     // Todos los botones se registran en la capa táctil común (engine/core/tactil.js): halo de tolerancia, cruceta ◀▶ deslizable,
     // multitáctil independiente, toque mínimo (un toque más corto que un cuadro no se pierde) y soltado seguro (sin teclas pegadas).
     const reg = (e, tecla, o) => {
+      e.dataset.k = tecla;   // la guía visual (guia.js) usa esto para hacer latir el botón que toca
       const dn = () => { pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} };
       const up = () => { if (keys[tecla]) { soltar(tecla); keys[tecla] = 0; } };
       if (window.NinjaTouch) { window.NinjaTouch.add(e, Object.assign({ id: 'n1' + tecla, clase: 'on', down: dn, up }, o)); return; }
@@ -462,6 +464,7 @@
     { id: 'tela', txt: 'La telaraña te frena. Córtala con tu espada', teclas: ['C'], ok: () => false, cuando: () => S.N.elem.some(e => e.t === 'tela' && !e.roto && Math.abs(e.x - S.h.x) < 300 && e.x > S.h.x - 40) }
   ];
   function tutoriales(dt) {
+    if (window.N1guia) { try { if (N1guia.actualizar(S, dt, S.tutos || (S.tutos = TUTOS.concat(window.N1hab ? N1hab.TUTOS : [], window.N1dir ? N1dir.TUTOS : [])))) return; } catch (e) {} }   // ayudas dibujadas (guia.js); si fallara, sigue la tarjeta de texto de abajo
     if (S.tip) { S.tipT += dt; const t = S.tip; if (S.tipT > 1.5 && (t.ok() || S.tipT > 14)) { S.tutoVisto[t.id] = 1; S.tip = null; } return; }
     for (const t of TUTOS.concat(window.N1hab ? N1hab.TUTOS : [], window.N1dir ? N1dir.TUTOS : [])) { if (S.tutoVisto[t.id]) continue; let ok = false; try { ok = t.cuando(); } catch (e) {} if (ok) { S.tip = t; S.tipT = 0; break; } }
   }
@@ -880,6 +883,7 @@
       if (e.pistaVisible) { cx.font = '16px ui-monospace,monospace'; cx.fillStyle = '#ffe27a'; cx.fillText('💡 Pista: ' + pista(e), W / 2, 78); }
     }
     if (S.aviso && S.aviso.t > 0) { cx.globalAlpha = clamp(S.aviso.t, 0, 1); cx.font = 'bold 30px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; const tw = cx.measureText(S.aviso.s).width + 70; caja(W / 2 - tw / 2, 150, tw, 62, 14, 'rgba(18,8,51,.85)', '#ffc93c'); cx.fillStyle = '#ffe27a'; cx.fillText(S.aviso.s, W / 2, 182); cx.globalAlpha = 1; }
+    if (window.N1guia) { try { N1guia.hud(cx, caja, S); } catch (e) {} }
     if (S.tip && !S.apunta) {
       const t = S.tip; cx.font = '16px ui-monospace,monospace'; const tw = Math.min(W - 60, cx.measureText(t.txt).width + 40); let kw = 0; t.teclas.forEach(k => { cx.font = 'bold 20px ui-monospace,monospace'; kw += Math.max(40, cx.measureText(k).width + 22) + 8; });
       const bw = Math.min(W - 40, Math.max(tw, kw + 40)), bx = W / 2 - bw / 2, by = H - 150, pulso = 1 + Math.sin(S.t * 6) * .03;

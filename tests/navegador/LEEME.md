@@ -9,5 +9,6 @@ Usan un Chromium sin pantalla (`npm i puppeteer-core @sparticuz/chromium`) y el 
 - `apuntado.mjs` — prueba con eventos de teclado reales: mantener F, elegir con las flechas y soltar para lanzar el shuriken a una diana, un sello y un farol; y que un tajo golpee una sola respuesta.
 - `nivel3.mjs` — Nivel 3 (Carrera de los Farolillos) v10: 22 escenarios deterministas (viga, muro con hueco, valla, barra, shuriken con dash, nube-plataforma, viento, carriles invertidos, portal de poder, combo ×5, y que la ninja se dibuje UNA sola vez, con estela de 3 solo en el dash) y luego un "robot jugador" que recorre el nivel hasta vencer al Rey del Caos (con `errores=1` responde mal a propósito). `SOLO_ESCENARIOS=1` corre solo los escenarios. Capturas en `/tmp/n3_<hito>.png`.
 
+- `guia.mjs` — guía visual del Nivel 1 (primeros minutos): quieto → sale la ayuda dibujada (sin tarjeta de texto); jugador que ya sabe jugar → no sale nada; "Golpea" apunta al enemigo y se va con ✓; en celular late solo el botón correcto; y si falta `guia.js` sigue la tarjeta de siempre. Cada escenario usa una pestaña nueva y las capturas salen del lienzo (`page.screenshot` cuelga al Chromium sin pantalla). Capturas en `/tmp/guia_*.png`.
 
 Nota: las pruebas de física (`habilidades.mjs`, `apuntado.mjs`, `bot-nivel1.mjs`) arrancan con `director:false` para que un evento sorteado no las altere.
