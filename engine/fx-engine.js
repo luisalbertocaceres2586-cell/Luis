@@ -88,13 +88,14 @@ function speedLines(){
     CX.beginPath();CX.moveTo(x,y);CX.lineTo(x+L,y);CX.stroke();CX.beginPath();CX.moveTo(W-x,y);CX.lineTo(W-x-L,y);CX.stroke();}
   CX.restore();
 }
-FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1};   /* interruptores por efecto (los mueve NinjaCalidad, engine/core/calidad.js) */
-if(window.NinjaCalidad)window.NinjaCalidad.on(c=>{const a=c.nivel==='alta',b=c.nivel==='baja';FX.q.rays=a?1:0;FX.q.fore=a?1:0;FX.q.bloom=b?0:1;FX.q.grade=b?0:1;});   /* media: sin rayos ni primer plano · baja: además sin resplandor ni 'soft-light' a pantalla completa */
+FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1,luz:1};   /* interruptores por efecto (los mueve NinjaCalidad, engine/core/calidad.js) */
+if(window.NinjaCalidad)window.NinjaCalidad.on(c=>{const a=c.nivel==='alta',b=c.nivel==='baja';FX.q.rays=a?1:0;FX.q.fore=a?1:0;FX.q.bloom=b?0:1;FX.q.grade=b?0:1;FX.q.luz=b?0:1;});   /* media: sin rayos ni primer plano · baja: además sin resplandor ni 'soft-light' a pantalla completa */
 function post(){
   if(!FX.post)return;const Q=FX.q;
   const t=Date.now(),lv=typeof curLV==='function'?curLV():null,bg=lv&&lv.bg;
   weather(bg,t);
   if(!lite()){if(Q.rays)rays(t,bg);if(Q.fog)fog(t,GRADE[bg]||'#9fb8ff');if(Q.ambient)ambient(t,bg);if(Q.fore)foreground(t);}
+  if(Q.luz!==0&&window.LuzDin&&LuzDin.listo)LuzDin.pintar(t,bg,Q);   /* luz dinámica (engine/luz-dinamica.js): mapa de luz + sombras; si falta, no pasa nada */
   if(Q.lights)lights(t);
   if(Q.bloom)bloom();
   if(Q.grade&&GRADE[bg]){CX.save();CX.globalCompositeOperation='soft-light';CX.globalAlpha=.16;CX.fillStyle=GRADE[bg];CX.fillRect(0,0,W,H);CX.restore();}
