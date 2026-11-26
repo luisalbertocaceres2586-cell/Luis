@@ -11,11 +11,11 @@
 #m26bg .gl.p{background:radial-gradient(ellipse at 50% 62%,rgba(255,70,160,.34),transparent 52%)}
 #m26bg .gl.k{background:radial-gradient(ellipse at 50% 62%,rgba(255,80,60,.34),transparent 52%)}
 #S0[data-sel="mario"] #m26bg .gl.p,#S0[data-sel="peach"] #m26bg .gl.k{opacity:1}
-#m26bg .isl{position:absolute;left:50%;top:6%;width:min(96vw,1180px);aspect-ratio:2125/735;transform:translateX(-50%);background:url(../../assets/environment/backgrounds/scenery/floating_islands_sakura.png) center/contain no-repeat;opacity:.28;filter:drop-shadow(0 0 40px rgba(190,150,255,.35));animation:m26bob 9s ease-in-out infinite}
+#m26bg .isl{position:absolute;left:50%;top:6%;width:min(96vw,1180px);aspect-ratio:2125/735;transform:translateX(-50%);background:url(../../assets/environment/backgrounds/scenery/floating_islands_sakura.webp) center/contain no-repeat;opacity:.28;filter:drop-shadow(0 0 40px rgba(190,150,255,.35));animation:m26bob 9s ease-in-out infinite}
 @keyframes m26bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-12px)}}
 #m26bg .cl{position:absolute;background-size:contain;background-repeat:no-repeat;opacity:.22;animation:m26drift linear infinite}
-#m26bg .cl.a{top:10%;left:-30%;width:34vw;aspect-ratio:280/169;background-image:url(../../assets/environment/sky/clouds/cloud_c01.png);animation-duration:80s}
-#m26bg .cl.b{top:34%;left:-30%;width:26vw;aspect-ratio:280/169;background-image:url(../../assets/environment/sky/clouds/cloud_d01.png);animation-duration:110s;animation-delay:-45s;opacity:.15}
+#m26bg .cl.a{top:10%;left:-30%;width:34vw;aspect-ratio:280/169;background-image:url(../../assets/environment/sky/clouds/cloud_c01.webp);animation-duration:80s}
+#m26bg .cl.b{top:34%;left:-30%;width:26vw;aspect-ratio:280/169;background-image:url(../../assets/environment/sky/clouds/cloud_d01.webp);animation-duration:110s;animation-delay:-45s;opacity:.15}
 @keyframes m26drift{to{transform:translateX(190vw)}}
 #m26bg .mt{position:absolute;bottom:-12px;width:5px;height:5px;border-radius:50%;background:#8edfff;box-shadow:0 0 12px 3px rgba(78,177,255,.5);animation:m26up var(--d,10s) linear infinite;opacity:0}
 #m26bg .mt.g{background:#ffd98b;box-shadow:0 0 12px 3px rgba(255,190,92,.48)}

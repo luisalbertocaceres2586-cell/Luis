@@ -65,6 +65,7 @@
   }
   const COL_L = { rojo: [255, 120, 55], crema: [255, 226, 150], ambar: [255, 205, 95] };
   // posición de las luces dentro de cada sprite (medida sobre las imágenes): fracción del ancho y del alto
+  /** @type {Array<[number, any]>} posición relativa al ancho del decorado y color de la luz */
   const FAROLITOS = [[-.325, COL_L.rojo], [.006, COL_L.crema], [.333, COL_L.rojo]];   // y ≈ .57 del alto
   A.parpadeo = function (x, r) {   // factor ≈1 con titileo de llama (también lo usa la cueva)
     const T = S().t, ph = Math.round(x / 40) * 2.1, w = A.viento(x, T);

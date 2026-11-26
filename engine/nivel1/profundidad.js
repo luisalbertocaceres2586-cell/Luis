@@ -132,7 +132,7 @@
   /* Red de seguridad de rendimiento: si el juego va lento de forma sostenida (≈ menos de 38 fps durante ~1,5 s), apaga solo los efectos caros. */
   function ritmo() { const n = performance.now(), d = n - E.tp; E.tp = n; if (d > 0 && d < 250) { E.avg = E.avg * .94 + d * .06; E.lento = E.avg > 26 ? E.lento + 1 : 0; if (E.lento > 90) E.lite = true; } }
   function estado() { const k = K(); if (!k) return null; const S = k.S(); if (!S) return null; if (E.S !== S) { E.S = S; E.bosque = E.cueva = E.desierto = null; } return S; }
-  const calidad = S => (S.movil || E.lite) ? 1 : 2;
+  const calidad = S => (S.movil || E.lite || (root.NinjaCalidad && root.NinjaCalidad.nivel === 'baja')) ? 1 : 2;   // NinjaCalidad: engine/core/calidad.js
   const semilla = S => 1000 + ((S.params && S.params.semilla) | 0) % 9000;
 
   function construirBosque(S, k) {

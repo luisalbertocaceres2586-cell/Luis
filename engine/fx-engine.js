@@ -88,7 +88,8 @@ function speedLines(){
     CX.beginPath();CX.moveTo(x,y);CX.lineTo(x+L,y);CX.stroke();CX.beginPath();CX.moveTo(W-x,y);CX.lineTo(W-x-L,y);CX.stroke();}
   CX.restore();
 }
-FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1};   /* interruptores por efecto (los usa el control de calidad automático) */
+FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1};   /* interruptores por efecto (los mueve NinjaCalidad, engine/core/calidad.js) */
+if(window.NinjaCalidad)window.NinjaCalidad.on(c=>{const a=c.nivel==='alta',b=c.nivel==='baja';FX.q.rays=a?1:0;FX.q.fore=a?1:0;FX.q.bloom=b?0:1;FX.q.grade=b?0:1;});   /* media: sin rayos ni primer plano · baja: además sin resplandor ni 'soft-light' a pantalla completa */
 function post(){
   if(!FX.post)return;const Q=FX.q;
   const t=Date.now(),lv=typeof curLV==='function'?curLV():null,bg=lv&&lv.bg;
