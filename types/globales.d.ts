@@ -18,6 +18,7 @@ declare global {
 
   // ---------- funciones sueltas del juego ----------
   var FX: any; // TODO
+  var LuzDin: any; // engine/luz-dinamica.js (luz dinámica; opcional)
   /** Sonido sintetizado. ¡Ojo con el orden!: frecuencia, TIPO de onda, duración, volumen, retraso. */
   function tone(freq: number, tipo?: OscillatorType | string, dur?: number, vol?: number, retraso?: number): void;
   function render(...args: any[]): void;
