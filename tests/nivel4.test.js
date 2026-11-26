@@ -93,7 +93,11 @@ console.log('Arte del Mundo 4');
 ok('todas las imágenes de assets/nivel4 que usa el juego existen', () => {
   const fs = require('fs'), path = require('path'), src = fs.readFileSync(path.join(__dirname, '../engine/nivel4/negativo.js'), 'utf8');
   const rutas = (src.match(/A \+ '(nivel4\/[^']+)'/g) || []).map(t => t.replace(/^A \+ '|'$/g, ''));
-  assert.ok(rutas.length >= 24, 'se esperaban al menos 24 imágenes, hay ' + rutas.length);
+  assert.ok(rutas.length >= 40, 'se esperaban al menos 40 imágenes, hay ' + rutas.length);
   rutas.forEach(r => assert.ok(fs.existsSync(path.join(__dirname, '../assets', r)), 'falta assets/' + r));
+});
+ok('los dos héroes tienen sus 8 poses', () => {
+  const fs = require('fs'), path = require('path');
+  ['sakura', 'antarez'].forEach(h => ['caer_1', 'caer_2', 'aterrizar', 'girar_mundo', 'pensando', 'asustada', 'celebrar_1', 'celebrar_2'].forEach(p => assert.ok(fs.existsSync(path.join(__dirname, '../assets/nivel4/heroe', h, p + '.png')), 'falta ' + h + '/' + p)));
 });
 console.log('\n' + n + ' pruebas del Mundo 4 OK');
