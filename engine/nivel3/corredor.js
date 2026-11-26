@@ -672,7 +672,7 @@
     function efectos(dt) {
       if (S.salBuf > 0) { S.salBuf -= dt; if (S.jh <= S.base + 1 && S.cae <= 0 && !S.plaza) { S.salBuf = 0; accion('salta'); } }   // salto «guardado» 0,12 s: tocar justo antes de aterrizar no se pierde
       musica(dt);
-      S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5) S.lite = true;
+      S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5 || (window.NinjaCalidad && window.NinjaCalidad.nivel === 'baja')) S.lite = true;
       const ob = temaIdx(); S.temaF += clamp(ob - S.temaF, -dt * 0.45, dt * 0.45); if (S.flashB > 0) S.flashB -= dt;
       const n = S.lite ? 10 : 26; while (S.amb.length < n) { const p = {}; nuevaAmb(p, true); S.amb.push(p); } if (S.amb.length > n) S.amb.length = n;
       for (const p of S.amb) {

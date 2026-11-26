@@ -9,7 +9,10 @@ const set=m=>{H.classList.toggle('fx-low',m==='low');};
 const get=()=>{try{return localStorage.getItem(KEY)||'';}catch(e){return '';}};
 const save=v=>{try{v?localStorage.setItem(KEY,v):localStorage.removeItem(KEY);}catch(e){}};
 const q=(location.search.match(/[?&]fx=(low|high|auto)/)||[])[1];
-window.fx26=function(m){if(m==='low'||m==='high'){save(m);set(m);}else{save('');set(hint()?'low':'');medir();}return H.classList.contains('fx-low')?'low':'high';};
+const NC=window.NinjaCalidad;   /* engine/core/calidad.js: si está, él decide el nivel (continuo) y este archivo solo conserva fx26() y la pausa de animaciones */
+window.fx26=function(m){
+  if(NC){NC.forzar(m==='low'?'baja':m==='high'?'alta':'auto');return H.classList.contains('fx-low')?'low':'high';}
+  if(m==='low'||m==='high'){save(m);set(m);}else{save('');set(hint()?'low':'');medir();}return H.classList.contains('fx-low')?'low':'high';};
 /* pista rápida por hardware o ahorro de datos */
 function hint(){
   const n=navigator,c=n.connection||{};
@@ -33,6 +36,7 @@ function medir(){
   }
   esperar();
 }
+if(NC){document.addEventListener('visibilitychange',()=>H.classList.toggle('tab-hidden',document.hidden));return;}
 const ini=q==='low'||q==='high'?q:(q==='auto'?'':get());
 if(q==='low'||q==='high')save(q);else if(q==='auto')save('');
 set(ini||(hint()?'low':''));

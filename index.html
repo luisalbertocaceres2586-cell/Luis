@@ -12,8 +12,12 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="color-scheme" content="dark">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<script src="engine/core/webp-mapa.js?v=6713716f"></script>
+<script src="engine/core/webp.js?v=1"></script>
 <script src="engine/core/diagnostico.js?v=2"></script>
 <script src="engine/core/compat.js?v=1"></script>
+<script src="engine/core/calidad.js?v=1"></script>
+<script src="engine/core/interpolacion.js?v=1"></script>
 <script src="engine/core/tactil.js?v=1"></script>
 <script src="engine/core/orientacion.js?v=1"></script>
 <script src="engine/core/ios-fix.js?v=4"></script>
@@ -588,7 +592,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <!-- Beat 4: heroes streak across -->
   <div id="cineBeat4" style="position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;overflow:hidden">
-    <img src="assets/characters/sakura_assets/sakura/frames/run/sakura_run_01.png" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
+    <img src="assets/characters/sakura_assets/sakura/frames/run/sakura_run_01.webp" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
     <img src="assets/embebidas/e63205ea51.png" alt="" style="position:absolute;top:46%;right:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(120,80,255,.7));animation:cineHeroRunR 1.3s cubic-bezier(.3,.7,.4,1) .12s forwards">
     <img id="cineSlash" src="assets/embebidas/0e6e3fa33d.png" alt="" style="position:absolute;top:50%;left:50%;width:70vw;max-width:560px;height:auto;transform:translate(-50%,-50%) scale(.3) rotate(-8deg);opacity:0;filter:drop-shadow(0 0 30px rgba(140,220,255,.9))">
   </div>
@@ -799,14 +803,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
           <div class="hcardGlow"></div>
           <span class="petal p1">🌸</span><span class="petal p2">🌸</span><span class="petal p3">🌸</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png" alt="Sakura Eve" class="hcardArtBig">
+          <img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.webp" alt="Sakura Eve" class="hcardArtBig">
           <div class="hcardKeys"><span>F</span> Disparo &nbsp; <span>X</span> Triple &nbsp; <span>C</span> Tajo</div>
         </div>
         <div class="hcard" data-c="peach" onclick="selChar('peach')" style="--hc1:#FF3B44;--hc2:#5A0006;--hc3:#FFC2C5">
           <div class="hcardGlow"></div>
           <span class="ember p1">🔥</span><span class="ember p2">🔥</span><span class="ember p3">🔥</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/characters/antarez/mov_01.png" alt="Antarez" class="hcardArtBig">
+          <img src="assets/characters/antarez/mov_01.webp" alt="Antarez" class="hcardArtBig">
           <div class="hcardKeys"><span>X</span> Dual &nbsp; <span>F</span> Disparo &nbsp; <span>C</span> Tajo</div>
         </div>
       </div>
@@ -988,8 +992,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 <script src="assets/environment/levels/nivel1/nubes.js"></script>
 <script src="assets/environment/platforms/islands/islas.js"></script>
-<script src="engine/juego-principal.js?v=2"></script>
-<script src="engine/fx-engine.js"></script>
+<script src="engine/juego-principal.js?v=3"></script>
+<script src="engine/fx-engine.js?v=2"></script>
 <script src="engine/mobile-fix.js?v=3"></script>
 <script src="assets/characters/sakura/manifest.js"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
@@ -1015,7 +1019,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="engine/escenario/islas.js?v=4"></script>
 <script src="engine/escenario/fondos-tema.js?v=14"></script>
 <script src="engine/ui/menu-2026.js?v=an2"></script>
-<script src="engine/ui/rendimiento-2026.js?v=1"></script>
+<script src="engine/ui/rendimiento-2026.js?v=2"></script>
 <script src="engine/ui/escena-2026.js?v=1"></script>
 <script src="engine/ui/ninjas-fx-2026.js?v=1"></script>
 <script src="engine/ui/cambio-2026.js?v=1"></script>
