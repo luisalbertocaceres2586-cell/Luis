@@ -45,7 +45,10 @@
     ninjaLancero: 'enemigos_extra/ninja_lancero', ninjaArquero: 'enemigos_extra/ninja_arquero', kappa: 'enemigos_extra/kappa', zorroFuego: 'enemigos_extra/zorro_fuego', samuraiF: 'enemigos_extra/samurai_fantasma',
     serpCueva: 'enemigos_extra/serpiente_cueva', ranaG: 'enemigos_extra/rana_gigante', escarabajo: 'enemigos_extra/escarabajo_cristal', guardiaPiedra: 'enemigos/guardia_piedra', sombraPers: 'enemigos/sombra_perseguidora',
     palancaOff: 'objetos_extra/palanca_apagada', palancaOn: 'objetos_extra/palanca_encendida', campana: 'objetos_extra/campana_templo', mercader: 'objetos_extra/mercader_tanuki', sensei: 'objetos_extra/maestro_sensei',
-    corazonJade: 'objetos_extra/corazon_jade', frascoLuz: 'objetos_extra/frasco_luz', oniCaminar: 'jefe/oni_caminar_8', oniAtaque: 'jefe/oni_ataque_6'
+    corazonJade: 'objetos_extra/corazon_jade', frascoLuz: 'objetos_extra/frasco_luz', oniCaminar: 'jefe/oni_caminar_8', oniAtaque: 'jefe/oni_ataque_6',
+    // v · animaciones de enemigos: tiras de 8 cuadros iguales en una fila (se cargan en segundo plano; si no llegan, se usa la imagen fija)
+    aNinjaCam: 'enemigos_anim/ninja_caminar_8', aNinjaCorrer: 'enemigos_anim/ninja_correr_8', aNinjaAtk: 'enemigos_anim/ninja_ataque_8',
+    aAranaRep: 'enemigos_anim/arana_reposo_8', aAranaAtk: 'enemigos_anim/arana_ataque_8', aFuegoFlot: 'enemigos_anim/fuego_flotar_8', aFuegoAlerta: 'enemigos_anim/fuego_alerta_8', aGuardia: 'enemigos_anim/guardia_caminar_8'
   };
   const SKY = { A: ['#2b2468', '#ff8f6b', '#ffe3a3'], B: ['#3d5a80', '#98c1d9', '#e8f1f2'], C: ['#5c2a6e', '#e86a5c', '#ffd08a'] };
   const BANDERAS = { antorcha: 'una antorcha', armadura: 'la armadura samurái', aliado_mercader: 'la ayuda del mercader', bendicion_zorro: 'la bendición del zorro', llave_dojo: 'la llave del dojo', llave_portal: 'la llave del portal', vista_torre: 'vista desde la torre', pergamino_dragon: 'el pergamino del dragón', ritmo_tejados: 'ritmo de tejados' };
