@@ -38,7 +38,7 @@ html.movil #miniLB{right:max(8px,calc(env(safe-area-inset-right,0px) + 6px))!imp
 }
 #pauseOverlay .njResume{margin-top:14px;min-width:min(70vw,260px);min-height:52px;padding:12px 22px;border-radius:12px;cursor:pointer;
   border:3px solid #FFD36B;background:linear-gradient(160deg,#1f9d4c,#0f6b33);color:#fff;
-  font-family:'Press Start 2P',Inter,sans-serif;font-size:clamp(10px,2.2vw,14px);letter-spacing:.5px;
+  font-family:var(--nj-font-display);font-size:clamp(10px,2.2vw,14px);letter-spacing:.5px;
   box-shadow:0 6px 18px rgba(0,0,0,.5);touch-action:manipulation}
 #pauseOverlay .njResume:active{transform:scale(.97)}
 `;

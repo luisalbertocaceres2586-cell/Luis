@@ -331,7 +331,7 @@
     const s = S(), A = s.hab, n = A.orden.length, sig = umbral(n), prev = n ? UMBRALES[n - 1] : 0;
     if (n < DEFS.length) {
       caja(20, 94, 120, 10, 5, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.5)'); c.fillStyle = '#ffc93c'; c.fillRect(23, 97, 114 * Math.max(0, Math.min(1, (s.pergaminos - prev) / (sig - prev))), 4);
-      c.font = '10px ui-monospace,monospace'; c.fillStyle = '#ffe27a'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('→ HABILIDAD  ' + s.pergaminos + '/' + sig, 22, 108);
+      c.font = '10px Inter,system-ui,sans-serif'; c.fillStyle = '#ffe27a'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText('→ HABILIDAD  ' + s.pergaminos + '/' + sig, 22, 108);
     }
     A.orden.forEach((id, i) => {
       const d = DEFS.find(q => q.id === id), x = 20 + i * 50, y = 124;
@@ -339,7 +339,7 @@
       caja(x, y, 44, 44, 9, uso ? 'rgba(255,201,60,.35)' : 'rgba(10,4,30,.6)', uso ? '#ffc93c' : 'rgba(255,255,255,.35)');
       c.font = '22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.globalAlpha = (id === 'dash' && A.dash.cd > 0 && !uso) || (id === 'gancho' && A.cand === null && !A.gancho.on) ? .45 : 1; c.fillStyle = '#fff'; c.fillText(d.icono, x + 22, y + 19); c.globalAlpha = 1;
       if (id === 'dash' && A.dash.cd > 0) { c.fillStyle = '#9fe8ff'; c.fillRect(x + 3, y + 41, 38 * (1 - A.dash.cd / P.dashCd), 3); }
-      c.font = 'bold 9px ui-monospace,monospace'; c.fillStyle = '#ffe27a'; c.fillText(d.tecla, x + 22, y + 38);
+      c.font = '9px Lilita One,Inter,sans-serif'; c.fillStyle = '#ffe27a'; c.fillText(d.tecla, x + 22, y + 38);
     });
   }
 

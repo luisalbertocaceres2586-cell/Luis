@@ -15,7 +15,7 @@ NinjaMods.register({id:'hud-nuevo',carpeta:'ui',nombre:'HUD nuevo: retrato + bar
   const el=(t,c,p)=>{const e=document.createElement(t);if(c)e.className=c;(p||document.body).appendChild(e);return e;};
   const css=document.createElement('style');css.textContent=`
   #hud,#pauseBtn,#progB{display:none!important}
-  #hx{position:fixed;left:max(8px,calc(env(safe-area-inset-left) + 6px));top:max(4px,calc(env(safe-area-inset-top) + 3px));z-index:92;pointer-events:none;display:none;font-family:'Press Start 2P',monospace}
+  #hx{position:fixed;left:max(8px,calc(env(safe-area-inset-left) + 6px));top:max(4px,calc(env(safe-area-inset-top) + 3px));z-index:92;pointer-events:none;display:none;font-family:var(--nj-font-display)}
   #hx.on{display:block}
   .hx-vida{position:relative}
   .hx-vida>*{position:absolute}
