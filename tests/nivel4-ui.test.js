@@ -42,7 +42,7 @@ ok('el botón ? y la tecla ? abren la ayuda y se cierran', () => {
   tecla('?'); assert.ok(/CÓMO SE JUEGA/.test(elem('ov')._h)); elem('vale').onclick(); assert.strictEqual(elem('ov')._h, '');
 });
 ok('tocar el círculo «?» de la esquina del tablero abre la ayuda (área táctil correcta)', () => {
-  const Jt = globalThis.Nivel4.iniciar({}); elem('go').onclick(); cuadros(3); (oyentes['cv:pointerdown'] || []).forEach(f => f({ clientX: 505, clientY: 45, preventDefault() { } }));
+  const Jt = globalThis.Nivel4.iniciar({}); elem('go').onclick(); cuadros(3); const hs = oyentes['cv:pointerdown']; hs[hs.length - 1]({ clientX: 505, clientY: 45, preventDefault() { } });   // solo la instancia nueva
   assert.ok(/CÓMO SE JUEGA/.test(elem('ov')._h), 'abrió la ayuda'); elem('vale').onclick();
 });
 ok('en la sala 4 el panel marca PRIMERO una pregunta (orden del solucionador), numera las 3 y la META coincide', () => {
