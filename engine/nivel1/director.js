@@ -219,8 +219,8 @@
   // =================== dibujo ===================
   function fondo() {
     const s = S(), D = s.dir, c = ctx(); if (!D) return; const n = s.mod.noche / .82;
-    if (n > .01) { const g = c.createLinearGradient(0, 0, 0, H * .85); g.addColorStop(0, 'rgba(25,8,70,' + .55 * n + ')'); g.addColorStop(.7, 'rgba(220,90,70,' + .28 * n + ')'); g.addColorStop(1, 'rgba(255,150,60,' + .35 * n + ')'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
-    if (D.fuego) { c.fillStyle = 'rgba(255,70,10,' + .16 * D.k + ')'; c.fillRect(0, 0, W, H); }
+    if (n > .01) { const g = c.createLinearGradient(0, 0, 0, H * .85); g.addColorStop(0, 'rgba(25,8,70,' + .55 * n + ')'); g.addColorStop(.7, 'rgba(220,90,70,' + .28 * n + ')'); g.addColorStop(1, 'rgba(255,150,60,' + .35 * n + ')'); c.fillStyle = g; c.fillRect(-60, -420, W + 120, H + 700); }
+    if (D.fuego) { c.fillStyle = 'rgba(255,70,10,' + .16 * D.k + ')'; c.fillRect(-60, -420, W + 120, H + 700); }
   }
   function dibujarRoca(c, rk, cam) {
     c.save(); c.translate(rk.x - cam, rk.yy); c.rotate(rk.ang + rk.tAv * 3);
@@ -268,7 +268,7 @@
     }
     if (a.id === 'gravedad' && k > .01) {
       for (let i = 0; i < 26; i++) { const x = (i * 131.7 + Math.sin(t * .6 + i) * 24) % W, y = H - ((t * 28 * (1 + (i % 3) * .5) + i * 83) % (H + 40)), r = 2 + (i % 4); c.fillStyle = 'rgba(210,190,255,' + .5 * k + ')'; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }
-      const v = c.createRadialGradient(W / 2, H / 2, H * .4, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(120,60,220,0)'); v.addColorStop(1, 'rgba(120,60,220,' + .22 * k + ')'); c.fillStyle = v; c.fillRect(0, 0, W, H);
+      const v = c.createRadialGradient(W / 2, H / 2, H * .4, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(120,60,220,0)'); v.addColorStop(1, 'rgba(120,60,220,' + .22 * k + ')'); c.fillStyle = v; c.fillRect(-60, -420, W + 120, H + 700);
     }
     if (a.id === 'noche' && k > .01) {
       for (let i = 0; i < 18; i++) { const x = (i * 97.3 + cam * .5 + Math.sin(t * .7 + i) * 40) % W, y = 200 + (i * 37) % 320 + Math.sin(t * 1.1 + i * 2) * 30, al = (.55 + .4 * Math.sin(t * 2 + i * 1.3)) * k;

@@ -3,6 +3,10 @@
  *   · ZOOM con «golpe» (punch): dash, lanzar kunai, recibir daño, matar enemigo, recoger pergamino, aterrizar.
  *   · ENCUADRE: al apuntar con F la cámara se acerca al blanco elegido y oscurece el resto (foco de luz); contra el jefe se abre el plano.
  *   · INCLINACIÓN (roll) según la velocidad lateral y el dash: da sensación de cámara al hombro / perspectiva.
+ *   · CÁMARA VERTICAL: sube cuando el héroe salta alto o está en plataformas altas, baja al caer a un foso y se anticipa a la velocidad vertical.
+ *     El mundo se desplaza en vertical y profundidad.js mueve cada capa del fondo una fracción distinta (paralaje real en los dos ejes).
+ *   · ADELANTO horizontal: la cámara se adelanta hacia donde corres, proporcional a la velocidad y con giros suaves (adelanto()).
+ *   · ZOOM DE VELOCIDAD: el plano se abre un poco al correr rápido o caer, y se cierra al parar, en el dash y al recibir/dar golpes.
  *   · HIT-STOP: congela casi un instante el juego al golpear o recibir daño (el golpe «pesa»).
  *   · LUCES aditivas: halo del héroe que cambia de color según la acción, estallidos de luz donde cae un enemigo, brillo en shurikens/kunais.
  *   · POST-PROCESO barato: líneas de velocidad en el dash, viñeta que late con 1 vida, bordes rojos al recibir daño.
@@ -17,21 +21,27 @@
 
   const W = 1280, H = 720;
   const BASE = 1.045;            // zoom mínimo: deja margen para inclinar y sacudir sin enseñar bordes
+  const REPOSO = 1.085;          // zoom en reposo: algo más cerca que el mínimo, para poder «abrir» el plano al correr
   const ZMAX = 1.22, ROLL_MAX = 0.018;
+  const CAMY_MAX = 120, CAMY_MIN = -45;   // desplazamiento vertical máximo hacia arriba / hacia abajo (px del mundo)
+  const G0 = 560;                // altura del suelo si el núcleo no la expone (en el juego real viene de N1core.G)
 
   const E = {
     S: null, off: false, t0: 0, z: BASE, zPunch: 0, roll: 0, rollPunch: 0, fx: W / 2, fy: H / 2, oy: 0,
-    stop: 0, aim: 0, aimX: W / 2, aimY: H / 2, jefe: 0, golpeado: 0, dashV: 0, latido: 0,
+    stop: 0, aim: 0, aimX: W / 2, aimY: H / 2, jefe: 0, golpeado: 0, dashV: 0, latido: 0, camY: 0, lead: 0, tf: null,
     prev: null, luces: [], estelas: [], reducido: false, lite: false, avg: 16.7, lento: 0
   };
   try { E.reducido = !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { /* sin matchMedia */ }
   try { if (root.location && /[?&]cam=0\b/.test(root.location.search)) E.off = true; } catch (e) { /* nada */ }
+  try { if (root.location && /[?&]camv=0\b/.test(root.location.search)) E.sinVert = true; } catch (e) { /* nada */ }
   const AMP = () => E.reducido ? .35 : 1;
+  /* La cámara vertical solo se usa si profundidad.js está cargado y sano: sus capas llevan margen extra para que el desplazamiento no deje bordes vacíos. */
+  const vertOK = () => { const P = root.N1prof; return !E.sinVert && !!(P && P._estado && !P._estado().dead); };
 
   function estado() {
     const k = K(); if (!k || !k.S) return null;
     const S = k.S(); if (!S) return null;
-    if (E.S !== S) { E.S = S; E.prev = null; E.luces.length = 0; E.zPunch = E.rollPunch = E.stop = E.golpeado = 0; E.z = BASE; E.t0 = 0; }
+    if (E.S !== S) { E.S = S; E.prev = null; E.luces.length = 0; E.zPunch = E.rollPunch = E.stop = E.golpeado = 0; E.z = REPOSO; E.t0 = 0; E.camY = 0; E.lead = 0; E.tf = null; }
     return S;
   }
 
@@ -106,7 +116,9 @@
       const h = S.h, a = AMP();
       // zoom objetivo: base + abrir en jefe − abrir un poco al saltar/caer rápido + acercar al apuntar + golpe que decae
       const vyAbs = clamp(Math.abs(h.vy) / 900, 0, 1);
-      let zObj = BASE + .012 * (1 - E.jefe) - .015 * vyAbs * a + .085 * E.aim + .03 * E.dashV * a;
+      // velocidad horizontal (sin contar el dash, que acerca en vez de alejar): a más velocidad, plano más abierto
+      const velX = clamp((Math.abs(h.vx) - 140) / 260, 0, 1) * (1 - clamp(E.dashV, 0, 1));
+      let zObj = REPOSO - .012 * E.jefe - .03 * velX * a - .012 * vyAbs * a + .085 * E.aim + .03 * E.dashV * a;
       zObj = Math.max(BASE, zObj);
       E.zPunch *= Math.pow(.0016, dt);                 // decae en ~0,4 s
       E.z = lerp(E.z, zObj, clamp(dt * 6, 0, 1));
@@ -119,14 +131,41 @@
       const R = E.reducido ? 0 : clamp(E.roll + E.rollPunch, -ROLL_MAX, ROLL_MAX);
 
       // foco: entre el centro y el héroe (para no mostrar bordes), o hacia el blanco si se apunta
-      const hx = h.x - S.cam, hy = h.y - 70 + E.oy;
+      // cámara vertical: sube con el héroe al saltar alto o en plataformas altas, baja si cae a un foso, y se anticipa a vy
+      const k = K(), G = (k && k.G) || G0, vOK = vertOK(); let yObj = 0;
+      if (vOK && !(h.muerto > 0)) {
+        yObj = Math.max(0, (G - h.y) - 60) * .55;
+        if (h.y > G + 20) yObj = -Math.min(-CAMY_MIN, (h.y - G) * .5);
+        yObj += clamp(-h.vy * .03, -22, 26);
+        yObj = clamp(yObj, CAMY_MIN, CAMY_MAX) * a;
+      }
+      E.camY = vOK ? lerp(E.camY, yObj, clamp(dt * (yObj > E.camY ? 3.2 : 4.5), 0, 1)) : 0;
+      const hx = h.x - S.cam, hy = h.y - 70 + E.oy + E.camY;
       E.oy *= Math.pow(.003, dt);
-      const fxObj = lerp(lerp(W / 2, hx, .55), E.aimX, E.aim), fyObj = lerp(lerp(H / 2, hy, .45), E.aimY, E.aim);
+      const fxObj = lerp(lerp(W / 2, hx, .55), E.aimX, E.aim), fyObj = lerp(lerp(H / 2, hy, .45), E.aimY + E.camY, E.aim);
       E.fx = lerp(E.fx, clamp(fxObj, W * .2, W * .8), clamp(dt * 7, 0, 1)); E.fy = lerp(E.fy, clamp(fyObj, H * .25, H * .75), clamp(dt * 7, 0, 1));
 
-      cx.translate(E.fx, E.fy); if (R) cx.rotate(R); cx.scale(Z, Z); cx.translate(-E.fx, -E.fy + E.oy * .4);
+      const dyT = E.oy * .4 + E.camY; E.tf = { fx: E.fx, fy: E.fy, Z, R, dy: dyT };
+      cx.translate(E.fx, E.fy); if (R) cx.rotate(R); cx.scale(Z, Z); cx.translate(-E.fx, -E.fy + dyT);
     } catch (e) { E.off = true; if (root.console) console.warn('N1cam desactivada:', e); }
   }
+
+  /* Adelanto horizontal de la cámara (px): lo usa motor.js al elegir hacia dónde mira. Es proporcional a la velocidad y cambia despacio al girar,
+   * así no hay tirón al cambiar de dirección. Con la cámara apagada devuelve el adelanto fijo de siempre (70 px). */
+  function adelanto(h, dt) {
+    const dir = h.dir || 1; if (E.off) return dir * 70;
+    const a = AMP(), obj = clamp(h.vx * .27, -125, 125) * a + dir * (a < 1 ? 62 : 40);
+    E.lead = lerp(E.lead, clamp(obj, -135, 135), clamp((dt || 1 / 60) * 3.4, 0, 1)); return E.lead;
+  }
+  /* Convierte un punto de la pantalla (px del lienzo 1280×720) a coordenadas del mundo relativas a la cámara (sume S.cam a x).
+   * Sirve para apuntar con el puntero/dedo aunque haya zoom, inclinación o desplazamiento vertical. */
+  function mundo(sx, sy) {
+    const T = E.tf; if (E.off || !T) return { x: sx, y: sy };
+    let vx = sx - T.fx, vy = sy - T.fy;
+    if (T.R) { const c = Math.cos(-T.R), s = Math.sin(-T.R), x2 = vx * c - vy * s; vy = vx * s + vy * c; vx = x2; }
+    return { x: vx / T.Z + T.fx, y: vy / T.Z + T.fy - T.dy };
+  }
+  const camY = () => (E.off ? 0 : E.camY);
 
   /* ---------- gancho 2: luces aditivas dentro del mundo (tras el primer plano, antes de la oscuridad) ---------- */
   function halo(cx, x, y, r, col, a) {
@@ -139,6 +178,7 @@
     const S = estado(); if (!S || !cx) return;
     try {
       const h = S.h, hx = h.x - S.cam, hy = h.y - 70, dt = 1 / 60, cueva = clamp(S.mezcla || 0, 0, 1);
+      if (E.camY < -1) { const g = cx.createLinearGradient(0, H - 26, 0, H + 14); g.addColorStop(0, 'rgba(14,8,22,0)'); g.addColorStop(1, 'rgba(14,8,22,1)'); cx.fillStyle = g; cx.fillRect(-80, H - 26, W + 160, 340); }
       cx.save(); cx.globalCompositeOperation = 'lighter';
       // halo del héroe (rim light): más fuerte en la cueva, cambia de color según la acción
       const col = E.golpeado > .1 ? [255, 90, 90] : E.dashV > .1 ? [130, 225, 255] : S.apunta ? [255, 255, 255] : [255, 190, 110];
@@ -188,8 +228,8 @@
   function escala() { return (!E.off && E.stop > 0) ? .08 : 1; }
 
   const api = {
-    antes, luces, encima, escala, golpe, luz,
-    _estado: () => E, _apagar: () => { E.off = true; }, _encender: () => { E.off = false; E.S = null; E.lite = false; E.lento = 0; E.avg = 16.7; }
+    antes, luces, encima, escala, golpe, luz, adelanto, mundo, camY,
+    _estado: () => E, _apagar: () => { E.off = true; }, _encender: () => { E.off = false; E.S = null; E.lite = false; E.lento = 0; E.avg = 16.7; E.camY = 0; E.lead = 0; }
   };
   if (typeof module === 'object' && module.exports) module.exports = api; else root.N1cam = api;
 })(typeof window !== 'undefined' ? window : globalThis);

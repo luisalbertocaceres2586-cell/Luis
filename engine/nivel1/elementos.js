@@ -240,10 +240,10 @@
       case 'fantasma': { c.save(); c.globalAlpha = .8; core.porAncho(img.fantasma, x, e.y + 62 + Math.sin(s.t * 3 + e.x) * 4, 118, e.dir < 0); c.restore(); break; }
       case 'murcielago': { const f = 1 + Math.sin(s.t * 18 + e.x) * .12; c.save(); c.translate(x, e.y); c.scale(1, f); core.porAncho(img.murcielago, 0, 24, 110, false); c.restore(); break; }
       case 'arana': core.porAncho(piel(e, [img.arana, img.serpCueva, img.escarabajo], img.arana), x, e.y + 8, 84, e.dir < 0); break;
-      case 'aranaTecho': { c.strokeStyle = 'rgba(220,220,240,.7)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, 0); c.lineTo(x, e.y - 30); c.stroke(); core.porAncho(img.arana, x, e.y + 34, 88, false); break; }
+      case 'aranaTecho': { c.strokeStyle = 'rgba(220,220,240,.7)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, -500); c.lineTo(x, e.y - 30); c.stroke(); core.porAncho(img.arana, x, e.y + 34, 88, false); break; }
       case 'fuego': { c.save(); c.globalAlpha = .92; core.porAncho((e.sigue && piel(e, [null, img.sombraPers], null)) || img.fuego, x, e.y + 40 + Math.sin(s.t * 4 + e.x) * 5, 84, e.dir < 0); c.restore(); break; }
       case 'oni': {
-        const ex = e.estado === 'aviso' ? Math.sin(s.t * 60) * 4 : 0; if (e.estado === 'aviso') { c.fillStyle = 'rgba(255,40,40,.28)'; c.fillRect(0, 0, W, H); }
+        const ex = e.estado === 'aviso' ? Math.sin(s.t * 60) * 4 : 0; if (e.estado === 'aviso') { c.fillStyle = 'rgba(255,40,40,.28)'; c.fillRect(-60, -420, W + 120, H + 700); }
         if (e.inv > 0 && Math.floor(s.t * 20) % 2) break;
         { const atq = e.estado === 'aviso' || e.estado === 'carga', sh = atq ? img.oniAtaque : img.oniCaminar, n = atq ? 6 : 8;
           if (sh) { const fw = sh.width / n, w = 230, hh = sh.height * w / fw, fr = Math.floor(s.t * (atq ? 9 : 7)) % n; c.save(); c.translate(x + ex, e.y); if (e.dir < 0) c.scale(-1, 1); c.drawImage(sh, fr * fw, 0, fw, sh.height, -w / 2, -hh, w, hh); c.restore(); }
