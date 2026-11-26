@@ -830,7 +830,7 @@
     }
 
     function dibujar() {
-      const cam = S.d - X_H; cx.save();
+      const cam = S.d - X_H; cx.save(); if (window.NCam) NCam.n2.antes(cx);
       if (S.shake > 0) cx.translate(R(-5, 5) * S.shake * 2, R(-5, 5) * S.shake * 2);
       fondo(cam);
       viento.forEach(w => { const x = ((w.x - cam * .9 * w.s) % (W + 120) + (W + 120)) % (W + 120) - 60; cx.strokeStyle = 'rgba(255,230,190,.16)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, w.y); cx.lineTo(x - w.l, w.y + 2); cx.stroke(); });
@@ -838,7 +838,7 @@
       if (S.fase === 'puente') dibujarPuente(); else for (let l = 0; l < 3; l++) { banda(l, cam); texturaBanda(l, cam); if (l === 2) primerPlano(cam); if (S.amb === 'mina') rieles(l, cam); guias(l, cam); dibujarLane(l, cam); }
       jefeRayos(cam); numerosPuertas(cam); dibujarBuitre();
       S.fx.forEach(p => { cx.globalAlpha = clamp(p.t / p.t0, 0, 1); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); }); cx.globalAlpha = 1;
-      cx.restore(); luzFinal(); hud();
+      cx.restore(); if (window.NCam) NCam.n2.encima(cx); luzFinal(); hud();
     }
 
     // ───────────────────────── interfaz ─────────────────────────
@@ -995,7 +995,7 @@
 
     function bucle(ts) {
       const dt = Math.min(.033, ((ts - (ult || ts)) / 1000) || 0); ult = ts;
-      if (S.est === 'play' && !S.pausa) { actualizar(dt * (S.lento > 0 ? .6 : 1)); S.lento = Math.max(0, S.lento - dt); } else if (S.est !== 'play') fxUpdate(dt);
+      if (S.est === 'play' && !S.pausa) { actualizar(dt * (S.lento > 0 ? .6 : 1) * (window.NCam ? NCam.n2.escala() : 1)); S.lento = Math.max(0, S.lento - dt); } else if (S.est !== 'play') fxUpdate(dt);
       ombit.style.display = S.fase === 'tut' && S.est === 'play' ? 'block' : 'none';
       dibujar(); raf = requestAnimationFrame(bucle);
     }

@@ -224,11 +224,24 @@
   };
   // variante visual estable (no usa el azar del generador, así los niveles por semilla no cambian)
   function piel(e, lista, base) { const k = Math.abs(Math.floor((e.min !== undefined ? e.min : e.base || 0) / 13)) % lista.length; return lista[k] || base; }
+  // v · animación con tiras de 8 cuadros (una fila, cuadros iguales): assets/nivel1/enemigos_anim/*_8.png. Si la tira aún no cargó devuelve false y se dibuja la imagen fija de siempre.
+  function tira(sh, n, fr, x, base, alto, flip) {
+    if (!sh || !sh.width) return false; const c = cx(), fw = sh.width / n, w = fw * alto / sh.height;
+    c.save(); c.translate(x, base); if (flip) c.scale(-1, 1); c.drawImage(sh, fr * fw, 0, fw, sh.height, -w / 2, -alto, w, alto); c.restore(); return true;
+  }
+  const cuadro = (e, n, fps) => Math.floor(S().t * fps + (e.x || 0) * .013) % n;   // cada enemigo arranca en un cuadro distinto
   function dibujarEnemigo(e) {
     const s = S(), c = cx(); if (!e.vivo || e.x < s.cam - 200 || e.x > s.cam + W + 200) return; const x = e.x - s.cam;
     switch (e.kind) {
-      case 'ninja': { const b = Math.abs(Math.sin(s.t * 8 + e.x)) * 4; core.porAncho(piel(e, [img.ninja, img.ninjaLancero, img.ninjaArquero, img.kappa, img.ranaG, img.zorroFuego], img.ninja), x, e.y - b, 120, e.dir < 0); break; }
-      case 'ninjaAtk': { const sk = piel(e, [null, img.samuraiF, img.guardiaPiedra], null), im = sk || (e.fase === 'carga' ? img.ninjaAtk : img.ninja); if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.4)'; c.beginPath(); c.arc(x, e.y - 112, 18 + Math.sin(s.t * 40) * 4, 0, 7); c.fill(); } core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 162 : 120, e.dir < 0); break; }
+      case 'ninja': { const sk = piel(e, [img.ninja, img.ninjaLancero, img.ninjaArquero, img.kappa, img.ranaG, img.zorroFuego], img.ninja);
+        if (sk === img.ninja && tira(img.aNinjaCam, 8, cuadro(e, 8, 8 + Math.abs(e.vx || 0) / 60), x, e.y, 187, e.dir < 0)) break;
+        const b = Math.abs(Math.sin(s.t * 8 + e.x)) * 4; core.porAncho(sk, x, e.y - b, 120, e.dir < 0); break; }
+      case 'ninjaAtk': { const sk = piel(e, [null, img.samuraiF, img.guardiaPiedra], null), im = sk || (e.fase === 'carga' ? img.ninjaAtk : img.ninja); if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.4)'; c.beginPath(); c.arc(x, e.y - 112, 18 + Math.sin(s.t * 40) * 4, 0, 7); c.fill(); } const P = EMB.ninjaAtk, ft = e.fase === 'aviso' ? clamp(1 - e.f / P[1], 0, .999) : e.fase === 'carga' ? clamp(1 - e.f / P[3], 0, .999) : 0;
+          if (sk === img.guardiaPiedra) { if (tira(img.aGuardia, 8, cuadro(e, 8, e.fase === 'carga' ? 14 : 8), x, e.y, e.fase === 'carga' ? 217 : 161, e.dir < 0)) break; }
+          else if (!sk) {   // ninja sombra: patrulla corriendo; aviso = prepara el tajo (cuadros 1-3); carga = salta y corta (cuadros 4-8); enfriamiento = guardia
+            const ok = e.fase === 'aviso' ? tira(img.aNinjaAtk, 8, Math.floor(ft * 3), x, e.y, 204, e.dir < 0) : e.fase === 'carga' ? tira(img.aNinjaAtk, 8, 3 + Math.floor(ft * 5), x, e.y, 226, e.dir < 0) : e.fase === 'cd' ? tira(img.aNinjaAtk, 8, 7, x, e.y, 204, e.dir < 0) : tira(img.aNinjaCorrer, 8, cuadro(e, 8, 11), x, e.y, 181, e.dir < 0);
+            if (ok) break; }
+          core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 162 : 120, e.dir < 0); break; }
       case 'tengu': core.porAncho(img.tengu, x, e.y + 20, 120, e.dir < 0); break;
       case 'arquero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 138); } core.porAncho(img.arquero, x, e.y, 155, e.dir < 0); break; }
       case 'lancero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 134); } core.porAncho(img.lancero, x + (e.fase === 'carga' ? e.dir * 14 : 0), e.y, 172, e.dir < 0); break; }
@@ -240,8 +253,9 @@
       case 'fantasma': { c.save(); c.globalAlpha = .8; core.porAncho(img.fantasma, x, e.y + 62 + Math.sin(s.t * 3 + e.x) * 4, 118, e.dir < 0); c.restore(); break; }
       case 'murcielago': { const f = 1 + Math.sin(s.t * 18 + e.x) * .12; c.save(); c.translate(x, e.y); c.scale(1, f); core.porAncho(img.murcielago, 0, 24, 110, false); c.restore(); break; }
       case 'arana': core.porAncho(piel(e, [img.arana, img.serpCueva, img.escarabajo], img.arana), x, e.y + 8, 84, e.dir < 0); break;
-      case 'aranaTecho': { c.strokeStyle = 'rgba(220,220,240,.7)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, -500); c.lineTo(x, e.y - 30); c.stroke(); core.porAncho(img.arana, x, e.y + 34, 88, false); break; }
-      case 'fuego': { c.save(); c.globalAlpha = .92; core.porAncho((e.sigue && piel(e, [null, img.sombraPers], null)) || img.fuego, x, e.y + 40 + Math.sin(s.t * 4 + e.x) * 5, 84, e.dir < 0); c.restore(); break; }
+      case 'aranaTecho': { c.strokeStyle = 'rgba(220,220,240,.7)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, -500); c.lineTo(x, e.y - 30); c.stroke(); const atq = e.estado === 'baja' || e.estado === 'abajo'; if (!tira(atq ? img.aAranaAtk : img.aAranaRep, 8, cuadro(e, 8, atq ? 12 : 7), x, e.y + 34, atq ? 127 : 131, false)) core.porAncho(img.arana, x, e.y + 34, 88, false); break; }
+      case 'fuego': { c.save(); c.globalAlpha = .92; const sk = (e.sigue && piel(e, [null, img.sombraPers], null)) || img.fuego, yy = e.y + 40 + Math.sin(s.t * 4 + e.x) * 5, cerca = Math.abs(e.x - s.h.x) < 300;
+        if (!(sk === img.fuego && tira(cerca ? img.aFuegoAlerta : img.aFuegoFlot, 8, cuadro(e, 8, cerca ? 13 : 9), x, yy, 166, e.dir < 0))) core.porAncho(sk, x, yy, 84, e.dir < 0); c.restore(); break; }
       case 'oni': {
         const ex = e.estado === 'aviso' ? Math.sin(s.t * 60) * 4 : 0; if (e.estado === 'aviso') { c.fillStyle = 'rgba(255,40,40,.28)'; c.fillRect(-60, -420, W + 120, H + 700); }
         if (e.inv > 0 && Math.floor(s.t * 20) % 2) break;

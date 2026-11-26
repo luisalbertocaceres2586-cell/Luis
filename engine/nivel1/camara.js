@@ -21,7 +21,7 @@
 
   const W = 1280, H = 720;
   const BASE = 1.045;            // zoom mínimo: deja margen para inclinar y sacudir sin enseñar bordes
-  const REPOSO = 1.085;          // zoom en reposo: algo más cerca que el mínimo, para poder «abrir» el plano al correr
+  const REPOSO = 1.066;          // zoom en reposo: algo más cerca que el mínimo, para poder «abrir» el plano al correr
   const ZMAX = 1.22, ROLL_MAX = 0.018;
   const CAMY_MAX = 120, CAMY_MIN = -45;   // desplazamiento vertical máximo hacia arriba / hacia abajo (px del mundo)
   const G0 = 560;                // altura del suelo si el núcleo no la expone (en el juego real viene de N1core.G)
@@ -29,7 +29,8 @@
   const E = {
     S: null, off: false, t0: 0, z: BASE, zPunch: 0, roll: 0, rollPunch: 0, fx: W / 2, fy: H / 2, oy: 0,
     stop: 0, aim: 0, aimX: W / 2, aimY: H / 2, jefe: 0, golpeado: 0, dashV: 0, latido: 0, camY: 0, lead: 0, tf: null,
-    prev: null, luces: [], estelas: [], reducido: false, lite: false, avg: 16.7, lento: 0
+    prev: null, luces: [], estelas: [], reducido: false, lite: false, avg: 16.7, lento: 0,
+    kx: 0, intro: 1, seguir: null, seguirT: 0, pf: 0, pX: W / 2, pY: H / 2
   };
   try { E.reducido = !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { /* sin matchMedia */ }
   try { if (root.location && /[?&]cam=0\b/.test(root.location.search)) E.off = true; } catch (e) { /* nada */ }
@@ -41,12 +42,12 @@
   function estado() {
     const k = K(); if (!k || !k.S) return null;
     const S = k.S(); if (!S) return null;
-    if (E.S !== S) { E.S = S; E.prev = null; E.luces.length = 0; E.zPunch = E.rollPunch = E.stop = E.golpeado = 0; E.z = REPOSO; E.t0 = 0; E.camY = 0; E.lead = 0; E.tf = null; }
+    if (E.S !== S) { E.S = S; E.prev = null; E.luces.length = 0; E.zPunch = E.rollPunch = E.stop = E.golpeado = E.kx = 0; E.z = REPOSO; E.t0 = 0; E.intro = 1; E.seguir = null; E.seguirT = 0; E.pf = 0; E.camY = 0; E.lead = 0; E.tf = null; }
     return S;
   }
 
   /* ---------- luces: estallidos de luz aditiva que se apagan solos ---------- */
-  function luz(x, y, r, col, vida, fuerza) { if (E.luces.length > 24) E.luces.shift(); E.luces.push({ x, y, r, col, t: vida, vida, a: fuerza == null ? 1 : fuerza }); }
+  function luz(x, y, r, col, vida, fuerza, flare) { if (E.luces.length > 24) E.luces.shift(); E.luces.push({ x, y, r, col, t: vida, vida, a: fuerza == null ? 1 : fuerza, flare: !!flare }); }
   function golpe(zoom, roll, parar) {
     const a = AMP();
     E.zPunch = Math.min(.16, E.zPunch + zoom * a);
@@ -63,17 +64,17 @@
 
     // dash (flanco de subida)
     const dash = !!(A && A.dash && A.dash.t > 0);
-    if (dash && !p.dash) { golpe(.07, (h.dir || 1) * .008, 0); luz(hx, hy, 260, [120, 220, 255], .35, 1); E.dashV = 1; }
+    if (dash && !p.dash) { golpe(.07, (h.dir || 1) * .008, 0); luz(hx, hy, 260, [120, 220, 255], .35, 1, true); E.dashV = 1; }
     p.dash = dash;
     E.dashV = Math.max(0, E.dashV - dt * 4);
 
     // ataque cuerpo a cuerpo y kunai
     if (h.atk > 0 && !(p.atk > 0)) { golpe(.03, (h.dir || 1) * .004, 0); luz(hx + (h.dir || 1) * 50, hy, 150, [255, 230, 160], .18, .8); }
-    if (h.kunaiT > 0 && !(p.kunai > 0)) { golpe(.025, 0, 0); luz(hx + (h.dir || 1) * 40, hy, 130, [255, 190, 230], .2, .8); }
+    if (h.kunaiT > 0 && !(p.kunai > 0)) { E.seguirT = .3; golpe(.025, 0, 0); luz(hx + (h.dir || 1) * 40, hy, 130, [255, 190, 230], .2, .8); }
     p.atk = h.atk; p.kunai = h.kunaiT;
 
     // daño recibido (S.shake sube de golpe) → hit-stop + zoom + bordes rojos
-    if (S.shake > p.shake + .15) { golpe(.06, (Math.random() < .5 ? -1 : 1) * .01, .09); E.golpeado = 1; luz(hx, hy, 300, [255, 70, 70], .3, 1); }
+    if (S.shake > p.shake + .15) { golpe(.06, (Math.random() < .5 ? -1 : 1) * .01, .09); E.golpeado = 1; E.kx = clamp(E.kx - (h.dir || 1) * 8 * AMP(), -8, 8); luz(hx, hy, 300, [255, 70, 70], .3, 1); }
     p.shake = S.shake; E.golpeado = Math.max(0, E.golpeado - dt * 2.5);
 
     // aterrizaje fuerte
@@ -87,13 +88,19 @@
     // enemigo derrotado: se compara quién estaba vivo en el cuadro anterior
     const ahora = new Map();
     (S.enemigos || []).forEach(e => { if (e.vivo) ahora.set(e, [e.x, e.y]); });
-    p.vivos.forEach((pos, e) => { if (!ahora.has(e) && !e.vivo) { golpe(.05, 0, .06); luz(pos[0] - S.cam, pos[1] - 40, 240, [255, 245, 200], .35, 1); luz(pos[0] - S.cam, pos[1] - 40, 120, [255, 150, 60], .5, .9); } });
+    p.vivos.forEach((pos, e) => { if (!ahora.has(e) && !e.vivo) { golpe(.05, 0, .06); luz(pos[0] - S.cam, pos[1] - 40, 240, [255, 245, 200], .35, 1, true); luz(pos[0] - S.cam, pos[1] - 40, 120, [255, 150, 60], .5, .9); } });
     p.vivos = ahora;
 
     // apuntar con F: acercar al blanco elegido
     const ap = S.apunta;
     if (ap && ap.lst && ap.lst[ap.sel]) { const q = ap.lst[ap.sel]; E.aimX = lerp(E.aimX, q.x - S.cam, clamp(dt * 9, 0, 1)); E.aimY = lerp(E.aimY, q.y, clamp(dt * 9, 0, 1)); }
     E.aim = lerp(E.aim, ap ? 1 : 0, clamp(dt * (ap ? 7 : 5), 0, 1));
+
+    // kunai en vuelo: la cámara lo acompaña un momento
+    if (E.seguirT > 0 && !E.seguir && S.shur && S.shur.length) E.seguir = S.shur[S.shur.length - 1];
+    E.seguirT = Math.max(0, E.seguirT - dt);
+    if (E.seguir && S.shur && S.shur.indexOf(E.seguir) >= 0 && Math.abs(E.seguir.x - h.x) < 900) { E.pX = E.seguir.x - S.cam; E.pY = E.seguir.y; E.pf = lerp(E.pf, 1, clamp(dt * 8, 0, 1)); }
+    else { E.seguir = null; E.pf = lerp(E.pf, 0, clamp(dt * 6, 0, 1)); }
 
     // jefe: plano más abierto
     E.jefe = lerp(E.jefe, (k && k.jefeActivo) ? 1 : 0, clamp(dt * 2, 0, 1));
@@ -119,13 +126,13 @@
       // velocidad horizontal (sin contar el dash, que acerca en vez de alejar): a más velocidad, plano más abierto
       const velX = clamp((Math.abs(h.vx) - 140) / 260, 0, 1) * (1 - clamp(E.dashV, 0, 1));
       let zObj = REPOSO - .012 * E.jefe - .03 * velX * a - .012 * vyAbs * a + .085 * E.aim + .03 * E.dashV * a;
-      zObj = Math.max(BASE, zObj);
+      E.intro = Math.max(0, E.intro - dt / 1.6); zObj += .16 * E.intro * E.intro * a + .02 * E.pf * a; zObj = Math.max(BASE, zObj);
       E.zPunch *= Math.pow(.0016, dt);                 // decae en ~0,4 s
       E.z = lerp(E.z, zObj, clamp(dt * 6, 0, 1));
       const Z = clamp(E.z + E.zPunch, BASE, ZMAX);
 
       // inclinación: velocidad lateral + dash + golpe, siempre suave
-      const rObj = clamp(h.vx / 700, -1, 1) * .006 * a + (E.jefe > .5 ? Math.sin(S.t * 1.3) * .003 * a : 0);
+      const rObj = clamp(h.vx / 700, -1, 1) * .006 * a + E.intro * E.intro * .012 * a + (E.jefe > .5 ? Math.sin(S.t * 1.3) * .003 * a : 0);
       E.rollPunch *= Math.pow(.004, dt);
       E.roll = lerp(E.roll, rObj, clamp(dt * 5, 0, 1));
       const R = E.reducido ? 0 : clamp(E.roll + E.rollPunch, -ROLL_MAX, ROLL_MAX);
@@ -142,11 +149,12 @@
       E.camY = vOK ? lerp(E.camY, yObj, clamp(dt * (yObj > E.camY ? 3.2 : 4.5), 0, 1)) : 0;
       const hx = h.x - S.cam, hy = h.y - 70 + E.oy + E.camY;
       E.oy *= Math.pow(.003, dt);
-      const fxObj = lerp(lerp(W / 2, hx, .55), E.aimX, E.aim), fyObj = lerp(lerp(H / 2, hy, .45), E.aimY + E.camY, E.aim);
+      const fxObj = lerp(lerp(lerp(W / 2, hx, .55), E.aimX, E.aim), E.pX, E.pf * .35), fyObj = lerp(lerp(lerp(H / 2, hy, .45), E.aimY + E.camY, E.aim), E.pY + E.camY, E.pf * .35);
+      E.kx *= Math.pow(.002, dt);
       E.fx = lerp(E.fx, clamp(fxObj, W * .2, W * .8), clamp(dt * 7, 0, 1)); E.fy = lerp(E.fy, clamp(fyObj, H * .25, H * .75), clamp(dt * 7, 0, 1));
 
-      const dyT = E.oy * .4 + E.camY; E.tf = { fx: E.fx, fy: E.fy, Z, R, dy: dyT };
-      cx.translate(E.fx, E.fy); if (R) cx.rotate(R); cx.scale(Z, Z); cx.translate(-E.fx, -E.fy + dyT);
+      const dyT = E.oy * .4 + E.camY; E.tf = { fx: E.fx, fy: E.fy, Z, R, dx: E.kx, dy: dyT };
+      cx.translate(E.fx, E.fy); if (R) cx.rotate(R); cx.scale(Z, Z); cx.translate(-E.fx + E.kx, -E.fy + dyT);
     } catch (e) { E.off = true; if (root.console) console.warn('N1cam desactivada:', e); }
   }
 
@@ -163,7 +171,7 @@
     const T = E.tf; if (E.off || !T) return { x: sx, y: sy };
     let vx = sx - T.fx, vy = sy - T.fy;
     if (T.R) { const c = Math.cos(-T.R), s = Math.sin(-T.R), x2 = vx * c - vy * s; vy = vx * s + vy * c; vx = x2; }
-    return { x: vx / T.Z + T.fx, y: vy / T.Z + T.fy - T.dy };
+    return { x: vx / T.Z + T.fx - (T.dx || 0), y: vy / T.Z + T.fy - T.dy };
   }
   const camY = () => (E.off ? 0 : E.camY);
 
@@ -189,6 +197,7 @@
       for (let i = E.luces.length - 1; i >= 0; i--) {
         const l = E.luces[i]; l.t -= dt; if (l.t <= 0) { E.luces.splice(i, 1); continue; }
         const k = l.t / l.vida; halo(cx, l.x, l.y, l.r * (1.25 - .25 * k), l.col, l.a * k * k * .8 * AMP());
+        if (l.flare && !E.lite) { cx.save(); cx.translate(l.x, l.y); cx.scale(4.2, .1); halo(cx, 0, 0, l.r, l.col, Math.min(1, l.a * k * AMP())); cx.restore(); }
       }
       cx.restore();
     } catch (e) { E.off = true; }
@@ -204,6 +213,10 @@
       if (E.aim > .02) {
         const g = cx.createRadialGradient(E.aimX, E.aimY, 70, E.aimX, E.aimY, 520);
         g.addColorStop(0, 'rgba(6,2,20,0)'); g.addColorStop(1, 'rgba(6,2,20,' + (.5 * E.aim) + ')'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+      }
+      if (E.aim > .02) {
+        cx.fillStyle = 'rgba(40,80,160,' + (.09 * E.aim * a) + ')'; cx.fillRect(0, 0, W, H);
+        const b = 20 * E.aim * a; cx.fillStyle = '#000'; cx.fillRect(0, 0, W, b); cx.fillRect(0, H - b, W, b);
       }
       // líneas de velocidad en el dash (solo en equipos que aguantan)
       if (E.dashV > .05 && !E.lite && !E.reducido) {

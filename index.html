@@ -12,8 +12,12 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="color-scheme" content="dark">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<script src="engine/core/webp-mapa.js?v=3a53cb31"></script>
+<script src="engine/core/webp.js?v=1"></script>
 <script src="engine/core/diagnostico.js?v=2"></script>
 <script src="engine/core/compat.js?v=1"></script>
+<script src="engine/core/calidad.js?v=1"></script>
+<script src="engine/core/interpolacion.js?v=1"></script>
 <script src="engine/core/tactil.js?v=1"></script>
 <script src="engine/core/orientacion.js?v=1"></script>
 <script src="engine/core/ios-fix.js?v=4"></script>
@@ -37,7 +41,7 @@
 #bootSplash i:after{content:"";position:absolute;top:0;bottom:0;width:36%;border-radius:9px;background:linear-gradient(90deg,#8b5cf6,#3fa7ff,#ffd36b);animation:bootRun 1.2s ease-in-out infinite}
 @keyframes bootRun{0%{left:-40%}100%{left:104%}}
 </style>
-<title>🥷 NINJA MULTIPLICACIÓN — Tablas con el Profe Luis · ColBolívar</title>
+<title>🥷 NINJA X: Guardianes de las Tablas — con el Profe Luis · ColBolívar</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -411,12 +415,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <link rel="stylesheet" href="engine/ui/interaccion-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/coreografia-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/rendimiento-2026.css?v=1">
+<link rel="stylesheet" href="engine/ui/logo-ninjax.css?v=1">
 <link rel="stylesheet" href="engine/ui/transicion-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/iconos-2026.css?v=1">
 <link rel="stylesheet" href="engine/ui/cambio-2026.css?v=1">
 </head>
 <body>
-<div id="bootSplash"><img src="assets/embebidas/67423bd03d.png" alt=""><i></i></div>
+<div id="bootSplash"><img src="assets/logo-ninja-x/logo_completo.webp" alt=""><i></i></div>
 <canvas id="c"></canvas>
 <!-- ADMIN LOCK — subtle bottom-right corner -->
 <div id="adminLock" onclick="_handleGodIconClick()" title="" style="
@@ -569,7 +574,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <!-- Beat 2: big logo burst -->
   <div id="cineBeat2" class="cineBeat" style="z-index:10;opacity:0">
-    <img id="cineLogo" src="assets/embebidas/67423bd03d.png" alt="Ninja Multiplicación"
+    <img id="cineLogo" src="assets/logo-ninja-x/logo_completo.webp" alt="NINJA X: Guardianes de las Tablas"
       style="display:block;width:min(86vw,640px);max-height:34vh;height:auto;object-fit:contain;margin:0 auto;
       filter:drop-shadow(0 0 50px rgba(255,150,0,.8)) drop-shadow(0 8px 12px rgba(0,0,0,.8))">
     <div style="font-family:'Press Start 2P';font-size:clamp(9px,2vw,15px);color:#FFD700;letter-spacing:5px;margin-top:14px;text-shadow:0 0 20px rgba(255,215,0,.9),2px 2px 0 #000">✖️ TABLAS CON EL PROFE LUIS ✖️</div>
@@ -588,7 +593,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <!-- Beat 4: heroes streak across -->
   <div id="cineBeat4" style="position:fixed;inset:0;z-index:11;pointer-events:none;opacity:0;overflow:hidden">
-    <img src="assets/characters/sakura_assets/sakura/frames/run/sakura_run_01.png" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
+    <img src="assets/characters/sakura_assets/sakura/frames/run/sakura_run_01.webp" alt="" style="position:absolute;top:50%;left:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(255,80,160,.7));animation:cineHeroRunL 1.3s cubic-bezier(.3,.7,.4,1) forwards">
     <img src="assets/embebidas/e63205ea51.png" alt="" style="position:absolute;top:46%;right:-40%;width:38vw;max-width:300px;height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 22px rgba(120,80,255,.7));animation:cineHeroRunR 1.3s cubic-bezier(.3,.7,.4,1) .12s forwards">
     <img id="cineSlash" src="assets/embebidas/0e6e3fa33d.png" alt="" style="position:absolute;top:50%;left:50%;width:70vw;max-width:560px;height:auto;transform:translate(-50%,-50%) scale(.3) rotate(-8deg);opacity:0;filter:drop-shadow(0 0 30px rgba(140,220,255,.9))">
   </div>
@@ -636,10 +641,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 
       <!-- GAME LOGO (artwork by Profe Luis) -->
-      <img id="introTitle" src="assets/embebidas/67423bd03d.png" alt="Ninja Multiplicación"
-        style="display:block;width:min(88vw,620px);max-height:26vh;height:auto;object-fit:contain;margin:0 auto;
-        filter:drop-shadow(0 0 30px rgba(255,150,0,.55)) drop-shadow(0 6px 10px rgba(0,0,0,.7));
-        animation:logoFloat 4s ease-in-out infinite;will-change:transform">
+      <div id="introTitle" class="nxl" role="img" aria-label="NINJA X: Guardianes de las Tablas">
+        <img class="nxl-base" src="assets/logo-ninja-x/logo_completo.webp" alt="NINJA X: Guardianes de las Tablas" style="display:block;width:100%;height:auto">
+      </div>
       <h1 id="menuTypewriter" aria-label="Domina las tablas">¡DOMINA LAS TABLAS!</h1>
 
     </div>
@@ -799,14 +803,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
           <div class="hcardGlow"></div>
           <span class="petal p1">🌸</span><span class="petal p2">🌸</span><span class="petal p3">🌸</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.png" alt="Sakura Eve" class="hcardArtBig">
+          <img src="assets/characters/sakura_assets/sakura/frames/idle/sakura_idle_01.webp" alt="Sakura Eve" class="hcardArtBig">
           <div class="hcardKeys"><span>F</span> Disparo &nbsp; <span>X</span> Triple &nbsp; <span>C</span> Tajo</div>
         </div>
         <div class="hcard" data-c="peach" onclick="selChar('peach')" style="--hc1:#FF3B44;--hc2:#5A0006;--hc3:#FFC2C5">
           <div class="hcardGlow"></div>
           <span class="ember p1">🔥</span><span class="ember p2">🔥</span><span class="ember p3">🔥</span>
           <div class="hcardCheck">✓</div>
-          <img src="assets/characters/antarez/mov_01.png" alt="Antarez" class="hcardArtBig">
+          <img src="assets/characters/antarez/mov_01.webp" alt="Antarez" class="hcardArtBig">
           <div class="hcardKeys"><span>X</span> Dual &nbsp; <span>F</span> Disparo &nbsp; <span>C</span> Tajo</div>
         </div>
       </div>
@@ -839,7 +843,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         filter:drop-shadow(3px 3px 0 rgba(0,0,0,.9)) drop-shadow(0 0 20px rgba(255,180,0,.6));
         margin-bottom:4px">🏆 CAMPEONES</div>
-      <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:rgba(255,215,0,.6);letter-spacing:2px">NINJA MULTIPLICACIÓN — COLBOLÍVAR</div>
+      <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:rgba(255,215,0,.6);letter-spacing:2px">NINJA X: GUARDIANES DE LAS TABLAS — COLBOLÍVAR</div>
     </div>
     <div style="border:1px solid rgba(255,200,0,.2);border-radius:8px;overflow:hidden">
       <div id="lbRows"></div>
@@ -926,7 +930,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <canvas id="creditsBg" style="position:fixed;inset:0;z-index:0;pointer-events:none"></canvas>
   <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:100vh;padding:20px">
     <div class="card" style="max-width:480px;background:rgba(0,0,20,.85);border-color:rgba(0,200,255,.4);box-shadow:0 0 60px rgba(0,150,255,.2),0 0 120px rgba(150,0,255,.1)">
-      <div class="ttl" style="font-size:clamp(14px,3vw,24px);background:linear-gradient(90deg,#00FFFF,#FF00FF,#FFD700,#00FF88,#00FFFF);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:neonSlide 3s linear infinite">🥷 NINJA MULTIPLICACIÓN</div>
+      <div class="ttl" style="font-size:clamp(14px,3vw,24px);background:linear-gradient(90deg,#00FFFF,#FF00FF,#FFD700,#00FF88,#00FFFF);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:neonSlide 3s linear infinite">🥷 NINJA X</div>
 
       <!-- Animated neon author credit -->
       <div style="text-align:center;margin:12px 0 4px">
@@ -988,8 +992,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 <script src="assets/environment/levels/nivel1/nubes.js"></script>
 <script src="assets/environment/platforms/islands/islas.js"></script>
-<script src="engine/juego-principal.js?v=2"></script>
-<script src="engine/fx-engine.js"></script>
+<script src="engine/juego-principal.js?v=3"></script>
+<script src="engine/fx-engine.js?v=2"></script>
 <script src="engine/mobile-fix.js?v=3"></script>
 <script src="assets/characters/sakura/manifest.js"></script>
 <script src="assets/characters/sakura_assets/sakura/manifest.js?v=sk2"></script>
@@ -1001,21 +1005,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
 <script src="engine/ui/preview-mundos.js?v=6"></script>
 <script src="engine/ui/mundos-registro.js?v=3"></script>
-<script src="engine/ui/intro-2026.js?v=an4"></script>
+<script src="engine/ui/intro-2026.js?v=an6"></script>
 <script src="engine/ui/carga-2026.js?v=1"></script>
 <script src="engine/ui/interaccion-2026.js?v=1"></script>
 <script src="engine/ui/coreografia-2026.js?v=1"></script>
 <script src="engine/ui/transicion-2026.js?v=1"></script>
 <script src="engine/ui/iconos-2026.js?v=1"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-25-f06792b";</script>
+<script>window.NJ_BUILD="2026-11-26-11018d9";</script>
 <script src="engine/core/version.js?v=1"></script>
 <script src="engine/core/dispositivo.js?v=1"></script>
 <script src="engine/core/modulos.js?v=4"></script>
 <script src="engine/escenario/islas.js?v=4"></script>
 <script src="engine/escenario/fondos-tema.js?v=14"></script>
 <script src="engine/ui/menu-2026.js?v=an2"></script>
-<script src="engine/ui/rendimiento-2026.js?v=1"></script>
+<script src="engine/ui/logo-ninjax.js?v=1"></script>
+<script src="engine/ui/rendimiento-2026.js?v=2"></script>
 <script src="engine/ui/escena-2026.js?v=1"></script>
 <script src="engine/ui/ninjas-fx-2026.js?v=1"></script>
 <script src="engine/ui/cambio-2026.js?v=1"></script>

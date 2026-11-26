@@ -672,7 +672,7 @@
     function efectos(dt) {
       if (S.salBuf > 0) { S.salBuf -= dt; if (S.jh <= S.base + 1 && S.cae <= 0 && !S.plaza) { S.salBuf = 0; accion('salta'); } }   // salto «guardado» 0,12 s: tocar justo antes de aterrizar no se pierde
       musica(dt);
-      S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5) S.lite = true;
+      S.ema = (S.ema || 0.0167) * 0.95 + dt * 0.05; S.slowT = S.ema > 0.026 ? (S.slowT || 0) + dt : 0; if (S.slowT > 1.5 || (window.NinjaCalidad && window.NinjaCalidad.nivel === 'baja')) S.lite = true;
       const ob = temaIdx(); S.temaF += clamp(ob - S.temaF, -dt * 0.45, dt * 0.45); if (S.flashB > 0) S.flashB -= dt;
       const n = S.lite ? 10 : 26; while (S.amb.length < n) { const p = {}; nuevaAmb(p, true); S.amb.push(p); } if (S.amb.length > n) S.amb.length = n;
       for (const p of S.amb) {
@@ -1329,6 +1329,7 @@
       const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
       ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob + (S.bump || 0) * 12);
       if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
+      if (window.NCam) NCam.n3.antes(ctx, S);
       fondoDib(ta, tb, f); islasCapa(0, ta, tb, f); nubesDib(); islasCapa(1, ta, tb, f); nubesFrente(); auroraDib(); rayoDib(); camino(Tm); marcasCamino(ta, tb, f); charcos(); niebla(Tm);
       const cola = [];
       S.deco.forEach(d => { const z = d.d - S.dist; cola.push({ z, f: () => { spr(IMG(d.img), d.off, z, d.h); if (d.img.indexOf('/lights/') >= 0 && !S.lite) { const p = pz(z); brillo(W / 2 + d.off * LW * p, yz(z) - d.h * p * 0.72, 70 * p + 4, '255,190,100', (0.55 + 0.15 * Math.sin(S.t * 9 + d.d)) * clamp((ZMAX - z) / 30, 0, 1)); } } }); });
@@ -1338,11 +1339,11 @@
       cola.sort((a, b) => b.z - a.z); let heroeHecho = false;
       cola.forEach(c => { if (!heroeHecho && c.z < 0 && S.celeb == null) { dibujaHeroes(); heroeHecho = true; } c.f(); }); if (!heroeHecho) dibujaHeroes();
       primerPlano(ta, tb, f); dibAmb(); dibEfectos(); rayosLuz(Tm); lluviaDib(); oscuroDib();
-      ctx.restore(); gradoDib(ta, tb, f); vinetaDib(); hud();
+      ctx.restore(); gradoDib(ta, tb, f); vinetaDib(); if (window.NCam) NCam.n3.encima(ctx, S); hud();
     }
     function bucle(t) {
       if (!vivo) return; raf = requestAnimationFrame(bucle); const dt = (t - ultimo) / 1000; ultimo = t;
-      if (S) { S.cazaDe = S.filas.length ? S.cazadas - (S.cazaBase || 0) : S.cazadas; paso(isFinite(dt) && dt > 0 ? dt : 0); } dibuja();
+      if (S) { S.cazaDe = S.filas.length ? S.cazadas - (S.cazaBase || 0) : S.cazadas; paso((isFinite(dt) && dt > 0 ? dt : 0) * (window.NCam ? NCam.n3.escala() : 1)); } dibuja();
     }
 
     // ───────────────────────── pantallas ─────────────────────────

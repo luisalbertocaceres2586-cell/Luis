@@ -19,7 +19,7 @@
   const MEC = {
     bambu: { amp: .11, imp: 1.0, piv: 'base', par: 'hoja', viento: .22 }, pino: { amp: .03, imp: .8, piv: 'base', par: 'hoja', viento: .1 },
     cerezo: { amp: .03, imp: .9, piv: 'base', par: 'petalo', viento: .12 }, helechos: { amp: .07, imp: 1.0, piv: 'base', par: 'luci', viento: .2 },
-    farolitos: { amp: .09, imp: 1.0, piv: 'colgar', par: 'chispa', viento: .3 }, estandarte: { amp: .08, imp: 1.0, piv: 'colgar', par: 'chispa', viento: .35 },
+    farolitos: { amp: .09, imp: 1.0, piv: 'colgar', par: 'chispa', viento: .16 }, estandarte: { amp: .08, imp: 1.0, piv: 'colgar', par: 'chispa', viento: .35 },
     cartel: { amp: .05, imp: 1.0, piv: 'base', par: 'hoja', viento: 0 }, valla: { amp: .012, imp: .8, piv: 'base', par: 'hoja', viento: 0 },
     rocas: { amp: 0, imp: .8, piv: 'base', par: 'chispa', viento: 0 }, toro: { amp: 0, imp: .8, piv: 'base', par: 'chispa', viento: 0 },
     kitsune: { amp: 0, imp: .8, piv: 'base', par: 'chispa', viento: 0 }, fuente: { amp: 0, imp: .8, piv: 'base', par: 'agua', viento: 0 }
@@ -42,8 +42,67 @@
     core.texto(d.x, top - 10, '¡TESORO!', '#ffe27a'); s.aviso = { t: 1.6, s: '¡UN SECRETO!' };
   }
 
+
+  // ================= VIENTO COMÚN =================
+  // Un solo valor de viento para todo el nivel: una brisa suave de fondo + ráfagas que VIAJAN de derecha a izquierda cada ~11 s
+  // (primero se mece el bambú lejano, luego el cercano). Sopla hacia la izquierda, como ya caían las hojas.
+  // Devuelve ≈0.15 (calma) … 1.35 (ráfaga fuerte). Lo usan: decorado, pétalos, hojas, nubes, niebla, motas, capas de bambú y primer plano.
+  A.viento = function (x, t) {
+    const T = t != null ? t : (S() ? S().t : 0), base = .28 + .12 * Math.sin(T * .33 + x * .0004);
+    const f = Math.sin(T * .55 + x / 900 + 1.3 * Math.sin(T * .12)), g = f > 0 ? f * f * f : 0;
+    return base + g * .95;
+  };
+  core.viento = A.viento;   // para profundidad.js y motor.js
+
+  // ================= LUZ DE VERDAD =================
+  // Brillos cálidos pre-dibujados (un degradado radial por color, una sola vez) que se pegan en modo aditivo y parpadean: sin shadowBlur.
+  // Faroles de cuerda, farol de piedra y los faroles de los torii (el de los puntos de control se enciende al activarlo).
+  const GLOW = {};
+  function glow(r, g, b) {
+    const k = r + ',' + g + ',' + b; if (GLOW[k]) return GLOW[k]; const n = 128, c = document.createElement('canvas'); c.width = c.height = n; const x = c.getContext('2d');
+    const gr = x.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+    gr.addColorStop(0, 'rgba(' + k + ',.95)'); gr.addColorStop(.22, 'rgba(' + k + ',.5)'); gr.addColorStop(.55, 'rgba(' + k + ',.15)'); gr.addColorStop(1, 'rgba(' + k + ',0)'); x.fillStyle = gr; x.fillRect(0, 0, n, n); return GLOW[k] = c;
+  }
+  const COL_L = { rojo: [255, 120, 55], crema: [255, 226, 150], ambar: [255, 205, 95] };
+  // posición de las luces dentro de cada sprite (medida sobre las imágenes): fracción del ancho y del alto
+  /** @type {Array<[number, any]>} posición relativa al ancho del decorado y color de la luz */
+  const FAROLITOS = [[-.325, COL_L.rojo], [.006, COL_L.crema], [.333, COL_L.rojo]];   // y ≈ .57 del alto
+  A.parpadeo = function (x, r) {   // factor ≈1 con titileo de llama (también lo usa la cueva)
+    const T = S().t, ph = Math.round(x / 40) * 2.1, w = A.viento(x, T);
+    return 1 + (.035 + .02 * w) * Math.sin(T * 10 + ph) + .02 * Math.sin(T * 6.1 + ph * 1.3);
+  };
+  function luz(cx, c, x, y, r, a, ph, suelo) {
+    const T = S().t, w = A.viento(x, T), f = 1 + .10 * Math.sin(T * 11 + ph) + .06 * Math.sin(T * 5.3 + ph * 1.7) + w * .04 * Math.sin(T * 17 + ph), rr = r * (1 + (f - 1) * .45);
+    cx.globalAlpha = clamp(a * f, 0, 1); cx.drawImage(c, x - rr, y - rr, rr * 2, rr * 2);
+    if (suelo) { cx.globalAlpha = clamp(a * f * .55, 0, 1); cx.drawImage(c, x - rr * 1.25, G + 2 - rr * .2, rr * 2.5, rr * .4); }   // mancha cálida sobre el piso
+  }
+  A.luces = function () {
+    const s = S(); if (!s || s.nivel2 || !s.N) return; const vis = 1 - clamp((s.osc || 0) / .5, 0, 1); if (vis <= .02) return;
+    const cx = core.cx, lento = window.N1prof && window.N1prof._estado && window.N1prof._estado().lento, cam = s.cam; let hubo = false;
+    const ini = () => { if (!hubo) { hubo = true; cx.save(); cx.globalCompositeOperation = 'lighter'; } };
+    s.N.deco.forEach(d => {
+      if (d.techo || d.x < cam - 260 || d.x > cam + W + 260) return;
+      if (d.tipo === 'farolitos') {
+        const m = dim(d); if (!m) return; const T = A.pose(d, m.hh), x = d.x - cam, y0 = G - 332 + m.hh * .57; ini();
+        FAROLITOS.forEach((q, i) => {
+          let px = x + q[0] * m.w, py = y0; if (T) { const ox = px - x, oy = y0 - T.py, cs = Math.cos(T.rot), sn = Math.sin(T.rot); px = x + ox * cs - oy * sn; py = T.py + ox * sn + oy * cs; }
+          luz(cx, glow(q[1][0], q[1][1], q[1][2]), px, py, 118, .5 * vis, d.x * .01 + i * 2.1, !lento && i === 1);
+        });
+      } else if (d.tipo === 'toro') {
+        const m = dim(d); if (!m) return; ini(); luz(cx, glow(255, 205, 95), d.x - cam - m.w * .015, G + 4 - m.hh + m.hh * .386, 105, .55 * vis, d.x * .013, !lento);
+      }
+    });
+    s.ckp.forEach(c => {   // torii de los puntos de control: los dos faroles se encienden al activarlos
+      if (c.zona === 'cueva' || !c.activo || c.x < cam - 260 || c.x > cam + W + 260) return; ini();
+      [-80, 87].forEach((ox, i) => luz(cx, glow(255, 215, 110), c.x - cam + ox, G - 157, 112, .62 * vis, c.x * .02 + i * 1.9, !lento && i === 0));
+    });
+    const mt = s.N.meta; if (mt && mt.x > cam - 300 && mt.x < cam + W + 300) { ini(); [-105, 114].forEach((ox, i) => luz(cx, glow(255, 215, 110), mt.x - cam + ox, G - 206, 130, .62 * vis, i * 1.9 + 3)); }
+    if (hubo) { cx.restore(); cx.globalAlpha = 1; }
+  };
+
   A.paso = function (dt) {
     const s = S(); if (!s || s.nivel2 || !s.N) return; const h = s.h, tj = s.tajo;
+    s.vd = (s.vd || 0) + A.viento(s.cam + W / 2, s.t) * dt;   // viento acumulado: nubes, niebla y motas lo usan para ir más rápido en las ráfagas
     s.N.deco.forEach(d => {
       const m = MEC[d.tipo]; if (!m || d.x < s.cam - 500 || d.x > s.cam + W + 500) return;
       const e = d.e || (d.e = { sw: 0, v: 0, roce: 0, golpe: 0 }); const dm = dim(d); if (!dm) return;
@@ -57,15 +116,16 @@
         if (d.premio && !d.abierto) abrir(d);
       }
     });
-    petalos.forEach(p => { p.t -= dt; p.vy += 55 * dt; p.vx *= (1 - .6 * dt); p.x += (p.vx + Math.sin(s.t * 4 + p.ph) * 26) * dt; p.y += p.vy * dt; p.rot += p.vr * dt; });
+    petalos.forEach(p => { p.t -= dt; p.vy += 55 * dt; p.vx += -A.viento(p.x, s.t) * (p.tipo === 'luci' ? 40 : 110) * dt; p.vx *= (1 - .6 * dt); p.x += (p.vx + Math.sin(s.t * 4 + p.ph) * 26) * dt; p.y += p.vy * dt; p.rot += p.vr * dt; });
     petalos = petalos.filter(p => p.t > 0);
   };
 
   // transformación de un decorado (balanceo con el viento + empujones). null si no se mueve
   A.pose = function (d, hh) {
-    const m = MEC[d.tipo], s = S(); if (!m) return null; const e = d.e; const sw = (e ? e.sw : 0), v = Math.sin(s.t * 1.3 + d.x * .011) * m.viento;
-    if (!sw && !v) return null;
-    if (m.amp > 0) return { py: m.piv === 'colgar' ? (d.tipo === 'estandarte' ? G - hh - 60 : 0) : G + 4, rot: (sw + v * .18) * m.amp, sy: 1 };   // los farolitos cuelgan del borde de arriba
+    const m = MEC[d.tipo], s = S(); if (!m) return null; const e = d.e; const sw = (e ? e.sw : 0), w = m.viento ? A.viento(d.x, s.t) : 0;
+    const lean = m.viento ? (m.piv === 'colgar' ? 1 : -1) * w * m.viento * .38 + Math.sin(s.t * 7 + d.x * .05) * w * w * m.viento * .012 : 0;   // inclinación + temblor en ráfaga
+    if (!sw && !lean) return null;
+    if (m.amp > 0) return { py: m.piv === 'colgar' ? (d.tipo === 'estandarte' ? G - hh - 60 : 0) : G + 4, rot: sw * m.amp + lean, sy: 1 };   // los farolitos cuelgan del borde de arriba
     return { py: G + 4, rot: 0, sy: 1 - sw * .025 };   // rocas, estatuas y fuente: solo un pequeño "bote"
   };
 

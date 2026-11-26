@@ -18,10 +18,10 @@ const CX = CV.getContext('2d');
 (function(){
   const d=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'shadowBlur');
   if(!d||!d.set)return;
-  const MAXB=6;
+  const MAXB=6;   // tope en calidad alta; NinjaCalidad.sombra lo reduce (media ×0,5 · baja ×0)
   Object.defineProperty(CX,'shadowBlur',{configurable:true,
     get(){return d.get.call(CX);},
-    set(v){ const lite=(typeof _perfMode!=='undefined'&&_perfMode==='lite'); d.set.call(CX,lite?0:(v>MAXB?MAXB:v)); }});
+    set(v){ const lite=(typeof _perfMode!=='undefined'&&_perfMode==='lite'); const M=window.NinjaCalidad?MAXB*window.NinjaCalidad.sombra:MAXB; d.set.call(CX,lite?0:(v>M?M:v)); }});
 })();
 let W = CV.width = window.innerWidth;
 let H = CV.height = window.innerHeight;
@@ -1669,7 +1669,7 @@ function updateTurbo(dt){
     } else {
       // Spawn sparkle trail every few frames — skipped once the trail is
       // already full, so it can never keep growing past the cap
-      if(_turboTrail.length < MAX_TURBO_TRAIL && Math.random() < 0.5){
+      if(_turboTrail.length < MAX_TURBO_TRAIL && Math.random() < 0.5*(window.NinjaCalidad?window.NinjaCalidad.fx:1)){
         _turboTrail.push({x:P.x+P.w/2-camX, y:P.y+P.h/2, life:1, r:4+Math.random()*5,
           vx:(Math.random()-0.5)*1.5, vy:-1-Math.random()*1.5,
           hue: Math.floor(Math.random()*60+30)});
@@ -3549,11 +3549,30 @@ function startLoop(){
 // frame rate and be over again before this ever kicked in.
 let _fpsHistory=[], _avgFPS=60, _perfMode='normal'; // 'normal'|'lite'
 function _updatePerfMode(fps){
+  if(window.NinjaCalidad){ _perfMode=window.NinjaCalidad.nivel==='baja'?'lite':'normal'; _avgFPS=fps; return; }   // engine/core/calidad.js
   _fpsHistory.push(fps);
   if(_fpsHistory.length>8)_fpsHistory.shift();
   _avgFPS=_fpsHistory.reduce((a,b)=>a+b,0)/_fpsHistory.length;
   if(_avgFPS < 40) _perfMode='lite';
   else if(_avgFPS > 52) _perfMode='normal';
+}
+
+// ── Interpolación de dibujo (engine/core/interpolacion.js) ──
+const _NI=window.NinjaInterp?window.NinjaInterp.crear():null;
+/** @type {any[]} */
+const _interpLista=[];
+let _camPrev=/** @type {number|undefined} */(undefined);
+function _interpObjetos(){
+  const L=_interpLista; L.length=0; L.push(P);
+  for(const arr of [enemies,bullets,bossBullets,movingPlatforms]) for(let i=0;i<arr.length;i++) L.push(arr[i]);
+  return L;
+}
+function _interpMarcar(){ if(!_NI)return; _NI.marcar(_interpObjetos()); _camPrev=camX; }
+function _interpDibujar(alpha){
+  if(!_NI){ render(); return; }
+  _NI.aplicar(_interpObjetos(),alpha);
+  const real=camX; camX=_NI.esc(_camPrev,real,alpha);
+  try{ render(); }finally{ camX=real; _NI.restaurar(); }   // la física nunca ve valores interpolados
 }
 
 // Contadores del bucle principal, declarados aquí para que TypeScript conozca estas propiedades (0 y undefined se comportan igual en el código).
@@ -3602,8 +3621,12 @@ function loop(ts){
     // that frame and keeps going, and logs the error for debugging.
     try{
       let _n=0;
-      while(loop._acc>=0.999&&_n<3){ update(1); loop._acc-=1; _n++; }
-      if(_n>0) render();
+      // Pantallas de ≥ 90 Hz: se dibuja en CADA cuadro con la posición intermedia entre el paso anterior y el actual (la física no cambia).
+      // En 60 Hz (o con calidad baja, o ?interp=0) todo sigue exactamente como antes.
+      const _ip=!!(window.NinjaInterp&&window.NinjaCalidad&&window.NinjaCalidad.interp());
+      while(loop._acc>=0.999&&_n<3){ if(_ip)_interpMarcar(); update(1); loop._acc-=1; _n++; }
+      if(_ip) _interpDibujar(loop._acc);
+      else if(_n>0) render();
     }catch(err){
       if(!loop._errCount)loop._errCount=0;
       loop._errCount++;
@@ -7491,9 +7514,11 @@ function spawnShockwave(x,y,color='#FF6600',size=70){
 let _pfxCount=0;
 const _PFX_MAX=80;
 function spawnPfx(x,y,color,n=8){
-  if(_pfxCount>=_PFX_MAX)return; // hard cap — skip if already too many
-  if(_perfMode==='lite')n=Math.max(1,Math.ceil(n*0.4)); // fewer DOM particles per burst while the game is already struggling
-  const toSpawn=Math.min(n,_PFX_MAX-_pfxCount);
+  const _q=window.NinjaCalidad?window.NinjaCalidad.fx:(_perfMode==='lite'?0.4:1);   // 1 alta · 0,6 media · 0,3 baja
+  const _max=Math.ceil(_PFX_MAX*_q);
+  if(_pfxCount>=_max)return; // hard cap — skip if already too many
+  if(_q<1)n=Math.max(1,Math.ceil(n*_q)); // fewer DOM particles per burst while the game is already struggling
+  const toSpawn=Math.min(n,_max-_pfxCount);
   for(let i=0;i<toSpawn;i++){
     const el=document.createElement('div');el.className='pfx';
     const a=(i/toSpawn)*Math.PI*2,d=28+Math.random()*55;
@@ -7514,7 +7539,7 @@ function spawnTfx(x,y,txt,color='#FFD700',sz='clamp(11px,2.3vw,17px)'){
 }
 function confetti(n=50){
   if(_perfMode==='lite')return; // skip celebratory confetti outright while the game is already struggling
-  const cap=Math.min(n,40); // cap confetti to 40 pieces max
+  const cap=Math.min(Math.ceil(Math.min(n,40)*(window.NinjaCalidad?window.NinjaCalidad.fx:1)),40); // cap confetti to 40 pieces max (menos en calidad media)
   const c=['#FF0044','#FFD700','#00FF88','#00D4FF','#CC44FF','#FF8800'];
   for(let i=0;i<cap;i++){
     const d=document.createElement('div'),sz=4+Math.random()*7;
@@ -7872,7 +7897,7 @@ function showReport(){
 function downloadReport(){
   const rows=_reportRows();
   const lines=[
-    'REPORTE DE TABLAS DE MULTIPLICAR — NINJA MULTIPLICACIÓN',
+    'REPORTE DE TABLAS DE MULTIPLICAR — NINJA X: GUARDIANES DE LAS TABLAS',
     'Generado: '+new Date().toLocaleString(),
     '',
     'Tabla | Aciertos | Fallos | % Acierto'

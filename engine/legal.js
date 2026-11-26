@@ -20,7 +20,7 @@
   const root = typeof globalThis !== 'undefined' ? globalThis : typeof self !== 'undefined' ? self : {};
 
   const CONFIG = {
-    juego: 'Ninja Multiplicación',
+    juego: 'NINJA X: Guardianes de las Tablas',
     version: '1.0',                         // debe coincidir con VERSION_LEGAL de Code.gs
     actualizado: '23 de noviembre de 2026',
     anio: 2026,

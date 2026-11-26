@@ -320,7 +320,7 @@
     N.enem.forEach(e => { if (AVISO_ENEM[e.kind]) peligros.push({ x: e.x, msg: AVISO_ENEM[e.kind] }); });
     N.elem.forEach(e => { const k = e.t, m = AVISO_ELEM[k]; if (m) peligros.push({ x: e.x0 !== undefined ? e.x0 : e.x, msg: m }); });
     N.est.forEach(e => peligros.push({ x: e.x0, msg: 'Un acertijo: resuelve la cuenta para abrir la puerta' }));
-    const aviso = x => { let mejor = null; peligros.forEach(p => { if (p.x > x + 260 && p.x < x + 1400 && (!mejor || p.x < mejor.x)) mejor = p; }); return mejor ? mejor.msg : null; };
+    const aviso = x => { let mejor = null; peligros.forEach(p => { if (p.x > x + 260 && p.x < x + 1400 && (!mejor || p.x < mejor.x)) mejor = p; }); return mejor ? /** @type {any} */ (mejor).msg : null; };
 
     const techos = N.deco.filter(d => d.techo), base = N.deco.filter(d => !d.techo).sort((a, b) => a.x - b.x), ok = [];
     base.forEach(d => {

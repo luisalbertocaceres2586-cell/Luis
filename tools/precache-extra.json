@@ -1,0 +1,13 @@
+{
+ "_nota": "Carpetas cuyos archivos el juego arma con código (nombre+número) y que el escáner no puede ver. Se incluyen enteras en precache.json. Si una prueba de 'sin internet' falla por una imagen, agrega su carpeta aquí.",
+ "carpetas": [
+  "assets/characters/villain",
+  "assets/characters/sakura_assets/sakura/frames",
+  "assets/intro-2026/ambiente",
+  "assets/intro-2026/interfaz",
+  "assets/nivel2/ambientes",
+  "assets/intro-2026/iconos",
+  "assets/intro-2026/transiciones",
+  "assets/nivel3/arte"
+ ]
+}

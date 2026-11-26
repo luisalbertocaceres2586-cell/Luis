@@ -139,7 +139,7 @@
   /* Red de seguridad de rendimiento: si el juego va lento de forma sostenida (≈ menos de 38 fps durante ~1,5 s), apaga solo los efectos caros. */
   function ritmo() { const n = performance.now(), d = n - E.tp; E.tp = n; if (d > 0 && d < 250) { E.avg = E.avg * .94 + d * .06; E.lento = E.avg > 26 ? E.lento + 1 : 0; if (E.lento > 90) E.lite = true; } }
   function estado() { const k = K(); if (!k) return null; const S = k.S(); if (!S) return null; if (E.S !== S) { E.S = S; E.bosque = E.cueva = E.desierto = null; } return S; }
-  const calidad = S => (S.movil || E.lite) ? 1 : 2;
+  const calidad = S => (S.movil || E.lite || (root.NinjaCalidad && root.NinjaCalidad.nivel === 'baja')) ? 1 : 2;   // NinjaCalidad: engine/core/calidad.js
   const semilla = S => 1000 + ((S.params && S.params.semilla) | 0) % 9000;
 
   function construirBosque(S, k) {
@@ -222,14 +222,14 @@
     const cx = k.cx, W = k.W, t = S.t, per = W + 700;
     for (let i = 0; i < L.bancos.length; i++) {
       const b = L.bancos[i]; if (b.p < desde || b.p >= hasta) continue;
-      const w = 512 * b.esc, x = ((((b.x * per - t * b.v - S.cam * b.p) % per) + per) % per) - 350, y = b.y + dyl(.7) + Math.sin(t * .25 + i * 2) * 5;
+      const w = 512 * b.esc, x = ((((b.x * per - (t * b.v + (S.vd || 0) * b.v * .5) - S.cam * b.p) % per) + per) % per) - 350, y = b.y + dyl(.7) + Math.sin(t * .25 + i * 2) * 5;
       cx.globalAlpha = alfa * b.a * 2.2 * (.8 + .2 * Math.sin(t * .4 + i)); cx.drawImage(L.niebla, x, y, w, 140 * b.esc);
     }
   }
   function motas(L, S, k, col, alfa, noche) {
     const cx = k.cx, W = k.W, H = k.H, t = S.t; cx.save(); cx.globalCompositeOperation = 'lighter'; cx.fillStyle = col;
     for (const m of L.motas) {
-      const x = (((m.x * W * 1.5 - S.cam * m.p - t * m.v) % W) + W) % W, y = ((m.y * k.G * .95 + Math.sin(t * .5 * m.f + m.o) * 20) + H) % H;
+      const x = (((m.x * W * 1.5 - S.cam * m.p - (t * m.v + (S.vd || 0) * m.v * .4)) % W) + W) % W, y = ((m.y * k.G * .95 + Math.sin(t * .5 * m.f + m.o) * 20) + H) % H;
       cx.globalAlpha = alfa * (.25 + .75 * Math.max(0, Math.sin(t * m.f * 1.6 + m.o))); cx.fillRect(x, y, m.s * (noche ? 1 : m.p), m.s * (noche ? 1 : m.p));
     }
     cx.restore();
@@ -259,7 +259,7 @@
       cx.save(); cx.translate(0, dsol);
       const sg = cx.createRadialGradient(sx, sy, 10, sx, sy, 190); sg.addColorStop(0, 'rgba(255,244,210,.95)'); sg.addColorStop(.3, 'rgba(255,236,190,.55)'); sg.addColorStop(1, 'rgba(255,220,170,0)');
       cx.globalAlpha = alfa; cx.fillStyle = sg; cx.fillRect(sx - 200, -10, 400, 400); cx.fillStyle = 'rgba(255,248,226,.96)'; cx.beginPath(); cx.arc(sx, sy, 50, 0, 7); cx.fill();
-      const nube = k.img.nube; if (nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - S.t * (8 + i * 3) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alfa * .75; cx.drawImage(nube, x, 60 + i * 55, w, nube.height * w / nube.width); }
+      const nube = k.img.nube; if (nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - (S.t * (8 + i * 3) + (S.vd || 0) * (5 + i * 2)) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alfa * .75; cx.drawImage(nube, x, 60 + i * 55, w, nube.height * w / nube.width); }
       cx.restore();
       // Capas, de lo más lejano a lo más cercano
       if (L.montes) pegar(L.montes, .05, G - L.montes.th + 30, S, k, alfa, .45);
@@ -269,7 +269,7 @@
       if (calid > 1) bancos(L, S, k, 0, alfa, 0, .27);
       // Bambú lejano y medio: las ilustraciones del rediseño visual (motor.js → tilesBosque), cada una con su paralaje; yo añado la niebla entre ellas
       const T = k.tilesBosque ? k.tilesBosque() : [];
-      const capa = (t, a, fv) => { const tw = t.cv.width, o = -((S.cam * t.par) % tw), y = dyl(fv); cx.globalAlpha = a; for (let x = o; x < W; x += tw) cx.drawImage(t.cv, Math.floor(x), y); };
+      const capa = (t, a, fv) => { const tw = t.cv.width, wv = k.viento ? k.viento(S.cam + W / 2, S.t) : 0, o = -((S.cam * t.par) % tw) - (wv * t.par * 10 + Math.sin(S.t * .9 + t.par * 6) * t.par * 3); cx.globalAlpha = a; for (let x = o; x < W; x += tw) cx.drawImage(t.cv, Math.floor(x), dyl(fv)); };
       if (T[0]) capa(T[0], alfa, .62);
       if (calid > 1) bancos(L, S, k, 0, alfa, .27, .4);
       if (T[1]) capa(T[1], alfa, .7);
@@ -344,7 +344,8 @@
             const xx = r ? x0 - F.tw : x0, dx = xx - pc.m; if (dx > W || dx + pc.c.width < 0) continue;
             // se vuelve casi transparente cerca del héroe: lo de delante nunca tapa lo que hay que leer o esquivar
             const f = .15 + .85 * clamp((Math.abs(xx + pc.w / 2 - hx) - 70) / 240, 0, 1);
-            cx.globalAlpha = a * f * (calid > 1 ? 1 : .6); cx.drawImage(pc.c, dx, q.y - pc.m + dyl(1.3));
+            const wv = k.viento ? k.viento(S.cam + xx, S.t) : 0, vai = -(wv * 9) + Math.sin(S.t * 1.3 + q.x * .01) * 2.5;
+            cx.globalAlpha = a * f * (calid > 1 ? 1 : .6); cx.drawImage(pc.c, dx + vai, q.y - pc.m + dyl(1.3));
           }
         }
       }
