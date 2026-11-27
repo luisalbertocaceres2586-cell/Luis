@@ -1,0 +1,69 @@
+/* engine/ui — Menú principal compacto (ver menu-compacto.js).
+   Todo va bajo html.mc26: esa clase solo existe si el módulo está activo, así que apagarlo devuelve el menú anterior.
+   Los selectores son largos A PROPÓSITO: iconos-2026.css y progreso.js usan !important y reglas muy específicas sobre
+   el dock (cuadrícula de 4 columnas, etiquetas de 8 px), y estas reglas tienen que ganarles.
+   Cargar DESPUÉS de menu-2026.css e iconos-2026.css. */
+
+/* ---- una sola fila, con fondo para que se lea sobre los cerezos ---- */
+html.mc26 body #m26 .m26-dock{
+  display:flex!important;flex-wrap:nowrap;align-items:flex-start;justify-content:center;
+  gap:clamp(6px,2.2vw,16px);position:relative;z-index:20;width:auto;max-width:min(94vw,440px);margin:0 auto;
+  padding:9px clamp(10px,3vw,18px) 7px;border-radius:24px;
+  background:linear-gradient(180deg,rgba(14,20,50,.62),rgba(6,10,28,.74));
+  border:1px solid rgba(170,195,255,.18);
+  box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+html.fx-low.mc26 body #m26 .m26-dock{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(8,12,32,.86)}
+html.mc26 body #m26 .m26-dock>.m26-d{flex:0 0 auto}
+
+/* ---- etiquetas legibles (antes 8 px) ---- */
+html.mc26 body #m26 .m26-d .m26-l{
+  font-size:11px!important;letter-spacing:.06em!important;white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.6)}
+
+/* ---- botón "Más": tres puntos dibujados con CSS (no dependen de fuentes de emojis) ---- */
+html.mc26 body #m26 .mc-more .mc-dots{display:flex;gap:4px;align-items:center;justify-content:center}
+html.mc26 body #m26 .mc-more .mc-dots b{display:block;width:5px;height:5px;border-radius:50%;background:#dbe6ff}
+html.mc26 body #m26 .mc-more[hidden]{display:none!important}
+html.mc26 body #m26 .mc-more[aria-expanded="true"] .mc-dots{
+  background:rgba(70,130,255,.28);border-color:rgba(130,190,255,.7);box-shadow:0 0 18px rgba(80,160,255,.35)}
+
+/* ---- panel "Más opciones" (sale hacia arriba, pegado al dock) ---- */
+html.mc26 body #m26 .mc-panel{
+  position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);z-index:40;
+  width:min(300px,90vw);max-height:min(62vh,380px);overflow-y:auto;
+  display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:20px;
+  background:linear-gradient(160deg,#1b2455,#0a0f27);
+  border:1px solid rgba(170,195,255,.28);box-shadow:0 18px 44px rgba(0,0,0,.55);
+  animation:none!important}
+html.mc26 body #m26 .mc-panel[hidden]{display:none!important}
+html.mc26 body #m26 .mc-panel .mc-tit{
+  font:800 11px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#9fb2dc;padding:2px 6px 6px}
+/* los botones movidos al panel pasan a ser filas: icono a la izquierda y etiqueta grande */
+html.mc26 body #m26 .mc-panel .m26-d{
+  flex-direction:row;justify-content:flex-start;align-items:center;gap:12px;width:100%;
+  padding:6px 8px;border-radius:14px;background:rgba(255,255,255,.04);animation:none!important}
+html.mc26 body #m26 .mc-panel .m26-d:hover{background:rgba(70,130,255,.16);transform:none}
+html.mc26 body #m26 .mc-panel .m26-d .m26-l{display:block!important;font-size:13px!important;letter-spacing:.05em!important}
+html.mc26 body #m26 .mc-panel .m26-d .m26-i{flex:0 0 auto}
+html.mc26 body #m26 .mc-panel .njProgBtn .m26-i{border:2px solid #ffb82f}
+
+/* ---- que TODO el menú quepa sin hacer scroll en laptops y PC ----
+   Medido a 1280x720: logo 173 px + rótulo + márgenes + botón + dock sumaban ~570 px FIJOS y los ninjas (47vh) se salían
+   de la ventana: el dock quedaba abajo del borde y había que hacer scroll para ver Ranking o Logros.
+   Aquí el logo escala con el alto de la ventana y los ninjas toman el espacio que sobra.
+   No toca celulares: el vertical (max-width:640px) y el horizontal (max-height:520px) ya tienen sus reglas en menu-2026.css. */
+@media(min-width:641px) and (min-height:521px){
+  html.mc26 body #S0.scr{padding-top:8px;padding-bottom:8px}
+  html.mc26 body #m26{--hh:clamp(140px,calc(100vh - 420px),470px);padding-top:6px;padding-bottom:6px;gap:6px}
+  /* el tamaño del logo lo manda la variable --nx-h de logo-ninjax.css (24vh en pantallas anchas): se baja a 15vh */
+  html.mc26 body #introTitle#introTitle#introTitle.nxl{--nx-h:15vh}
+  html.mc26 body #m26 .m26-kick{display:none}
+}
+
+/* ---- pantallas muy angostas ---- */
+@media(max-width:360px){
+  html.mc26 body #m26 .m26-dock{gap:3px;padding:8px 8px 6px}
+  html.mc26 body #m26 .m26-d .m26-l{font-size:10px!important;letter-spacing:.02em!important}
+}
+@media(prefers-reduced-motion:reduce){html.mc26 body #m26 .mc-more,html.mc26 body #m26 .mc-panel .m26-d{transition:none!important}}
