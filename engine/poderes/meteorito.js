@@ -138,7 +138,7 @@ NinjaMods.register({id:'meteorito-poderes',carpeta:'poderes',nombre:'Poderes que
     if(ic&&ic.naturalWidth)CX.drawImage(ic,0,0,ic.naturalWidth,ic.naturalHeight,sx-27,sy-27,54,54);
     else{CX.font='24px serif';CX.textAlign='center';CX.textBaseline='middle';CX.fillText(it.emoji||'⭐',sx,sy+1);}
     const txt=String(it.desc||it.type).replace(/[!¡]/g,'').toUpperCase().slice(0,22);
-    CX.font="bold 9px 'Press Start 2P',monospace";CX.textAlign='center';CX.textBaseline='middle';
+    CX.font="9px NJ Display,system-ui,sans-serif";CX.textAlign='center';CX.textBaseline='middle';
     const tw=CX.measureText(txt).width+14;
     CX.fillStyle='rgba(0,0,20,.82)';CX.strokeStyle=col;CX.lineWidth=1.5;
     CX.beginPath();if(CX.roundRect)CX.roundRect(sx-tw/2,sy+31,tw,16,8);else CX.rect(sx-tw/2,sy+31,tw,16);CX.fill();CX.stroke();

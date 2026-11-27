@@ -47,11 +47,12 @@ assert.ok(/autorización de su padre, madre, acudiente o representante legal/.te
 assert.ok(/jugar sin cuenta/.test(priv), 'quien no autoriza puede seguir jugando sin cuenta');
 assert.ok(/cookies de seguimiento/.test(priv) || /No usamos cookies/.test(priv));
 
-// 5) créditos de terceros: las fuentes que el juego realmente carga desde Google Fonts
+// 5) créditos de terceros: las fuentes que el juego incluye (autoalojadas: no se piden a Google Fonts)
 const cred = texto(completo, 'creditos');
-assert.ok(/Inter/.test(cred) && /Press Start 2P/.test(cred) && /Open Font License/.test(cred), 'créditos de las tipografías');
+assert.ok(/Inter/.test(cred) && /Lilita One/.test(cred) && /Open Font License/.test(cred), 'créditos de las tipografías');
 const index = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-assert.ok(/fonts\.googleapis\.com/.test(index) && /Press\+Start\+2P/.test(index) && /family=Inter/.test(index), 'el juego sí carga esas fuentes (por eso se acreditan y se declara a Google)');
+assert.ok(!/fonts\.googleapis\.com/.test(index) && /fuentes\.css/.test(index), 'las fuentes son locales: no se piden a Google Fonts');
+['lilita-one-latin-400-normal.woff2', 'inter-latin-700-normal.woff2'].forEach(f => assert.ok(fs.existsSync(path.join(__dirname, '..', 'assets', 'fonts', f)), 'existe la fuente ' + f));
 
 // 6) términos y familias
 const ter = texto(completo, 'terminos');

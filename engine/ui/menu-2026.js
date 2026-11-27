@@ -101,24 +101,40 @@ addEventListener('pointerup',e=>{if(sx==null)return;const dx=e.clientX-sx;sx=nul
   if(Math.abs(dx)>50&&menuLibre()){const cur=S0.dataset.sel;pick(dx<0?'peach':'mario');if(cur===S0.dataset.sel)return;}});
 
 /* ---------- animación de los sprites ---------- */
-function fit(h){const r=h.cv.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),w=Math.max(2,Math.round(r.width*d)),ht=Math.max(2,Math.round(r.height*d));
-  if(h.cv.width!==w||h.cv.height!==ht){h.cv.width=w;h.cv.height=ht;}}
-function paint(h,now){
-  fit(h);const c=h.cv,x=h.cx,W=c.width,H=c.height;x.clearRect(0,0,W,H);
-  let seq=h.idle,idx;
-  if(h.atkT!=null){const k=Math.floor((now-h.atkT)/1000*h.afps);if(k>=h.atk.length)h.atkT=null;else{seq=h.atk;idx=k;}}
-  if(idx==null)idx=Math.floor((now/1000+h.t0)*h.ifps)%Math.max(1,seq.length);
-  const f=seq[idx];if(!f||!f.img.complete||!f.img.naturalWidth)return;
-  const s=(H*.96)/h.nom;x.imageSmoothingQuality='high';
-  x.drawImage(f.img,W/2-f.ax*s,H*.985-f.ay*s,f.img.naturalWidth*s,f.img.naturalHeight*s);
+const HTML=document.documentElement;
+const lowFx=()=>HTML.classList.contains('fx-low');
+/* tamaño de cada canvas en caché: se mide solo cuando cambia (antes se medía en cada repintado) */
+const RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(en=>{const h=HEROES.find(x=>x.cv===en.target);if(h){h.rw=en.contentRect.width;h.rh=en.contentRect.height;h.key=null;}})):null;
+HEROES.forEach(h=>{h.key=null;if(RO)RO.observe(h.cv);});
+function fit(h){
+  if(!RO||!h.rw){const r=h.cv.getBoundingClientRect();h.rw=r.width;h.rh=r.height;}
+  const d=Math.min(devicePixelRatio||1,lowFx()?1:2),w=Math.max(2,Math.round(h.rw*d)),ht=Math.max(2,Math.round(h.rh*d));
+  if(h.cv.width!==w||h.cv.height!==ht){h.cv.width=w;h.cv.height=ht;h.key=null;}
 }
-let lastDraw=0;
+function paint(h,now){
+  fit(h);const c=h.cv,x=h.cx,W=c.width,H=c.height;
+  let seq=h.idle,idx,mode='i';
+  if(h.atkT!=null){const k=Math.floor((now-h.atkT)/1000*h.afps);if(k>=h.atk.length)h.atkT=null;else{seq=h.atk;idx=k;mode='a';}}
+  if(idx==null)idx=Math.floor((now/1000+h.t0)*h.ifps)%Math.max(1,seq.length);
+  /* mismo fotograma y mismo tamaño que la vez anterior: no se repinta (ahorra CPU/GPU en celulares modestos) */
+  const key=mode+idx+'|'+W+'x'+H;if(key===h.key)return;
+  const f=seq[idx];if(!f||!f.img.complete||!f.img.naturalWidth)return;
+  x.clearRect(0,0,W,H);
+  const s=(H*.96)/h.nom;x.imageSmoothingQuality=lowFx()?'low':'high';
+  x.drawImage(f.img,W/2-f.ax*s,H*.985-f.ay*s,f.img.naturalWidth*s,f.img.naturalHeight*s);
+  h.key=key;
+}
+let lastDraw=0,raf=0;
 function tick(now){
-  requestAnimationFrame(tick);
-  if(document.hidden||!S0.classList.contains('on'))return;
-  if(now-lastDraw<(REDUCED?200:30))return;lastDraw=now;
+  raf=0;
+  if(document.hidden||!S0.classList.contains('on'))return;   // menú oculto: el bucle se detiene del todo (no sigue pidiendo fotogramas)
+  raf=requestAnimationFrame(tick);
+  if(now-lastDraw<(REDUCED?200:lowFx()?50:30))return;lastDraw=now;
   HEROES.forEach(h=>paint(h,now));
 }
-requestAnimationFrame(tick);
+function wake(){if(!raf&&!document.hidden&&S0.classList.contains('on'))raf=requestAnimationFrame(tick);}
+new MutationObserver(wake).observe(S0,{attributes:true,attributeFilter:['class']});
+document.addEventListener('visibilitychange',wake);
+wake();
 window.Menu2026={pick};
 })();

@@ -49,7 +49,7 @@ const R=await page.evaluate(async()=>{
   // ---------- ⚔️ TAJO AÉREO ----------
   async function pogoEnemigo(hab){
     const {S,K,paso,h}=await nuevo(hab); llano(S,h,400); paso(3); const x=h.x; const e={kind:'ninja',x,y:G,min:x-5,max:x+5,vx:0,vivo:true,hp:1,dir:1}; S.enemigos.push(e);
-    h.y=G-100; h.suelo=false; h.vy=0; K.ArrowDown=1; K.KeyC=1; paso(2); const r={mato:!e.vivo,vy:Math.round(h.vy),pogos:S.hab?S.hab.pogos:0}; K.ArrowDown=0;K.KeyC=0; return r;
+    /* 140 px: con el héroe 35 % más grande la espada normal ya alcanza a 100 px; desde 140 solo llega el tajo aéreo */ h.y=G-140; h.suelo=false; h.vy=0; K.ArrowDown=1; K.KeyC=1; paso(2); const r={mato:!e.vivo,vy:Math.round(h.vy),pogos:S.hab?S.hab.pogos:0}; K.ArrowDown=0;K.KeyC=0; return r;
   }
   async function pogoKunai(hab){
     const {S,K,paso,h}=await nuevo(hab); llano(S,h,400); paso(3); S.N.haz.push({x:h.x-60,y:G-46,w:120,h:46,tipo:'kunai'}); const v0=h.vida;

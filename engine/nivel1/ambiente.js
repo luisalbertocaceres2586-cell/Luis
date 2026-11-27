@@ -65,6 +65,7 @@
   }
   const COL_L = { rojo: [255, 120, 55], crema: [255, 226, 150], ambar: [255, 205, 95] };
   // posición de las luces dentro de cada sprite (medida sobre las imágenes): fracción del ancho y del alto
+  /** @type {Array<[number, any]>} posición relativa al ancho del decorado y color de la luz */
   const FAROLITOS = [[-.325, COL_L.rojo], [.006, COL_L.crema], [.333, COL_L.rojo]];   // y ≈ .57 del alto
   A.parpadeo = function (x, r) {   // factor ≈1 con titileo de llama (también lo usa la cueva)
     const T = S().t, ph = Math.round(x / 40) * 2.1, w = A.viento(x, T);
@@ -140,7 +141,7 @@
     }
     if (d.tipo === 'cartel' && d.msg) {
       const dist = Math.abs(s.h.x - d.x), al = clamp((250 - dist) / 90, 0, 1); if (al <= 0) return;
-      const cx = core.cx; cx.save(); cx.globalAlpha = al; cx.font = 'bold 16px ui-monospace,monospace'; const tw = Math.min(W - 40, cx.measureText(d.msg).width + 34), bx = clamp(x - tw / 2, 12, W - tw - 12), by = top - 58 - (1 - al) * 10;
+      const cx = core.cx; cx.save(); cx.globalAlpha = al; cx.font = '16px Lilita One,Inter,sans-serif'; const tw = Math.min(W - 40, cx.measureText(d.msg).width + 34), bx = clamp(x - tw / 2, 12, W - tw - 12), by = top - 58 - (1 - al) * 10;
       core.caja(bx, by, tw, 40, 10, 'rgba(18,8,51,.9)', '#ffc93c');
       cx.beginPath(); cx.moveTo(x - 9, by + 40); cx.lineTo(x + 9, by + 40); cx.lineTo(x, by + 52); cx.closePath(); cx.fillStyle = 'rgba(18,8,51,.9)'; cx.fill();
       cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(d.msg, bx + tw / 2, by + 21); cx.restore();

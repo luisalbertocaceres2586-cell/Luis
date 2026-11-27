@@ -1,5 +1,9 @@
 # Asistente de avances (aceptación automática de solicitudes)
 
+> ⏸ **PAUSADO.** Ya no se activa solo al subir ramas ni cada 2 horas (solo a mano: Actions → Asistente de avances → Run workflow).
+> Motivo: escribía en las ramas y las borraba tras fusionarlas, lo que desincronizaba las copias locales. Ahora se sube con `npm run subir`
+> (ver `docs/FLUJO_DE_TRABAJO.md`). Para reactivarlo, devuelve los bloques `push` y `schedule` de `.github/workflows/asistente-prs.yml`.
+
 Un robot de GitHub que se encarga de **recibir, ordenar y aceptar** tus avances para que no se pisen entre sí.
 Funciona solo: subes una rama y listo.
 

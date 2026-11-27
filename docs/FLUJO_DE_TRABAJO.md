@@ -1,5 +1,27 @@
 # 🧭 Cómo trabajar en varias pestañas a la vez sin pisarse
 
+## ⚡ Lo más rápido: `npm run subir`
+Cuando termines un cambio, ejecuta **un solo comando** y llega a `main`:
+
+```
+npm run subir                      # guarda lo que tengas, lo pone al día con main, revisa y sube
+npm run subir -- "qué cambié"      # igual, con tu mensaje
+npm run subir -- --probar          # hace todo menos subir (para ver si saldría bien)
+```
+
+Qué hace, en orden: **(1)** guarda lo que tengas sin guardar en un commit (no se pierde nada) · **(2)** trae lo último de `main` y lo mezcla
+(los choques tontos —`version.json`, números `?v=N`, listas de `<script>`— se resuelven solos) · **(3)** corre tipos, pruebas y el navegador de los
+niveles que tocaste · **(4)** sube a `main` solo si no se movió mientras tanto (si se movió, repite).
+
+Lo que **nunca** hace: forzar el push, borrar ramas, reescribir la historia ni tocar ramas de otras pestañas. Si hay un choque real o un chequeo
+falla, **no sube nada, tu rama queda como estaba** y te dice qué archivos o qué prueba. Con un token: pon la variable de entorno `GITHUB_TOKEN`
+(no se guarda en ningún archivo). Se prueba con repos git reales en `tests/subir.test.js`.
+
+> **El «Asistente de avances» (el robot que abría solicitudes, mezclaba `main` en tus ramas y las borraba) está en pausa.** Desincronizaba las
+> copias locales y dejaba atascado el trabajo cuando un chequeo fallaba. Sigue disponible a mano (Actions → Asistente de avances → Run workflow).
+> Si tu `git pull` se queja, una sola vez: `npm run configurar`; y si una rama tuya fue fusionada y borrada por el robot, no la reutilices:
+> `npm run rama -- nueva-tarea` crea una limpia desde el `main` actual.
+
 ## La idea en una frase
 **Una pestaña = una rama = una tarea.** Cada pestaña (o persona) trabaja en su propia copia, y se junta con `main` por pasos
 pequeños y frecuentes. Los conflictos no se evitan del todo, pero se vuelven **pocos, pequeños y fáciles**.

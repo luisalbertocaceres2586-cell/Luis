@@ -9,12 +9,14 @@
     "typecheck:basico": "tsc -p tsconfig.basico.json",
     "test": "node tests/run-all.js",
     "verify": "npm run typecheck && npm test",
+    "subir": "node tools/subir.js",
     "rama": "node tools/flujo.js rama",
     "estado": "node tools/flujo.js estado",
     "radar": "node tools/flujo.js radar",
     "sincronizar": "node tools/flujo.js sincronizar",
     "configurar": "node tools/flujo.js configurar",
-    "publicar": "node tools/publicar-version.js"
+    "publicar": "node tools/publicar-version.js",
+    "webp": "python3 tools/convertir_webp.py --umbral 35"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

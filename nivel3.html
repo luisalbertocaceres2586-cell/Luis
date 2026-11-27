@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
+<script src="engine/core/webp-mapa.js?v=3a53cb31"></script>
+<script src="engine/core/webp.js?v=1"></script>
 <script src="engine/core/diagnostico.js?v=2"></script>
+<script src="engine/core/calidad.js?v=1"></script>
 <script src="engine/core/compat.js?v=1"></script>
 
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
@@ -39,7 +42,7 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 #ov>*{animation:entra .5s both}#ov>*:nth-child(2){animation-delay:.08s}#ov>*:nth-child(3){animation-delay:.16s}#ov>*:nth-child(4){animation-delay:.24s}#ov>*:nth-child(5){animation-delay:.32s}
 @keyframes entra{from{opacity:0;transform:translateY(calc(var(--u,1px)*16)) scale(.96)}to{opacity:1;transform:none}}
 #bPausa,#bMudo{position:absolute;top:calc(var(--u,1px)*10);width:calc(var(--u,1px)*52);height:calc(var(--u,1px)*52);border-radius:50%;border:2px solid #ffffff66;background:#0f0828cc;color:#fff;font-size:calc(var(--u,1px)*26);cursor:pointer;padding:0;z-index:5}
-#bPausa{border:0;background:url(assets/ui/hud/marcos/boton_pausa.png) center/contain no-repeat}
+#bPausa{border:0;background:url(assets/ui/hud/marcos/boton_pausa.webp) center/contain no-repeat}
 #bPausa{right:calc(var(--u,1px)*10)}#bMudo{right:calc(var(--u,1px)*70)}
 #girar{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#06031a}
 #girar.on{display:flex}#girar h2{color:#ffe27a;margin:0;font-size:24px}#girar p{margin:0;color:#d7d4ee;max-width:360px}
@@ -48,7 +51,10 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 #girar .ios{font-size:13px;color:#9fb0ff;display:none}
 #girar .tel{width:64px;height:110px;border:5px solid #ffe27a;border-radius:14px;animation:g 2.6s ease-in-out infinite}
 @keyframes g{0%,20%{transform:rotate(-90deg)}55%,85%{transform:rotate(0)}100%{transform:rotate(-90deg)}}
-</style></head><body>
+</style><link rel="stylesheet" href="engine/ui/fuentes.css?v=1">
+<link rel="stylesheet" href="engine/ui/tokens.css?v=1">
+<script src="engine/ui/fuentes.js?v=1"></script>
+</head><body>
 <div id="app">
  <aside><h2>CARRERA DE LOS FAROLILLOS</h2>Corre, junta monedas y elige la respuesta correcta en cada plaza.<br><br><kbd>←</kbd> <kbd>→</kbd> cambian de carril<br><kbd>↑</kbd> salta vallas, barriles y nubes<br><kbd>↓</kbd> te desliza bajo arcos<br><kbd>P</kbd> pausa · <kbd>M</kbd> sonido</aside>
  <div id="marco"><canvas id="cv"></canvas></div>
@@ -65,7 +71,8 @@ aside kbd{background:#ffffff1c;border:1px solid #ffffff44;border-radius:6px;padd
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
 <script src="assets/nivel3/heroe/manifest.js?v=2"></script>
 <script src="assets/characters/villain/manifest.js"></script>
-<script src="engine/nivel3/corredor.js?v=22"></script>
+<script src="engine/core/camara-niveles.js?v=1"></script>
+<script src="engine/nivel3/corredor.js?v=23"></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search),perfil=null;

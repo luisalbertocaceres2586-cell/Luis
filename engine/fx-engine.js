@@ -88,12 +88,14 @@ function speedLines(){
     CX.beginPath();CX.moveTo(x,y);CX.lineTo(x+L,y);CX.stroke();CX.beginPath();CX.moveTo(W-x,y);CX.lineTo(W-x-L,y);CX.stroke();}
   CX.restore();
 }
-FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1};   /* interruptores por efecto (los usa el control de calidad automático) */
+FX.q={rays:1,fog:1,ambient:1,fore:1,lights:1,bloom:1,grade:1,shadows:1,vig:1,luz:1};   /* interruptores por efecto (los mueve NinjaCalidad, engine/core/calidad.js) */
+if(window.NinjaCalidad)window.NinjaCalidad.on(c=>{const a=c.nivel==='alta',b=c.nivel==='baja';FX.q.rays=a?1:0;FX.q.fore=a?1:0;FX.q.bloom=b?0:1;FX.q.grade=b?0:1;FX.q.luz=b?0:1;});   /* media: sin rayos ni primer plano · baja: además sin resplandor ni 'soft-light' a pantalla completa */
 function post(){
   if(!FX.post)return;const Q=FX.q;
   const t=Date.now(),lv=typeof curLV==='function'?curLV():null,bg=lv&&lv.bg;
   weather(bg,t);
   if(!lite()){if(Q.rays)rays(t,bg);if(Q.fog)fog(t,GRADE[bg]||'#9fb8ff');if(Q.ambient)ambient(t,bg);if(Q.fore)foreground(t);}
+  if(Q.luz!==0&&window.LuzDin&&LuzDin.listo)LuzDin.pintar(t,bg,Q);   /* luz dinámica (engine/luz-dinamica.js): mapa de luz + sombras; si falta, no pasa nada */
   if(Q.lights)lights(t);
   if(Q.bloom)bloom();
   if(Q.grade&&GRADE[bg]){CX.save();CX.globalCompositeOperation='soft-light';CX.globalAlpha=.16;CX.fillStyle=GRADE[bg];CX.fillRect(0,0,W,H);CX.restore();}
@@ -209,7 +211,7 @@ FX.combo=function(streak){
 const fxStyle=document.createElement('style');fxStyle.textContent=`
 #fxWipe{position:fixed;inset:0;z-index:12000;pointer-events:none;background:linear-gradient(110deg,#100633,#00d4ff 48%,#ffb800);transform:translateX(-105%);transition:transform .42s cubic-bezier(.7,0,.2,1)}
 #fxWipe.in{transform:translateX(0)}#fxWipe.out{transform:translateX(105%)}
-#fxCombo{position:fixed;left:50%;top:24%;z-index:12001;pointer-events:none;opacity:0;transform:translate(-50%,18px) scale(.7);font:clamp(16px,4vw,32px) 'Press Start 2P',monospace;text-shadow:0 0 16px currentColor,3px 3px #000;color:#ffb800}
+#fxCombo{position:fixed;left:50%;top:24%;z-index:12001;pointer-events:none;opacity:0;transform:translate(-50%,18px) scale(.7);font:clamp(16px,4vw,32px) var(--nj-font-display);text-shadow:0 0 16px currentColor,3px 3px #000;color:#ffb800}
 #fxCombo[data-level=high]{color:#ff4d00}#fxCombo[data-level=legend]{color:#00eaff}
 #fxCombo.on{animation:fxComboPop .85s cubic-bezier(.2,1.3,.4,1) forwards}
 @keyframes fxComboPop{15%{opacity:1;transform:translate(-50%,0) scale(1.12)}40%,75%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-24px) scale(.92)}}
