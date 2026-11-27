@@ -1,13 +1,11 @@
 name: Asistente de avances
 
-# Cada vez que subes una rama (o cada 2 horas, por si algo quedó pendiente) este asistente:
-# abre la solicitud, la pone al día con main, resuelve los choques tontos, corre los chequeos y la acepta.
-# De una en una (concurrency), así dos avances nunca se pisan. Guía: docs/ASISTENTE_PRS.md
+# PAUSADO (noviembre 2026): ya NO se despierta solo. Antes se activaba al subir cualquier rama y cada 2 horas sobre TODAS las ramas:
+# escribía commits en tus ramas, las fusionaba con squash y las borraba, lo que desincronizaba las copias locales («no me deja hacer pull»)
+# y dejaba atascado el trabajo cuando un chequeo fallaba. Ahora los cambios se suben con:  npm run subir   (ver docs/FLUJO_DE_TRABAJO.md).
+# Para volver a activarlo: devuelve los bloques «push» y «schedule» (están en el historial de git) o ejecútalo a mano desde
+# Actions → Asistente de avances → Run workflow. Guía del asistente: docs/ASISTENTE_PRS.md
 on:
-  push:
-    branches-ignore: [main]
-  schedule:
-    - cron: '23 */2 * * *'
   workflow_dispatch:
     inputs:
       rama:

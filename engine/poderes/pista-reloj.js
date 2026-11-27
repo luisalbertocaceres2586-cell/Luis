@@ -83,7 +83,7 @@ NinjaMods.register({id:'pista-reloj',carpeta:'poderes',nombre:'Pista del sensei 
     inv.reloj--;chips();
     const tope=tiLeft;let n=0;clearInterval(freezeId);
     const tag=document.getElementById('nmFrz')||(()=>{const d=document.createElement('div');d.id='nmFrz';
-      d.style.cssText="position:fixed;left:50%;transform:translateX(-50%);top:6px;z-index:9001;font-family:'Press Start 2P',monospace;font-size:9px;color:#BFEFFF;background:rgba(0,40,90,.85);border:2px solid #7FD7FF;border-radius:14px;padding:6px 12px;pointer-events:none";
+      d.style.cssText="position:fixed;left:50%;transform:translateX(-50%);top:6px;z-index:9001;font-family:var(--nj-font-display);font-size:9px;color:#BFEFFF;background:rgba(0,40,90,.85);border:2px solid #7FD7FF;border-radius:14px;padding:6px 12px;pointer-events:none";
       document.body.appendChild(d);return d;})();
     tag.style.display='block';
     freezeId=setInterval(()=>{

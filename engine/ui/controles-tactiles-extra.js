@@ -19,7 +19,7 @@ NinjaMods.register({id:'botones-extra',carpeta:'ui',nombre:'Botones táctiles ex
     display:flex;align-items:center;justify-content:center;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;
     box-shadow:0 0 12px rgba(120,180,255,.5);pointer-events:auto;z-index:96}
   .mbx.on{transform:scale(.9);background:radial-gradient(circle,rgba(255,255,255,.55),rgba(0,120,255,.7))}
-  .mbx small{position:absolute;bottom:-11px;font-size:7px;font-family:'Press Start 2P',monospace;color:rgba(255,255,255,.75);text-shadow:0 1px 2px #000;white-space:nowrap}`;
+  .mbx small{position:absolute;bottom:-11px;font-size:7px;font-family:var(--nj-font-display);color:rgba(255,255,255,.75);text-shadow:0 1px 2px #000;white-space:nowrap}`;
   document.head.appendChild(st);
   const B=[['⬇','KeyS','BAJAR','B'],['💨','ShiftLeft','ESQUIVA','D'],['🗡','KeyC','TAJO','C']];
   const lay=()=>(typeof window.njLayout==='function')?window.njLayout():{B:[.27,.84],D:[.78,.86],X:[.78,.58],C:[.94,.5]};

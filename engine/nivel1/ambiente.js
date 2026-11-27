@@ -142,7 +142,7 @@
     }
     if (d.tipo === 'cartel' && d.msg) {
       const dist = Math.abs(s.h.x - d.x), al = clamp((250 - dist) / 90, 0, 1); if (al <= 0) return;
-      const cx = core.cx; cx.save(); cx.globalAlpha = al; cx.font = 'bold 16px ui-monospace,monospace'; const tw = Math.min(W - 40, cx.measureText(d.msg).width + 34), bx = clamp(x - tw / 2, 12, W - tw - 12), by = top - 58 - (1 - al) * 10;
+      const cx = core.cx; cx.save(); cx.globalAlpha = al; cx.font = '16px Lilita One,Inter,sans-serif'; const tw = Math.min(W - 40, cx.measureText(d.msg).width + 34), bx = clamp(x - tw / 2, 12, W - tw - 12), by = top - 58 - (1 - al) * 10;
       core.caja(bx, by, tw, 40, 10, 'rgba(18,8,51,.9)', '#ffc93c');
       cx.beginPath(); cx.moveTo(x - 9, by + 40); cx.lineTo(x + 9, by + 40); cx.lineTo(x, by + 52); cx.closePath(); cx.fillStyle = 'rgba(18,8,51,.9)'; cx.fill();
       cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(d.msg, bx + tw / 2, by + 21); cx.restore();

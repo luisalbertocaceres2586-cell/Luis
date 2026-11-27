@@ -191,7 +191,7 @@ function ponerEnPausa(){
   var ov=document.getElementById('pauseOverlay');
   if(!ov||document.getElementById('njProgPausa'))return;
   var b=document.createElement('button');b.id='njProgPausa';b.type='button';b.textContent='💾 MI PROGRESO';
-  b.style.cssText="margin-top:10px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:10px 16px;min-height:44px;color:#FFF;font-family:'Press Start 2P';font-size:clamp(9px,1.6vw,12px);cursor:pointer;touch-action:manipulation";
+  b.style.cssText="margin-top:10px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:10px 16px;min-height:44px;color:#FFF;font-family:var(--nj-font-display);font-size:clamp(9px,1.6vw,12px);cursor:pointer;touch-action:manipulation";
   b.addEventListener('click',function(e){e.stopPropagation();abrir();});
   var ref=document.getElementById('njHapBtn')||document.getElementById('btnMutePause');
   if(ref)ref.after(b);else ov.appendChild(b);

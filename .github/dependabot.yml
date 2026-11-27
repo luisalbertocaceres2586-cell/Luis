@@ -1,0 +1,17 @@
+# Dependabot abre solo un Pull Request cuando hay versiones nuevas de las acciones de GitHub o de TypeScript.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      acciones:
+        patterns: ['*']
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ['*']

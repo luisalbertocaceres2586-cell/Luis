@@ -15,12 +15,12 @@ NinjaMods.register({id:'tuberia-secreta',carpeta:'secretos',nombre:'Tubería sec
   const st=document.createElement('style');st.textContent=`
   #salaSec{position:fixed;inset:0;z-index:10050;display:none;background:radial-gradient(ellipse at 50% 30%,#5A1A00 0%,#240800 55%,#0a0200 100%);overflow:hidden;touch-action:none}
   #salaSec.on{display:block}
-  #salaSec .ss-t{z-index:5;position:absolute;top:10px;left:0;right:0;text-align:center;font-family:'Press Start 2P',monospace;color:#FFD54A;font-size:clamp(11px,2.6vw,20px);text-shadow:0 0 14px #FF8A00,3px 3px 0 #000}
-  #salaSec .ss-s{z-index:5;position:absolute;top:calc(10px + clamp(24px,5vw,38px));left:0;right:0;text-align:center;font-family:'Press Start 2P',monospace;color:#FFE9B8;font-size:clamp(7px,1.5vw,10px)}
+  #salaSec .ss-t{z-index:5;position:absolute;top:10px;left:0;right:0;text-align:center;font-family:var(--nj-font-display);color:#FFD54A;font-size:clamp(11px,2.6vw,20px);text-shadow:0 0 14px #FF8A00,3px 3px 0 #000}
+  #salaSec .ss-s{z-index:5;position:absolute;top:calc(10px + clamp(24px,5vw,38px));left:0;right:0;text-align:center;font-family:var(--nj-font-display);color:#FFE9B8;font-size:clamp(7px,1.5vw,10px)}
   #salaSec .ss-c{position:absolute;font-size:clamp(28px,6vw,44px);cursor:pointer;user-select:none;filter:drop-shadow(0 0 8px #FFB300);will-change:transform}
   #salaSec .ss-l{position:absolute;top:-10px;font-size:34px;animation:ssSw 2.4s ease-in-out infinite alternate}
   @keyframes ssSw{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
-  #salaSec .ss-b{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);font-family:'Press Start 2P',monospace;font-size:clamp(9px,2vw,13px);padding:12px 20px;border-radius:12px;border:2px solid #FFD54A;background:#7A2A00;color:#fff;display:none;cursor:pointer}`;
+  #salaSec .ss-b{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);font-family:var(--nj-font-display);font-size:clamp(9px,2vw,13px);padding:12px 20px;border-radius:12px;border:2px solid #FFD54A;background:#7A2A00;color:#fff;display:none;cursor:pointer}`;
   document.head.appendChild(st);
   const el=document.createElement('div');el.id='salaSec';
   el.innerHTML='<div class="ss-l" style="left:12%">🏮</div><div class="ss-l" style="left:50%;animation-delay:.6s">🏮</div><div class="ss-l" style="left:86%;animation-delay:1.1s">🏮</div><div class="ss-t">⛩️ SALA SECRETA ⛩️</div><div class="ss-s" id="ssS">¡Toca las monedas!</div><button class="ss-b" id="ssB">VOLVER</button>';

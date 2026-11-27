@@ -243,9 +243,9 @@
             if (ok) break; }
           core.porAncho(im, x, e.y - Math.abs(Math.sin(s.t * 8 + e.x)) * 3, e.fase === 'carga' ? 162 : 120, e.dir < 0); break; }
       case 'tengu': core.porAncho(img.tengu, x, e.y + 20, 120, e.dir < 0); break;
-      case 'arquero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 138); } core.porAncho(img.arquero, x, e.y, 155, e.dir < 0); break; }
-      case 'lancero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 34px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 134); } core.porAncho(img.lancero, x + (e.fase === 'carga' ? e.dir * 14 : 0), e.y, 172, e.dir < 0); break; }
-      case 'serpiente': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = 'bold 30px ui-monospace,monospace'; c.textAlign = 'center'; c.fillText('!', x, e.y - 90); } core.porAncho(img.serpiente, x, e.y + 4, 120, e.dir < 0); break; }
+      case 'arquero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = '34px Lilita One,Inter,sans-serif'; c.textAlign = 'center'; c.fillText('!', x, e.y - 138); } core.porAncho(img.arquero, x, e.y, 155, e.dir < 0); break; }
+      case 'lancero': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = '34px Lilita One,Inter,sans-serif'; c.textAlign = 'center'; c.fillText('!', x, e.y - 134); } core.porAncho(img.lancero, x + (e.fase === 'carga' ? e.dir * 14 : 0), e.y, 172, e.dir < 0); break; }
+      case 'serpiente': { if (e.fase === 'aviso') { c.fillStyle = 'rgba(255,60,60,.9)'; c.font = '30px Lilita One,Inter,sans-serif'; c.textAlign = 'center'; c.fillText('!', x, e.y - 90); } core.porAncho(img.serpiente, x, e.y + 4, 120, e.dir < 0); break; }
       case 'escarabajo': core.porAncho(img.escarabajo, x, e.y + 4, 132, e.dir < 0); break;
       case 'rana': { const sq = e.z > 0 ? 1.12 : 1; c.save(); c.translate(x, e.y - (e.z || 0) + 4); c.scale(1 / sq, sq); core.porAncho(img.rana, 0, 0, 100, e.dir < 0); c.restore(); break; }
       case 'kappa': core.porAncho(img.kappa, x, e.y - (e.z || 0) + 4, 112, e.dir < 0); break;
@@ -292,7 +292,7 @@
     core.porAncho(im, x, G + 4, w, h.x < t.x);
     if (Math.abs(h.x - t.x) < 230) {
       let txt = t.who === 'sensei' ? SENSEI[t.n % SENSEI.length] : (t.usos >= 2 ? '¡Gracias! Vuelve cuando tengas más pergaminos.' : s.pergaminos >= 8 ? 'Dame 8 pergaminos y te doy 2 corazones. Pulsa E.' : 'Junta 8 pergaminos y vuelve conmigo. ¡Te daré 2 corazones!');
-      c.font = '15px ui-monospace,monospace'; const lin = ajustarTexto(c, txt, 250), bw = 290, bh = 24 + lin.length * 20, bx = x - bw / 2, by = G - hh - bh - 12;
+      c.font = '15px Inter,system-ui,sans-serif'; const lin = ajustarTexto(c, txt, 250), bw = 290, bh = 24 + lin.length * 20, bx = x - bw / 2, by = G - hh - bh - 12;
       c.save(); c.globalAlpha = .96; core.caja(bx, by, bw, bh, 12, 'rgba(255,250,235,.96)', '#7a5a2a'); c.beginPath(); c.moveTo(x - 10, by + bh); c.lineTo(x, by + bh + 14); c.lineTo(x + 10, by + bh); c.fillStyle = 'rgba(255,250,235,.96)'; c.fill(); c.fillStyle = '#2a1a0a'; c.textAlign = 'center'; c.textBaseline = 'middle'; lin.forEach((l, i) => c.fillText(l, x, by + 20 + i * 20)); c.restore();
     }
   }
@@ -316,7 +316,7 @@
   };
   E.hud = function (c, caja) {
     const s = S(); const o = s.enemigos.find(q => q.kind === 'oni' && q.vivo);
-    if (core.jefeActivo && o) { caja(W / 2 - 220, H - 60, 440, 32, 10, 'rgba(10,4,30,.7)', '#ff5a3a'); c.fillStyle = '#ff3a3a'; c.fillRect(W / 2 - 214, H - 54, 428 * clamp(o.hp / o.hpMax, 0, 1), 20); c.font = 'bold 14px ui-monospace,monospace'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ONI ROJO', W / 2, H - 44); }
-    const em = s.N.elem.find(t => t.t === 'emb' && t.estado === 1); if (em) { caja(W / 2 - 110, 100, 220, 34, 10, 'rgba(10,4,30,.75)', '#ff9a3a'); c.font = 'bold 15px ui-monospace,monospace'; c.fillStyle = '#ffe27a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('GRUPO ' + (em.ola + 1) + '/' + em.olas.length + ' · quedan ' + s.enemigos.filter(q => q.emb === em && q.vivo).length, W / 2, 117); }
+    if (core.jefeActivo && o) { caja(W / 2 - 220, H - 60, 440, 32, 10, 'rgba(10,4,30,.7)', '#ff5a3a'); c.fillStyle = '#ff3a3a'; c.fillRect(W / 2 - 214, H - 54, 428 * clamp(o.hp / o.hpMax, 0, 1), 20); c.font = '14px Lilita One,Inter,sans-serif'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ONI ROJO', W / 2, H - 44); }
+    const em = s.N.elem.find(t => t.t === 'emb' && t.estado === 1); if (em) { caja(W / 2 - 110, 100, 220, 34, 10, 'rgba(10,4,30,.75)', '#ff9a3a'); c.font = '15px Lilita One,Inter,sans-serif'; c.fillStyle = '#ffe27a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('GRUPO ' + (em.ola + 1) + '/' + em.olas.length + ' · quedan ' + s.enemigos.filter(q => q.emb === em && q.vivo).length, W / 2, 117); }
   };
 })();

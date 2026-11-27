@@ -284,12 +284,12 @@
     const s = S(), D = s.dir; if (!D) return;
     if (D.activo) {
       const a = D.activo, y = s.osc > .3 ? 92 : 58; caja(W - 220, y, 200, 30, 8, 'rgba(10,4,30,.6)', a.id === 'fuego' ? 'rgba(255,90,20,.85)' : 'rgba(160,200,255,.7)');
-      c.font = 'bold 11px ui-monospace,monospace'; c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText(a.def.icono + ' ' + a.def.nombre, W - 212, y + 4);
+      c.font = '11px Lilita One,Inter,sans-serif'; c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText(a.def.icono + ' ' + a.def.nombre, W - 212, y + 4);
       const fr = a.id === 'fuego' && D.fuego ? clamp((s.h.x - D.fuego.h0) / Math.max(1, D.fuego.barrera - D.fuego.h0), 0, 1) : clamp(1 - a.t / a.dur, 0, 1);
       c.fillStyle = 'rgba(255,255,255,.2)'; c.fillRect(W - 212, y + 21, 184, 5); c.fillStyle = a.id === 'fuego' ? '#ff8a3a' : '#9fd0ff'; c.fillRect(W - 212, y + 21, 184 * fr, 5);
     }
     if (D.debug) {
-      const m = D.metricas || {}; c.font = '11px ui-monospace,monospace'; c.fillStyle = 'rgba(255,255,255,.85)'; c.textAlign = 'left'; c.textBaseline = 'top';
+      const m = D.metricas || {}; c.font = '11px Inter,system-ui,sans-serif'; c.fillStyle = 'rgba(255,255,255,.85)'; c.textAlign = 'left'; c.textBaseline = 'top';
       ['director · dominio ' + D.dom.toFixed(2) + ' · espera ' + Math.max(0, D.espera).toFixed(0) + 's · eventos ' + D.contados + ' · regalos ' + D.regalos,
         'vida ' + (m.vida || 0).toFixed(2) + ' err60 ' + (m.errores || 0) + ' racha ' + (m.racha || 0) + ' ritmo ' + (m.ritmo || 0).toFixed(0) + ' muertes ' + (m.muertes || 0) + ' daño ' + (m.danio || 0), 'recientes: ' + D.hist.slice(0, 4).join(', ')].forEach((l, i) => c.fillText(l, 20, 190 + i * 14));
     }
