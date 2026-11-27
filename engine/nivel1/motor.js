@@ -227,7 +227,7 @@
   }
   function onKeyUp(e) { if (!S) return; if (keys[e.code]) soltar(e.code); keys[e.code] = 0; if (CTRL.indexOf(e.code) >= 0) { e.preventDefault(); e.stopImmediatePropagation(); } }
   function onPointer(e) {   // toque o clic sobre un objetivo: lo elige y lanza
-    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), pm = window.N1cam ? N1cam.mundo((e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height) : { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }, px = pm.x + S.cam, py = pm.y;   // N1cam.mundo deshace el zoom y el desplazamiento de la cámara
+    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), sp = { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }, q = window.N1persp ? N1persp.inv(sp.x, sp.y) : sp, pm = window.N1cam ? N1cam.mundo(q.x, q.y) : q, px = pm.x + S.cam, py = pm.y;   // N1cam.mundo deshace el zoom y el desplazamiento de la cámara
     const est = S.estSel; if (!est) return; const lst = objetivos(est);
     let mejor = null, d = 70; lst.forEach(o => { const dd = Math.hypot(o.x - px, o.y - py); if (dd < d) { d = dd; mejor = o; } }); if (mejor) disparar(mejor, est);
   }
@@ -836,7 +836,7 @@
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
-    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1prof) N1prof.sombras(); if (window.N1hab) N1hab.mundo();
+    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1prof) N1prof.sombras(); if (window.N1persp) N1persp.suelo(cx); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = { onigiri: img.onigiri, frasco: img.frasco, corazon: img.corazon, llave: img.llave }[i.tipo] || img.pergamino, w = { onigiri: 46, frasco: 46, corazon: 54, llave: 52 }[i.tipo] || 52; if (im) { const brilla = i.tipo === 'corazon' || i.tipo === 'llave'; if (brilla) { cx.save(); cx.shadowColor = '#ffe27a'; cx.shadowBlur = 14; } sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); if (brilla) cx.restore(); } });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.kfx.forEach(dibujarKunaiFx);
@@ -852,7 +852,7 @@
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(-60, -420, W + 120, H + 700);
     if (S.osc > .15) etiquetasAcertijos();
     if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(-60, -420, W + 120, H + 700); }
-    if (S.apunta) mira(); cx.restore(); if (window.N1cam) N1cam.encima(cx); hud();
+    if (S.apunta) mira(); cx.restore(); if (window.N1persp) N1persp.encima(cx); if (window.N1cam) N1cam.encima(cx); hud();
   }
   function mira() {
     const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(-60, -420, W + 120, H + 700);
