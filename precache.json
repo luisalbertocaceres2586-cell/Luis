@@ -1,7 +1,7 @@
 {
  "_nota": "Generado por tools/generar_precache.js (lo hace solo GitHub al publicar). No editar a mano.",
- "v": "d515fd2d41",
- "mb": 73,
+ "v": "9dc5ce6070",
+ "mb": 72.1,
  "codigo": [
   "engine/combate/jefe-cinematica.js",
   "engine/combate/racha.js",
@@ -455,7 +455,7 @@
   "assets/characters/sakura_assets/sakura/frames/wall/sakura_wall_09.webp",
   "assets/characters/sakura_assets/sakura/frames/wall/sakura_wall_10.webp",
   "assets/characters/villain/manifest.js",
-  "assets/characters/villain/portrait.png",
+  "assets/characters/villain/portrait.webp",
   "assets/characters/villain/walk_00.png",
   "assets/characters/villain/walk_01.png",
   "assets/characters/villain/walk_02.png",
