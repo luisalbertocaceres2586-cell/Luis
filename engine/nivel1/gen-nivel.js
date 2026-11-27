@@ -9,7 +9,7 @@
 
   // segundos que tarda, de media, un estudiante en cada cosa (para estimar la duración)
   const COSTO = { llano: 6, patrulla: 16, puente: 8, barranco: 12, estacas: 9, escalera: 12, taikos: 16, moviles: 18, fragil: 12, carreta: 26, palanca: 20, emboscada: 32, roca: 24, kunaiR: 15, sierras: 16, viento: 14, ruptura: 12, chimenea: 12,
-    patrullaB: 24, patrullaC: 26, llave: 20, bestias: 24, pasillo: 18, estalactitas: 14, hongos: 14, telaranas: 14, arana: 16, fuegos: 18, estacion: 42, jefe: 60, final: 50 };
+    patrullaB: 24, patrullaC: 26, llave: 20, bestias: 24, pasillo: 18, estalactitas: 14, hongos: 14, telaranas: 14, arana: 16, fuegos: 18, estacion: 42, jefe: 60, final: 50, placas: 70, pilares: 55, puenteCadena: 80, porton: 10 };
 
   function generar(params, maestria) {
     const rng = Ruta.crearRng(params.semilla, 'nivel1');
@@ -83,6 +83,52 @@
         elem({ t: 'carreta', x: x + 230, y: G, w: 150, h: 104, min: x + 80, max: mx - 160 });
         if (zona === 'bosque') perg(mx + 40, G - 330);
         x += a + 560; especial('carreta', x - 1160, x);
+      },
+      // ---------- RETOS DE INGENIO (puzzles.js) ----------
+      placas() {  // Sala de la compuerta: una caja pesada sobre la placa del suelo + el héroe sobre la placa de la repisa (a la que solo llega usando la otra caja de escalón)
+        const w = 1700, id = 'g' + N.elem.length; suelo(x, x + w); decorar(x, x + 360);
+        plat(x + 640, G - 205, 210, 'losa'); perg(x + 520, G - 300); perg(x + 960, G - 300);
+        elem({ t: 'pista', x: x + 40, msg: 'Una compuerta de piedra sellada. Las cajas se empujan caminando contra ellas' });
+        elem({ t: 'caja', id: id + 'm', tipo: 'madera', peso: 1, x: x + 190, y: G, w: 100, h: 100, min: x + 90, max: x + 1260 });
+        elem({ t: 'caja', id: id + 'p', tipo: 'piedra', peso: 2, x: x + 1200, y: G, w: 100, h: 100, min: x + 90, max: x + 1260 });   // la pesada empieza a la derecha de la placa: hay que empujarla hacia atrás
+        elem({ t: 'placa', id: id + 'a', x: x + 745, y: G - 205, w: 150, req: 'heroe' });
+        elem({ t: 'placa', id: id + 'b', x: x + 1080, y: G, w: 150, req: 'pesada' });
+        N.muros.push({ x: x + 1430, y: G - 520, w: 110, h: 520, tipo: 'compuerta', id, abierta: false, zona });
+        elem({ t: 'enlace', accion: 'compuerta', id, placas: [id + 'a', id + 'b'], gema: 'rojo', x: x + 1485 });
+        arco(x + 1150, x + 1330, G - 30, 3);
+        x += w; especial('placas', x - w, x);
+      },
+      pilares() {  // Pilares de colores: repite en orden la secuencia del tablero (se ve de cerca) para apagar la barrera de energía
+        const w = 1700, k = N.elem.length, tid = 't' + k, bid = 'b' + k; suelo(x, x + w); decorar(x, x + 300);
+        const cols = rng.shuffle(['rojo', 'azul', 'dorado', 'verde']), pos = rng.shuffle(['rojo', 'azul', 'dorado', 'verde']);
+        elem({ t: 'pista', x: x + 60, msg: 'Un tablero de pistas: memoriza el orden y golpea los pilares con un tajo' });
+        elem({ t: 'tablero', id: tid, x: x + 330, seq: cols, barId: bid, gema: 'azul' });
+        pos.forEach((c, i) => elem({ t: 'pilar', color: c, tb: tid, x: x + 820 + i * 180, y: G, on: false }));
+        N.muros.push({ x: x + 1500, y: G - 520, w: 110, h: 520, tipo: 'barrera', id: bid, abierta: false, zona });
+        arco(x + 700, x + 1400, G - 230, 5);
+        x += w; especial('pilares', x - w, x);
+      },
+      puenteCadena() {  // Puente de tres piezas: cada tramo se mantiene extendido mientras haya una caja sobre su placa
+        const L = 900, g = 380, i1 = 300, i2 = 260, R = 260, id = 'pc' + N.elem.length, x0 = x;
+        suelo(x, x + L); decorar(x, x + 300); hueco(x + L, x + L + g); suelo(x + L + g, x + L + g + i1); hueco(x + L + g + i1, x + L + 2 * g + i1); suelo(x + L + 2 * g + i1, x + L + 2 * g + i1 + i2); hueco(x + L + 2 * g + i1 + i2, x + L + 3 * g + i1 + i2); suelo(x + L + 3 * g + i1 + i2, x + L + 3 * g + i1 + i2 + R);
+        const s1 = x + L, s2 = x + L + g + i1, s3 = x + L + 2 * g + i1 + i2, fin = x + L + 3 * g + i1 + i2 + R;
+        N.plat.push({ x: s1, y: G, w: 0, len: g, tipo: 'puenteSeg', id: id + '1', zona }, { x: s2, y: G, w: 0, len: g, tipo: 'puenteSeg', id: id + '2', zona }, { x: s3, y: G, w: 0, len: g, tipo: 'puenteSeg', id: id + '3', zona });
+        elem({ t: 'pista', x: x + 60, msg: 'El puente no existe aún. Las placas lo arman: ¡piensa qué debe quedarse encima!' });
+        elem({ t: 'caja', id: id + 'A', tipo: 'madera', peso: 1, x: x + 130, y: G, w: 100, h: 100, min: x + 70, max: s1 - 60 });
+        elem({ t: 'caja', id: id + 'B', tipo: 'madera', peso: 1, x: x + L - 230, y: G, w: 100, h: 100, min: x + 70, max: s1 + g + i1 - 40 });
+        elem({ t: 'placa', id: id + 'pa', x: x + 500, y: G, w: 150, req: 'caja' });
+        elem({ t: 'placa', id: id + 'pb', x: s1 + g + 150, y: G, w: 150, req: 'caja' });
+        elem({ t: 'placa', id: id + 'pc', x: s2 + g + 140, y: G, w: 150, req: 'heroe' });
+        elem({ t: 'enlace', accion: 'seg', id: id + '1', placas: [id + 'pa'], x0: s1, len: g, mat: 'seg_madera', deck: .10, x: s1 });
+        elem({ t: 'enlace', accion: 'seg', id: id + '2', placas: [id + 'pb'], x0: s2, len: g, mat: 'seg_piedra', deck: .09, x: s2 });
+        elem({ t: 'enlace', accion: 'seg', id: id + '3', placas: [id + 'pc'], x0: s3, len: g, mat: 'seg_bambu', deck: .40, latch: true, gema: 'dorado', x: s3 });
+        arco(s1 + 40, s1 + g - 40, G - 120, 3); arco(s3 + 40, s3 + g - 40, G - 120, 3);
+        x = fin; especial('puenteCadena', x0, x);
+      },
+      porton() {  // portón sellado: se abre cuando tienes las tres gemas (círculo rojo, triángulo azul, cuadrado dorado)
+        suelo(x, x + 700); const id = 'pt' + N.elem.length;
+        N.muros.push({ x: x + 420, y: G - 520, w: 110, h: 520, tipo: 'porton', id, abierta: false, zona });
+        elem({ t: 'porton', id, x: x + 475 }); x += 700; especial('porton', x - 700, x);
       },
       chimenea() {  // dos paredes de bambú que flotan: por debajo se pasa caminando; arriba hay un tesoro (agarre de pared, o gancho / doble salto)
         const w = 760, px = x + 250, ancho = 56, sep = 230, y0 = G - 170 - 330, id = 'ch' + N.muros.length;
@@ -186,10 +232,10 @@
     const SEGUROS = { bosque: ['llano', 'patrulla', 'patrullaB', 'patrullaC', 'llave', 'puente', 'barranco', 'estacas', 'escalera', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'roca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'], cueva: ['pasillo', 'bestias', 'llave', 'estalactitas', 'hongos', 'telaranas', 'arana', 'fuegos', 'barranco', 'estacas', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'emboscada', 'kunaiR', 'sierras', 'ruptura', 'puente'] };
     const FACIL = ['llano', 'puente', 'patrulla', 'escalera', 'pasillo'];
     const LIMITE = { chimenea: 2, patrullaB: 3, patrullaC: 3, llave: 3, bestias: 3, roca: 2, emboscada: 3, carreta: 2, palanca: 2, viento: 2, ruptura: 2, taikos: 3, sierras: 3, kunaiR: 3, moviles: 3, fragil: 3, hongos: 2, telaranas: 2, estalactitas: 2 };
-    const usados = {};
+    const usados = {};   // (placas, pilares y puenteCadena solo entran por MUST: una vez cada uno en el bosque)
     // cada zona incluye SIEMPRE todos estos retos y enemigos (el resto se sortea)
     const MUST = {
-      bosque: ['patrulla', 'patrulla', 'patrullaB', 'patrullaC', 'llave', 'emboscada', 'roca', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea'],
+      bosque: ['patrulla', 'patrulla', 'patrullaB', 'patrullaC', 'llave', 'emboscada', 'roca', 'taikos', 'moviles', 'fragil', 'carreta', 'palanca', 'kunaiR', 'sierras', 'viento', 'ruptura', 'chimenea', 'placas', 'pilares', 'puenteCadena'],
       cueva: ['pasillo', 'pasillo', 'bestias', 'llave', 'ruptura', 'estalactitas', 'telaranas', 'fuegos', 'hongos', 'arana', 'emboscada', 'carreta', 'palanca', 'kunaiR', 'sierras', 'moviles', 'fragil', 'taikos']
     };
 
@@ -261,6 +307,7 @@
     suelo(x, x + 700); zona = 'bosque'; decorar(x, x + 700); arco(x + 200, x + 580, G - 30, 4); npc('sensei', x + 380); x += 700;
     const z1 = x;
     zonaNueva('bosque', 8, 3);
+    MOD.porton();   // portón de las tres gemas, justo antes del jefe
     // jefe del bosque: arena con el Oni rojo
     suelo(x, x + 300); N.ckp.push({ x: x + 100, activo: false, zona }); npc('sensei', x + 230); x += 300;
     { const w = 1400; suelo(x, x + w); N.muros.push({ x: x + 40, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'jL', abierta: true, zona, auto: true }, { x: x + w - 70, y: G - 520, w: 30, h: 520, tipo: 'reja', id: 'jR', abierta: true, zona, auto: true });
@@ -293,7 +340,7 @@
     cueva: { grande: ['arco'], medio: ['cristal', 'hongo', 'hongoGigante', 'columna', 'floresLuz', 'altar', 'paredMineral'] } };
   const PREMIABLE = { cerezo: 'pergaminos', helechos: 'pergaminos', rocas: 'pergaminos', toro: 'pergaminos', fuente: 'cura' };   // se abren de un tajo (solo bosque)
   const AVISO_ENEM = { arquero: '¡Un arquero! Salta sus flechas', lancero: '¡Un lancero embiste!', tengu: '¡Cuervos tengu en el aire!', rana: '¡Ranas que saltan!', kappa: '¡Un kappa!', zorro: '¡Un zorro veloz!', ninjaAtk: '¡Ninjas que embisten!', ninja: 'Hay ninjas adelante' };
-  const AVISO_ELEM = { roca: '¡Una roca gigante te perseguirá! Corre', emb: '¡Emboscada! Prepárate', sierra: 'Sierras de shuriken: mira el ritmo', kunaiR: 'Kunai a ritmo: espera y pasa', viento: 'Una corriente de viento te sube', carreta: 'Empuja la carreta contra el muro', palanca: 'Busca la palanca para abrir la reja', jefe: '¡El Oni rojo te espera!' };
+  const AVISO_ELEM = { roca: '¡Una roca gigante te perseguirá! Corre', emb: '¡Emboscada! Prepárate', sierra: 'Sierras de shuriken: mira el ritmo', kunaiR: 'Kunai a ritmo: espera y pasa', viento: 'Una corriente de viento te sube', carreta: 'Empuja la carreta contra el muro', palanca: 'Busca la palanca para abrir la reja', jefe: '¡El Oni rojo te espera!', porton: 'Un portón sellado con tres gemas' };
   function repartirDeco(N, rng) {
     const R = [], res = (a, b) => R.push([a, b]);
     N.est.forEach(e => {
@@ -309,6 +356,10 @@
       if (e.t === 'npc') res(e.x - 120, e.x + 120);
       else if (e.t === 'emb' || e.t === 'jefe') res(e.x0 - 60, e.x1 + 60);
       else if (e.t === 'carreta') res(e.min - 40, e.max + e.w + 40);
+      else if (e.t === 'pista' || e.t === 'enlace' || e.t === 'porton') { /* marcas invisibles o ya cubiertas por su muro */ }
+      else if (e.t === 'placa' || e.t === 'pilar') res(e.x - 95, e.x + 95);
+      else if (e.t === 'tablero') res(e.x - 190, e.x + 190);
+      else if (e.t === 'caja') res(e.x - 140, e.x + 140);
       else if (e.x != null && e.t !== 'roca') res(e.x - 120, e.x + (e.w || 0) + 120);
     });
     res(0, 300); res(N.meta.x - 230, N.meta.x + 230); res(N.cueva.x - 110, N.cueva.x + 530);
@@ -355,7 +406,7 @@
     let ultPremio = -1e9;
     ok.forEach(d => {
       d.w = ANCHO[d.tipo];
-      if (d.zona === 'bosque' && PREMIABLE[d.tipo] && d.x - ultPremio > 1500 && d.x > 900 && rng.chance(.7)) { d.premio = PREMIABLE[d.tipo]; ultPremio = d.x; }
+      if (d.zona === 'bosque' && PREMIABLE[d.tipo] && d.x - ultPremio > 1500 && d.x > 900 && rng.chance(.85)) { d.premio = PREMIABLE[d.tipo]; ultPremio = d.x; }
       if (d.tipo === 'cartel') d.msg = aviso(d.x) || 'Sigue el camino, aprendiz';
     });
     N.deco = techos.concat(ok).sort((a, b) => a.x - b.x);
@@ -365,10 +416,11 @@
   function validar(N) {
     const f = [];
     N.gaps.forEach(g => {
-      const ps = N.plat.filter(p => p.x - (p.mov ? p.mov.rx : 0) < g.x1 + 60 && p.x + p.w + (p.mov ? p.mov.rx : 0) > g.x0 - 60).sort((a, b) => a.x - b.x);
+      const pw = p => p.len || p.w;   // los tramos de puente (puenteSeg) miden 0 hasta que una placa los extiende: se valida con su largo final
+      const ps = N.plat.filter(p => p.x - (p.mov ? p.mov.rx : 0) < g.x1 + 60 && p.x + pw(p) + (p.mov ? p.mov.rx : 0) > g.x0 - 60).sort((a, b) => a.x - b.x);
       let borde = g.x0, y = G, ok = true, sepMax = 170, prevTambor = false;
       ps.forEach(p => {
-        const ext0 = p.x - (p.mov ? p.mov.rx : 0), ext1 = p.x + p.w + (p.mov ? p.mov.rx : 0);
+        const ext0 = p.x - (p.mov ? p.mov.rx : 0), ext1 = p.x + pw(p) + (p.mov ? p.mov.rx : 0);
         const sep = prevTambor ? 340 : (p.mov ? 260 : 170);
         if (ext0 - borde <= sep && Math.abs(p.y - y) <= (p.mov ? 170 : 130) + (prevTambor ? 330 : 0)) { if (ext1 > borde) { borde = ext1; y = p.y; prevTambor = !!p.tambor; } }
       });
@@ -386,7 +438,7 @@
     // las paredes de chimenea flotan: por debajo se camina, así que no deben bajar de G-150
     N.muros.forEach(m => {
       if (m.tipo === 'escalada') { if (m.y + m.h > G - 150) f.push('chimenea bloquea el paso'); }
-      else if (m.tipo !== 'reja' && m.h > 320) f.push('muro alto');
+      else if (m.tipo !== 'reja' && m.tipo !== 'compuerta' && m.tipo !== 'barrera' && m.tipo !== 'porton' && m.h > 320) f.push('muro alto');   // compuerta, barrera y portón se abren con su reto
     });
     return f;
   }

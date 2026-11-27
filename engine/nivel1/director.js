@@ -35,7 +35,7 @@
     { id: 'fuego', icono: '🔥', nombre: 'BOSQUE EN LLAMAS', dif: 3, zonas: ['bosque'], dur: [60, 60], tip: '¡El bosque arde! Corre a la derecha sin parar hasta el refugio' }
   ];
   const POR_ID = {}; EVENTOS.forEach(e => { POR_ID[e.id] = e; });
-  const DUROS = ['carreta', 'palanca', 'emboscada', 'roca'];   // módulos donde el fuego nunca debe alcanzarte
+  const DUROS = ['carreta', 'palanca', 'emboscada', 'roca', 'placas', 'pilares', 'puenteCadena', 'porton'];   // módulos donde el fuego nunca debe alcanzarte
 
   // =================== parte pura (se prueba en Node) ===================
   /* "Dominio" del momento, de 0 (apurado) a 1 (dominando el nivel).

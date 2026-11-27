@@ -174,6 +174,7 @@
 
   E.paso = function (dt, hb) {
     const s = S(), h = s.h;
+    if (window.N1puz) window.N1puz.paso(dt, hb);   // retos de ingenio: cajas, placas, pilares, puente
     s.enemigos.forEach(e => actualizarEnemigo(e, dt, hb));
     s.flechas.forEach(f => { f.x += f.vx * dt; f.t -= dt; if (h.inv <= 0 && cruza(hb, rect(f.x - 22, f.y - 6, 44, 12))) { core.danio('flecha', f.vx > 0 ? 1 : -1); f.t = 0; } s.N.muros.forEach(m => { if (core.muroSolido(m) && cruza(rect(f.x - 6, f.y - 4, 12, 8), m)) f.t = 0; }); });
     s.flechas = s.flechas.filter(f => f.t > 0);
@@ -186,6 +187,7 @@
   };
   E.alReaparecer = function () {
     const s = S(); if (!s) return; s.flechas = [];
+    if (window.N1puz) window.N1puz.alReaparecer();
     s.N.elem.forEach(t => {
       if (t.t === 'emb' && t.estado === 1) { t.estado = 0; abrir([t.idL, t.idR]); s.enemigos.forEach(q => { if (q.emb === t) q.vivo = false; }); core.emboscadaActiva = false; }
       if (t.t === 'roca' && t.activa) { t.activa = false; t.x = t.x0 - 450; core.rocaActiva = false; }
@@ -193,6 +195,7 @@
     });
   };
   E.empujes = function (h, hb) {
+    if (window.N1puz) window.N1puz.empujes(h, hb);
     const s = S(); s.N.elem.forEach(c => {
       if (c.t !== 'carreta') return; const top = c.y - c.h, L = c.x - c.w / 2, R = c.x + c.w / 2;
       if (h.y > top + 8 && h.x + h.w / 2 > L && h.x - h.w / 2 < R && h.y - h.h < c.y) {
@@ -203,6 +206,7 @@
     });
   };
   E.apoyos = function (h, antesY, cb) {
+    if (window.N1puz) window.N1puz.apoyos(h, antesY, cb);
     S().N.elem.forEach(c => { if (c.t !== 'carreta') return; const top = c.y - c.h; if (h.x + h.w / 2 > c.x - c.w / 2 + 6 && h.x - h.w / 2 < c.x + c.w / 2 - 6 && antesY <= top + 8 && h.y >= top) cb(top, c); });
   };
 
@@ -210,6 +214,7 @@
   function sprite(im, x, y, w, hh, flip) { core.sprite(im, x, y, w, hh, flip); }
   E.dibujarMuro = function (m) {
     const s = S(), c = cx(), x = m.x - s.cam;
+    if (m.tipo === 'compuerta' || m.tipo === 'barrera' || m.tipo === 'porton') { if (window.N1puz) window.N1puz.dibujarMuro(m); return; }
     if (m.tipo === 'sello') { if (img.sello) sprite(img.sello, x, m.y, m.w, m.h); return; }
     if (m.tipo === 'reja' && img.rejaBambu) {   // reja de bambú con sello: al abrirse sube y se desvanece
       if (m.abierta && m._t0 === undefined) m._t0 = s.t; const k = m.abierta ? clamp((s.t - m._t0) / .7, 0, 1) : 0; if (k >= 1) return;
@@ -303,6 +308,7 @@
   E.dibujar = function (capa) {
     const s = S(); if (capa === 'enemigos') { s.enemigos.forEach(dibujarEnemigo); const c = cx(); s.flechas.forEach(f => { const x = f.x - s.cam, d = f.vx > 0 ? 1 : -1; c.save(); c.translate(x, f.y); c.scale(d, 1); c.strokeStyle = '#5a3a1a'; c.lineWidth = 4; c.beginPath(); c.moveTo(-22, 0); c.lineTo(16, 0); c.stroke(); c.fillStyle = '#cfd6e0'; c.beginPath(); c.moveTo(24, 0); c.lineTo(12, -7); c.lineTo(12, 7); c.fill(); c.fillStyle = '#d8321f'; c.fillRect(-24, -5, 7, 10); c.restore(); }); }
     s.N.elem.forEach(t => { if (t.x === undefined || Math.abs(t.x - s.h.x) < 1900) dibujarElem(t, capa); });
+    if (window.N1puz) window.N1puz.dibujar(capa);
   };
   E.luces = function (L) {
     const s = S(); s.enemigos.forEach(e => { if (e.vivo && (e.kind === 'fuego' || e.kind === 'fantasma') && Math.abs(e.x - s.h.x) < 900) L.push({ x: e.x, y: e.y, r: 135 }); });
@@ -315,6 +321,7 @@
     });
   };
   E.hud = function (c, caja) {
+    if (window.N1puz) window.N1puz.hud(c, caja);
     const s = S(); const o = s.enemigos.find(q => q.kind === 'oni' && q.vivo);
     if (core.jefeActivo && o) { caja(W / 2 - 220, H - 60, 440, 32, 10, 'rgba(10,4,30,.7)', '#ff5a3a'); c.fillStyle = '#ff3a3a'; c.fillRect(W / 2 - 214, H - 54, 428 * clamp(o.hp / o.hpMax, 0, 1), 20); c.font = '14px Lilita One,Inter,sans-serif'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ONI ROJO', W / 2, H - 44); }
     const em = s.N.elem.find(t => t.t === 'emb' && t.estado === 1); if (em) { caja(W / 2 - 110, 100, 220, 34, 10, 'rgba(10,4,30,.75)', '#ff9a3a'); c.font = '15px Lilita One,Inter,sans-serif'; c.fillStyle = '#ffe27a'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('GRUPO ' + (em.ola + 1) + '/' + em.olas.length + ' · quedan ' + s.enemigos.filter(q => q.emb === em && q.vivo).length, W / 2, 117); }

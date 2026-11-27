@@ -57,7 +57,7 @@ declare global {
 
   // ---------- cosas que los scripts cuelgan de `window` / APIs no estándar del navegador ----------
   interface Window {
-    N1core?: any; NinjaHaptics?: any; NinjaMods?: any; NinjaOrient?: any; NinjaCompat?: any; NinjaDevice?: any; NinjaTouch?: any; NinjaTouchCore?: any; NinjaTouchJump?: any; NinjaCalidad?: any; NinjaCalidadCore?: any; NinjaInterp?: any; NJ?: any; NJX?: any;
+    N1core?: any; N1puz?: any; NinjaHaptics?: any; NinjaMods?: any; NinjaOrient?: any; NinjaCompat?: any; NinjaDevice?: any; NinjaTouch?: any; NinjaTouchCore?: any; NinjaTouchJump?: any; NinjaCalidad?: any; NinjaCalidadCore?: any; NinjaInterp?: any; NJ?: any; NJX?: any;
     render?: (...args: any[]) => void; renderBg?: (...args: any[]) => void; levelDone?: (...args: any[]) => void;
     saveG?: (...args: any[]) => void; spawnSkyItem?: (...args: any[]) => void; njLayout?: (...args: any[]) => void;
     __introDone?: boolean; NJ_BUILD?: string; NJ_ZOOM?: number;
