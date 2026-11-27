@@ -1,6 +1,6 @@
 {
  "_nota": "Generado por tools/generar_precache.js (lo hace solo GitHub al publicar). No editar a mano.",
- "v": "4c4184e4ec",
+ "v": "69dc1aa3ca",
  "mb": 73,
  "codigo": [
   "engine/combate/jefe-cinematica.js",
@@ -89,6 +89,8 @@
   "engine/ui/logros-2026.css",
   "engine/ui/menu-2026.css",
   "engine/ui/menu-2026.js",
+  "engine/ui/menu-compacto.css",
+  "engine/ui/menu-compacto.js",
   "engine/ui/mundos-registro.js",
   "engine/ui/ninjas-fx-2026.css",
   "engine/ui/ninjas-fx-2026.js",
