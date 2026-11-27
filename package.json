@@ -16,7 +16,10 @@
     "sincronizar": "node tools/flujo.js sincronizar",
     "configurar": "node tools/flujo.js configurar",
     "publicar": "node tools/publicar-version.js",
-    "webp": "python3 tools/convertir_webp.py --umbral 35"
+    "webp": "python3 tools/convertir_webp.py --umbral 35",
+    "precache": "node tools/generar_precache.js",
+    "presupuesto": "node tools/presupuesto.js",
+    "optimizar": "node tools/optimizar_imagenes.js"
   },
   "devDependencies": {
     "typescript": "^5.6.0"
