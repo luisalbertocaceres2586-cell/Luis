@@ -19,6 +19,7 @@
   const im = {}; let cargando = false;
   function cargar() { if (cargando) return; cargando = true; NOM.forEach(n => { const i = new Image(); i.onload = () => { im[n] = i; }; i.onerror = () => console.warn('[puzzles] falta', n); i.src = A + n + '.png'; }); }
   P.imagenes = im;
+  cargar();   // precarga inmediata: así barreras, pilares y tableros ya están listos cuando el jugador llega
 
   const COL = { rojo: '#D8321F', azul: '#3A8DFF', dorado: '#FFC93C', verde: '#4ADE6B' };
   const NOMBRE = { rojo: 'ROJA', azul: 'AZUL', dorado: 'DORADA', verde: 'VERDE' };
@@ -64,6 +65,13 @@
     const s = S(), N = s.N, h = s.h, Q = N_(); cargar();
     // pistas: un aviso la primera vez que el héroe pasa por la marca
     Q.pistas.forEach(p => { if (!p.dicha && Math.abs(h.x - p.x) < 150) { p.dicha = true; s.aviso = { t: 3.6, s: p.msg }; } });
+
+    // barrera de energía: si el jugador la toca sin haber resuelto el tablero, se le explica qué hacer (antes parecía un muro invisible)
+    s.avisoBarrera = Math.max(0, (s.avisoBarrera || 0) - dt);
+    N.muros.forEach(m => {
+      if (m.tipo !== 'barrera' || m.abierta) return; const tb = Q.tableros.find(q => q.barId === m.id); if (tb && tb.hecho) return;
+      if (h.x > m.x - 90 && h.x < m.x + m.w + 90 && s.avisoBarrera <= 0) { s.avisoBarrera = 6; s.aviso = { t: 4.5, s: tb ? 'BARRERA DE ENERGÍA: golpea los pilares (C) en el orden del tablero. Está más atrás ◀' : 'BARRERA DE ENERGÍA: resuelve el reto para apagarla' }; }
+    });
 
     // cajas: se levantan sobre las placas, caen si no hay suelo, se rompen y reaparecen
     Q.cajas.forEach(c => {
@@ -231,6 +239,8 @@
     }
     if (m.tipo === 'barrera') {
       const tb = Q.tableros.find(q => q.barId === m.id), k = tb && tb.hecho ? tb.k || 0 : 0, w = 270;
+      if (k < 1) { c.save(); c.globalAlpha = (1 - k) * (.55 + .2 * Math.sin(s.t * 6)); const gr = c.createLinearGradient(x - 70, 0, x + 70, 0); gr.addColorStop(0, 'rgba(90,170,255,0)'); gr.addColorStop(.5, 'rgba(120,200,255,.9)'); gr.addColorStop(1, 'rgba(90,170,255,0)'); c.fillStyle = gr; c.fillRect(x - 70, G - 460, 140, 470); c.restore(); }   // columna azul brillante: siempre se ve, aunque falle la imagen
+      if (!im.barrera_off && !im.barrera_on && k < 1) { c.save(); c.strokeStyle = '#9fd4ff'; c.lineWidth = 4; c.strokeRect(x - 28, G - 440, 56, 440); c.restore(); }
       dib('barrera_off', x, G + 10, w); if (k < 1) { const a = (1 - k) * (.88 + .12 * Math.sin(s.t * 10)); const mm = im.barrera_on; if (mm) { c.save(); c.globalAlpha = a; c.drawImage(mm, x - w / 2, G + 10 - mm.height * w / mm.width, w, mm.height * w / mm.width); if (k === 0) { c.globalCompositeOperation = 'lighter'; c.globalAlpha = .12 + .08 * Math.sin(s.t * 14); c.fillStyle = '#7ab8ff'; c.fillRect(x - 55, G - 400, 110, 400); } c.restore(); } } return;
     }
     if (m.tipo === 'porton') {
