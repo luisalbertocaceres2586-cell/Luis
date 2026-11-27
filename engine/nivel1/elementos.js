@@ -268,7 +268,7 @@
   function dibujarElem(t, capa) {
     const s = S(), c = cx(); const x = (t.x !== undefined ? t.x : 0) - s.cam;
     switch (t.t) {
-      case 'carreta': if (capa === 'enemigos' && x > -300 && x < W + 300) { const im = img.carreta; if (im) { const w = 190, hh = im.height * w / im.width; sprite(im, x - w / 2, t.y - hh + 6, w, hh); } } break;
+      case 'carreta': if (capa === 'enemigos' && x > -300 && x < W + 300) { const im = img.carreta; if (im) { const w = 190, hh = im.height * w / im.width; if (!(window.N1det && N1det.carreta(c, im, x - w / 2, t.y - hh + 6, w, hh, t.x || 0, s.t, t))) sprite(im, x - w / 2, t.y - hh + 6, w, hh); } } break;
       case 'palanca': if (capa === 'atras' && x > -100 && x < W + 100) { const im = t.on ? img.palancaOn : img.palancaOff; if (im) { const bw = baseW(im), w = 105 * im.width / bw; core.porAncho(im, x, t.y + 2, w); break; } c.fillStyle = '#5a4a3a'; c.fillRect(x - 24, t.y - 18, 48, 18); c.save(); c.translate(x, t.y - 16); c.rotate(t.on ? .8 : -.8); c.fillStyle = '#8b5a2b'; c.fillRect(-4, -54, 8, 54); c.fillStyle = t.on ? '#6f6' : '#f44'; c.beginPath(); c.arc(0, -56, 11, 0, 7); c.fill(); c.restore(); } break;
       case 'npc': if (capa === 'enemigos' && x > -200 && x < W + 200) dibujarNpc(t, x); break;
       case 'roca': if (capa === 'enemigos' && t.activa) { const im = img.rocaG; if (im) { c.save(); c.translate(x, G - t.r); c.rotate(t.x / t.r); c.drawImage(im, -t.r, -t.r, t.r * 2, t.r * 2); c.restore(); } } break;
