@@ -37,6 +37,16 @@ const total = lista.reduce((s, x) => s + x[1], 0);
 chequear(`recursos que usa el juego (${lista.length} archivos)`, total, lim.recursos_total_mb * 1048576, mb);
 chequear('recurso individual más pesado', lista[0][1], lim.recurso_max_kb * 1024, kb);
 
+// 3b) peso por nivel: lo de assets/nivelN/ es de ese nivel; todo lo demás (héroes, escenarios, UI, efectos) es común.
+//     Lo que descarga un jugador en un nivel = común + ese nivel, así que se vigila cada parte por separado.
+const porNivel = {}; let comun = 0;
+for (const [f, t] of lista) { const m = f.match(/^assets\/(nivel\d+)\//); if (m) porNivel[m[1]] = (porNivel[m[1]] || 0) + t; else comun += t; }
+chequear('recursos comunes (héroes, escenarios, UI)', comun, (lim.comun_max_mb || 999) * 1048576, mb);
+const nivelesPeso = Object.entries(porNivel).sort();
+for (const [n, t] of nivelesPeso) chequear(`recursos de ${n}`, t, ((lim.nivel_max_mb || {})[n] || lim.nivel_max_mb_defecto || 999) * 1048576, mb);
+const peorNivel = nivelesPeso.reduce((a, b) => (b[1] > a[1] ? b : a), ['', 0]);
+chequear(`peor caso de un nivel (común + ${peorNivel[0]})`, comun + peorNivel[1], (lim.peor_caso_nivel_mb || 999) * 1048576, mb);
+
 // 4) lo que añade/cambia este PR
 let nuevos = [];
 const i = process.argv.indexOf('--base');
