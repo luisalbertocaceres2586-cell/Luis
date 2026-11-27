@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const RAIZ = path.resolve(__dirname, '..');
-const EXT_ACTIVO = 'png|webp|jpg|jpeg|gif|svg|mp3|ogg|wav|json';
+const EXT_ACTIVO = 'png|webp|jpg|jpeg|gif|svg|mp3|ogg|wav|json|woff2|woff|ttf';   // incluye fuentes (@font-face en los .css)
 const EXT_CODIGO = new Set(['.html', '.js', '.css', '.json']);
 // carpetas que NO forman parte del juego publicado en uso (arte fuente, documentación, herramientas…)
 const IGNORAR_DIR = new Set(['node_modules', '.git', '.github', 'docs', 'tests', 'tools', 'types', 'servidor',
@@ -88,4 +88,15 @@ function referencias() {
 
 const tam = rel => fs.statSync(path.join(RAIZ, rel)).size;
 
-module.exports = { RAIZ, referencias, tam, MAX_ARCHIVO };
+/** Lo que el jugador DESCARGA de verdad: si un .png tiene su .webp al lado, engine/core/webp.js pide el .webp (ver tools/convertir_webp.py). */
+function referenciasServidas() {
+  const { activos, codigo } = referencias();
+  const servidos = new Set();
+  for (const a of activos) {
+    const w = a.replace(/\.png$/i, '.webp');
+    servidos.add(w !== a && existe(w) ? w : a);
+  }
+  return { activos: servidos, codigo };
+}
+
+module.exports = { RAIZ, referencias, referenciasServidas, tam, MAX_ARCHIVO };

@@ -1,0 +1,67 @@
+name: Rendimiento (peso, FPS y sin internet)
+
+# En cada Pull Request (y al fusionar en main) se comprueba que el juego NO haya engordado ni se haya vuelto lento,
+# y que siga abriendo sin internet. Si algo falla, GitHub muestra una ✗ roja y una tabla con el detalle (pestaña "Summary").
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: rendimiento-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  peso:
+    name: Presupuesto de peso
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Medir peso (index.html, motor, recursos)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            node tools/presupuesto.js --base "origin/${{ github.base_ref }}"
+          else
+            node tools/presupuesto.js
+          fi
+
+  navegador:
+    name: FPS y modo sin internet (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Chromium sin pantalla; no se añade a package.json para no tocar package-lock.json
+      - run: npm i --no-save --no-package-lock puppeteer-core @sparticuz/chromium
+      - name: FPS y tiempo de carga   # falla por errores de JavaScript o carga eterna; el FPS bajo solo avisa (FPS_ESTRICTO=1 para exigirlo)
+        env:
+          SALIDA_PRUEBAS: ${{ runner.temp }}/capturas
+        run: node tests/navegador/fps.mjs
+      - name: Precarga y juego sin internet
+        if: always()
+        run: node tests/navegador/offline.mjs
+      - name: Dibujo interpolado a 120 Hz (reloj virtual)
+        if: always()
+        run: node tests/navegador/interp.mjs
+      - name: WebP (peso real descargado y sin imágenes rotas)
+        if: always()
+        env:
+          SALIDA_PRUEBAS: ${{ runner.temp }}/capturas
+        run: node tests/navegador/webp.mjs
+      - name: Guardar capturas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas-rendimiento
+          path: ${{ runner.temp }}/capturas
+          if-no-files-found: ignore
+          retention-days: 14
