@@ -1,0 +1,30 @@
+/* SISTEMA DE DISEÑO · NINJA X  (una sola fuente de verdad)
+   Cambia un valor aquí y cambia en todo el juego. Los nombres antiguos (--an-*, --ip-*) siguen
+   funcionando: son alias de estos, para no romper nada de lo que ya existe.                  */
+:root{
+  font-synthesis-weight:none;  /* Lilita One solo tiene un grosor: no inventar negrita falsa */
+  /* Tipografía */
+  --nj-font-display:"NJ Display","Lilita One",system-ui,sans-serif;   /* títulos, HUD, botones */
+  --nj-font-brand:"Lilita One","Trebuchet MS",system-ui,sans-serif;  /* tamaño nominal, para texto nuevo */
+  --nj-font-ui:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* Escala de tamaños (usar en lugar de números sueltos) */
+  --nj-fs-xs:clamp(10px,1.1vw,12px);--nj-fs-sm:clamp(12px,1.35vw,14px);--nj-fs-md:clamp(14px,1.8vw,17px);
+  --nj-fs-lg:clamp(18px,2.6vw,24px);--nj-fs-xl:clamp(24px,4vw,38px);--nj-fs-hero:clamp(32px,6vw,60px);
+  /* Color de marca */
+  --nj-bg:#10152B;--nj-bg-deep:#0c1226;--nj-panel:rgba(22,29,55,.94);--nj-panel-2:rgba(29,38,70,.92);
+  --nj-line:rgba(130,157,218,.24);--nj-line-strong:rgba(22,200,232,.58);
+  --nj-cyan:#16C8E8;--nj-gold:#FFC247;--nj-violet:#7667E8;--nj-blue:#2b7cff;--nj-ink:#070b20;
+  --nj-ok:#2FD67B;--nj-bad:#FF5A6E;
+  --nj-text:#F4F6FC;--nj-muted:#AAB5D0;
+  /* Forma y profundidad */
+  --nj-radius:18px;--nj-radius-sm:10px;--nj-radius-pill:999px;
+  --nj-shadow:0 18px 48px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);
+  /* Título con relieve (borde oscuro + sombra dura + brillo): look de cartel de juego */
+  --nj-title-shadow:0 3px 0 rgba(90,52,0,.85),0 0 18px rgba(255,194,71,.35);
+  /* Alias de compatibilidad */
+  --an-bg:var(--nj-bg);--an-panel:var(--nj-panel);--an-panel-2:var(--nj-panel-2);
+  --an-line:var(--nj-line);--an-line-strong:var(--nj-line-strong);
+  --an-cyan:var(--nj-cyan);--an-gold:var(--nj-gold);--an-violet:var(--nj-violet);
+  --an-text:var(--nj-text);--an-muted:var(--nj-muted);--an-radius:var(--nj-radius);--an-shadow:var(--nj-shadow);
+  --ip-ink:var(--nj-ink);--ip-blue:var(--nj-blue);--ip-cyan:#65efff;--ip-violet:#9b65ff;--ip-gold:#ffd77a;
+}

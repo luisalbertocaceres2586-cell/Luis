@@ -15,7 +15,7 @@
   const A = 'assets/', EN = A + 'environment/', P = EN + 'props/', N1 = A + 'nivel1/', N2 = A + 'nivel2/';
   const B3 = A + 'nivel3/heroe/sakura/', SK = A + 'characters/sakura_assets/sakura/frames/', AN = A + 'characters/antarez/';
   const COIN = A + 'ui/hud/animados/moneda_girando.png';
-  const FONT = '"Trebuchet MS","Segoe UI",system-ui,sans-serif';
+  const FONT = 'Lilita One,Trebuchet MS,Verdana,sans-serif';
   const pad = n => String(n).padStart(2, '0');
   const seq = (pre, a, b, suf) => { const r = []; for (let i = a; i <= b; i++) r.push(pre + pad(i) + suf); return r; };
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -40,7 +40,7 @@
 
   // ---------- ayudas de dibujo ----------
   function texto(c, s, x, y, px, col, borde, al) {
-    c.font = 'bold ' + Math.round(px) + 'px ' + FONT; c.textAlign = al || 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
+    c.font = ''+Math.round(px) + 'px ' + FONT; c.textAlign = al || 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round';
     c.lineWidth = Math.max(2, px * .22); c.strokeStyle = borde || 'rgba(10,5,30,.92)'; c.strokeText(s, x, y); c.fillStyle = col || '#fff'; c.fillText(s, x, y);
   }
   function brillo(c, x, y, r, rgb, a) { if (r < 1) return; const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)'); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
@@ -346,10 +346,10 @@
         for (let k = 0; k < 12; k++) { c.rotate(Math.PI / 6); c.beginPath(); c.moveTo(0, 0); c.lineTo(R * .9, -R * .05); c.lineTo(R * .9, R * .05); c.closePath(); c.fill(); } c.restore(); c.globalAlpha = 1;
         const sz = H * .045;
         for (let k = 0; k < 34; k++) { const h = hash(k * 17 + 3), x = (h % 1000) / 1000 * W, v = H * (.55 + ((h >> 10) % 100) / 160), y = -sz + (df * v + ((h >> 4) % 300) * .5) % (H + sz * 2) - ((h >> 12) % 2) * 0, f = (h >> 3) % 2 && k % 7 === 0 ? GEMA : MC[Math.floor(df * 9 + k) % 4]; imagen(c, f, x, y + sz, sz * (f === GEMA ? 1.1 : 1), clamp(1 - df / 6, .25, 1)); }
-        const tx = '¡LISTO PARA JUGAR!', px = clamp(W * .036, 13, 22), ph3 = px * 2.2, pul = 1 + .04 * Math.sin(df * 9); c.save(); c.translate(W / 2, H * .725); c.scale(pul, pul); c.translate(-W / 2, -H * .725); c.font = 'bold ' + Math.round(px) + 'px ' + FONT;
+        const tx = '¡LISTO PARA JUGAR!', px = clamp(W * .036, 13, 22), ph3 = px * 2.2, pul = 1 + .04 * Math.sin(df * 9); c.save(); c.translate(W / 2, H * .725); c.scale(pul, pul); c.translate(-W / 2, -H * .725); c.font = ''+Math.round(px) + 'px ' + FONT;
         pastilla(c, tx, W / 2, H * .725, c.measureText(tx).width + ph3 * 1.4, ph3, '#ffe27a', px); c.restore();
       } else tFin = -1;
-      if (prog < .985 && dc < 2.4) { const a = clamp(Math.min(dc / .3, (2.4 - dc) / .5), 0, 1); c.globalAlpha = a; const tx = 'MUNDO ' + (i + 1) + ' · ' + m.nombre.toUpperCase(), px = clamp(W * .03, 11, 17), ph2 = px * 2.1; c.font = 'bold ' + Math.round(px) + 'px ' + FONT; pastilla(c, tx, W / 2, H * .725, Math.min(W * .94, c.measureText(tx).width + ph2 * 1.2), ph2, m.acento || '#ffd24a', px); c.globalAlpha = 1; }
+      if (prog < .985 && dc < 2.4) { const a = clamp(Math.min(dc / .3, (2.4 - dc) / .5), 0, 1); c.globalAlpha = a; const tx = 'MUNDO ' + (i + 1) + ' · ' + m.nombre.toUpperCase(), px = clamp(W * .03, 11, 17), ph2 = px * 2.1; c.font = ''+Math.round(px) + 'px ' + FONT; pastilla(c, tx, W / 2, H * .725, Math.min(W * .94, c.measureText(tx).width + ph2 * 1.2), ph2, m.acento || '#ffd24a', px); c.globalAlpha = 1; }
     }
     return { imgs, dibujar };
   }

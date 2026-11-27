@@ -5,8 +5,8 @@
 (function(){
 const MIA=window.NJ_BUILD||'?';
 const css=document.createElement('style');css.textContent=`
-#njVer{position:fixed;left:50%;bottom:4px;transform:translateX(-50%);z-index:101;font:7px 'Press Start 2P',monospace;color:rgba(190,205,255,.55);pointer-events:none;letter-spacing:1px}
-#njUpd{position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:30000;display:none;align-items:center;gap:10px;padding:8px 14px;border-radius:14px;background:#0a1c40;border:2px solid #F0A91E;color:#fff;font:9px 'Press Start 2P',monospace;box-shadow:0 4px 14px rgba(0,0,0,.6)}
+#njVer{position:fixed;left:50%;bottom:4px;transform:translateX(-50%);z-index:101;font:7px var(--nj-font-display);color:rgba(190,205,255,.55);pointer-events:none;letter-spacing:1px}
+#njUpd{position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:30000;display:none;align-items:center;gap:10px;padding:8px 14px;border-radius:14px;background:#0a1c40;border:2px solid #F0A91E;color:#fff;font:9px var(--nj-font-display);box-shadow:0 4px 14px rgba(0,0,0,.6)}
 #njUpd.on{display:flex}#njUpd button{font:inherit;padding:6px 10px;border-radius:8px;border:2px solid #7CFF6B;background:#0f5a2a;color:#fff;cursor:pointer}`;
 document.head.appendChild(css);
 const s0=document.getElementById('S0');

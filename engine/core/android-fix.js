@@ -96,7 +96,7 @@ function inyectarBoton(){
   if(!ov||document.getElementById('njHapBtn'))return;
   const b=document.createElement('button');
   b.id='njHapBtn';b.type='button';
-  b.style.cssText="margin-top:10px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:10px 16px;min-height:44px;color:#FFF;font-family:'Press Start 2P';font-size:clamp(9px,1.6vw,12px);cursor:pointer;touch-action:manipulation";
+  b.style.cssText="margin-top:10px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:10px 16px;min-height:44px;color:#FFF;font-family:var(--nj-font-display);font-size:clamp(9px,1.6vw,12px);cursor:pointer;touch-action:manipulation";
   pintar(b);
   b.addEventListener('click',e=>{
     e.stopPropagation();
