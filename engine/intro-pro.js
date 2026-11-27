@@ -201,8 +201,8 @@ const TIPS=['MANTÉN ↑ MÁS TIEMPO PARA SALTAR MÁS ALTO','SHIFT O V = DASH. �
 
 function resize(){DPR=Math.min(window.devicePixelRatio||1,1.75);VW=innerWidth;VH=innerHeight;cv.width=VW*DPR|0;cv.height=VH*DPR|0;cx.setTransform(DPR,0,0,DPR,0,0);vig=null;}
 function glyph(s,col,size){const k=s+col+size;if(glyphs[k])return glyphs[k];const c=document.createElement('canvas'),x=c.getContext('2d');
-  x.font=size+'px "Press Start 2P",monospace';const w=Math.ceil(x.measureText(s).width)+30;c.width=w;c.height=size+30;
-  x.font=size+'px "Press Start 2P",monospace';x.textBaseline='middle';x.fillStyle=col;x.shadowColor=col;x.shadowBlur=14;x.fillText(s,15,c.height/2);return glyphs[k]=c;}
+  x.font=size+'px NJ Display,system-ui,sans-serif';const w=Math.ceil(x.measureText(s).width)+30;c.width=w;c.height=size+30;
+  x.font=size+'px NJ Display,system-ui,sans-serif';x.textBaseline='middle';x.fillStyle=col;x.shadowColor=col;x.shadowBlur=14;x.fillText(s,15,c.height/2);return glyphs[k]=c;}
 function spawnDig(kind){
   const s=STR[Math.random()*STR.length|0],size=[12,16,22,30][Math.random()*4|0];
   if(kind==='up')DIG.push({s,size,x:rnd(0,VW),y:VH+30,vx:rnd(-8,8),vy:-rnd(25,70),l:0,L:rnd(5,9),col:'#ffd36b'});
@@ -270,8 +270,8 @@ function makeTablet(){
   rr(x,5,5,w-10,h-10,w*.07);x.fillStyle=g;x.fill();x.lineWidth=5;x.strokeStyle='#2c2e3f';x.stroke();
   rr(x,w*.09,w*.09,w-w*.18,h-w*.18,w*.04);x.lineWidth=2;x.strokeStyle='rgba(255,211,107,.8)';x.stroke();
   x.textAlign='center';x.fillStyle='#ffd36b';x.shadowColor='#ff9a00';x.shadowBlur=12;
-  x.font=(w*.1)+'px "Press Start 2P",monospace';x.fillText('TABLA',w/2,h*.17);x.fillText('DEL 7',w/2,h*.17+w*.14);
-  x.font=(w*.088)+'px "Press Start 2P",monospace';
+  x.font=(w*.1)+'px NJ Display,system-ui,sans-serif';x.fillText('TABLA',w/2,h*.17);x.fillText('DEL 7',w/2,h*.17+w*.14);
+  x.font=(w*.088)+'px NJ Display,system-ui,sans-serif';
   for(let i=1;i<=6;i++)x.fillText('7×'+i+'='+(7*i),w/2,h*.42+(i-1)*w*.14);
   CRACKS=[];for(let k=0;k<5;k++){let px=w/2,py=h/2,a=k*1.25+rnd(-.3,.3);const pts=[[px,py]];for(let i=0;i<7;i++){a+=rnd(-.5,.5);px+=Math.cos(a)*w*.13;py+=Math.sin(a)*w*.13;pts.push([px,py]);}CRACKS.push(pts);}
 }
@@ -323,8 +323,8 @@ function plate(txt,sub,x,y,col,a,off){
   if(a<=0)return;const fs=Math.max(11,VW*.019);cx.save();cx.globalAlpha=a;cx.translate(x+off,y);cx.transform(1,0,-.22,1,0,0);
   const w=Math.max(txt.length*fs*1.05,VW*.14)+fs,h=fs*3;const g=cx.createLinearGradient(-w/2,0,w/2,0);g.addColorStop(0,'rgba(5,0,25,.92)');g.addColorStop(1,col.replace('1)','.35)'));
   cx.fillStyle=g;cx.fillRect(-w/2,-h/2,w,h);cx.fillStyle=col;cx.fillRect(-w/2,-h/2,w,3);cx.fillRect(-w/2,h/2-3,w,3);cx.fillRect(-w/2,-h/2,6,h);
-  cx.textAlign='center';cx.shadowColor=col;cx.shadowBlur=14;cx.fillStyle='#fff';cx.font=fs+'px "Press Start 2P",monospace';cx.fillText(txt,0,fs*.1);
-  cx.shadowBlur=0;cx.fillStyle='rgba(210,225,255,.85)';cx.font=(fs*.55)+'px "Press Start 2P",monospace';cx.fillText(sub,0,fs*1.1);cx.restore();
+  cx.textAlign='center';cx.shadowColor=col;cx.shadowBlur=14;cx.fillStyle='#fff';cx.font=fs+'px NJ Display,system-ui,sans-serif';cx.fillText(txt,0,fs*.1);
+  cx.shadowBlur=0;cx.fillStyle='rgba(210,225,255,.85)';cx.font=(fs*.55)+'px NJ Display,system-ui,sans-serif';cx.fillText(sub,0,fs*1.1);cx.restore();
 }
 
 /* ---------- subtítulos con efecto de escritura ---------- */
@@ -365,8 +365,8 @@ function drawStory(){
   if(t>=9.5&&t<13.7){drawVillain(t);plate(window.VILLAIN_NAME||'REY DEL CAOS','EL LADRÓN DE TABLAS',VW*.3,VH*.46,'rgba(170,70,255,1)',ss(10.6,11.1,t)*(1-ss(12.5,12.9,t)),-(1-ss(10.6,11.3,t))*150);}
   /* tarjeta del estudio */
   if(t<3.6){const a=ss(.3,1.1,t)*(1-ss(2.6,3.5,t));cx.save();cx.globalAlpha=a;cx.textAlign='center';cx.fillStyle='#9fc8ff';
-    cx.font=Math.max(9,VW*.012)+'px "Press Start 2P",monospace';cx.fillText('I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN',VW/2,VH*.46);
-    cx.fillStyle='#ffd36b';cx.shadowColor='#ff9a00';cx.shadowBlur=18;cx.font=Math.max(12,VW*.019)+'px "Press Start 2P",monospace';cx.fillText('EL PROFE LUIS PRESENTA…',VW/2,VH*.46+VW*.035);cx.restore();}
+    cx.font=Math.max(9,VW*.012)+'px NJ Display,system-ui,sans-serif';cx.fillText('I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN',VW/2,VH*.46);
+    cx.fillStyle='#ffd36b';cx.shadowColor='#ff9a00';cx.shadowBlur=18;cx.font=Math.max(12,VW*.019)+'px NJ Display,system-ui,sans-serif';cx.fillText('EL PROFE LUIS PRESENTA…',VW/2,VH*.46+VW*.035);cx.restore();}
   /* partículas: dígitos y pétalos/brasas */
   const dt=dtG;
   if(t>1.5&&t<7.3&&Math.random()<dt*9)spawnDig('up');
@@ -417,7 +417,7 @@ function drawStory(){
   if(t>=19.9){const u=cl((t-20)/.5,0,1),sc=1+1.7*Math.pow(1-u,3),pulse=1+Math.sin(t*2.2)*.012,b=drawLogo(VW/2,VH*.43+Math.sin(t*1.6)*4,Math.min(VW*.86,680),sc*pulse,u*3,.8);
     if(u>=1&&b){const ph=((t-20.8)%3.2)/1.1;if(ph>=0&&ph<=1)drawShine(b,ph*1.3-.1);}
     const ta=ss(21.2,22.2,t);if(ta>0&&b){cx.save();cx.globalAlpha=ta;cx.textAlign='center';cx.fillStyle='#ffd36b';cx.shadowColor='#ff9a00';cx.shadowBlur=22;
-      cx.font=Math.max(10,VW*.017)+'px "Press Start 2P",monospace';const sp=(1-ta)*14,txt='✖ TABLAS CON EL PROFE LUIS ✖';
+      cx.font=Math.max(10,VW*.017)+'px NJ Display,system-ui,sans-serif';const sp=(1-ta)*14,txt='✖ TABLAS CON EL PROFE LUIS ✖';
       let x=VW/2-(txt.length*(VW*.017+sp))/2;txt.split('').forEach(ch=>{cx.fillText(ch,x,VH*.43+b.h/2+VH*.07);x+=VW*.017+sp;});cx.restore();}}
   /* ondas de choque */
   cx.save();cx.globalCompositeOperation='lighter';

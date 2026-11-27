@@ -77,18 +77,18 @@
     style.textContent = `
       #achievementToast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:15000;display:flex;align-items:center;gap:12px;
         width:min(440px,92vw);padding:12px 16px;border:2px solid #ffd700;border-radius:12px;background:linear-gradient(145deg,rgba(26,12,56,.98),rgba(4,8,36,.98));
-        box-shadow:0 0 30px rgba(255,215,0,.45);color:#fff;font-family:'Press Start 2P',monospace;opacity:0;transform:translate(-50%,20px) scale(.92);pointer-events:none}
+        box-shadow:0 0 30px rgba(255,215,0,.45);color:#fff;font-family:var(--nj-font-display);opacity:0;transform:translate(-50%,20px) scale(.92);pointer-events:none}
       #achievementToast.on{animation:achievementPop 3.2s ease forwards}
       #achievementToast .at-icon{font-size:28px}#achievementToast b{display:block;color:#ffd700;font-size:9px;margin-bottom:6px}
       #achievementToast span{display:block;font-size:7px;line-height:1.6;color:#dbe7ff}
-      .achievement-overlay{position:fixed;inset:0;z-index:15001;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,15,.88);font-family:'Press Start 2P',monospace;color:#fff}
+      .achievement-overlay{position:fixed;inset:0;z-index:15001;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,15,.88);font-family:var(--nj-font-display);color:#fff}
       .achievement-card{width:min(560px,96vw);max-height:88vh;overflow:auto;padding:16px;border:2px solid rgba(255,215,0,.55);border-radius:14px;background:linear-gradient(155deg,#120b38,#050b22);box-shadow:0 0 42px rgba(0,170,255,.25)}
       .achievement-card h2{text-align:center;color:#ffd700;font-size:clamp(11px,2.4vw,16px);margin:2px 0 8px}
       .achievement-progress{text-align:center;color:#9bdfff;font-size:8px;margin-bottom:12px}
       .achievement-row{display:flex;align-items:center;gap:10px;padding:10px;margin:6px 0;border:1px solid rgba(120,160,255,.2);border-radius:8px;background:rgba(0,0,35,.6)}
       .achievement-row.locked{opacity:.48;filter:grayscale(1)}.achievement-row .badge{font-size:22px}
       .achievement-row b{display:block;color:#ffe27a;font-size:8px;margin-bottom:5px}.achievement-row span{font-size:6px;line-height:1.6;color:#d5e0ff}
-      .achievement-card button{display:block;margin:12px auto 0;padding:10px 14px;border:1px solid #00cfff;border-radius:8px;background:#082a72;color:#fff;font:8px 'Press Start 2P',monospace}
+      .achievement-card button{display:block;margin:12px auto 0;padding:10px 14px;border:1px solid #00cfff;border-radius:8px;background:#082a72;color:#fff;font:8px var(--nj-font-display)}
       @keyframes achievementPop{0%{opacity:0;transform:translate(-50%,20px) scale(.92)}12%,78%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-12px) scale(.98)}}
       @media(prefers-reduced-motion:reduce){#achievementToast.on{animation:none;opacity:1;transform:translate(-50%,0)}}
     `;

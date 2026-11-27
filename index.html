@@ -29,8 +29,11 @@
 <script src="engine/nube.js?v=3"></script>
 <script src="engine/legal.js?v=1"></script>
 <script src="engine/core/menu-pausa.js?v=2"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap">
+<link rel="preload" href="assets/fonts/lilita-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="engine/ui/fuentes.css?v=1">
+<link rel="stylesheet" href="engine/ui/tokens.css?v=1">
+<script src="engine/ui/fuentes.js?v=1"></script>
 <style>
 /* Pantalla de arranque: se ve al instante (antes de que cargue el resto) y la intro la toma sin saltos */
 #bootSplash{position:fixed;inset:0;z-index:2099;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,4vh,34px);padding-bottom:4vh;
@@ -44,7 +47,7 @@
 <title>🥷 NINJA X: Guardianes de las Tablas — con el Profe Luis · ColBolívar</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Press Start 2P',monospace}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--nj-font-display)}
 #c{display:block;position:fixed;inset:0;image-rendering:pixelated}
 .scr{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;
   align-items:center;justify-content:center;padding:16px;
@@ -64,7 +67,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .lbl{font-size:clamp(6px,1.1vw,8px);color:rgba(100,160,255,.8);letter-spacing:2px;margin-bottom:5px}
 .inp{width:100%;background:rgba(0,0,40,.85);border:2px solid rgba(0,180,255,.4);
   border-radius:7px;padding:10px 13px;color:#FFE040;
-  font-family:'Press Start 2P';font-size:clamp(10px,2vw,13px);outline:none;transition:.2s}
+  font-family:var(--nj-font-display);font-size:clamp(10px,2vw,13px);outline:none;transition:.2s}
 .inp:focus{border-color:#00D4FF;box-shadow:0 0 0 3px rgba(0,210,255,.2)}
 .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
@@ -76,7 +79,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .ddesc{font-size:clamp(5.5px,1.1vw,7.5px);color:rgba(140,170,220,.7)}
 .cname{font-size:clamp(6px,1.1vw,8px);color:#FFD700;margin-top:3px}
 .pbtn{width:100%;padding:12px;background:linear-gradient(135deg,#0040AA,#0022CC,#0040AA);
-  border:2px solid #00AAFF;border-radius:9px;color:#FFF;font-family:'Press Start 2P';
+  border:2px solid #00AAFF;border-radius:9px;color:#FFF;font-family:var(--nj-font-display);
   font-size:clamp(10px,2vw,13px);cursor:pointer;letter-spacing:1px;
   box-shadow:0 5px 0 #001166,0 0 28px rgba(0,100,255,.3);
   transition:.12s;position:relative;overflow:hidden}
@@ -121,7 +124,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 @media(max-width:560px){#agrid{grid-template-columns:repeat(2,1fr);gap:8px}}
 .ans{background:linear-gradient(160deg,rgba(0,20,60,.92),rgba(0,10,42,.95));
   border:2px solid rgba(0,180,255,.4);border-radius:8px;padding:9px 4px;
-  color:#FFF;font-family:'Press Start 2P';font-size:clamp(11px,2.1vw,15px);
+  color:#FFF;font-family:var(--nj-font-display);font-size:clamp(11px,2.1vw,15px);
   cursor:pointer;text-align:center;transition:.1s;
   box-shadow:0 3px 0 rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.09);position:relative}
 .ans-wide{font-size:clamp(8.5px,1.6vw,11.5px);letter-spacing:0}
@@ -145,7 +148,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #hud.on{display:block}
 #hudFrame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
   filter:drop-shadow(0 3px 8px rgba(0,0,0,.6))}
-.hval{position:absolute;font-family:'Press Start 2P';color:#00D4FF;text-align:center;
+.hval{position:absolute;font-family:var(--nj-font-display);color:#00D4FF;text-align:center;
   text-shadow:0 0 8px rgba(0,212,255,.9),1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000;
   display:flex;align-items:center;justify-content:center;line-height:1}
 #hName{left:7.5%;width:17.5%;top:44%;height:36%;font-size:clamp(6px,1.15vw,9px)}
@@ -188,7 +191,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   border:3px solid var(--sc,#FF6600);transform:translate(-50%,-50%) scale(0);
   animation:shockA .32s ease-out forwards}
 @keyframes shockA{0%{transform:translate(-50%,-50%) scale(0);opacity:.9}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
-.tfx{position:fixed;pointer-events:none;z-index:500;font-family:'Press Start 2P';text-shadow:2px 2px 0 #000,0 0 14px currentColor}
+.tfx{position:fixed;pointer-events:none;z-index:500;font-family:var(--nj-font-display);text-shadow:2px 2px 0 #000,0 0 14px currentColor}
 @keyframes tfxA{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(.8)}}
 .tfx{animation:tfxA var(--d,.9s) ease-out forwards}
 @keyframes cff{to{transform:translate(var(--cx),var(--cy)) rotate(720deg) scale(0);opacity:0}}
@@ -226,7 +229,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #mctl.edit .mbt{border-style:dashed;border-color:#FFD700;opacity:.95}
 .mbt.drag{opacity:1;transform:translate(-50%,-50%) scale(1.2);border:3px dashed #FFD700;box-shadow:0 0 26px #FFD700,0 0 60px rgba(255,215,0,.7)}
 .mbedit{position:absolute;bottom:8px;pointer-events:all;touch-action:manipulation;z-index:2;
-  font-family:'Press Start 2P',monospace;font-size:11px;color:#FFD700;padding:10px 12px;min-height:44px;
+  font-family:var(--nj-font-display);font-size:11px;color:#FFD700;padding:10px 12px;min-height:44px;
   background:rgba(20,15,0,.85);border:2px solid rgba(255,215,0,.7);border-radius:10px;opacity:.75;
   -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 #mbEdit{left:50%;transform:translateX(-50%)}
@@ -264,7 +267,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .lo-title{font-size:clamp(7px,1.4vw,9px);color:#00FF88;margin-bottom:4px}
 .lo-q{font-size:clamp(14px,2.8vw,20px);color:#FFF;text-align:center;margin:4px 0}
 .lo-btn{display:flex;gap:5px;margin-top:5px}
-.lo-b{flex:1;padding:6px 4px;border-radius:6px;border:2px solid;cursor:pointer;font-family:'Press Start 2P';font-size:clamp(8px,1.5vw,11px);text-align:center;transition:.1s}
+.lo-b{flex:1;padding:6px 4px;border-radius:6px;border:2px solid;cursor:pointer;font-family:var(--nj-font-display);font-size:clamp(8px,1.5vw,11px);text-align:center;transition:.1s}
 .lo-b.yes{background:rgba(0,50,18,.9);border-color:#00FF88;color:#00FF88}
 .lo-b.no{background:rgba(30,0,8,.9);border-color:#FF4466;color:#FF4466}
 .lo-b:hover{transform:translateY(-2px)}
@@ -289,7 +292,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   backdrop-filter:blur(8px);display:none;flex-direction:column;
   align-items:center;justify-content:center;gap:20px}
 #pauseOverlay.on{display:flex}
-#fxVolumeControl{display:flex;align-items:center;gap:10px;margin-top:12px;color:rgba(160,205,255,.8);font:clamp(7px,1.3vw,9px) 'Press Start 2P',monospace}
+#fxVolumeControl{display:flex;align-items:center;gap:10px;margin-top:12px;color:rgba(160,205,255,.8);font:clamp(7px,1.3vw,9px) var(--nj-font-display)}
 #fxMusicVolume{width:min(220px,48vw);accent-color:#00D4FF}
 .pause-title{font-size:clamp(28px,6vw,52px);color:#FFD700;
   text-shadow:0 0 30px rgba(255,215,0,.8),4px 4px 0 rgba(0,0,0,.9);
@@ -300,7 +303,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #pauseBtn{position:fixed;top:5px;right:8px;z-index:300;
   background:rgba(0,0,40,.85);border:1px solid rgba(0,200,255,.4);
   border-radius:6px;padding:3px 7px;cursor:pointer;display:none;
-  font-family:'Press Start 2P';font-size:8px;color:#00D4FF;
+  font-family:var(--nj-font-display);font-size:8px;color:#00D4FF;
   box-shadow:0 0 10px rgba(0,200,255,.2)}
 #pauseBtn.on{display:block}
 /* Hard mode transition */
@@ -333,13 +336,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   display:none;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s}
 #powerChooser.on{display:block;transform:translateX(-50%) translateY(0);animation:chooserPop .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes chooserPop{0%{transform:translateX(-50%) scale(.6) translateY(30px);opacity:0}100%{transform:translateX(-50%) scale(1) translateY(0);opacity:1}}
-.pc-title{font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,9px);color:#FFD700;text-align:center;
+.pc-title{font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,9px);color:#FFD700;text-align:center;
   letter-spacing:2px;margin-bottom:8px;text-shadow:0 0 12px rgba(255,200,0,.6)}
 .pc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .pc-btn{background:linear-gradient(135deg,rgba(0,0,50,.9),rgba(0,0,30,.95));
   border:2px solid rgba(80,120,255,.4);border-radius:10px;
   padding:8px 6px;cursor:pointer;text-align:center;transition:.12s;
-  font-family:'Press Start 2P';position:relative;overflow:hidden}
+  font-family:var(--nj-font-display);position:relative;overflow:hidden}
 .pc-btn:hover{transform:translateY(-3px) scale(1.04);border-color:#FFD700;
   box-shadow:0 6px 24px rgba(255,200,0,.5)}
 .pc-btn:active{transform:translateY(0) scale(.97)}
@@ -360,7 +363,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   z-index:92;display:none;flex-direction:row;gap:4px;flex-wrap:wrap;
   justify-content:center;pointer-events:none;max-width:80vw}
 #powerPills.on{display:flex}
-.ppill{font-family:'Press Start 2P';font-size:clamp(5px,.9vw,7px);
+.ppill{font-family:var(--nj-font-display);font-size:clamp(5px,.9vw,7px);
   border-radius:20px;padding:3px 7px;border:1px solid;
   display:flex;align-items:center;gap:3px;
   animation:pillPop .25s cubic-bezier(.34,1.56,.64,1) forwards}
@@ -400,7 +403,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 /* God mode icon tooltip */
 #godIcon::after{content:'★ 2319';position:absolute;right:0;bottom:20px;
   font-size:8px;color:rgba(255,215,0,.6);white-space:nowrap;opacity:0;
-  font-family:'Press Start 2P';transition:opacity .3s;pointer-events:none}
+  font-family:var(--nj-font-display);transition:opacity .3s;pointer-events:none}
 #godIcon:hover::after{opacity:0.5}
 </style>
 <link rel="stylesheet" href="engine/ui/menu-2026.css?v=3">
@@ -516,12 +519,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <div class="pause-sub">PRESIONA P PARA CONTINUAR</div>
   <button id="btnMutePause" onclick="toggleMute()" style="margin-top:14px;background:linear-gradient(160deg,rgba(0,20,60,.9),rgba(0,10,42,.95));
     border:2px solid rgba(0,180,255,.5);border-radius:8px;padding:8px 16px;color:#FFF;
-    font-family:'Press Start 2P';font-size:clamp(9px,1.6vw,12px);cursor:pointer">🔊 SONIDO: ON</button>
+    font-family:var(--nj-font-display);font-size:clamp(9px,1.6vw,12px);cursor:pointer">🔊 SONIDO: ON</button>
   <label id="fxVolumeControl" for="fxMusicVolume">🎵 MÚSICA
     <input id="fxMusicVolume" type="range" min="0" max="0.4" step="0.01" value="0.22"
       aria-label="Volumen de la música" oninput="if(window.FX&&FX.music)FX.music.setVolume(this.value)">
   </label>
-  <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.4vw,10px);color:rgba(150,200,255,.5);margin-top:8px">ESC = MENÚ PRINCIPAL</div>
+  <div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.4vw,10px);color:rgba(150,200,255,.5);margin-top:8px">ESC = MENÚ PRINCIPAL</div>
 </div>
 <!-- FIRST-TIME TUTORIAL -->
 <div id="tutorialModal" style="display:none;position:fixed;inset:0;z-index:9998;
@@ -529,10 +532,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <div style="max-width:420px;width:100%;background:linear-gradient(160deg,rgba(5,5,40,.97),rgba(2,2,20,.98));
     border:2px solid rgba(0,180,255,.55);border-radius:16px;padding:18px 16px 16px;
     box-shadow:0 0 50px rgba(0,150,255,.3);text-align:center">
-    <div style="font-family:'Press Start 2P';font-size:clamp(12px,2.6vw,17px);color:#FFD700;
+    <div style="font-family:var(--nj-font-display);font-size:clamp(12px,2.6vw,17px);color:#FFD700;
       text-shadow:2px 2px 0 #000;margin-bottom:12px">🥷 ¿CÓMO SE JUEGA?</div>
     <div id="tutStepIcon" style="font-size:44px;margin-bottom:8px">🕹️</div>
-    <div id="tutStepText" style="font-family:'Press Start 2P';font-size:clamp(9px,2vw,12px);
+    <div id="tutStepText" style="font-family:var(--nj-font-display);font-size:clamp(9px,2vw,12px);
       color:#FFF;line-height:1.7;min-height:70px"></div>
     <div id="tutDots" style="margin:12px 0;display:flex;gap:6px;justify-content:center"></div>
     <div style="display:flex;gap:8px;justify-content:center">
@@ -550,10 +553,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
     <div class="ht-fire">🔥💀🔥</div>
     <div class="ht-title">¡ERES EL MEJOR!</div>
     <div class="ht-sub">¿PERO ESTÁS LISTO PARA EL NIVEL DIFÍCIL?</div>
-    <div style="font-family:'Press Start 2P';font-size:clamp(8px,1.6vw,12px);color:rgba(255,200,100,.8);text-align:center;max-width:500px;line-height:2;margin-bottom:16px">
+    <div style="font-family:var(--nj-font-display);font-size:clamp(8px,1.6vw,12px);color:rgba(255,200,100,.8);text-align:center;max-width:500px;line-height:2;margin-bottom:16px">
       Los monstruos son más fuertes.<br>Las tablas llegan hasta ×11.<br>¡Solo los más valientes lo superan!</div>
     <div class="ht-countdown" id="htCountdown">5</div>
-    <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,10px);color:rgba(255,100,100,.7);margin-top:10px">Presiona cualquier tecla para empezar ya</div>
+    <div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,10px);color:rgba(255,100,100,.7);margin-top:10px">Presiona cualquier tecla para empezar ya</div>
   </div>
 </div>
 <!-- ══════════ EPIC CINEMATIC INTRO (plays once on load, then reveals S0) ══════════ -->
@@ -562,13 +565,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <!-- lightning flash layer -->
   <div id="cineFlash" style="position:fixed;inset:0;background:#fff;opacity:0;z-index:5;pointer-events:none"></div>
   <!-- skip button -->
-  <button id="cineSkip" style="position:fixed;top:14px;right:14px;z-index:20;background:rgba(0,10,40,.7);border:1px solid rgba(0,200,255,.5);color:#88CCFF;font-family:'Press Start 2P';font-size:clamp(7px,1.4vw,10px);padding:8px 12px;border-radius:20px;cursor:pointer;letter-spacing:1px">SALTAR ⏭</button>
+  <button id="cineSkip" style="position:fixed;top:14px;right:14px;z-index:20;background:rgba(0,10,40,.7);border:1px solid rgba(0,200,255,.5);color:#88CCFF;font-family:var(--nj-font-display);font-size:clamp(7px,1.4vw,10px);padding:8px 12px;border-radius:20px;cursor:pointer;letter-spacing:1px">SALTAR ⏭</button>
 
   <!-- Beat 1: presents -->
   <div id="cineBeat1" class="cineBeat" style="z-index:10;opacity:0">
     <img src="assets/embebidas/6d06db7409.png" alt="" style="width:min(26vw,110px);height:auto;display:block;margin:0 auto 10px;filter:drop-shadow(0 0 14px rgba(255,40,40,.5))">
-    <div style="font-family:'Press Start 2P';font-size:clamp(8px,1.8vw,13px);color:rgba(150,200,255,.85);letter-spacing:3px">🏫 I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN</div>
-    <div style="font-family:'Press Start 2P';font-size:clamp(10px,2.2vw,16px);color:#FFD700;letter-spacing:2px;margin-top:10px">EL PROFE LUIS PRESENTA...</div>
+    <div style="font-family:var(--nj-font-display);font-size:clamp(8px,1.8vw,13px);color:rgba(150,200,255,.85);letter-spacing:3px">🏫 I.E. SIMÓN BOLÍVAR — SEDE SAN MARTÍN</div>
+    <div style="font-family:var(--nj-font-display);font-size:clamp(10px,2.2vw,16px);color:#FFD700;letter-spacing:2px;margin-top:10px">EL PROFE LUIS PRESENTA...</div>
   </div>
 
   <!-- Beat 2: big logo burst -->
@@ -576,7 +579,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
     <img id="cineLogo" src="assets/logo-ninja-x/logo_completo.webp" alt="NINJA X: Guardianes de las Tablas"
       style="display:block;width:min(86vw,640px);max-height:34vh;height:auto;object-fit:contain;margin:0 auto;
       filter:drop-shadow(0 0 50px rgba(255,150,0,.8)) drop-shadow(0 8px 12px rgba(0,0,0,.8))">
-    <div style="font-family:'Press Start 2P';font-size:clamp(9px,2vw,15px);color:#FFD700;letter-spacing:5px;margin-top:14px;text-shadow:0 0 20px rgba(255,215,0,.9),2px 2px 0 #000">✖️ TABLAS CON EL PROFE LUIS ✖️</div>
+    <div style="font-family:var(--nj-font-display);font-size:clamp(9px,2vw,15px);color:#FFD700;letter-spacing:5px;margin-top:14px;text-shadow:0 0 20px rgba(255,215,0,.9),2px 2px 0 #000">✖️ TABLAS CON EL PROFE LUIS ✖️</div>
   </div>
 
   <!-- Beat 3: story typewriter -->
@@ -585,7 +588,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <img src="assets/embebidas/37bf654bd0.png" alt="" style="display:block;width:100%;height:auto">
       <img id="cineDarkPanel" src="assets/embebidas/e71d430047.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease-in">
     </div>
-    <div style="font-family:'Press Start 2P';font-size:clamp(9px,2vw,14px);color:#FFFFFF;line-height:2.4;text-shadow:0 0 14px rgba(0,180,255,.6),2px 2px 0 #000">
+    <div style="font-family:var(--nj-font-display);font-size:clamp(9px,2vw,14px);color:#FFFFFF;line-height:2.4;text-shadow:0 0 14px rgba(0,180,255,.6),2px 2px 0 #000">
       <span id="cineTypeLine">El Reino de los Números está en peligro...</span>
     </div>
   </div>
@@ -651,7 +654,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       0%,100%{transform:translateY(0) scale(1)}
       50%{transform:translateY(-7px) scale(1.015)}
     }
-    #menuTypewriter{min-height:1.6em;margin:0 auto;color:#9cf4ff;font:clamp(7px,1.45vw,11px) 'Press Start 2P',monospace;letter-spacing:1px;
+    #menuTypewriter{min-height:1.6em;margin:0 auto;color:#9cf4ff;font:clamp(7px,1.45vw,11px) var(--nj-font-display);letter-spacing:1px;
       text-shadow:0 0 8px #00d4ff,0 0 20px rgba(0,160,255,.8),2px 2px #000}
     #menuTypewriter::after{content:'▋';color:#ffd700;animation:typeCaret .7s steps(2) infinite}
     @keyframes typeCaret{50%{opacity:0}}
@@ -731,7 +734,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   100%{transform:translate(var(--dx,-18px),-60px) rotate(200deg);opacity:0}
 }
 .pickHeading{
-  font-family:'Press Start 2P';font-size:clamp(9px,1.8vw,13px);color:#FFD700;
+  font-family:var(--nj-font-display);font-size:clamp(9px,1.8vw,13px);color:#FFD700;
   letter-spacing:2px;text-shadow:0 0 14px rgba(255,215,0,.8),2px 2px 0 #000;
   margin:2px 0 8px;animation:pickHeadFloat 2.4s ease-in-out infinite;
 }
@@ -774,7 +777,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   position:relative;z-index:2;filter:drop-shadow(0 8px 10px rgba(0,0,0,.65));transition:filter .25s ease}
 .hcard.on .hcardArtBig{filter:drop-shadow(0 8px 14px rgba(0,0,0,.75)) drop-shadow(0 0 18px var(--hc1))}
 .hcardName{
-  font-family:'Press Start 2P';font-size:clamp(8px,1.4vw,11px);margin-top:6px;position:relative;z-index:2;
+  font-family:var(--nj-font-display);font-size:clamp(8px,1.4vw,11px);margin-top:6px;position:relative;z-index:2;
   color:var(--hc3);text-shadow:0 0 10px var(--hc1),1px 1px 0 #000;letter-spacing:1px;
 }
 .hcardTag{font-size:clamp(6px,1vw,7.5px);color:rgba(230,230,255,.75);margin-top:4px;position:relative;z-index:2}
@@ -837,12 +840,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <div id="S1" class="scr" style="background:radial-gradient(ellipse at 50% 30%,#1A0840 0%,#060018 100%)">
   <div class="lbcard" style="max-width:600px;gap:10px;border-color:rgba(255,215,0,.5);box-shadow:0 0 60px rgba(255,180,0,.25),0 0 120px rgba(100,0,200,.2)">
     <div style="text-align:center;margin-bottom:4px">
-      <div style="font-family:'Press Start 2P';font-size:clamp(22px,5vw,40px);
+      <div style="font-family:var(--nj-font-display);font-size:clamp(22px,5vw,40px);
         background:linear-gradient(180deg,#FFFFFF 0%,#FFE040 30%,#FF8800 70%,#CC4400 100%);
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         filter:drop-shadow(3px 3px 0 rgba(0,0,0,.9)) drop-shadow(0 0 20px rgba(255,180,0,.6));
         margin-bottom:4px">🏆 CAMPEONES</div>
-      <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:rgba(255,215,0,.6);letter-spacing:2px">NINJA X: GUARDIANES DE LAS TABLAS — COLBOLÍVAR</div>
+      <div style="font-family:var(--nj-font-display);font-size:clamp(6px,1.2vw,9px);color:rgba(255,215,0,.6);letter-spacing:2px">NINJA X: GUARDIANES DE LAS TABLAS — COLBOLÍVAR</div>
     </div>
     <div style="border:1px solid rgba(255,200,0,.2);border-radius:8px;overflow:hidden">
       <div id="lbRows"></div>
@@ -857,17 +860,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <div id="S6" class="scr" style="background:radial-gradient(ellipse at 50% 30%,#0A1840 0%,#020818 100%)">
   <div class="lbcard" style="max-width:620px;gap:10px;border-color:rgba(0,200,255,.5);box-shadow:0 0 60px rgba(0,150,255,.25)">
     <div style="text-align:center;margin-bottom:4px">
-      <div style="font-family:'Press Start 2P';font-size:clamp(16px,4vw,28px);
+      <div style="font-family:var(--nj-font-display);font-size:clamp(16px,4vw,28px);
         background:linear-gradient(180deg,#FFFFFF 0%,#88DDFF 40%,#0088FF 100%);
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         filter:drop-shadow(3px 3px 0 rgba(0,0,0,.9)) drop-shadow(0 0 20px rgba(0,150,255,.6));
         margin-bottom:4px">📊 REPORTE DE TABLAS</div>
-      <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:rgba(150,220,255,.7);letter-spacing:1px">
+      <div style="font-family:var(--nj-font-display);font-size:clamp(6px,1.2vw,9px);color:rgba(150,220,255,.7);letter-spacing:1px">
         ACIERTOS Y FALLOS POR TABLA — EN ESTE NAVEGADOR</div>
     </div>
     <div id="reportRows" style="border:1px solid rgba(0,180,255,.2);border-radius:8px;overflow:hidden;padding:8px;max-height:50vh;overflow-y:auto"></div>
     <div id="reportPerfiles" style="border:1px solid rgba(255,200,80,.25);border-radius:8px;padding:8px;margin-top:6px;max-height:34vh;overflow-y:auto"></div>
-    <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.1vw,8px);color:rgba(200,220,255,.5);text-align:center;padding:2px 6px">
+    <div style="font-family:var(--nj-font-display);font-size:clamp(6px,1.1vw,8px);color:rgba(200,220,255,.5);text-align:center;padding:2px 6px">
       Se guarda automáticamente mientras juegan en este dispositivo/navegador. No se envía a ningún servidor.</div>
     <div class="brow" style="margin-top:4px">
       <button class="pbtn sm gh" onclick="showS(0)">◀ VOLVER</button>
@@ -933,9 +936,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
       <!-- Animated neon author credit -->
       <div style="text-align:center;margin:12px 0 4px">
-        <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,9px);color:rgba(150,200,255,.6);letter-spacing:2px;margin-bottom:8px">CREADO POR</div>
-        <div id="neonName" style="font-family:'Press Start 2P';font-size:clamp(14px,3vw,22px);letter-spacing:3px;animation:neonPulse 1.5s ease-in-out infinite">LUIS A. AVELLANEDA</div>
-        <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,9px);color:rgba(150,200,255,.6);letter-spacing:2px;margin-top:6px">PROFE DE MATEMÁTICAS</div>
+        <div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,9px);color:rgba(150,200,255,.6);letter-spacing:2px;margin-bottom:8px">CREADO POR</div>
+        <div id="neonName" style="font-family:var(--nj-font-display);font-size:clamp(14px,3vw,22px);letter-spacing:3px;animation:neonPulse 1.5s ease-in-out infinite">LUIS A. AVELLANEDA</div>
+        <div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,9px);color:rgba(150,200,255,.6);letter-spacing:2px;margin-top:6px">PROFE DE MATEMÁTICAS</div>
       </div>
 
       <div class="srow" style="border-color:rgba(0,200,255,.2)"><span class="sl">INSTITUCIÓN</span><span class="sv" style="color:#00FFCC">COLBOLÍVAR</span></div>
@@ -944,7 +947,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <!-- Animated stars row -->
       <div style="text-align:center;font-size:clamp(16px,3vw,26px);margin:8px 0;animation:paradeFloat 2s ease-in-out infinite">⭐ 🧮 ✨ 📐 ⭐</div>
 
-      <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.4vw,10px);text-align:center;animation:neonPulse2 2s ease-in-out infinite">❤️ HECHO CON AMOR PARA MIS ESTUDIANTES ❤️</div>
+      <div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.4vw,10px);text-align:center;animation:neonPulse2 2s ease-in-out infinite">❤️ HECHO CON AMOR PARA MIS ESTUDIANTES ❤️</div>
       <button class="pbtn gh" onclick="showS(0)" style="margin-top:14px">◀ VOLVER</button>
     </div>
   </div>
@@ -954,20 +957,20 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <div id="levelSelectorModal" style="display:none;position:fixed;inset:0;z-index:9999;
   background:rgba(0,0,15,0.95);backdrop-filter:blur(10px);
   align-items:center;justify-content:center;flex-direction:column;gap:10px;overflow-y:auto;padding:16px">
-  <div style="font-family:'Press Start 2P';font-size:clamp(12px,2.5vw,18px);
+  <div style="font-family:var(--nj-font-display);font-size:clamp(12px,2.5vw,18px);
     background:linear-gradient(180deg,#FFFFFF 0%,#FFE040 40%,#FF8800 100%);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
     filter:drop-shadow(3px 3px 0 rgba(0,0,0,.9));letter-spacing:2px;margin-bottom:2px">
     🎮 SELECCIONAR NIVEL
   </div>
-  <div style="font-family:'Press Start 2P';font-size:clamp(5px,1vw,7px);color:rgba(150,200,255,.5);margin-bottom:8px;letter-spacing:2px">
+  <div style="font-family:var(--nj-font-display);font-size:clamp(5px,1vw,7px);color:rgba(150,200,255,.5);margin-bottom:8px;letter-spacing:2px">
     MODO DIOS — ELIGE CUALQUIER NIVEL
   </div>
 
   <!-- Easy section -->
   <div style="background:linear-gradient(135deg,rgba(0,40,10,.6),rgba(0,20,5,.8));
     border:1px solid rgba(0,200,100,.3);border-radius:10px;padding:10px 14px;width:min(480px,94vw)">
-    <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:#00FF88;
+    <div style="font-family:var(--nj-font-display);font-size:clamp(6px,1.2vw,9px);color:#00FF88;
       letter-spacing:2px;margin-bottom:8px;text-shadow:0 0 10px rgba(0,255,100,.4)">
       🌿 MODO FÁCIL (×2 → ×10)
     </div>
@@ -977,14 +980,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   <!-- Hard section -->
   <div style="background:linear-gradient(135deg,rgba(40,0,5,.6),rgba(20,0,3,.8));
     border:1px solid rgba(255,60,60,.3);border-radius:10px;padding:10px 14px;width:min(480px,94vw)">
-    <div style="font-family:'Press Start 2P';font-size:clamp(6px,1.2vw,9px);color:#FF6666;
+    <div style="font-family:var(--nj-font-display);font-size:clamp(6px,1.2vw,9px);color:#FF6666;
       letter-spacing:2px;margin-bottom:8px;text-shadow:0 0 10px rgba(255,60,60,.4)">
       💀 SESIÓN 2 (×2 → ×11)
     </div>
     <div id="lsHardGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px"></div>
   </div>
 
-  <div style="font-family:'Press Start 2P';font-size:clamp(5px,.9vw,7px);color:rgba(150,200,255,.4);margin-top:6px">
+  <div style="font-family:var(--nj-font-display);font-size:clamp(5px,.9vw,7px);color:rgba(150,200,255,.4);margin-top:6px">
     ESC para cerrar
   </div>
 </div>
@@ -1012,7 +1015,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <script src="engine/ui/transicion-2026.js?v=1"></script>
 <script src="engine/ui/iconos-2026.js?v=1"></script>
 <!-- Mejoras por carpetas (motores): core → escenario → ui. Se apagan desde 🧩 MEJORAS o con ?mods=0 -->
-<script>window.NJ_BUILD="2026-11-26-7eaa74e";</script>
+<script>window.NJ_BUILD="2026-11-27-be584df";</script>
 <script>/* Créditos: muestra la fecha de la versión publicada (NJ_BUILD la escribe el robot de Publicar versión) */
 (function(){var e=document.getElementById('creditVer'),m=/^(\d{4})-(\d{2})-(\d{2})/.exec(window.NJ_BUILD||'');if(e&&m)e.textContent=m[3]+'/'+m[2]+'/'+m[1];})();</script>
 <script src="engine/core/version.js?v=1"></script>
@@ -1047,13 +1050,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 <style id="arcade-ninja-evolved">
 /* ARCADE NINJA EVOLUCIONADO · DESIGN SYSTEM
    Capa visual no invasiva: conserva canvas, arte, personajes y lógica del juego. */
-:root{
-  --an-bg:#10152B;--an-panel:rgba(22,29,55,.94);--an-panel-2:rgba(29,38,70,.92);
-  --an-line:rgba(130,157,218,.24);--an-line-strong:rgba(22,200,232,.58);
-  --an-cyan:#16C8E8;--an-gold:#FFC247;--an-violet:#7667E8;
-  --an-text:#F4F6FC;--an-muted:#AAB5D0;--an-radius:18px;
-  --an-shadow:0 18px 48px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);
-}
+/* Variables --an-* → ahora son alias en engine/ui/tokens.css (única fuente de verdad) */
 html,body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
 button,input,select,textarea{font-family:Inter,ui-sans-serif,system-ui,sans-serif}
 .scr{
@@ -1069,7 +1066,7 @@ button,input,select,textarea{font-family:Inter,ui-sans-serif,system-ui,sans-seri
 }
 .scr .card::before{height:2px;left:10%;right:10%;background:linear-gradient(90deg,transparent,var(--an-cyan),var(--an-violet),var(--an-gold),transparent);opacity:.8}
 .scr .ttl,.scr .bntitle,.pause-title,.ht-title,.pc-title{
-  font-family:"Press Start 2P",monospace!important;letter-spacing:.02em;
+  font-family:var(--nj-font-display)!important;letter-spacing:.02em;
 }
 .scr .ttl{
   font-size:clamp(15px,2.5vw,23px)!important;line-height:1.55;
@@ -1119,7 +1116,7 @@ button,input,select,textarea{font-family:Inter,ui-sans-serif,system-ui,sans-seri
 .scr .brow>.pbtn{flex:1 1 130px}
 #S1 .lbcard,#S6 .lbcard{width:min(680px,96vw);max-height:90vh;overflow:auto}
 #S1 .lbcard>div:first-child>div:first-child,#S6 .lbcard>div:first-child>div:first-child{
-  font-family:"Press Start 2P",monospace!important;letter-spacing:0!important;
+  font-family:var(--nj-font-display)!important;letter-spacing:0!important;
   font-size:clamp(15px,2.7vw,25px)!important;
 }
 #levelSelectorModal{

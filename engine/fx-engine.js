@@ -211,7 +211,7 @@ FX.combo=function(streak){
 const fxStyle=document.createElement('style');fxStyle.textContent=`
 #fxWipe{position:fixed;inset:0;z-index:12000;pointer-events:none;background:linear-gradient(110deg,#100633,#00d4ff 48%,#ffb800);transform:translateX(-105%);transition:transform .42s cubic-bezier(.7,0,.2,1)}
 #fxWipe.in{transform:translateX(0)}#fxWipe.out{transform:translateX(105%)}
-#fxCombo{position:fixed;left:50%;top:24%;z-index:12001;pointer-events:none;opacity:0;transform:translate(-50%,18px) scale(.7);font:clamp(16px,4vw,32px) 'Press Start 2P',monospace;text-shadow:0 0 16px currentColor,3px 3px #000;color:#ffb800}
+#fxCombo{position:fixed;left:50%;top:24%;z-index:12001;pointer-events:none;opacity:0;transform:translate(-50%,18px) scale(.7);font:clamp(16px,4vw,32px) var(--nj-font-display);text-shadow:0 0 16px currentColor,3px 3px #000;color:#ffb800}
 #fxCombo[data-level=high]{color:#ff4d00}#fxCombo[data-level=legend]{color:#00eaff}
 #fxCombo.on{animation:fxComboPop .85s cubic-bezier(.2,1.3,.4,1) forwards}
 @keyframes fxComboPop{15%{opacity:1;transform:translate(-50%,0) scale(1.12)}40%,75%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-24px) scale(.92)}}

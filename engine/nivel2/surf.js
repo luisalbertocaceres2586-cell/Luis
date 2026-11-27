@@ -55,7 +55,7 @@
   const ESC_H = 1.25, ESC_O = 1.15;   // héroe+vehículo ×1.25 (antes ~122 px se veía pequeño) y obstáculos/puertas/adornos a su escala
   const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1500, GR_CAIDA = 2000, VSALTO = 666;   // mismo salto de ~148 px, pero se sube más ágil y se cae más rápido (antes flotaba ~0,95 s; ahora ~0,83 s)
   const COL = ['#3fe0cf', '#ffd35a', '#ff7fae'];
-  const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
+  const FUENTE = 'Lilita One,Trebuchet MS,Verdana,sans-serif';
   const R = (a, b) => a + Math.random() * (b - a), RI = (a, b) => Math.floor(R(a, b + 1));
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const pick = a => a[RI(0, a.length - 1)];
@@ -164,7 +164,7 @@
 
     // ── utilidades de dibujo ──
     function T(s, x, y, size, col, al, lw) {
-      cx.font = 'bold ' + size + 'px ' + FUENTE; cx.textAlign = al || 'left'; cx.textBaseline = 'alphabetic';
+      cx.font = ''+size + 'px ' + FUENTE; cx.textAlign = al || 'left'; cx.textBaseline = 'alphabetic';
       if (lw) { cx.lineJoin = 'round'; cx.lineWidth = lw; cx.strokeStyle = 'rgba(30,12,40,.92)'; cx.strokeText(s, x, y); }
       cx.fillStyle = col; cx.fillText(s, x, y);
     }
