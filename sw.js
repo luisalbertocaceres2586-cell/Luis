@@ -31,6 +31,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('message', e => {
   if (e.data === 'limpiar') e.waitUntil((async () => { for (const k of await caches.keys()) if (k.startsWith('ninja-')) await caches.delete(k); })());
+  else if (e.data && e.data.tipo === 'precargar') e.waitUntil(precargar());
 });
 
 self.addEventListener('fetch', e => {
@@ -115,4 +116,50 @@ async function activos(e) {
   } catch (err) {
     return Response.error();
   }
+}
+
+/* ---- precarga opcional: baja TODO lo de precache.json para jugar sin internet ----
+   Solo se hace si el jugador lo pide (?offline=1, ver engine/core/sw-registro.js): son decenas de MB.
+   · lo que ya está guardado NO se vuelve a descargar (solo baja lo que falta);
+   · se detiene si no hay espacio suficiente en el teléfono;
+   · avisa el avance a la página con postMessage({tipo:'precarga', hechos, total, estado}). */
+let precargando = false;
+async function avisar(datos) {
+  for (const c of await self.clients.matchAll({ includeUncontrolled: true })) c.postMessage(Object.assign({ tipo: 'precarga' }, datos));
+}
+async function precargar() {
+  if (precargando) return;
+  precargando = true;
+  try {
+    const lista = await (await fetch('precache.json', { cache: 'no-cache' })).json();
+    const base = self.registration.scope;
+    const abs = r => new URL(r, base).href;
+    const mb = lista.mb || 0;
+    try {
+      const est = await navigator.storage.estimate();
+      if (est && est.quota && (est.quota - est.usage) < mb * 1048576 * 1.3) { await avisar({ estado: 'sin-espacio', mb }); return; }
+    } catch (err) { /* sin estimación: se intenta igual */ }
+    const cCodigo = await caches.open(SHELL), cActivos = await caches.open(ASSETS);
+    const trabajo = lista.codigo.map(r => ({ r, codigo: true })).concat(lista.activos.map(r => ({ r, codigo: false })));
+    const total = trabajo.length;
+    let hechos = 0, fallos = 0, i = 0;
+    async function uno(t) {
+      const url = abs(t.r), req = new Request(url);
+      try {
+        if (t.codigo) {
+          const net = await fetch(url, { cache: 'no-cache', credentials: 'same-origin' });
+          if (net && net.ok && net.type === 'basic') await cCodigo.put(req, net);
+        } else if (!(await cActivos.match(req))) {
+          await guardar(cActivos, req, await fetch(url));
+        }
+      } catch (err) { fallos++; }
+      hechos++;
+      if (hechos % 25 === 0 || hechos === total) await avisar({ estado: 'bajando', hechos, total });
+    }
+    await avisar({ estado: 'bajando', hechos: 0, total });
+    await Promise.all(Array.from({ length: 6 }, async () => { while (i < total) await uno(trabajo[i++]); }));
+    await avisar({ estado: fallos > total * 0.02 ? 'incompleto' : 'listo', hechos, total, fallos, v: lista.v });
+  } catch (err) {
+    await avisar({ estado: 'error' });
+  } finally { precargando = false; }
 }

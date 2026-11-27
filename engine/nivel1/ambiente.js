@@ -26,6 +26,7 @@
   };
   const COL = { hoja: ['#8fd14f', '#5fae3a', '#a6d13f'], petalo: ['#ff8fb8', '#ffc2d8', '#ffe1ec'], luci: ['#b5f23d', '#e8ff7a'], agua: ['#8fe3ff', '#c9f3ff', '#5ccbf0'], chispa: ['#ffe27a', '#fff3b8', '#ffd54a'] };
   let petalos = [];
+  const BRILLA = { cristal: .5, hongo: .45, hongoGigante: .6, floresLuz: .5, cristalesTecho: .5 };   // decorados luminosos de la cueva (altura relativa del brillo)
 
   function dim(d) { const q = core.DECO && core.DECO[d.tipo]; if (!q) return null; const im = img[q[0]]; if (!im) return null; const w = q[1]; return { w, hh: im.height * w / im.width }; }
   function caja(d, t) { const m = dim(d); if (!m) return null; return rect(d.x - m.w * .4, (d.techo ? 0 : G + 4 - m.hh), m.w * .8, m.hh); }
@@ -88,6 +89,9 @@
           let px = x + q[0] * m.w, py = y0; if (T) { const ox = px - x, oy = y0 - T.py, cs = Math.cos(T.rot), sn = Math.sin(T.rot); px = x + ox * cs - oy * sn; py = T.py + ox * sn + oy * cs; }
           luz(cx, glow(q[1][0], q[1][1], q[1][2]), px, py, 118, .5 * vis, d.x * .01 + i * 2.1, !lento && i === 1);
         });
+      } else if (BRILLA[d.tipo] && window.N1det) {   // cristales, hongos y flores de luz: brillo que respira (detalles.js)
+        const m = dim(d), q = core.DECO[d.tipo], im = q && img[q[0]]; if (!m || !im) return; ini();
+        N1det.brillo(cx, im, d.x - cam, d.techo ? m.hh * .45 : G + 4 - m.hh * BRILLA[d.tipo], m.w * .7, s.t, d.x * .013, vis);
       } else if (d.tipo === 'toro') {
         const m = dim(d); if (!m) return; ini(); luz(cx, glow(255, 205, 95), d.x - cam - m.w * .015, G + 4 - m.hh + m.hh * .386, 105, .55 * vis, d.x * .013, !lento);
       }
@@ -132,6 +136,7 @@
   // estrella de los secretos + cartel que avisa (se dibuja justo después del sprite)
   A.extra = function (d, x, top, w) {
     const s = S();
+    if (d.tipo === 'fuente' && window.N1det) N1det.fuente(core.cx, img.fuente, x, top, w, s.t);   // agua que cae, ondas, gotas (detalles.js)
     if (d.premio && !d.abierto) {
       const k = s.t * 2.2 + d.x * .01, a = .8 + .2 * Math.sin(k * 2), cx = core.cx, sx = x + Math.sin(k) * w * .08, sy = top - 8 + Math.sin(k * 1.3) * 5;
       cx.save(); cx.globalAlpha = a; cx.translate(sx, sy); const hg = cx.createRadialGradient(0, 0, 2, 0, 0, 30); hg.addColorStop(0, 'rgba(255,240,170,.75)'); hg.addColorStop(1, 'rgba(255,240,170,0)'); cx.fillStyle = hg; cx.beginPath(); cx.arc(0, 0, 30, 0, 7); cx.fill();
@@ -141,7 +146,7 @@
     }
     if (d.tipo === 'cartel' && d.msg) {
       const dist = Math.abs(s.h.x - d.x), al = clamp((250 - dist) / 90, 0, 1); if (al <= 0) return;
-      const cx = core.cx; cx.save(); cx.globalAlpha = al; cx.font = 'bold 16px ui-monospace,monospace'; const tw = Math.min(W - 40, cx.measureText(d.msg).width + 34), bx = clamp(x - tw / 2, 12, W - tw - 12), by = top - 58 - (1 - al) * 10;
+      const cx = core.cx; cx.save(); cx.globalAlpha = al; cx.font = '16px Lilita One,Inter,sans-serif'; const tw = Math.min(W - 40, cx.measureText(d.msg).width + 34), bx = clamp(x - tw / 2, 12, W - tw - 12), by = top - 58 - (1 - al) * 10;
       core.caja(bx, by, tw, 40, 10, 'rgba(18,8,51,.9)', '#ffc93c');
       cx.beginPath(); cx.moveTo(x - 9, by + 40); cx.lineTo(x + 9, by + 40); cx.lineTo(x, by + 52); cx.closePath(); cx.fillStyle = 'rgba(18,8,51,.9)'; cx.fill();
       cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(d.msg, bx + tw / 2, by + 21); cx.restore();

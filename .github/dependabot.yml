@@ -1,0 +1,25 @@
+# Dependabot abre solo un Pull Request cuando hay versiones nuevas de las acciones de GitHub o de TypeScript.
+# IMPORTANTE: este repo fusiona PRs solo cuando pasan las comprobaciones. Por eso NO se aceptan saltos de versión MAYOR
+# (p. ej. TypeScript 5 → 7 trajo 79 errores de tipos y dejó main en rojo). Las versiones mayores se actualizan a mano, en un PR revisado.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      acciones:
+        patterns: ['*']
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    groups:
+      npm:
+        patterns: ['*']

@@ -8,7 +8,7 @@
   let listo = false, vista = 'auto', borrador = { nombre: '', avatar: 'sakura', dispositivo: null };
 
   const css = `
-#pfOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,rgba(60,20,110,.96),rgba(10,4,26,.98));font-family:'Press Start 2P',ui-monospace,monospace;color:#fff;padding:12px;overflow:auto}
+#pfOverlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,rgba(60,20,110,.96),rgba(10,4,26,.98));font-family:var(--nj-font-display);color:#fff;padding:12px;overflow:auto}
 #pfOverlay *{box-sizing:border-box}
 .pf-card{width:min(760px,96vw);max-height:96vh;overflow:auto;background:linear-gradient(180deg,rgba(40,18,80,.92),rgba(18,8,42,.95));border:2px solid #FFC93C;border-radius:14px;box-shadow:0 0 40px rgba(255,201,60,.25),inset 0 0 30px rgba(0,0,0,.5);padding:clamp(14px,3vw,26px)}
 .pf-card h2{margin:0 0 4px;font-size:clamp(13px,2.6vw,20px);color:#FFC93C;text-shadow:0 2px 0 #7a3a00;letter-spacing:1px;text-align:center}
@@ -35,7 +35,7 @@
 .pf-err{min-height:14px;color:#ff8a8a;font-size:8px;margin:6px 0;text-align:center}
 .pf-pie{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:12px}
 .pf-code{width:100%;min-height:64px;background:#0d0620;color:#9ff;border:1px solid #6b4bd1;border-radius:8px;font-size:9px;padding:8px;font-family:ui-monospace,monospace}
-#pfChip{display:inline-flex;align-items:center;gap:8px;margin:0 auto 10px;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid #FFC93C;border-radius:20px;padding:6px 12px;color:#FFE27A;font-family:'Press Start 2P',monospace;font-size:clamp(7px,1.3vw,9px)}
+#pfChip{display:inline-flex;align-items:center;gap:8px;margin:0 auto 10px;cursor:pointer;background:rgba(255,255,255,.1);border:1px solid #FFC93C;border-radius:20px;padding:6px 12px;color:#FFE27A;font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,9px)}
 #pfChip:hover{background:rgba(255,201,60,.22)}
 /* ── PERFIL NINJA / REDISEÑO PREMIUM ───────────────────────────── */
 #pfOverlay{
@@ -178,8 +178,8 @@
   function cargarNivel1() {
     if (window.Nivel1) return Promise.resolve();
     if (cargaN1) return cargaN1;
-    const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos', 'ambiente', 'habilidades', 'director'];
-    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=12'; s.onload = () => ok(); s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
+    const lista = ['ruta', 'acertijos', 'gen-nivel', 'motor', 'elementos', 'ambiente', 'detalles', 'habilidades', 'director', 'guia'];
+    cargaN1 = lista.reduce((pr, n) => pr.then(() => new Promise((ok, mal) => { const s = document.createElement('script'); s.src = 'engine/nivel1/' + n + '.js?v=14'; s.onload = () => ok(); s.onerror = () => mal(new Error('No se pudo cargar ' + n)); document.head.appendChild(s); })), Promise.resolve());
     return cargaN1;
   }
   function nivel2Nuevo(p) {

@@ -10,7 +10,7 @@
   'use strict';
   const Lg = window.Nivel4Logica, SA = window.Nivel4Salas;
   const W = 960, H = 540, T = 56, RS = T * 9, RX = 28, RY = 18, PX = 592, PW = 340;
-  const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
+  const FUENTE = 'Lilita One,Trebuchet MS,Verdana,sans-serif';
   const COL = ['#35d6ff', '#ff5bd1', '#ffd84a'];
   const NOMBRE_RETO = { mult: 'Resultado', sec: 'Secuencia', sombra: 'Sombra' };
   const SIMB = { L: '◀', R: '▶', CW: '⟳', CCW: '⟲' };
@@ -313,7 +313,7 @@
       g.strokeStyle = c; g.lineWidth = 2; g.setLineDash([6, 5]); g.lineDashOffset = -now * 12; rr(g, -T / 2 + 3, -T / 2 + 3, T - 6, T - 6, 6); g.stroke(); g.setLineDash([]);
       g.globalAlpha = .5; g.lineWidth = 1.2; g.beginPath(); for (let i = -2; i <= 2; i++) { g.moveTo(-T / 2 + 6, i * 11 + 6 * Math.sin(now * 2 + i)); g.lineTo(T / 2 - 6, i * 11 - 8); } g.stroke(); g.globalAlpha = 1;
     }
-    function texto(g, s, x, y, tam, col, borde, alin) { g.font = 'bold ' + tam + 'px ' + FUENTE; g.textAlign = alin || 'center'; g.textBaseline = 'middle'; if (borde) { g.lineWidth = Math.max(3, tam / 5); g.strokeStyle = borde; g.lineJoin = 'round'; g.strokeText(s, x, y); } g.fillStyle = col; g.fillText(s, x, y); }
+    function texto(g, s, x, y, tam, col, borde, alin) { g.font = ''+tam + 'px ' + FUENTE; g.textAlign = alin || 'center'; g.textBaseline = 'middle'; if (borde) { g.lineWidth = Math.max(3, tam / 5); g.strokeStyle = borde; g.lineJoin = 'round'; g.strokeText(s, x, y); } g.fillStyle = col; g.fillText(s, x, y); }
     function especial(g, t, x, y, now) {
       if (t === '^') { const im = IMG(listo(IMG(RUTA.n_pinchos)) ? RUTA.n_pinchos : RUTA.pinchos); if (listo(im)) { const w = T * .95, h = w * im.naturalHeight / im.naturalWidth; g.drawImage(im, -w / 2, T / 2 - h, w, h); } return; }
       if (t === 'S') { const on = E.retos.some((r, i) => r.tipo === 'sombra' && E.hechoReto[i]), nuevo = IMG(on ? RUTA.n_sw1 : RUTA.n_sw0); if (listo(nuevo)) { const h = T * (on ? 1.25 : 1.05), w = h * nuevo.naturalWidth / nuevo.naturalHeight; g.drawImage(nuevo, -w / 2, T / 2 - h + 2, w, h); return; } const im = IMG(RUTA.interr); const k = on ? 1 : .8 + .2 * Math.sin(now * 3); if (listo(im)) { const w = T * 1.05, h = w * im.naturalHeight / im.naturalWidth; g.globalAlpha = .75 + .25 * k; g.drawImage(im, -w / 2, T / 2 - h + 2, w, h); g.globalAlpha = 1; } else { g.fillStyle = COL[2]; g.fillRect(-T / 3, T / 2 - 8, T * .66, 8); } return; }
@@ -446,7 +446,7 @@
     }
     /** Pantalla (x, y) del centro de una casilla del mundo, con la sala girada. */
     function pantallaDe(x, y) { const a = V.ang * Math.PI / 180, dx = (x + .5) * T - RS / 2, dy = (y + .5) * T - RS / 2; return [RX + RS / 2 + dx * Math.cos(a) - dy * Math.sin(a), RY + RS / 2 + dx * Math.sin(a) + dy * Math.cos(a)]; }
-    function etiqueta(g, s, x, y, c) { g.font = 'bold 13px ' + FUENTE; const w = g.measureText(s).width + 18; g.fillStyle = 'rgba(10,10,30,.88)'; rr(g, x - w / 2, y - 12, w, 24, 12); g.fill(); g.strokeStyle = c; g.lineWidth = 2; g.stroke(); texto(g, s, x, y + 1, 13, '#fff'); }
+    function etiqueta(g, s, x, y, c) { g.font = '13px ' + FUENTE; const w = g.measureText(s).width + 18; g.fillStyle = 'rgba(10,10,30,.88)'; rr(g, x - w / 2, y - 12, w, 24, 12); g.fill(); g.strokeStyle = c; g.lineWidth = 2; g.stroke(); texto(g, s, x, y + 1, 13, '#fff'); }
     /** Capa EN COLOR sobre el tablero (el tablero va en negativo/gris): une cada losa, fantasma y sombra con su pregunta. */
     function capaColor(g, now) {
       g.save(); rr(g, RX, RY, RS, RS, 14); g.clip();
@@ -474,7 +474,7 @@
     }
     /** Cuadro de texto con ajuste de línea, anclado por arriba (abajo = false) o por abajo (abajo = true). */
     function pildora(g, s, yBase, c, tam, abajo) {
-      g.font = 'bold ' + tam + 'px ' + FUENTE; const mw = RS - 40, pal = s.split(' '), lin = []; let ln = '';
+      g.font = ''+tam + 'px ' + FUENTE; const mw = RS - 40, pal = s.split(' '), lin = []; let ln = '';
       pal.forEach(p => { const t = ln ? ln + ' ' + p : p; if (g.measureText(t).width > mw - 30 && ln) { lin.push(ln); ln = p; } else ln = t; }); if (ln) lin.push(ln);
       const w = Math.min(mw, Math.max.apply(null, lin.map(l => g.measureText(l).width)) + 30), h = lin.length * (tam + 5) + 12, x = RX + RS / 2 - w / 2, y = abajo ? yBase - h : yBase;
       g.fillStyle = 'rgba(10,10,30,.9)'; rr(g, x, y, w, h, 14); g.fill(); g.strokeStyle = c; g.lineWidth = 2; g.stroke();
@@ -485,8 +485,8 @@
       g.save(); rr(g, RX, RY, RS, RS, 14); g.clip();
       const m = meta();
       if (m) {
-        const maxW = RS - 100, pad = m.n ? 82 : 40; let tam = 17; g.font = 'bold ' + tam + 'px ' + FUENTE;
-        while (tam > 11 && g.measureText(m.txt).width + pad > maxW) { tam--; g.font = 'bold ' + tam + 'px ' + FUENTE; }
+        const maxW = RS - 100, pad = m.n ? 82 : 40; let tam = 17; g.font = ''+tam + 'px ' + FUENTE;
+        while (tam > 11 && g.measureText(m.txt).width + pad > maxW) { tam--; g.font = ''+tam + 'px ' + FUENTE; }
         const w = Math.min(maxW, g.measureText(m.txt).width + pad), mid = RX + (RS - 50) / 2, x = mid - w / 2;   // deja libre la esquina del botón «?»
         g.fillStyle = 'rgba(10,10,30,.9)'; rr(g, x, RY + 8, w, 36, 18); g.fill(); g.strokeStyle = m.c; g.lineWidth = 2; g.stroke();
         if (m.n) { insignia(g, x + 22, RY + 26, m.n, m.c, false, 13); texto(g, '🎯 ' + m.txt, x + 42, RY + 27, tam, '#fff', null, 'left'); } else texto(g, '🌀 ' + m.txt, mid, RY + 27, tam, '#fff');
@@ -556,7 +556,7 @@
       panel(g, now);
       // avisos
       let ty = 74; for (let i = toasts.length - 1; i >= 0; i--) { const t = toasts[i], e = now - t.t0; if (e > t.d) { toasts.splice(i, 1); continue; } }
-      toasts.slice(-2).forEach((t, i) => { const e = now - t.t0, a = clamp(Math.min(e / 0.2, (t.d - e) / 0.4), 0, 1); g.globalAlpha = a; g.font = 'bold 18px ' + FUENTE; const w = g.measureText(t.t).width + 34; g.fillStyle = 'rgba(10,10,30,.88)'; rr(g, RX + RS / 2 - w / 2, ty + i * 44 - 4, w, 36, 18); g.fill(); g.strokeStyle = t.c; g.lineWidth = 2; g.stroke(); texto(g, t.t, RX + RS / 2, ty + i * 44 + 14, 18, t.c); g.globalAlpha = 1; });
+      toasts.slice(-2).forEach((t, i) => { const e = now - t.t0, a = clamp(Math.min(e / 0.2, (t.d - e) / 0.4), 0, 1); g.globalAlpha = a; g.font = '18px ' + FUENTE; const w = g.measureText(t.t).width + 34; g.fillStyle = 'rgba(10,10,30,.88)'; rr(g, RX + RS / 2 - w / 2, ty + i * 44 - 4, w, 36, 18); g.fill(); g.strokeStyle = t.c; g.lineWidth = 2; g.stroke(); texto(g, t.t, RX + RS / 2, ty + i * 44 + 14, 18, t.c); g.globalAlpha = 1; });
     }
 
     // ───────────────────────── pantallas ─────────────────────────

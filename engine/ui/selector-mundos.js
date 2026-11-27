@@ -17,7 +17,7 @@
   /** Solo se usa en el navegador (en Node las funciones que lo necesitan no se llaman). */
   const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : null);
   const VISTO_KEY = 'ninja_mundos_visto_v1';
-  const CSS_HREF = 'engine/ui/selector-mundos.css?v=4';
+  const CSS_HREF = 'engine/ui/selector-mundos.css?v=5';
 
   const pad = (n, w) => String(n).padStart(w || 2, '0');
   const rango = (pre, a, b, suf, w) => { const r = []; for (let i = a; i <= b; i++) r.push(pre + pad(i, w) + suf); return r; };

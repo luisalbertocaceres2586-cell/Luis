@@ -144,6 +144,7 @@
     if (window.N1amb) N1amb.reiniciar();
     if (window.N1hab) N1hab.iniciar(S, nivel2 ? Object.assign({}, o, { habilidades: ['dash', 'doble', 'planeo', 'pared', 'tajoAereo', 'gancho'] }) : o);
     if (window.N1dir && !nivel2) N1dir.iniciar(S, o);
+    if (window.N1guia) { try { N1guia.iniciar(S); } catch (e) {} }   // guía visual de los primeros minutos (guia.js)
     window.addEventListener('keydown', onKey, true); window.addEventListener('keyup', onKeyUp, true); window.addEventListener('resize', ajustar);
     cv.addEventListener('pointerdown', onPointer);
     ajustar(); last = performance.now(); acc = 0; raf = requestAnimationFrame(bucle);
@@ -157,7 +158,7 @@
 
   // ============ pantalla ============
   const CSS = `
-#n1Root{position:fixed;inset:0;z-index:90000;background:#0a0618;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:'Press Start 2P',ui-monospace,monospace;color:#fff;touch-action:none;user-select:none}
+#n1Root{position:fixed;inset:0;z-index:90000;background:#0a0618;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:var(--nj-font-display);color:#fff;touch-action:none;user-select:none}
 #n1Root canvas{display:block;background:#000}
 #n1Carga{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(ellipse at 50% 35%,#3a1a6e,#0a0618);z-index:3}
 #n1Carga .t{color:#FFC93C;font-size:clamp(12px,2.4vw,20px)}#n1Carga .b{width:min(420px,70vw);height:12px;border:2px solid #FFC93C;border-radius:8px;overflow:hidden}
@@ -190,6 +191,7 @@
     // Todos los botones se registran en la capa táctil común (engine/core/tactil.js): halo de tolerancia, cruceta ◀▶ deslizable,
     // multitáctil independiente, toque mínimo (un toque más corto que un cuadro no se pierde) y soltado seguro (sin teclas pegadas).
     const reg = (e, tecla, o) => {
+      e.dataset.k = tecla;   // la guía visual (guia.js) usa esto para hacer latir el botón que toca
       const dn = () => { pulsar(tecla); keys[tecla] = 1; if (tecla === 'Space' && navigator.vibrate) try { navigator.vibrate(10); } catch (_) {} };
       const up = () => { if (keys[tecla]) { soltar(tecla); keys[tecla] = 0; } };
       if (window.NinjaTouch) { window.NinjaTouch.add(e, Object.assign({ id: 'n1' + tecla, clase: 'on', down: dn, up }, o)); return; }
@@ -227,7 +229,7 @@
   }
   function onKeyUp(e) { if (!S) return; if (keys[e.code]) soltar(e.code); keys[e.code] = 0; if (CTRL.indexOf(e.code) >= 0) { e.preventDefault(); e.stopImmediatePropagation(); } }
   function onPointer(e) {   // toque o clic sobre un objetivo: lo elige y lanza
-    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), pm = window.N1cam ? N1cam.mundo((e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height) : { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }, px = pm.x + S.cam, py = pm.y;   // N1cam.mundo deshace el zoom y el desplazamiento de la cámara
+    if (!S || S.fin || S.pausa || S.eligiendo) return; const r = cv.getBoundingClientRect(), sp = { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }, q = window.N1persp ? N1persp.inv(sp.x, sp.y) : sp, pm = window.N1cam ? N1cam.mundo(q.x, q.y) : q, px = pm.x + S.cam, py = pm.y;   // N1cam.mundo deshace el zoom y el desplazamiento de la cámara
     const est = S.estSel; if (!est) return; const lst = objetivos(est);
     let mejor = null, d = 70; lst.forEach(o => { const dd = Math.hypot(o.x - px, o.y - py); if (dd < d) { d = dd; mejor = o; } }); if (mejor) disparar(mejor, est);
   }
@@ -462,6 +464,7 @@
     { id: 'tela', txt: 'La telaraña te frena. Córtala con tu espada', teclas: ['C'], ok: () => false, cuando: () => S.N.elem.some(e => e.t === 'tela' && !e.roto && Math.abs(e.x - S.h.x) < 300 && e.x > S.h.x - 40) }
   ];
   function tutoriales(dt) {
+    if (window.N1guia) { try { if (N1guia.actualizar(S, dt, S.tutos || (S.tutos = TUTOS.concat(window.N1hab ? N1hab.TUTOS : [], window.N1dir ? N1dir.TUTOS : [])))) return; } catch (e) {} }   // ayudas dibujadas (guia.js); si fallara, sigue la tarjeta de texto de abajo
     if (S.tip) { S.tipT += dt; const t = S.tip; if (S.tipT > 1.5 && (t.ok() || S.tipT > 14)) { S.tutoVisto[t.id] = 1; S.tip = null; } return; }
     for (const t of TUTOS.concat(window.N1hab ? N1hab.TUTOS : [], window.N1dir ? N1dir.TUTOS : [])) { if (S.tutoVisto[t.id]) continue; let ok = false; try { ok = t.cuando(); } catch (e) {} if (ok) { S.tip = t; S.tipT = 0; break; } }
   }
@@ -492,7 +495,7 @@
   // ============ dibujo ============
   function sprite(im, x, y, w, h, flip) { if (!im) return; cx.save(); if (flip) { cx.translate(x + w, y); cx.scale(-1, 1); cx.drawImage(im, 0, 0, w, h); } else cx.drawImage(im, x, y, w, h); cx.restore(); }
   const porAncho = (im, x, base, w, flip) => { if (!im) return 0; const h = im.height * w / im.width; sprite(im, x - w / 2, base - h, w, h, flip); return h; };
-  function etiqueta(s, x, y, tam, col) { cx.font = 'bold ' + tam + 'px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineWidth = 5; cx.strokeStyle = 'rgba(20,8,40,.92)'; cx.strokeText(s, x, y); cx.fillStyle = col || '#fff'; cx.fillText(s, x, y); }
+  function etiqueta(s, x, y, tam, col) { cx.font = '' + tam + 'px Lilita One,Inter,sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineWidth = 5; cx.strokeStyle = 'rgba(20,8,40,.92)'; cx.strokeText(s, x, y); cx.fillStyle = col || '#fff'; cx.fillText(s, x, y); }
   Object.assign(core, { sprite, porAncho, etiqueta });
 
   function fondoDesiertoNoche(alpha) {
@@ -836,7 +839,7 @@
     if (S.nivel2) fondoDesiertoNoche(1);
     else { if (S.mezcla < .98) fondoBosque(1); if (S.mezcla > .02) fondoCueva(S.mezcla); }
     if (window.N1dir && !S.nivel2) N1dir.fondo();
-    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1prof) N1prof.sombras(); if (window.N1hab) N1hab.mundo();
+    if (!S.nivel2) decorado('atras'); suelos(); plataformas(); estacionesDibujo(); N1elem.dibujar('atras'); if (window.N1prof) N1prof.sombras(); if (window.N1persp) N1persp.suelo(cx); if (window.N1hab) N1hab.mundo();
     S.items.forEach(i => { if (i.tomado || i.x < S.cam - 60 || i.x > S.cam + W + 60) return; const im = { onigiri: img.onigiri, frasco: img.frasco, corazon: img.corazon, llave: img.llave }[i.tipo] || img.pergamino, w = { onigiri: 46, frasco: 46, corazon: 54, llave: 52 }[i.tipo] || 52; if (im) { const brilla = i.tipo === 'corazon' || i.tipo === 'llave'; if (brilla) { cx.save(); cx.shadowColor = '#ffe27a'; cx.shadowBlur = 14; } sprite(im, i.x - S.cam - w / 2, i.y - im.height * w / im.width / 2 + Math.sin(S.t * 3 + i.x) * 5, w, im.height * w / im.width); if (brilla) cx.restore(); } });
     N1elem.dibujar('enemigos'); dibujarHeroe(); if (window.N1hab) N1hab.encima(); N1elem.dibujar('frente');
     S.kfx.forEach(dibujarKunaiFx);
@@ -852,7 +855,7 @@
     const v = cx.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,0,30,.45)'); cx.fillStyle = v; cx.fillRect(-60, -420, W + 120, H + 700);
     if (S.osc > .15) etiquetasAcertijos();
     if (S.flash > 0) { cx.fillStyle = 'rgba(255,60,60,' + S.flash * 1.2 + ')'; cx.fillRect(-60, -420, W + 120, H + 700); }
-    if (S.apunta) mira(); cx.restore(); if (window.N1cam) N1cam.encima(cx); hud();
+    if (S.apunta) mira(); cx.restore(); if (window.N1persp) N1persp.encima(cx); if (window.N1cam) N1cam.encima(cx); hud();
   }
   function mira() {
     const a = S.apunta, h = S.h; a.t += 1 / 60; cx.fillStyle = 'rgba(10,4,30,.35)'; cx.fillRect(-60, -420, W + 120, H + 700);
@@ -861,12 +864,12 @@
   }
   function caja(x, y, w, h, r, fill, stroke) { cx.beginPath(); cx.roundRect ? cx.roundRect(x, y, w, h, r) : cx.rect(x, y, w, h); cx.fillStyle = fill; cx.fill(); if (stroke) { cx.lineWidth = 2; cx.strokeStyle = stroke; cx.stroke(); } }
   core.caja = caja;
-  function tecla(t, x, y) { cx.font = 'bold 20px ui-monospace,monospace'; const w = Math.max(40, cx.measureText(t).width + 22); caja(x, y, w, 42, 8, '#f4ead0', '#7a5a2a'); cx.fillStyle = 'rgba(0,0,0,.2)'; cx.fillRect(x + 4, y + 34, w - 8, 5); cx.fillStyle = '#2a1a0a'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, x + w / 2, y + 20); return w; }
+  function tecla(t, x, y) { cx.font = '20px Lilita One,Inter,sans-serif'; const w = Math.max(40, cx.measureText(t).width + 22); caja(x, y, w, 42, 8, '#f4ead0', '#7a5a2a'); cx.fillStyle = 'rgba(0,0,0,.2)'; cx.fillRect(x + 4, y + 34, w - 8, 5); cx.fillStyle = '#2a1a0a'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, x + w / 2, y + 20); return w; }
   function hud() {
     const h = S.h;
     for (let i = 0; i < S.vidaMax; i++) { cx.fillStyle = i < h.vida ? '#ff4d6d' : 'rgba(255,255,255,.18)'; cx.font = '30px sans-serif'; cx.textAlign = 'left'; cx.textBaseline = 'top'; cx.fillText('♥', 20 + i * 36, 14); }
-    caja(20, 58, 120, 32, 8, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.font = 'bold 16px ui-monospace,monospace'; cx.fillStyle = '#ffe27a'; cx.textAlign = 'left'; cx.fillText('📜 ' + S.pergaminos, 32, 65);
-    const res = S.est.filter(e => e.resuelta).length; caja(W - 220, 14, 200, 38, 10, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.textAlign = 'center'; cx.fillStyle = '#fff'; cx.font = 'bold 15px ui-monospace,monospace'; cx.fillText('PREGUNTAS ' + res + '/' + S.est.length, W - 120, 26);
+    caja(20, 58, 120, 32, 8, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.font = '16px Lilita One,Inter,sans-serif'; cx.fillStyle = '#ffe27a'; cx.textAlign = 'left'; cx.fillText('📜 ' + S.pergaminos, 32, 65);
+    const res = S.est.filter(e => e.resuelta).length; caja(W - 220, 14, 200, 38, 10, 'rgba(10,4,30,.55)', 'rgba(255,201,60,.6)'); cx.textAlign = 'center'; cx.fillStyle = '#fff'; cx.font = '15px Lilita One,Inter,sans-serif'; cx.fillText('PREGUNTAS ' + res + '/' + S.est.length, W - 120, 26);
     if (S.osc > .3) { caja(W - 220, 58, 200, 26, 8, 'rgba(10,4,30,.55)', 'rgba(255,150,40,.6)'); cx.fillStyle = '#ff9a3a'; cx.fillRect(W - 214, 64, 188 * clamp((S.luz - 100) / 160, 0, 1), 14); cx.font = '12px sans-serif'; cx.fillStyle = '#fff'; cx.fillText('🔥 LUZ', W - 170, 72); }
     const px = 20 + (W - 40) * clamp(h.x / S.N.ancho, 0, 1); cx.fillStyle = 'rgba(255,255,255,.2)'; cx.fillRect(20, H - 16, W - 40, 5); cx.fillStyle = '#ffc93c'; cx.fillRect(20, H - 16, px - 20, 5);
     S.est.forEach(e => { cx.fillStyle = e.resuelta ? '#7dff9a' : '#fff'; cx.fillRect(20 + (W - 40) * (e.x0 + e.ancho / 2) / S.N.ancho - 2, H - 20, 4, 13); }); cx.fillStyle = '#c84'; cx.fillRect(20 + (W - 40) * S.N.cueva.x / S.N.ancho - 2, H - 22, 4, 17); cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(px, H - 13, 8, 0, 7); cx.fill();
@@ -875,20 +878,21 @@
     if (window.N1dir) N1dir.hud(cx, caja);
     const e = S.estSel;
     if (e) {
-      const t = e.ac.enunciado; let fs = 26; cx.font = 'bold ' + fs + 'px ui-monospace,monospace'; while (cx.measureText(t).width > W - 160 && fs > 15) { fs--; cx.font = 'bold ' + fs + 'px ui-monospace,monospace'; } const tw = Math.min(W - 60, cx.measureText(t).width + 60);
+      const t = e.ac.enunciado; let fs = 26; cx.font = '' + fs + 'px Lilita One,Inter,sans-serif'; while (cx.measureText(t).width > W - 160 && fs > 15) { fs--; cx.font = '' + fs + 'px Lilita One,Inter,sans-serif'; } const tw = Math.min(W - 60, cx.measureText(t).width + 60);
       caja(W / 2 - tw / 2, 14, tw, e.pistaVisible ? 88 : 54, 14, 'rgba(18,8,51,.88)', '#ffc93c'); cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t, W / 2, 41);
-      if (e.pistaVisible) { cx.font = '16px ui-monospace,monospace'; cx.fillStyle = '#ffe27a'; cx.fillText('💡 Pista: ' + pista(e), W / 2, 78); }
+      if (e.pistaVisible) { cx.font = '16px Inter,system-ui,sans-serif'; cx.fillStyle = '#ffe27a'; cx.fillText('💡 Pista: ' + pista(e), W / 2, 78); }
     }
-    if (S.aviso && S.aviso.t > 0) { cx.globalAlpha = clamp(S.aviso.t, 0, 1); cx.font = 'bold 30px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; const tw = cx.measureText(S.aviso.s).width + 70; caja(W / 2 - tw / 2, 150, tw, 62, 14, 'rgba(18,8,51,.85)', '#ffc93c'); cx.fillStyle = '#ffe27a'; cx.fillText(S.aviso.s, W / 2, 182); cx.globalAlpha = 1; }
+    if (S.aviso && S.aviso.t > 0) { cx.globalAlpha = clamp(S.aviso.t, 0, 1); cx.font = '30px Lilita One,Inter,sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; const tw = cx.measureText(S.aviso.s).width + 70; caja(W / 2 - tw / 2, 150, tw, 62, 14, 'rgba(18,8,51,.85)', '#ffc93c'); cx.fillStyle = '#ffe27a'; cx.fillText(S.aviso.s, W / 2, 182); cx.globalAlpha = 1; }
+    if (window.N1guia) { try { N1guia.hud(cx, caja, S); } catch (e) {} }
     if (S.tip && !S.apunta) {
-      const t = S.tip; cx.font = '16px ui-monospace,monospace'; const tw = Math.min(W - 60, cx.measureText(t.txt).width + 40); let kw = 0; t.teclas.forEach(k => { cx.font = 'bold 20px ui-monospace,monospace'; kw += Math.max(40, cx.measureText(k).width + 22) + 8; });
+      const t = S.tip; cx.font = '16px Inter,system-ui,sans-serif'; const tw = Math.min(W - 60, cx.measureText(t.txt).width + 40); let kw = 0; t.teclas.forEach(k => { cx.font = '20px Lilita One,Inter,sans-serif'; kw += Math.max(40, cx.measureText(k).width + 22) + 8; });
       const bw = Math.min(W - 40, Math.max(tw, kw + 40)), bx = W / 2 - bw / 2, by = H - 150, pulso = 1 + Math.sin(S.t * 6) * .03;
       cx.save(); cx.translate(W / 2, by + 50); cx.scale(pulso, pulso); cx.translate(-W / 2, -by - 50); caja(bx, by, bw, 100, 14, 'rgba(18,8,51,.92)', '#ffc93c');
       let kx = W / 2 - kw / 2 + 4; t.teclas.forEach(k => { kx += tecla(k, kx, by + 10) + 8; });
-      cx.font = '16px ui-monospace,monospace'; cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t.txt, W / 2, by + 74); cx.restore();
+      cx.font = '16px Inter,system-ui,sans-serif'; cx.fillStyle = '#fff'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(t.txt, W / 2, by + 74); cx.restore();
       if (img.sensei) { const sw = 84, sh = img.sensei.height * sw / img.sensei.width; sprite(img.sensei, bx - sw + 14, by + 104 - sh, sw, sh); }
     }
-    if (S.pausa) { cx.fillStyle = 'rgba(8,3,24,.75)'; cx.fillRect(0, 0, W, H); cx.fillStyle = '#ffc93c'; cx.font = 'bold 44px ui-monospace,monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('PAUSA', W / 2, H / 2 - 20); cx.font = '18px ui-monospace,monospace'; cx.fillStyle = '#fff'; cx.fillText('ESC para seguir · Q para salir al menú', W / 2, H / 2 + 30); }
+    if (S.pausa) { cx.fillStyle = 'rgba(8,3,24,.75)'; cx.fillRect(0, 0, W, H); cx.fillStyle = '#ffc93c'; cx.font = '44px Lilita One,Inter,sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('PAUSA', W / 2, H / 2 - 20); cx.font = '18px Inter,system-ui,sans-serif'; cx.fillStyle = '#fff'; cx.fillText('ESC para seguir · Q para salir al menú', W / 2, H / 2 + 30); }
   }
 
   window.Nivel1 = { iniciar, cerrar, _estado: () => S, _debug: { G, DT, paso: n => { for (let i = 0; i < (n || 1); i++) paso(DT); }, keys } };
