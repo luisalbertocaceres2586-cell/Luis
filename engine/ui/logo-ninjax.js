@@ -16,7 +16,7 @@
   // chispas fijas sobre los puntos brillantes del logo (x, y en % del lienzo) y la gema de la X
   const CH = [[7, 24, 7, 'fx_destello'], [30, 17, 5, 'fx_destello'], [54, 19, 6, 'fx_destello'], [75, 25, 5, 'fx_destello'], [91, 16, 6, 'fx_destello'], [81.5, 38, 9, 'fx_destello'],
     [96, 58, 6, 'fx_polvo'], [66, 62, 7, 'fx_polvo'], [20, 66, 6, 'fx_destello'], [48, 92, 6, 'fx_polvo'], [60, 40, 7, 'fx_chispas'], [4, 52, 7, 'fx_chispas']];
-  CH.forEach(([x, y, s, f]) => { const i = document.createElement('i'); i.className = 'sp'; i.style.cssText = '--x:' + x + '%;--y:' + y + '%;--s:' + s + '%;--img:url(' + P + f + '.webp);--t:' + rnd(2.2, 4.2).toFixed(2) + 's;--w:' + rnd(0, 4).toFixed(2) + 's'; fx.appendChild(i); });
+  CH.forEach(([x, y, s, f]) => { const i = document.createElement('i'); i.className = 'sp'; i.style.cssText = '--x:' + x + '%;--y:' + y + '%;--s:' + s + '%;--img:url(' + new URL(P + f + '.webp', document.baseURI).href + ');--t:' + rnd(2.2, 4.2).toFixed(2) + 's;--w:' + rnd(0, 4).toFixed(2) + 's'; fx.appendChild(i); });
   for (let k = 0; k < 6; k++) { const i = document.createElement('i'); i.className = 'pt'; i.style.cssText = '--x:' + (8 + k * 16 + rnd(-4, 4)).toFixed(1) + '%;--s:' + rnd(2.6, 4.2).toFixed(1) + '%;--t:' + rnd(6, 10).toFixed(1) + 's;--w:' + rnd(0, 7).toFixed(1) + 's'; fx.appendChild(i); }
   // entrada: se reproduce la primera vez que el logo se ve (así no se gasta mientras la intro todavía está tapando el menú)
   root.classList.add('pre');

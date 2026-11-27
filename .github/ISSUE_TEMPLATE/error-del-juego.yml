@@ -1,0 +1,24 @@
+name: 🐞 Algo falla en el juego
+description: Un salto raro, una imagen que no sale, un botón que no responde…
+labels: [error]
+body:
+  - type: dropdown
+    id: nivel
+    attributes:
+      label: ¿En qué nivel pasó?
+      options: [Menú / intro, Nivel 1, Nivel 2, Nivel 3, Otro]
+    validations: { required: true }
+  - type: input
+    id: dispositivo
+    attributes:
+      label: Dispositivo y navegador
+      placeholder: Ej. Samsung A13 · Chrome · horizontal
+  - type: textarea
+    id: que-paso
+    attributes:
+      label: ¿Qué pasó y qué esperabas que pasara?
+    validations: { required: true }
+  - type: textarea
+    id: captura
+    attributes:
+      label: Captura o video (arrástralo aquí)

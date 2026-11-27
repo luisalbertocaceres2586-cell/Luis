@@ -1,0 +1,23 @@
+name: CodeQL (seguridad del código)
+
+# Revisión automática de JavaScript en busca de vulnerabilidades (XSS, inyección, etc.). Gratis en repositorios públicos.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 11 * * 1'   # lunes 06:00 hora de Colombia
+
+jobs:
+  analizar:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+      - uses: github/codeql-action/analyze@v4

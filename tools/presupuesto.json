@@ -1,0 +1,10 @@
+{
+ "_nota": "Límites de peso del juego. Medido el 2026-11-26 (ya con WebP) + ~10 % de margen. Súbelos a propósito (en el mismo PR) solo si el juego crece de verdad.",
+ "index_html_kb": 100,
+ "motor_js_kb": 1900,
+ "recursos_total_mb": 80,
+ "recurso_max_kb": 1500,
+ "recurso_nuevo_max_kb": 1000,
+ "fps_min": 10,
+ "carga_max_s": 90
+}
