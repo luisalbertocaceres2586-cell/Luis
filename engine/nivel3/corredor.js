@@ -526,6 +526,11 @@
       else { if (S.vuelo <= 0 && S.skate <= 0) { const es = escaleraInfo(); if (es) vObj = Math.min(vObj, Math.max(vObj * (1 - 0.4 * es.lento), 5.2)); } S.v += clamp(vObj - S.v, -16 * dt, 7 * dt); }
       S.dist += S.v * dt; S.tAnim += dt * (Math.max(S.v, S.espera ? 5 : 0) / CFG.VEL0);
       { const w0 = 26; S.pxv = (S.pxv || 0) + (w0 * w0 * (S.tl - S.px) - 2 * w0 * (S.pxv || 0)) * dt; S.pxv = clamp(S.pxv, -14, 14); S.px += S.pxv * dt; if (Math.abs(S.tl - S.px) < 0.002 && Math.abs(S.pxv) < 0.05) { S.px = S.tl; S.pxv = 0; } }   // resorte amortiguado: arranca suave, frena sin golpe
+      { // cámara con inercia: sigue al héroe en carril y salto, se anticipa al cambio de carril y se agacha al deslizar
+        const C = S.cam || (S.cam = { x: 0, y: 0, r: 0 }), k = 1 - Math.exp(-dt * 5.5), kr = 1 - Math.exp(-dt * 7);
+        const ox = clamp((S.px - 1) * 6 + (S.tl - S.px) * 3.5, -8, 8), oy = clamp(S.jh * 0.05 - (S.slide > 0 ? 3 : 0) - (S.cae > 0 ? 6 : 0), -6, 11);
+        C.x += (ox - C.x) * k; C.y += (oy - C.y) * k; C.r += ((S.pxv || 0) * 0.0007 - C.r) * kr;   // r: giro leve según la velocidad lateral
+      }
       if (S.vuelo > 0) { S.jh = 135 + Math.sin(S.t * 4) * 12; S.jv = 0; if (S.dist >= S.vueloD) { S.vuelo = 0; toast('¡Aterrizaje!', '#9ad7ff', 1); sfx.salto(); } }
       else if (S.jh > S.base || S.jv > 0) { S.jt += dt; S.jv -= (S.jv > 0 ? 2700 : 3500) * (sobreObstaculo() ? 0.7 : 1) * dt; S.jh += S.jv * dt; if (S.jh <= S.base && S.jv <= 0) { const vi = -S.jv; S.jh = S.base; S.jv = 0; if (!S.base) aterriza(vi); } }
       if (S.cambio && S.cambio.t > 0) S.cambio.t -= dt;
@@ -1327,8 +1332,9 @@
       const Tm = { c1: mix(A.rc1, B.rc1, f), c2: mix(A.rc2, B.rc2, f), borde: mix(A.rb, B.rb, f), niebla: mix(A.rn, B.rn, f) };
       ctx.save();
       const inten = clamp((S.v - CFG.VEL0) / (CFG.VEL_MAX - CFG.VEL0), 0, 1), zoom = 1 + 0.018 * inten + 0.012 * Math.min(1, S.racha / 8) + 0.03 * S.zp, tilt = (S.tl - S.px) * 0.014, bob = S.cae > 0 || S.jh > 0 ? 0 : Math.sin(S.t * 11) * 1.6;
-      ctx.translate(W / 2, PY); ctx.rotate(tilt); ctx.scale(zoom, zoom); ctx.translate(-W / 2, -PY + bob + (S.bump || 0) * 12);
-      if (S.shake > 0) ctx.translate(R(-6, 6) * S.shake * 3, R(-6, 6) * S.shake * 3);
+      const cam = S.cam || { x: 0, y: 0, r: 0 };
+      ctx.translate(W / 2, PY); ctx.rotate(tilt + cam.r); ctx.scale(zoom, zoom); ctx.translate(-W / 2 - cam.x, -PY + cam.y + bob + (S.bump || 0) * 12);
+      if (S.shake > 0) { const tr = S.shake * S.shake * 8, ts = S.t * 47; ctx.translate(Math.sin(ts * 1.3) * tr * 2.4, Math.cos(ts * 1.7) * tr * 2.4); ctx.rotate(Math.sin(ts * 0.9) * tr * 0.0016); }   // sacudida por «trauma»: decae cuadrática y sin saltos aleatorios
       if (window.NCam) NCam.n3.antes(ctx, S);
       fondoDib(ta, tb, f); islasCapa(0, ta, tb, f); nubesDib(); islasCapa(1, ta, tb, f); nubesFrente(); auroraDib(); rayoDib(); camino(Tm); marcasCamino(ta, tb, f); charcos(); niebla(Tm);
       const cola = [];
