@@ -15,7 +15,7 @@ NinjaMods.register({id:'jefe-cine',carpeta:'combate',nombre:'Cinemática del jef
   const final=()=>typeof curLV==='function'&&curLV()&&curLV().goalType==='throne'&&typeof bossFight!=='undefined'&&bossFight;
   /* ---------- estilos y DOM ---------- */
   const st=document.createElement('style');st.textContent=`
-  #bcRoot{position:fixed;inset:0;z-index:400;font-family:'Press Start 2P',monospace;color:#fff;cursor:pointer;opacity:1;transition:opacity .45s}
+  #bcRoot{position:fixed;inset:0;z-index:400;font-family:var(--nj-font-display);color:#fff;cursor:pointer;opacity:1;transition:opacity .45s}
   #bcRoot.out{opacity:0}
   .bcDim{position:absolute;inset:0;background:radial-gradient(ellipse at 62% 55%,rgba(60,10,90,.55),rgba(4,0,14,.88));opacity:0;transition:opacity .5s}
   #bcRoot.on .bcDim{opacity:1}

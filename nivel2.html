@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
+<script src="engine/core/webp-mapa.js?v=3a53cb31"></script>
+<script src="engine/core/webp.js?v=1"></script>
 <script src="engine/core/diagnostico.js?v=2"></script>
 <script src="engine/core/compat.js?v=1"></script>
 <script src="engine/core/fisica-visual.js?v=1"></script>
@@ -38,7 +40,10 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
   .op{padding:4px 8px}
   button{padding:11px 20px}
 }
-</style></head><body>
+</style><link rel="stylesheet" href="engine/ui/fuentes.css?v=1">
+<link rel="stylesheet" href="engine/ui/tokens.css?v=1">
+<script src="engine/ui/fuentes.js?v=1"></script>
+</head><body>
 <main id="ini">
 <h1>VIAJE POR 4 MUNDOS</h1>
 <p>Cruza dunas, una mina de cristales, islas en el cielo y un templo. Tu vehículo avanza solo: cambia de carril y cruza la puerta con la <b>respuesta correcta</b> de las tablas del 4, 5 y 6. Entre mundos armarás puentes de múltiplos, y al final te espera el jefe.</p>
@@ -67,7 +72,8 @@ button.sec{background:#ffffff14;color:#fff;border-color:#ffffff55;padding:10px 1
 <script src="assets/nivel2/manifest.js?v=2"></script>
 <script src="assets/nivel2/manifest_amb.js?v=1"></script>
 <script src="assets/characters/antarez/manifest.js?v=an2"></script>
-<script src="engine/nivel2/surf.js?v=14"></script>
+<script src="engine/core/camara-niveles.js?v=1"></script>
+<script src="engine/nivel2/surf.js?v=15"></script>
 <script>
 (function(){
   var A=window.NIVEL2_ARTE||{},U=function(id){return A[id]?'assets/nivel2/'+A[id].frames[0].f:'';};

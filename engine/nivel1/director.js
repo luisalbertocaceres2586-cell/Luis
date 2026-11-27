@@ -219,8 +219,8 @@
   // =================== dibujo ===================
   function fondo() {
     const s = S(), D = s.dir, c = ctx(); if (!D) return; const n = s.mod.noche / .82;
-    if (n > .01) { const g = c.createLinearGradient(0, 0, 0, H * .85); g.addColorStop(0, 'rgba(25,8,70,' + .55 * n + ')'); g.addColorStop(.7, 'rgba(220,90,70,' + .28 * n + ')'); g.addColorStop(1, 'rgba(255,150,60,' + .35 * n + ')'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
-    if (D.fuego) { c.fillStyle = 'rgba(255,70,10,' + .16 * D.k + ')'; c.fillRect(0, 0, W, H); }
+    if (n > .01) { const g = c.createLinearGradient(0, 0, 0, H * .85); g.addColorStop(0, 'rgba(25,8,70,' + .55 * n + ')'); g.addColorStop(.7, 'rgba(220,90,70,' + .28 * n + ')'); g.addColorStop(1, 'rgba(255,150,60,' + .35 * n + ')'); c.fillStyle = g; c.fillRect(-60, -420, W + 120, H + 700); }
+    if (D.fuego) { c.fillStyle = 'rgba(255,70,10,' + .16 * D.k + ')'; c.fillRect(-60, -420, W + 120, H + 700); }
   }
   function dibujarRoca(c, rk, cam) {
     c.save(); c.translate(rk.x - cam, rk.yy); c.rotate(rk.ang + rk.tAv * 3);
@@ -268,7 +268,7 @@
     }
     if (a.id === 'gravedad' && k > .01) {
       for (let i = 0; i < 26; i++) { const x = (i * 131.7 + Math.sin(t * .6 + i) * 24) % W, y = H - ((t * 28 * (1 + (i % 3) * .5) + i * 83) % (H + 40)), r = 2 + (i % 4); c.fillStyle = 'rgba(210,190,255,' + .5 * k + ')'; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }
-      const v = c.createRadialGradient(W / 2, H / 2, H * .4, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(120,60,220,0)'); v.addColorStop(1, 'rgba(120,60,220,' + .22 * k + ')'); c.fillStyle = v; c.fillRect(0, 0, W, H);
+      const v = c.createRadialGradient(W / 2, H / 2, H * .4, W / 2, H / 2, H * .95); v.addColorStop(0, 'rgba(120,60,220,0)'); v.addColorStop(1, 'rgba(120,60,220,' + .22 * k + ')'); c.fillStyle = v; c.fillRect(-60, -420, W + 120, H + 700);
     }
     if (a.id === 'noche' && k > .01) {
       for (let i = 0; i < 18; i++) { const x = (i * 97.3 + cam * .5 + Math.sin(t * .7 + i) * 40) % W, y = 200 + (i * 37) % 320 + Math.sin(t * 1.1 + i * 2) * 30, al = (.55 + .4 * Math.sin(t * 2 + i * 1.3)) * k;
@@ -284,12 +284,12 @@
     const s = S(), D = s.dir; if (!D) return;
     if (D.activo) {
       const a = D.activo, y = s.osc > .3 ? 92 : 58; caja(W - 220, y, 200, 30, 8, 'rgba(10,4,30,.6)', a.id === 'fuego' ? 'rgba(255,90,20,.85)' : 'rgba(160,200,255,.7)');
-      c.font = 'bold 11px ui-monospace,monospace'; c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText(a.def.icono + ' ' + a.def.nombre, W - 212, y + 4);
+      c.font = '11px Lilita One,Inter,sans-serif'; c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'top'; c.fillText(a.def.icono + ' ' + a.def.nombre, W - 212, y + 4);
       const fr = a.id === 'fuego' && D.fuego ? clamp((s.h.x - D.fuego.h0) / Math.max(1, D.fuego.barrera - D.fuego.h0), 0, 1) : clamp(1 - a.t / a.dur, 0, 1);
       c.fillStyle = 'rgba(255,255,255,.2)'; c.fillRect(W - 212, y + 21, 184, 5); c.fillStyle = a.id === 'fuego' ? '#ff8a3a' : '#9fd0ff'; c.fillRect(W - 212, y + 21, 184 * fr, 5);
     }
     if (D.debug) {
-      const m = D.metricas || {}; c.font = '11px ui-monospace,monospace'; c.fillStyle = 'rgba(255,255,255,.85)'; c.textAlign = 'left'; c.textBaseline = 'top';
+      const m = D.metricas || {}; c.font = '11px Inter,system-ui,sans-serif'; c.fillStyle = 'rgba(255,255,255,.85)'; c.textAlign = 'left'; c.textBaseline = 'top';
       ['director · dominio ' + D.dom.toFixed(2) + ' · espera ' + Math.max(0, D.espera).toFixed(0) + 's · eventos ' + D.contados + ' · regalos ' + D.regalos,
         'vida ' + (m.vida || 0).toFixed(2) + ' err60 ' + (m.errores || 0) + ' racha ' + (m.racha || 0) + ' ritmo ' + (m.ritmo || 0).toFixed(0) + ' muertes ' + (m.muertes || 0) + ' daño ' + (m.danio || 0), 'recientes: ' + D.hist.slice(0, 4).join(', ')].forEach((l, i) => c.fillText(l, 20, 190 + i * 14));
     }

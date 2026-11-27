@@ -28,3 +28,11 @@
 @media(prefers-reduced-motion:reduce){#S3 .card,#S4 .card,#S5 .card,#SWIN .card{animation:none!important}}
 html.fx-low #S3 .card,html.fx-low #S4 .card,html.fx-low #S5 .card,html.fx-low #SWIN .card,html.fx-low #S3 .pbtn,html.fx-low #S4 .pbtn,html.fx-low #S5 .pbtn,html.fx-low #SWIN .pbtn{filter:none!important}
 #S3 .stars-row .si img{display:none!important}
+
+/* Legibilidad: las etiquetas y mensajes de las pantallas de resultado eran de 5-9px; ahora mínimo 10-11px */
+#S3 .sl,#S4 .sl,#SWIN .sl{font-size:clamp(10px,2.2vw,12px)!important;letter-spacing:.5px!important;color:rgba(190,215,255,.92)!important}
+#S3 .sv,#S4 .sv,#SWIN .sv{font-size:clamp(12px,2.6vw,15px)!important}
+#S3 .srow,#S4 .srow,#SWIN .srow{padding:9px 12px!important}
+#overMsg,#winMsg,#winExtra{font-size:clamp(10px,2.1vw,13px)!important;line-height:1.9!important}
+#S3 .pbtn.sm,#S4 .pbtn.sm,#SWIN .pbtn.sm{font-size:clamp(10px,2vw,12px)!important}
+#S3 .stars-row .si,#S3 .stars-row .si.on{transition:filter .4s,transform .4s}

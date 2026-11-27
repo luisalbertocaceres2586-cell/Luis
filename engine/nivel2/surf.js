@@ -55,7 +55,7 @@
   const ESC_H = 1.25, ESC_O = 1.15;   // héroe+vehículo ×1.25 (antes ~122 px se veía pequeño) y obstáculos/puertas/adornos a su escala
   const W = 960, H = 540, CARR = 70, BASE_Y = 338, X_H = 250, GR = 1500, GR_CAIDA = 2000, VSALTO = 666;   // mismo salto de ~148 px, pero se sube más ágil y se cae más rápido (antes flotaba ~0,95 s; ahora ~0,83 s)
   const COL = ['#3fe0cf', '#ffd35a', '#ff7fae'];
-  const FUENTE = '"Trebuchet MS",Verdana,ui-sans-serif,sans-serif';
+  const FUENTE = 'Lilita One,Trebuchet MS,Verdana,sans-serif';
   const R = (a, b) => a + Math.random() * (b - a), RI = (a, b) => Math.floor(R(a, b + 1));
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const pick = a => a[RI(0, a.length - 1)];
@@ -164,7 +164,7 @@
 
     // ── utilidades de dibujo ──
     function T(s, x, y, size, col, al, lw) {
-      cx.font = 'bold ' + size + 'px ' + FUENTE; cx.textAlign = al || 'left'; cx.textBaseline = 'alphabetic';
+      cx.font = ''+size + 'px ' + FUENTE; cx.textAlign = al || 'left'; cx.textBaseline = 'alphabetic';
       if (lw) { cx.lineJoin = 'round'; cx.lineWidth = lw; cx.strokeStyle = 'rgba(30,12,40,.92)'; cx.strokeText(s, x, y); }
       cx.fillStyle = col; cx.fillText(s, x, y);
     }
@@ -830,7 +830,7 @@
     }
 
     function dibujar() {
-      const cam = S.d - X_H; cx.save();
+      const cam = S.d - X_H; cx.save(); if (window.NCam) NCam.n2.antes(cx);
       if (S.shake > 0) cx.translate(R(-5, 5) * S.shake * 2, R(-5, 5) * S.shake * 2);
       fondo(cam);
       viento.forEach(w => { const x = ((w.x - cam * .9 * w.s) % (W + 120) + (W + 120)) % (W + 120) - 60; cx.strokeStyle = 'rgba(255,230,190,.16)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x, w.y); cx.lineTo(x - w.l, w.y + 2); cx.stroke(); });
@@ -838,7 +838,7 @@
       if (S.fase === 'puente') dibujarPuente(); else for (let l = 0; l < 3; l++) { banda(l, cam); texturaBanda(l, cam); if (l === 2) primerPlano(cam); if (S.amb === 'mina') rieles(l, cam); guias(l, cam); dibujarLane(l, cam); }
       jefeRayos(cam); numerosPuertas(cam); dibujarBuitre();
       S.fx.forEach(p => { cx.globalAlpha = clamp(p.t / p.t0, 0, 1); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill(); }); cx.globalAlpha = 1;
-      cx.restore(); luzFinal(); hud();
+      cx.restore(); if (window.NCam) NCam.n2.encima(cx); luzFinal(); hud();
     }
 
     // ───────────────────────── interfaz ─────────────────────────
@@ -995,7 +995,7 @@
 
     function bucle(ts) {
       const dt = Math.min(.033, ((ts - (ult || ts)) / 1000) || 0); ult = ts;
-      if (S.est === 'play' && !S.pausa) { actualizar(dt * (S.lento > 0 ? .6 : 1)); S.lento = Math.max(0, S.lento - dt); } else if (S.est !== 'play') fxUpdate(dt);
+      if (S.est === 'play' && !S.pausa) { actualizar(dt * (S.lento > 0 ? .6 : 1) * (window.NCam ? NCam.n2.escala() : 1)); S.lento = Math.max(0, S.lento - dt); } else if (S.est !== 'play') fxUpdate(dt);
       ombit.style.display = S.fase === 'tut' && S.est === 'play' ? 'block' : 'none';
       dibujar(); raf = requestAnimationFrame(bucle);
     }

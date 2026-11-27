@@ -18,10 +18,10 @@ const CX = CV.getContext('2d');
 (function(){
   const d=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'shadowBlur');
   if(!d||!d.set)return;
-  const MAXB=6;
+  const MAXB=6;   // tope en calidad alta; NinjaCalidad.sombra lo reduce (media ×0,5 · baja ×0)
   Object.defineProperty(CX,'shadowBlur',{configurable:true,
     get(){return d.get.call(CX);},
-    set(v){ const lite=(typeof _perfMode!=='undefined'&&_perfMode==='lite'); d.set.call(CX,lite?0:(v>MAXB?MAXB:v)); }});
+    set(v){ const lite=(typeof _perfMode!=='undefined'&&_perfMode==='lite'); const M=window.NinjaCalidad?MAXB*window.NinjaCalidad.sombra:MAXB; d.set.call(CX,lite?0:(v>M?M:v)); }});
 })();
 let W = CV.width = window.innerWidth;
 let H = CV.height = window.innerHeight;
@@ -1081,13 +1081,13 @@ function _handleGodIconClick(){
       border:2px solid rgba(255,215,0,.3);border-radius:12px;padding:20px 24px;
       display:flex;flex-direction:column;gap:10px;align-items:center;
       box-shadow:0 0 40px rgba(0,0,0,.8);min-width:220px">
-      <div style="font-family:'Press Start 2P';font-size:9px;color:rgba(255,215,0,.5);letter-spacing:3px">● ● ● ●</div>
+      <div style="font-family:var(--nj-font-display);font-size:9px;color:rgba(255,215,0,.5);letter-spacing:3px">● ● ● ●</div>
       <input id="godPinInput" type="password" maxlength="4" inputmode="numeric"
         style="width:120px;text-align:center;background:rgba(0,0,40,.9);
         border:2px solid rgba(255,215,0,.3);border-radius:6px;padding:8px;
-        color:#FFD700;font-family:'Press Start 2P';font-size:16px;letter-spacing:6px;outline:none"
+        color:#FFD700;font-family:var(--nj-font-display);font-size:16px;letter-spacing:6px;outline:none"
         placeholder="____">
-      <div id="godPinErr" style="font-family:'Press Start 2P';font-size:7px;color:#FF4466;display:none">Clave incorrecta</div>
+      <div id="godPinErr" style="font-family:var(--nj-font-display);font-size:7px;color:#FF4466;display:none">Clave incorrecta</div>
     </div>`;
   document.body.appendChild(modal);
   const inp = document.getElementById('godPinInput');
@@ -1471,7 +1471,7 @@ function gdRender(){
       CX.globalAlpha=1;
       CX.shadowColor='#FFD700';CX.shadowBlur=22+Math.sin(t2*4)*8;
       CX.fillStyle='#FFFFFF';
-      CX.font=`bold ${Math.floor(W*.016)}px 'Press Start 2P',monospace`;
+      CX.font=`${Math.floor(W*.016)}px NJ Display,system-ui,sans-serif`;
       CX.textAlign='center';
       CX.fillText('🏁 META',o.x+rainbow.length*fw/2,_gdCeiling+55);
       CX.shadowBlur=0;
@@ -1511,13 +1511,13 @@ function gdRender(){
     // Answer number label (key hint)
     CX.shadowBlur=0;
     CX.fillStyle=flashing?(lane.flashOk?'#FFFFFF':'#FFFFFF'):'#FFFFFF';
-    CX.font=`bold ${Math.floor(lw*.22)}px 'Press Start 2P',monospace`;
+    CX.font=`${Math.floor(lw*.22)}px NJ Display,system-ui,sans-serif`;
     CX.textAlign='center';
     CX.fillText(laneKeys[i],lane.x+lw/2,_gdFloor-lh-8);
 
     // Answer value on platform
     CX.fillStyle=flashing&&lane.flashOk?'#00FF88':flashing?'#FF2244':'#FFFFFF';
-    CX.font=`bold ${Math.floor(lw*.26)}px 'Press Start 2P',monospace`;
+    CX.font=`${Math.floor(lw*.26)}px NJ Display,system-ui,sans-serif`;
     CX.fillText(lane.val,lane.x+lw/2,_gdFloor-5);
 
     // Correct indicator — subtle star glow on correct lane
@@ -1669,7 +1669,7 @@ function updateTurbo(dt){
     } else {
       // Spawn sparkle trail every few frames — skipped once the trail is
       // already full, so it can never keep growing past the cap
-      if(_turboTrail.length < MAX_TURBO_TRAIL && Math.random() < 0.5){
+      if(_turboTrail.length < MAX_TURBO_TRAIL && Math.random() < 0.5*(window.NinjaCalidad?window.NinjaCalidad.fx:1)){
         _turboTrail.push({x:P.x+P.w/2-camX, y:P.y+P.h/2, life:1, r:4+Math.random()*5,
           vx:(Math.random()-0.5)*1.5, vy:-1-Math.random()*1.5,
           hue: Math.floor(Math.random()*60+30)});
@@ -1890,7 +1890,7 @@ function drawCollectibleSkyStars(){
     const cx=sx+sw/2, cy=sy+sh/2;
     CX.drawImage(im,cx-d/2,cy-d/2,d,d);
     CX.fillStyle=s.isHigh?'#FFD700':'#FFFFFF';
-    CX.font="bold 10px 'Press Start 2P',monospace";
+    CX.font="10px NJ Display,system-ui,sans-serif";
     CX.textAlign='center';
     CX.fillText('+'+s.pts,cx,sy+sh+14);
   });
@@ -2726,7 +2726,7 @@ function showBonusOffer(){
   // Build answer buttons inside lifeOffer panel
   bonusQ.opts.forEach((opt,i)=>{
     const btn=document.createElement('button');
-    btn.style.cssText=`flex:1;padding:6px 4px;border-radius:6px;border:2px solid rgba(0,255,100,.5);cursor:pointer;font-family:'Press Start 2P';font-size:clamp(9px,1.8vw,12px);text-align:center;background:rgba(0,40,15,.9);color:#00FF88;transition:.1s;`;
+    btn.style.cssText=`flex:1;padding:6px 4px;border-radius:6px;border:2px solid rgba(0,255,100,.5);cursor:pointer;font-family:var(--nj-font-display);font-size:clamp(9px,1.8vw,12px);text-align:center;background:rgba(0,40,15,.9);color:#00FF88;transition:.1s;`;
     btn.textContent=opt;
     btn.addEventListener('click',()=>onBonusAns(opt));
     ans.appendChild(btn);
@@ -3488,7 +3488,7 @@ function drawSkyItems(){
     CX.globalAlpha=1;
     CX.shadowColor=s.color||'#FFD700';CX.shadowBlur=_skyHeavy?8:0;
     CX.fillStyle='#FFFFFF';
-    CX.font=`bold ${fontSize}px 'Press Start 2P',monospace`;
+    CX.font=`${fontSize}px NJ Display,system-ui,sans-serif`;
     CX.textAlign='center';
     CX.fillText(line1,sx+16+6,labelY+4);
     if(line2){
@@ -3549,11 +3549,30 @@ function startLoop(){
 // frame rate and be over again before this ever kicked in.
 let _fpsHistory=[], _avgFPS=60, _perfMode='normal'; // 'normal'|'lite'
 function _updatePerfMode(fps){
+  if(window.NinjaCalidad){ _perfMode=window.NinjaCalidad.nivel==='baja'?'lite':'normal'; _avgFPS=fps; return; }   // engine/core/calidad.js
   _fpsHistory.push(fps);
   if(_fpsHistory.length>8)_fpsHistory.shift();
   _avgFPS=_fpsHistory.reduce((a,b)=>a+b,0)/_fpsHistory.length;
   if(_avgFPS < 40) _perfMode='lite';
   else if(_avgFPS > 52) _perfMode='normal';
+}
+
+// ── Interpolación de dibujo (engine/core/interpolacion.js) ──
+const _NI=window.NinjaInterp?window.NinjaInterp.crear():null;
+/** @type {any[]} */
+const _interpLista=[];
+let _camPrev=/** @type {number|undefined} */(undefined);
+function _interpObjetos(){
+  const L=_interpLista; L.length=0; L.push(P);
+  for(const arr of [enemies,bullets,bossBullets,movingPlatforms]) for(let i=0;i<arr.length;i++) L.push(arr[i]);
+  return L;
+}
+function _interpMarcar(){ if(!_NI)return; _NI.marcar(_interpObjetos()); _camPrev=camX; }
+function _interpDibujar(alpha){
+  if(!_NI){ render(); return; }
+  _NI.aplicar(_interpObjetos(),alpha);
+  const real=camX; camX=_NI.esc(_camPrev,real,alpha);
+  try{ render(); }finally{ camX=real; _NI.restaurar(); }   // la física nunca ve valores interpolados
 }
 
 // Contadores del bucle principal, declarados aquí para que TypeScript conozca estas propiedades (0 y undefined se comportan igual en el código).
@@ -3602,8 +3621,12 @@ function loop(ts){
     // that frame and keeps going, and logs the error for debugging.
     try{
       let _n=0;
-      while(loop._acc>=0.999&&_n<3){ update(1); loop._acc-=1; _n++; }
-      if(_n>0) render();
+      // Pantallas de ≥ 90 Hz: se dibuja en CADA cuadro con la posición intermedia entre el paso anterior y el actual (la física no cambia).
+      // En 60 Hz (o con calidad baja, o ?interp=0) todo sigue exactamente como antes.
+      const _ip=!!(window.NinjaInterp&&window.NinjaCalidad&&window.NinjaCalidad.interp());
+      while(loop._acc>=0.999&&_n<3){ if(_ip)_interpMarcar(); update(1); loop._acc-=1; _n++; }
+      if(_ip) _interpDibujar(loop._acc);
+      else if(_n>0) render();
     }catch(err){
       if(!loop._errCount)loop._errCount=0;
       loop._errCount++;
@@ -7063,7 +7086,7 @@ function drawEnemy(e,ex,ey,bg){
     // Bold yellow border on bubble
     CX.strokeStyle='#FFD700';CX.lineWidth=2;CX.stroke();
     CX.fillStyle='#FFD700';
-    CX.font=`bold ${Math.floor(W*.025)}px 'Press Start 2P',monospace`;
+    CX.font=`${Math.floor(W*.025)}px NJ Display,system-ui,sans-serif`;
     CX.textAlign='center';CX.fillText('?',ex+e.w/2,ey-16);
   }
   CX.shadowBlur=0;CX.restore();
@@ -7178,7 +7201,7 @@ function drawBoss(fx, GY){
     if(CX.roundRect)CX.roundRect(bx+bw/2-35,by-65,70,38,8);else CX.rect(bx+bw/2-35,by-65,70,38);CX.fill();
     CX.strokeStyle=epic?'#CC00FF':'#FFD700';CX.lineWidth=2;CX.stroke();
     const qColor=epic?`hsl(${(t*.04)%360},100%,70%)`:'#FFD700';
-    CX.fillStyle=qColor;CX.font=`bold ${Math.floor(W*.028)}px 'Press Start 2P',monospace`;CX.textAlign='center';CX.fillText('?',bx+bw/2,by-38);
+    CX.fillStyle=qColor;CX.font=`${Math.floor(W*.028)}px NJ Display,system-ui,sans-serif`;CX.textAlign='center';CX.fillText('?',bx+bw/2,by-38);
   }
   CX.restore();
 }
@@ -7371,7 +7394,7 @@ function checkFlagBoss(){
 // ── TEXT WITH OUTLINE (always readable regardless of background) ──
 /** @param {CanvasTextAlign} [align] */
 function oTxt(text,x,y,fill,size,align='center',strokeW=3,strokeCol='rgba(0,0,0,.95)'){
-  CX.font=`${size}px 'Press Start 2P',monospace`;
+  CX.font=`${size}px NJ Display,system-ui,sans-serif`;
   CX.textAlign=align;
   CX.lineWidth=strokeW+2;
   CX.strokeStyle=strokeCol;
@@ -7491,9 +7514,11 @@ function spawnShockwave(x,y,color='#FF6600',size=70){
 let _pfxCount=0;
 const _PFX_MAX=80;
 function spawnPfx(x,y,color,n=8){
-  if(_pfxCount>=_PFX_MAX)return; // hard cap — skip if already too many
-  if(_perfMode==='lite')n=Math.max(1,Math.ceil(n*0.4)); // fewer DOM particles per burst while the game is already struggling
-  const toSpawn=Math.min(n,_PFX_MAX-_pfxCount);
+  const _q=window.NinjaCalidad?window.NinjaCalidad.fx:(_perfMode==='lite'?0.4:1);   // 1 alta · 0,6 media · 0,3 baja
+  const _max=Math.ceil(_PFX_MAX*_q);
+  if(_pfxCount>=_max)return; // hard cap — skip if already too many
+  if(_q<1)n=Math.max(1,Math.ceil(n*_q)); // fewer DOM particles per burst while the game is already struggling
+  const toSpawn=Math.min(n,_max-_pfxCount);
   for(let i=0;i<toSpawn;i++){
     const el=document.createElement('div');el.className='pfx';
     const a=(i/toSpawn)*Math.PI*2,d=28+Math.random()*55;
@@ -7514,7 +7539,7 @@ function spawnTfx(x,y,txt,color='#FFD700',sz='clamp(11px,2.3vw,17px)'){
 }
 function confetti(n=50){
   if(_perfMode==='lite')return; // skip celebratory confetti outright while the game is already struggling
-  const cap=Math.min(n,40); // cap confetti to 40 pieces max
+  const cap=Math.min(Math.ceil(Math.min(n,40)*(window.NinjaCalidad?window.NinjaCalidad.fx:1)),40); // cap confetti to 40 pieces max (menos en calidad media)
   const c=['#FF0044','#FFD700','#00FF88','#00D4FF','#CC44FF','#FF8800'];
   for(let i=0;i<cap;i++){
     const d=document.createElement('div'),sz=4+Math.random()*7;
@@ -7805,7 +7830,7 @@ function gameOver(){
 // ── LB ──
 function buildLB(){
   const lb=getLB();const rows=document.getElementById('lbRows');rows.innerHTML='';
-  if(!lb.length){rows.innerHTML=`<div style="font-family:'Press Start 2P';font-size:clamp(7px,1.4vw,9px);color:rgba(100,150,200,.5);text-align:center;padding:14px">Sin puntuaciones aún.<br>¡Sé el primero!</div>`;return;}
+  if(!lb.length){rows.innerHTML=`<div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.4vw,9px);color:rgba(100,150,200,.5);text-align:center;padding:14px">Sin puntuaciones aún.<br>¡Sé el primero!</div>`;return;}
   lb.slice(0,14).forEach((e,i)=>{
     const r=['🥇','🥈','🥉'][i]||`${i+1}.`;
     const d=document.createElement('div');d.className='lbrow'+(e.name===GS.name?' me':'');
@@ -7842,7 +7867,7 @@ function _reportePerfiles(){
 }
 function _pintarReportePerfiles(){
   const el=document.getElementById('reportPerfiles'); if(!el) return; el.textContent='';
-  const h=document.createElement('div'); h.style.cssText="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,10px);color:#FFD27A;margin-bottom:6px;text-align:center"; h.textContent='🏮 POR JUGADOR · NIVELES 2 Y 3'; el.appendChild(h);
+  const h=document.createElement('div'); h.style.cssText="font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,10px);color:#FFD27A;margin-bottom:6px;text-align:center"; h.textContent='🏮 POR JUGADOR · NIVELES 2 Y 3'; el.appendChild(h);
   const rows=_reportePerfiles();
   if(!rows.length){ const d=document.createElement('div'); d.style.cssText='font-size:12px;color:rgba(200,220,255,.6);text-align:center;padding:6px'; d.textContent='Aún no hay datos. Aparecen cuando los niños juegan con su perfil.'; el.appendChild(d); return; }
   rows.forEach(r=>{
@@ -7859,11 +7884,11 @@ function showReport(){
     const barPct = r.pct==null ? 0 : r.pct;
     const label = r.pct==null ? 'Sin datos' : `${r.pct}% (${r.c}✓ / ${r.w}✗)`;
     return `<div style="display:flex;align-items:center;gap:8px;padding:5px 4px;border-bottom:1px solid rgba(0,180,255,.12)">
-      <div style="font-family:'Press Start 2P';font-size:clamp(9px,1.6vw,12px);color:#88DDFF;width:34px">×${r.t}</div>
+      <div style="font-family:var(--nj-font-display);font-size:clamp(9px,1.6vw,12px);color:#88DDFF;width:34px">×${r.t}</div>
       <div style="flex:1;height:12px;background:rgba(0,0,0,.4);border-radius:6px;overflow:hidden">
         <div style="height:100%;width:${barPct}%;background:${barColor};transition:width .3s"></div>
       </div>
-      <div style="font-family:'Press Start 2P';font-size:clamp(7px,1.3vw,10px);color:#CCE8FF;width:110px;text-align:right">${label}</div>
+      <div style="font-family:var(--nj-font-display);font-size:clamp(7px,1.3vw,10px);color:#CCE8FF;width:110px;text-align:right">${label}</div>
     </div>`;
   }).join('');
   _pintarReportePerfiles();
@@ -7954,7 +7979,7 @@ function openLevelSelector(){
     const hoverColor = isEasy ? '#00FF88' : '#FF6666';
     const glowColor  = isEasy ? 'rgba(0,255,100,.5)' : 'rgba(255,60,60,.5)';
     btn.style.cssText=`
-      font-family:'Press Start 2P';
+      font-family:var(--nj-font-display);
       background:${isCurrent?`rgba(${isEasy?'0,60,20':'60,0,5'},0.9)`:'rgba(0,0,30,.85)'};
       border:2px solid ${isCurrent?hoverColor:baseColor};
       border-radius:8px;padding:7px 3px;color:${isEasy?'#88FF88':'#FF8888'};
@@ -8339,7 +8364,7 @@ console.log('★ MATES CON EL PROFE LUIS v10 — listo!');
       const ph=(p.hue+t2*30)%360;
       cx2.shadowColor=`hsl(${ph},100%,60%)`; cx2.shadowBlur=p.size*0.8;
       cx2.fillStyle=`hsl(${ph},100%,75%)`;
-      cx2.font=`bold ${p.size}px 'Press Start 2P',monospace`;
+      cx2.font=`${p.size}px NJ Display,system-ui,sans-serif`;
       cx2.textAlign='center'; cx2.textBaseline='middle';
       cx2.fillText(p.sym,0,0);
       cx2.restore();

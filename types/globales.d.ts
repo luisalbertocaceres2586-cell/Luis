@@ -18,6 +18,7 @@ declare global {
 
   // ---------- funciones sueltas del juego ----------
   var FX: any; // TODO
+  var LuzDin: any; // engine/luz-dinamica.js (luz dinámica; opcional)
   /** Sonido sintetizado. ¡Ojo con el orden!: frecuencia, TIPO de onda, duración, volumen, retraso. */
   function tone(freq: number, tipo?: OscillatorType | string, dur?: number, vol?: number, retraso?: number): void;
   function render(...args: any[]): void;
@@ -56,7 +57,7 @@ declare global {
 
   // ---------- cosas que los scripts cuelgan de `window` / APIs no estándar del navegador ----------
   interface Window {
-    N1core?: any; NinjaHaptics?: any; NinjaMods?: any; NinjaOrient?: any; NinjaCompat?: any; NinjaDevice?: any; NJ?: any; NJX?: any;
+    N1core?: any; NinjaHaptics?: any; NinjaMods?: any; NinjaOrient?: any; NinjaCompat?: any; NinjaDevice?: any; NinjaTouch?: any; NinjaTouchCore?: any; NinjaTouchJump?: any; NinjaCalidad?: any; NinjaCalidadCore?: any; NinjaInterp?: any; NJ?: any; NJX?: any;
     render?: (...args: any[]) => void; renderBg?: (...args: any[]) => void; levelDone?: (...args: any[]) => void;
     saveG?: (...args: any[]) => void; spawnSkyItem?: (...args: any[]) => void; njLayout?: (...args: any[]) => void;
     __introDone?: boolean; NJ_BUILD?: string; NJ_ZOOM?: number;

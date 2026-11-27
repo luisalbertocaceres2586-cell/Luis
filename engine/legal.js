@@ -26,7 +26,7 @@
     anio: 2026,
     creditos: [
       // { rol: 'Música', nombre: 'Nombre del autor o de la pista', licencia: 'CC BY 4.0', enlace: 'https://…' },
-      { rol: 'Tipografías', nombre: 'Inter (Rasmus Andersson) y Press Start 2P (CodeMan38)', licencia: 'SIL Open Font License 1.1', nota: 'cargadas desde Google Fonts' },
+      { rol: 'Tipografías', nombre: 'Inter (Rasmus Andersson) y Lilita One (Juan Montoreano)', licencia: 'SIL Open Font License 1.1', nota: 'incluidas en el propio juego (assets/fonts), sin pedirlas a terceros' },
       { rol: 'Programación', nombre: 'Desarrollada con la ayuda de Claude, un asistente de inteligencia artificial de Anthropic' }
     ]
   };
@@ -98,7 +98,7 @@
         ['h', '6. Con quién se comparten'],
         ['ul', [
           'Con el docente o la institución a cargo de tu clase: ven apodos y progreso, no datos reales (no los tenemos).',
-          'Con Google, que presta la infraestructura (Google Sheets, Apps Script y Google Fonts). Al usar sus servicios, Google puede recibir datos técnicos como tu dirección IP, según su propia política de privacidad. Sus servidores pueden estar fuera de Colombia.',
+          'Con Google, que presta la infraestructura (Google Sheets y Apps Script). Al usar sus servicios, Google puede recibir datos técnicos como tu dirección IP, según su propia política de privacidad. Sus servidores pueden estar fuera de Colombia.',
           'Con nadie más, salvo que una autoridad competente lo exija conforme a la ley.'
         ]],
         ['h', '7. Datos en tu dispositivo'],

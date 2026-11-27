@@ -14,3 +14,17 @@ html.fx-low #pfOverlay .pf-btn,html.fx-low #S1 .pbtn,html.fx-low #S6 .pbtn,html.
 html.fx-low #n26ld .ld26-spark,html.fx-low #n26ld .ld26-glow{display:none!important}
 html.fx-low #n26ld .n26logo{filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))!important}
 html.fx-low #n26ld .n26fill:after{display:none}
+
+/* Menú 2026 (ninjas en canvas): en modo bajo se quitan efectos caros y animaciones decorativas */
+html.fx-low #m26bg .mt:nth-of-type(n+5),html.fx-low #m26bg .cl.b{display:none!important}
+html.fx-low #m26bg .mt{box-shadow:none!important}
+html.fx-low #m26bg .isl{animation:none!important;filter:none!important}
+html.fx-low #m26bg .cl{animation-duration:200s!important}
+html.fx-low #m26 #introTitle{animation:none!important;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))!important}
+html.fx-low #m26 #btnStart{animation:none!important}
+html.fx-low #m26 #btnStart:after{display:none}
+html.fx-low #m26 .m26-hero canvas{filter:none!important}
+html.fx-low #m26 .m26-hero{transition:none!important}
+html.fx-low #m26 .m26-aura{mix-blend-mode:normal!important}
+html.fx-low #m26 .m26-ring{box-shadow:none!important}
+html.fx-low #m26 .m26-d .m26-i,html.fx-low #m26 #pfChip{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(10,16,40,.85)!important}

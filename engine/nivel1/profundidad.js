@@ -21,6 +21,11 @@
   const mezcla = (a, b, t) => { const A = typeof a === 'string' ? hex(a) : a, B = typeof b === 'string' ? hex(b) : b; return [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t]; };
   const rgb = (c, a) => 'rgba(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ',' + (a == null ? 1 : a) + ')';
   const K = () => root.N1core;
+  /* Cámara vertical (camara.js): el mundo se desplaza en vertical y cada capa del fondo se mueve solo una fracción de ese desplazamiento (paralaje en los dos ejes).
+   * Para que nunca se vean bordes vacíos, las baldosas altas llevan OVT px de más por arriba y SK por abajo. */
+  const OVT = 130, SK = 80, OVF = 170;
+  const camY = () => (root.N1cam && root.N1cam.camY) ? root.N1cam.camY() : 0;
+  const dyl = f => -camY() * (1 - f);   // f = fracción que se mueve la capa respecto al mundo (1 = como el mundo; menos = más lejos)
 
   // Cielos del bosque (los mismos que usa motor.js) — de ahí sale el color del horizonte para la niebla
   const SKY = { A: ['#2b2468', '#ff8f6b', '#ffe3a3'], B: ['#3d5a80', '#98c1d9', '#e8f1f2'], C: ['#5c2a6e', '#e86a5c', '#ffd08a'] };
@@ -99,9 +104,11 @@
     return y;
   }
   function estalactitas(c, R, tw, o) {
+    if (!o.suelo && o.top) { c.fillStyle = rgb(o.col); c.fillRect(0, 0, tw, o.top + 2); }                 // techo: banda sólida por encima, para el desplazamiento vertical
+    if (o.suelo && o.skirt) { c.fillStyle = rgb(o.col); c.fillRect(0, o.th - 2, tw, o.skirt + 4); }       // suelo: faldón sólido por debajo
     // Dientes de roca que cuelgan del techo (o.suelo = true: crecen desde abajo)
     for (let i = 0; i < o.n; i++) {
-      const x = (i + .1 + R() * .8) / o.n * tw, w = o.w[0] + R() * (o.w[1] - o.w[0]), hh = o.h[0] + R() * (o.h[1] - o.h[0]), s = o.suelo ? -1 : 1, y0 = o.suelo ? o.th : 0, lean = (R() - .5) * w * .5;
+      const x = (i + .1 + R() * .8) / o.n * tw, w = o.w[0] + R() * (o.w[1] - o.w[0]), hh = o.h[0] + R() * (o.h[1] - o.h[0]), s = o.suelo ? -1 : 1, y0 = o.suelo ? o.th : (o.top || 0), lean = (R() - .5) * w * .5;
       const g = c.createLinearGradient(x - w / 2, 0, x + w / 2, 0); g.addColorStop(0, rgb(mezcla(o.col, [0, 0, 0], .35))); g.addColorStop(.6, rgb(o.col)); g.addColorStop(1, rgb(mezcla(o.col, o.luz, o.brillo)));
       c.fillStyle = g; c.beginPath(); c.moveTo(x - w / 2, y0); c.quadraticCurveTo(x - w * .3 + lean * .4, y0 + s * hh * .55, x + lean, y0 + s * hh); c.quadraticCurveTo(x + w * .3 + lean * .4, y0 + s * hh * .55, x + w / 2, y0); c.closePath(); c.fill();
       if (o.rim) { c.strokeStyle = o.rim; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x + w * .45, y0 + s * 2); c.quadraticCurveTo(x + w * .3 + lean * .4, y0 + s * hh * .55, x + lean, y0 + s * hh); c.stroke(); }
@@ -132,25 +139,25 @@
   /* Red de seguridad de rendimiento: si el juego va lento de forma sostenida (≈ menos de 38 fps durante ~1,5 s), apaga solo los efectos caros. */
   function ritmo() { const n = performance.now(), d = n - E.tp; E.tp = n; if (d > 0 && d < 250) { E.avg = E.avg * .94 + d * .06; E.lento = E.avg > 26 ? E.lento + 1 : 0; if (E.lento > 90) E.lite = true; } }
   function estado() { const k = K(); if (!k) return null; const S = k.S(); if (!S) return null; if (E.S !== S) { E.S = S; E.bosque = E.cueva = E.desierto = null; } return S; }
-  const calidad = S => (S.movil || E.lite) ? 1 : 2;
+  const calidad = S => (S.movil || E.lite || (root.NinjaCalidad && root.NinjaCalidad.nivel === 'baja')) ? 1 : 2;   // NinjaCalidad: engine/core/calidad.js
   const semilla = S => 1000 + ((S.params && S.params.semilla) | 0) % 9000;
 
   function construirBosque(S, k) {
-    const sk = SKY[S.params && S.params.variante] || SKY.A, hor = mezcla(sk[1], sk[2], .45), th = k.G + 40, TW = 1600, sd = semilla(S), L = {};
+    const sk = SKY[S.params && S.params.variante] || SKY.A, hor = mezcla(sk[1], sk[2], .45), th = k.G + 40 + SK + OVT, TW = 1600, sd = semilla(S), L = {};
     L.hor = hor; L.niebla = nieblaSprite(mezcla(hor, [255, 255, 255], .35));
     const luz = mezcla(sk[2], [255, 255, 255], .3);
     // Colinas lejanas con pagoda (perspectiva aérea fuerte, desenfocadas)
     L.colinas = baldosa(TW, th, 3, sd + 1, (c, R, tw) => {
-      cresta(c, R, tw, th, th - 120, 150, rgb(mezcla('#3a4a78', hor, .6)), rgb(mezcla(luz, hor, .3), .35));
-      pagoda(c, tw * .62, th - 140, 46, rgb(mezcla('#3a3f70', hor, .58)));
+      cresta(c, R, tw, th, th - 120 - SK, 150, rgb(mezcla('#3a4a78', hor, .6)), rgb(mezcla(luz, hor, .3), .35));
+      pagoda(c, tw * .62, th - 140 - SK, 46, rgb(mezcla('#3a3f70', hor, .58)));
     });
-    L.colinas2 = baldosa(TW, th, 2, sd + 2, (c, R, tw) => { cresta(c, R, tw, th, th - 60, 120, rgb(mezcla('#2c4a5c', hor, .5)), rgb(mezcla(luz, hor, .2), .4)); });
+    L.colinas2 = baldosa(TW, th, 2, sd + 2, (c, R, tw) => { cresta(c, R, tw, th, th - 60 - SK, 120, rgb(mezcla('#2c4a5c', hor, .5)), rgb(mezcla(luz, hor, .2), .4)); });
     const bb = { luz, hoja: null, ramas: true };
     L.cerca = baldosa(TW, th, 0, sd + 5, (c, R, tw) => bosqueDeBambu(c, R, tw, th, Object.assign({}, bb, { n: 4, w: [22, 30], col: mezcla('#1f5c3e', hor, .08), col2: mezcla('#2a6e48', hor, .06), brillo: .3, corona: .25, hoja: rgb(mezcla('#1f6a42', hor, .08), 1) })));
     // Primer plano: muy desenfocado y oscuro (pasa por delante del héroe)
     L.frente = (() => {
       const R = rng(sd + 6), tw = 3200, p = [], col = [14, 38, 32], o = { luz, brillo: .1 };
-      for (let i = 0; i < 2; i++) { const sw = 34 + R() * 20, pc = pieza(Math.round(sw * 1.7), k.H, 10, x => tallo(x, sw * .85, k.H + 10, -20, sw, mezcla(col, [18, 46, 38], R()), R, o)); p.push({ pc, x: (i + .2 + R() * .6) / 2 * tw, y: 0 }); }
+      for (let i = 0; i < 2; i++) { const sw = 34 + R() * 20, pc = pieza(Math.round(sw * 1.7), k.H + OVF + 100, 10, x => tallo(x, sw * .85, k.H + OVF + 110, -20, sw, mezcla(col, [18, 46, 38], R()), R, o)); p.push({ pc, x: (i + .2 + R() * .6) / 2 * tw, y: -OVF }); }
       for (let i = 0; i < 2; i++) { const len = 150 + R() * 90, pc = pieza(Math.round(len + 40), Math.round(len + 40), 10, x => { x.translate(20, 20); hoja(x, 0, 0, len, 1.2 + R() * .7, 24, 'rgba(10,34,26,.85)'); }); p.push({ pc, x: R() * tw, y: -10 + R() * 20 }); }
       return { tw, p };
     })();
@@ -169,16 +176,16 @@
     L.montes = t;
   }
   function construirCueva(S, k) {
-    const TW = 1500, th = k.H, sd = semilla(S) + 40, azul = [90, 170, 255], L = {};
-    L.techoLejos = baldosa(TW, th, 3.5, sd + 1, (c, R, tw) => estalactitas(c, R, tw, { n: 15, w: [70, 150], h: [110, 260], col: [24, 18, 56], luz: azul, brillo: .08, th }));
-    L.techoMedio = baldosa(TW, th, 1.6, sd + 2, (c, R, tw) => estalactitas(c, R, tw, { n: 9, w: [80, 160], h: [140, 320], col: [34, 26, 76], luz: azul, brillo: .18, th, rim: 'rgba(110,190,255,.28)' }));
-    L.techoCerca = baldosa(TW, th, 0, sd + 3, (c, R, tw) => estalactitas(c, R, tw, { n: 5, w: [90, 170], h: [150, 330], col: [46, 36, 98], luz: azul, brillo: .22, th, rim: 'rgba(130,205,255,.4)' }));
+    const TW = 1500, th = k.H + OVT, sd = semilla(S) + 40, azul = [90, 170, 255], L = {};
+    L.techoLejos = baldosa(TW, th, 3.5, sd + 1, (c, R, tw) => estalactitas(c, R, tw, { n: 15, w: [70, 150], h: [110, 260], col: [24, 18, 56], luz: azul, brillo: .08, top: OVT }));
+    L.techoMedio = baldosa(TW, th, 1.6, sd + 2, (c, R, tw) => estalactitas(c, R, tw, { n: 9, w: [80, 160], h: [140, 320], col: [34, 26, 76], luz: azul, brillo: .18, top: OVT, rim: 'rgba(110,190,255,.28)' }));
+    L.techoCerca = baldosa(TW, th, 0, sd + 3, (c, R, tw) => estalactitas(c, R, tw, { n: 5, w: [90, 170], h: [150, 330], col: [46, 36, 98], luz: azul, brillo: .22, top: OVT, rim: 'rgba(130,205,255,.4)' }));
     const hs = 320;
-    L.suelosLejos = baldosa(TW, hs, 3, sd + 4, (c, R, tw) => estalactitas(c, R, tw, { n: 12, w: [60, 130], h: [60, 170], col: [26, 20, 60], luz: azul, brillo: .08, th: hs, suelo: true }));
-    L.suelosMedio = baldosa(TW, hs, 1.4, sd + 5, (c, R, tw) => estalactitas(c, R, tw, { n: 7, w: [70, 150], h: [90, 240], col: [38, 29, 84], luz: azul, brillo: .16, th: hs, suelo: true, rim: 'rgba(110,190,255,.25)' }));
+    L.suelosLejos = baldosa(TW, hs + SK, 3, sd + 4, (c, R, tw) => estalactitas(c, R, tw, { n: 12, w: [60, 130], h: [60, 170], col: [26, 20, 60], luz: azul, brillo: .08, th: hs, skirt: SK, suelo: true }));
+    L.suelosMedio = baldosa(TW, hs + SK, 1.4, sd + 5, (c, R, tw) => estalactitas(c, R, tw, { n: 7, w: [70, 150], h: [90, 240], col: [38, 29, 84], luz: azul, brillo: .16, th: hs, skirt: SK, suelo: true, rim: 'rgba(110,190,255,.25)' }));
     L.frente = (() => {
       const R = rng(sd + 6), tw = 2400, p = [];
-      for (let i = 0; i < 3; i++) { const pc = pieza(300, 440, 9, x => estalactitas(x, R, 300, { n: 1, w: [150, 230], h: [230, 420], col: [6, 4, 16], luz: azul, brillo: 0, th: 440 })); p.push({ pc, x: (i + .1 + R() * .7) / 3 * tw, y: 0 }); }
+      for (let i = 0; i < 3; i++) { const pc = pieza(300, 440 + OVF, 9, x => estalactitas(x, R, 300, { n: 1, w: [150, 230], h: [230, 420], col: [6, 4, 16], luz: azul, brillo: 0, top: OVF })); p.push({ pc, x: (i + .1 + R() * .7) / 3 * tw, y: -OVF }); }
       return { tw, p };
     })();
     L.niebla = nieblaSprite([70, 110, 190]);
@@ -188,15 +195,15 @@
     return L;
   }
   function construirDesierto(S, k) {
-    const TW = 1700, th = k.G + 60, sd = semilla(S) + 80, hor = [96, 56, 84], luz = [255, 215, 145], L = {};
+    const TW = 1700, th = k.G + 60 + SK + OVT, sd = semilla(S) + 80, hor = [96, 56, 84], luz = [255, 215, 145], L = {};
     const dunas = (n, blur, base, amp, col, rim) => baldosa(TW, th, blur, sd + n, (c, R, tw) => cresta(c, R, tw, th, base, amp, rgb(col), rim));
-    L.d1 = dunas(1, 3.5, th - 170, 120, mezcla([52, 40, 88], hor, .5), 'rgba(255,215,145,.16)');
-    L.d2 = dunas(2, 2.2, th - 120, 120, mezcla([70, 46, 82], hor, .35), 'rgba(255,215,145,.2)');
-    L.d3 = dunas(3, 1, th - 80, 100, mezcla([96, 56, 78], hor, .15), 'rgba(255,215,145,.26)');
-    L.d4 = dunas(4, 0, th - 40, 80, [122, 70, 62], 'rgba(255,215,145,.32)');
+    L.d1 = dunas(1, 3.5, th - 170 - SK, 120, mezcla([52, 40, 88], hor, .5), 'rgba(255,215,145,.16)');
+    L.d2 = dunas(2, 2.2, th - 120 - SK, 120, mezcla([70, 46, 82], hor, .35), 'rgba(255,215,145,.2)');
+    L.d3 = dunas(3, 1, th - 80 - SK, 100, mezcla([96, 56, 78], hor, .15), 'rgba(255,215,145,.26)');
+    L.d4 = dunas(4, 0, th - 40 - SK, 80, [122, 70, 62], 'rgba(255,215,145,.32)');
     L.frente = (() => {
       const R = rng(sd + 6), tw = 2600, p = [];
-      for (let i = 0; i < 3; i++) { const w = 200 + R() * 160, h = 150 + R() * 200, pc = pieza(Math.round(w), Math.round(h), 8, x => roca(x, w / 2, h + 10, w * .9, h, 'rgba(14,8,26,.95)', R)); p.push({ pc, x: (i + .2 + R() * .6) / 3 * tw, y: k.H - h }); }
+      for (let i = 0; i < 3; i++) { const w = 200 + R() * 160, h = 150 + R() * 200, pc = pieza(Math.round(w), Math.round(h + 110), 8, x => roca(x, w / 2, h + 110, w * .9, h, 'rgba(14,8,26,.95)', R)); p.push({ pc, x: (i + .2 + R() * .6) / 3 * tw, y: k.H - h }); }
       return { tw, p };
     })();
     L.niebla = nieblaSprite([150, 100, 110]);
@@ -207,15 +214,15 @@
   }
 
   // ---------- dibujo ----------
-  function pegar(t, par, y, S, k, alfa) {
-    const cx = k.cx, W = k.W, off = (((S.cam * par) % t.tw) + t.tw) % t.tw; if (alfa != null) cx.globalAlpha = alfa;
+  function pegar(t, par, y, S, k, alfa, fv) {
+    y += dyl(fv == null ? 1 : fv); const cx = k.cx, W = k.W, off = (((S.cam * par) % t.tw) + t.tw) % t.tw; if (alfa != null) cx.globalAlpha = alfa;
     for (let x = -off; x < W; x += t.tw) cx.drawImage(t.c, Math.floor(x), y, t.tw, t.th);
   }
   function bancos(L, S, k, rojo, alfa, desde, hasta) {
     const cx = k.cx, W = k.W, t = S.t, per = W + 700;
     for (let i = 0; i < L.bancos.length; i++) {
       const b = L.bancos[i]; if (b.p < desde || b.p >= hasta) continue;
-      const w = 512 * b.esc, x = ((((b.x * per - (t * b.v + (S.vd || 0) * b.v * .5) - S.cam * b.p) % per) + per) % per) - 350, y = b.y + Math.sin(t * .25 + i * 2) * 5;
+      const w = 512 * b.esc, x = ((((b.x * per - (t * b.v + (S.vd || 0) * b.v * .5) - S.cam * b.p) % per) + per) % per) - 350, y = b.y + dyl(.7) + Math.sin(t * .25 + i * 2) * 5;
       cx.globalAlpha = alfa * b.a * 2.2 * (.8 + .2 * Math.sin(t * .4 + i)); cx.drawImage(L.niebla, x, y, w, 140 * b.esc);
     }
   }
@@ -243,28 +250,31 @@
       ritmo();
       const S = estado(), k = K(); if (!S || !k) return false; const cx = k.cx, W = k.W, H = k.H, G = k.G, calid = calidad(S);
       const L = E.bosque || (E.bosque = construirBosque(S, k)); construirMontes(L, k);
-      const sk = SKY[S.params && S.params.variante] || SKY.A, base = G + 40;
+      const sk = SKY[S.params && S.params.variante] || SKY.A, base = G + 40 + SK;
       cx.globalAlpha = alfa;
-      const g = cx.createLinearGradient(0, 0, 0, G + 40); g.addColorStop(0, sk[0]); g.addColorStop(.55, sk[1]); g.addColorStop(1, sk[2]); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+      const g = cx.createLinearGradient(0, 0, 0, G + 40); g.addColorStop(0, sk[0]); g.addColorStop(.55, sk[1]); g.addColorStop(1, sk[2]); cx.fillStyle = g; cx.fillRect(-60, 0, W + 120, H);
+      cx.fillStyle = sk[0]; cx.fillRect(-60, -520, W + 120, 521);   // cielo por encima de la pantalla: la cámara vertical lo deja ver al subir
       // Sol con halo (los rayos nacen de aquí)
-      const sx = 880 - (S.cam * .02) % 2000, sy = 190;
+      const sx = 880 - (S.cam * .02) % 2000, sy = 190, dsol = dyl(.3);
+      cx.save(); cx.translate(0, dsol);
       const sg = cx.createRadialGradient(sx, sy, 10, sx, sy, 190); sg.addColorStop(0, 'rgba(255,244,210,.95)'); sg.addColorStop(.3, 'rgba(255,236,190,.55)'); sg.addColorStop(1, 'rgba(255,220,170,0)');
       cx.globalAlpha = alfa; cx.fillStyle = sg; cx.fillRect(sx - 200, -10, 400, 400); cx.fillStyle = 'rgba(255,248,226,.96)'; cx.beginPath(); cx.arc(sx, sy, 50, 0, 7); cx.fill();
       const nube = k.img.nube; if (nube) for (let i = 0; i < 4; i++) { const w = 280 + i * 60, x = ((i * 430 - (S.t * (8 + i * 3) + (S.vd || 0) * (5 + i * 2)) - S.cam * (.04 + i * .01)) % (W + 500) + (W + 500)) % (W + 500) - 250; cx.globalAlpha = alfa * .75; cx.drawImage(nube, x, 60 + i * 55, w, nube.height * w / nube.width); }
+      cx.restore();
       // Capas, de lo más lejano a lo más cercano
-      if (L.montes) pegar(L.montes, .05, G - L.montes.th + 30, S, k, alfa);
-      pegar(L.colinas, .09, base - L.colinas.th, S, k, alfa);
+      if (L.montes) pegar(L.montes, .05, G - L.montes.th + 30, S, k, alfa, .45);
+      pegar(L.colinas, .09, base - L.colinas.th, S, k, alfa, .5);
       { const v = cx.createLinearGradient(0, G - 230, 0, G + 40); v.addColorStop(0, rgb(L.hor, 0)); v.addColorStop(.55, rgb(L.hor, .3)); v.addColorStop(1, rgb(L.hor, .36)); cx.globalAlpha = alfa; cx.fillStyle = v; cx.fillRect(0, G - 230, W, 270); }   // velo de horizonte
-      if (calid > 1) pegar(L.colinas2, .15, base - L.colinas2.th, S, k, alfa);
+      if (calid > 1) pegar(L.colinas2, .15, base - L.colinas2.th, S, k, alfa, .56);
       if (calid > 1) bancos(L, S, k, 0, alfa, 0, .27);
       // Bambú lejano y medio: las ilustraciones del rediseño visual (motor.js → tilesBosque), cada una con su paralaje; yo añado la niebla entre ellas
       const T = k.tilesBosque ? k.tilesBosque() : [];
-      const capa = (t, a) => { const tw = t.cv.width, wv = k.viento ? k.viento(S.cam + W / 2, S.t) : 0, o = -((S.cam * t.par) % tw) - (wv * t.par * 10 + Math.sin(S.t * .9 + t.par * 6) * t.par * 3); cx.globalAlpha = a; for (let x = o; x < W; x += tw) cx.drawImage(t.cv, Math.floor(x), 0); };
-      if (T[0]) capa(T[0], alfa);
+      const capa = (t, a, fv) => { const tw = t.cv.width, wv = k.viento ? k.viento(S.cam + W / 2, S.t) : 0, o = -((S.cam * t.par) % tw) - (wv * t.par * 10 + Math.sin(S.t * .9 + t.par * 6) * t.par * 3); cx.globalAlpha = a; for (let x = o; x < W; x += tw) cx.drawImage(t.cv, Math.floor(x), dyl(fv)); };
+      if (T[0]) capa(T[0], alfa, .62);
       if (calid > 1) bancos(L, S, k, 0, alfa, .27, .4);
-      if (T[1]) capa(T[1], alfa);
-      if (calid > 1) rayos(S, k, sx, sy, [255, 214, 150], .1 * alfa);
-      pegar(L.cerca, .58, base - L.cerca.th, S, k, alfa);
+      if (T[1]) capa(T[1], alfa, .7);
+      if (calid > 1) rayos(S, k, sx, sy + dsol, [255, 214, 150], .1 * alfa);
+      pegar(L.cerca, .58, base - L.cerca.th, S, k, alfa, .82);
       // Neblina baja delante de todo el bosque (profundidad atmosférica hacia el suelo)
       const f = cx.createLinearGradient(0, G - 240, 0, G + 20); f.addColorStop(0, rgb(L.hor, 0)); f.addColorStop(1, rgb(L.hor, .4)); cx.globalAlpha = alfa; cx.fillStyle = f; cx.fillRect(0, G - 240, W, 260);
       if (calid > 1) motas(L, S, k, 'rgb(255,236,190)', .8 * alfa, false);
@@ -276,16 +286,16 @@
     try {
       ritmo();
       const S = estado(), k = K(); if (!S || !k) return false; const cx = k.cx, W = k.W, H = k.H, G = k.G, calid = calidad(S), L = E.cueva || (E.cueva = construirCueva(S, k));
-      cx.globalAlpha = alfa; const g = cx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#07050f'); g.addColorStop(.6, '#150e2c'); g.addColorStop(1, '#241648'); cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+      cx.globalAlpha = alfa; const g = cx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#07050f'); g.addColorStop(.6, '#150e2c'); g.addColorStop(1, '#241648'); cx.fillStyle = g; cx.fillRect(-60, 0, W + 120, H); cx.fillStyle = '#07050f'; cx.fillRect(-60, -520, W + 120, 521);
       // Cristales lejanos que brillan (luz azul) con parallax
-      for (let i = 0; i < 9; i++) { const par = .12 + (i % 3) * .07, x = ((i * 337 - S.cam * par) % (W + 200) + W + 200) % (W + 200) - 100, y = 200 + (i * 97) % 260, r = 50 + (i * 31) % 40 + Math.sin(S.t * 1.2 + i) * 4; const gl = cx.createRadialGradient(x, y, 0, x, y, r); gl.addColorStop(0, 'rgba(80,170,255,.3)'); gl.addColorStop(1, 'rgba(80,170,255,0)'); cx.globalAlpha = alfa; cx.fillStyle = gl; cx.fillRect(x - r, y - r, r * 2, r * 2); }
-      pegar(L.techoLejos, .08, 0, S, k, alfa);
-      pegar(L.suelosLejos, .12, G + 30 - L.suelosLejos.th, S, k, alfa);
+      for (let i = 0; i < 9; i++) { const par = .12 + (i % 3) * .07, x = ((i * 337 - S.cam * par) % (W + 200) + W + 200) % (W + 200) - 100, y = 200 + (i * 97) % 260 + dyl(.3), r = 50 + (i * 31) % 40 + Math.sin(S.t * 1.2 + i) * 4; const gl = cx.createRadialGradient(x, y, 0, x, y, r); gl.addColorStop(0, 'rgba(80,170,255,.3)'); gl.addColorStop(1, 'rgba(80,170,255,0)'); cx.globalAlpha = alfa; cx.fillStyle = gl; cx.fillRect(x - r, y - r, r * 2, r * 2); }
+      pegar(L.techoLejos, .08, -OVT, S, k, alfa, .5);
+      pegar(L.suelosLejos, .12, G + 30 - (L.suelosLejos.th - SK), S, k, alfa, .55);
       if (calid > 1) bancos(L, S, k, 0, alfa, 0, .3);
-      pegar(L.techoMedio, .2, 0, S, k, alfa);
-      pegar(L.suelosMedio, .28, G + 30 - L.suelosMedio.th, S, k, alfa);
-      if (calid > 1) rayos(S, k, W * .62, -30, [90, 160, 255], .05 * alfa);
-      pegar(L.techoCerca, .4, 0, S, k, alfa);
+      pegar(L.techoMedio, .2, -OVT, S, k, alfa, .65);
+      pegar(L.suelosMedio, .28, G + 30 - (L.suelosMedio.th - SK), S, k, alfa, .7);
+      if (calid > 1) rayos(S, k, W * .62, -30 + dyl(.5), [90, 160, 255], .05 * alfa);
+      pegar(L.techoCerca, .4, -OVT, S, k, alfa, .85);
       const f = cx.createLinearGradient(0, G - 200, 0, G + 20); f.addColorStop(0, 'rgba(70,110,190,0)'); f.addColorStop(1, 'rgba(70,110,190,' + .3 * alfa + ')'); cx.globalAlpha = 1; cx.fillStyle = f; cx.fillRect(0, G - 200, W, 220);
       if (calid > 1) bancos(L, S, k, 0, alfa, .3, 1);
       if (calid > 1) motas(L, S, k, 'rgb(150,200,255)', .7 * alfa, true);
@@ -296,17 +306,18 @@
     if (E.dead) return false;
     try {
       ritmo();
-      const S = estado(), k = K(); if (!S || !k) return false; const cx = k.cx, W = k.W, H = k.H, G = k.G, calid = calidad(S), L = E.desierto || (E.desierto = construirDesierto(S, k)), base = G + 60;
-      cx.globalAlpha = alfa; const sky = cx.createLinearGradient(0, 0, 0, G + 40); sky.addColorStop(0, '#070b28'); sky.addColorStop(.58, '#17143b'); sky.addColorStop(1, '#4b2940'); cx.fillStyle = sky; cx.fillRect(0, 0, W, H);
-      for (let i = 0; i < 50; i++) { const x = ((i * 197 - S.cam * .04) % (W + 80) + W + 80) % (W + 80) - 40, y = 22 + (i * 83 % 280), r = .7 + (i % 3) * .45; cx.globalAlpha = alfa * (.45 + .45 * Math.sin(S.t * 2 + i)); cx.fillStyle = '#d9e8ff'; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill(); }
-      const mx = W * .79, my = H * .17, mg = cx.createRadialGradient(mx, my, 20, mx, my, 260); mg.addColorStop(0, 'rgba(255,215,145,' + .38 * alfa + ')'); mg.addColorStop(1, 'rgba(255,215,145,0)'); cx.globalAlpha = 1; cx.fillStyle = mg; cx.fillRect(mx - 260, my - 260, 520, 520);
+      const S = estado(), k = K(); if (!S || !k) return false; const cx = k.cx, W = k.W, H = k.H, G = k.G, calid = calidad(S), L = E.desierto || (E.desierto = construirDesierto(S, k)), base = G + 60 + SK;
+      cx.globalAlpha = alfa; const sky = cx.createLinearGradient(0, 0, 0, G + 40); sky.addColorStop(0, '#070b28'); sky.addColorStop(.58, '#17143b'); sky.addColorStop(1, '#4b2940'); cx.fillStyle = sky; cx.fillRect(-60, 0, W + 120, H); cx.fillStyle = '#070b28'; cx.fillRect(-60, -520, W + 120, 521);
+      const dcielo = dyl(.25);
+      for (let i = 0; i < 50; i++) { const x = ((i * 197 - S.cam * .04) % (W + 80) + W + 80) % (W + 80) - 40, y = 22 + (i * 83 % 280) + dcielo, r = .7 + (i % 3) * .45; cx.globalAlpha = alfa * (.45 + .45 * Math.sin(S.t * 2 + i)); cx.fillStyle = '#d9e8ff'; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill(); }
+      const mx = W * .79, my = H * .17 + dcielo, mg = cx.createRadialGradient(mx, my, 20, mx, my, 260); mg.addColorStop(0, 'rgba(255,215,145,' + .38 * alfa + ')'); mg.addColorStop(1, 'rgba(255,215,145,0)'); cx.globalAlpha = 1; cx.fillStyle = mg; cx.fillRect(mx - 260, my - 260, 520, 520);
       cx.globalAlpha = alfa; cx.fillStyle = 'rgba(255,215,145,.9)'; cx.beginPath(); cx.arc(mx, my, 30, 0, 7); cx.fill();
-      pegar(L.d1, .05, base - L.d1.th, S, k, alfa);
+      pegar(L.d1, .05, base - L.d1.th, S, k, alfa, .5);
       if (calid > 1) bancos(L, S, k, 0, alfa, 0, .3);
-      pegar(L.d2, .1, base - L.d2.th, S, k, alfa);
-      pegar(L.d3, .18, base - L.d3.th, S, k, alfa);
+      pegar(L.d2, .1, base - L.d2.th, S, k, alfa, .58);
+      pegar(L.d3, .18, base - L.d3.th, S, k, alfa, .68);
       if (calid > 1) bancos(L, S, k, 0, alfa, .3, 1);
-      pegar(L.d4, .3, base - L.d4.th, S, k, alfa);
+      pegar(L.d4, .3, base - L.d4.th, S, k, alfa, .82);
       const f = cx.createLinearGradient(0, G - 160, 0, G + 20); f.addColorStop(0, 'rgba(120,70,90,0)'); f.addColorStop(1, 'rgba(120,70,90,' + .32 * alfa + ')'); cx.globalAlpha = 1; cx.fillStyle = f; cx.fillRect(0, G - 160, W, 180);
       if (calid > 1) motas(L, S, k, 'rgb(255,215,160)', .7 * alfa, true);
       cx.globalAlpha = 1; return true;
@@ -334,7 +345,7 @@
             // se vuelve casi transparente cerca del héroe: lo de delante nunca tapa lo que hay que leer o esquivar
             const f = .15 + .85 * clamp((Math.abs(xx + pc.w / 2 - hx) - 70) / 240, 0, 1);
             const wv = k.viento ? k.viento(S.cam + xx, S.t) : 0, vai = -(wv * 9) + Math.sin(S.t * 1.3 + q.x * .01) * 2.5;
-            cx.globalAlpha = a * f * (calid > 1 ? 1 : .6); cx.drawImage(pc.c, dx + vai, q.y - pc.m);
+            cx.globalAlpha = a * f * (calid > 1 ? 1 : .6); cx.drawImage(pc.c, dx + vai, q.y - pc.m + dyl(1.3));
           }
         }
       }
@@ -342,7 +353,7 @@
       // Bokeh: círculos de luz desenfocados muy cerca de la cámara
       if (calid > 1 && !S.nivel2 && E.bosque && S.mezcla < .5) {
         const L = E.bosque, sp = sprites(); cx.save(); cx.globalCompositeOperation = 'lighter';
-        for (const b of L.bokeh) { const per = W + 300, x = ((((b.x * per - S.t * b.v - S.cam * b.p) % per) + per) % per) - 150, y = ((b.y * H + Math.sin(S.t * .3 + b.x * 9) * 18) % H); cx.globalAlpha = b.a * (1 - S.mezcla * 2); cx.drawImage(sp.bokeh, x - b.r, y - b.r, b.r * 2, b.r * 2); }
+        for (const b of L.bokeh) { const per = W + 300, x = ((((b.x * per - S.t * b.v - S.cam * b.p) % per) + per) % per) - 150, y = ((b.y * H + Math.sin(S.t * .3 + b.x * 9) * 18) % H) + dyl(1.5); cx.globalAlpha = b.a * (1 - S.mezcla * 2); cx.drawImage(sp.bokeh, x - b.r, y - b.r, b.r * 2, b.r * 2); }
         cx.restore(); cx.globalAlpha = 1;
       }
     } catch (e) { E.dead = true; if (root.console) console.warn('N1prof.frente desactivado:', e); }

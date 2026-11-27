@@ -39,7 +39,7 @@ NinjaMods.register({id:'pantalla-movil',carpeta:'ui',nombre:'Pantalla de teléfo
     #tring{top:44px!important}
   }
   #rotarAviso{position:fixed;inset:0;z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:24px;
-    background:radial-gradient(ellipse at 50% 40%,#2a0f5e 0%,#0b0426 60%,#04010f 100%);font-family:'Press Start 2P',monospace;color:#fff}
+    background:radial-gradient(ellipse at 50% 40%,#2a0f5e 0%,#0b0426 60%,#04010f 100%);font-family:var(--nj-font-display);color:#fff}
   #rotarAviso.on{display:flex}
   #rotarAviso button{font:inherit;font-size:clamp(9px,2.8vw,13px);padding:12px 20px;border-radius:12px;border:2px solid #FFE08A;background:#FFD54A;color:#1a0f3a;cursor:pointer;touch-action:manipulation;line-height:1.4}
   #rotarAviso button.ra-asi{background:transparent;color:#DCE3FF;border-color:#ffffff55;font-size:clamp(7px,2.2vw,10px);padding:9px 14px}

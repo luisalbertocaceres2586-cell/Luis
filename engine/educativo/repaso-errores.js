@@ -10,7 +10,7 @@ NinjaMods.register({id:'repaso-errores',carpeta:'educativo',nombre:'Repaso de er
  init(){
   let nivel=[],lastWrong=0;
   const box=(id)=>{let d=document.getElementById(id);if(!d){d=document.createElement('div');d.id=id;
-    d.style.cssText="margin:8px 0;padding:8px 10px;border-radius:9px;background:rgba(255,120,0,.14);border:1px solid rgba(255,170,60,.5);font-family:'Press Start 2P',monospace;font-size:clamp(6px,1.3vw,8px);color:#FFE0B0;line-height:1.9;text-align:center";}return d;};
+    d.style.cssText="margin:8px 0;padding:8px 10px;border-radius:9px;background:rgba(255,120,0,.14);border:1px solid rgba(255,170,60,.5);font-family:var(--nj-font-display);font-size:clamp(6px,1.3vw,8px);color:#FFE0B0;line-height:1.9;text-align:center";}return d;};
   NinjaMods.after('startLevel',function(){nivel=[];lastWrong=(typeof GS!=='undefined'?GS.wrong:0)||0;});
   NinjaMods.after('update',function(){
     if(typeof GS==='undefined'||!GS.running)return;

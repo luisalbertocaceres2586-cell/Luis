@@ -19,7 +19,7 @@
 (function (root, factory) {
   const api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  else { root.NinjaTouchCore = api.core; root.NinjaTouch = api.touch; }
+  else { const g = /** @type {any} */ (root); g.NinjaTouchCore = api.core; g.NinjaTouch = api.touch; }
 })(typeof self !== 'undefined' ? self : this, function (root) {
   'use strict';
 
