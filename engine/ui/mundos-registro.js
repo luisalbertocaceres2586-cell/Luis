@@ -190,6 +190,7 @@
    *   - modo libre (perfil.mundos.libre === true) abre todos: útil para docentes, padres o pruebas.
    *  @returns {Record<string, {bloqueado: boolean, requiere: string|null, requiereNombre: string|null}>} */
   function candados(perfil) {
+    /** @type {Record<string, {bloqueado: boolean, requiere: string|null, requiereNombre: string|null}>} */
     const out = {};
     const libre = !!(perfil && perfil.mundos && perfil.mundos.libre === true);
     const ruta = lista.filter(m => !m.fueraDeProgreso && !m.bloqueado);
@@ -201,7 +202,7 @@
         const prev = previo.progreso ? previo.progreso(perfil) : { estado: 'nuevo' };
         bloqueado = prev.estado !== 'completado' && propio.estado === 'nuevo';
       }
-      out[m.id] = { bloqueado, requiere: bloqueado ? previo.id : null, requiereNombre: bloqueado ? previo.nombre : null };
+      out[m.id] = { bloqueado, requiere: bloqueado && previo ? previo.id : null, requiereNombre: bloqueado && previo ? previo.nombre : null };
     });
     return out;
   }
