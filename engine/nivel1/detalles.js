@@ -70,7 +70,8 @@
 
   // ---------- navegador ----------
   const core = root.N1core, D = {}; root.N1det = D;
-  const quieto = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const forzado = () => { try { return localStorage.getItem('ninja_movimiento') === '1' || /[?&]movimiento=1/.test(location.search); } catch (e) { return false; } };   // forzar animación aunque el sistema pida reducir movimiento
+  const quieto = () => !forzado() && typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const lento = () => !!(root.N1prof && root.N1prof._estado && root.N1prof._estado().lento);
   const mk = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, w | 0); c.height = Math.max(1, h | 0); return c; };
   const CACHE = new WeakMap();
@@ -100,14 +101,39 @@
     try {
       const sx = w / P.W, sy = hh / P.H, k = P.k, ang = xw / (RUEDA.aro * k * sx), o = est._n1d || (est._n1d = { x: xw, t, a: 0 });
       const dt = clamp(t - o.t, 0, .1); if (dt > 0) { const vx = (xw - o.x) / dt, meta = -clamp(vx * .0035, -.4, .4); o.a += (meta - o.a) * Math.min(1, dt * 7); o.x = xw; o.t = t; }
-      const vivo = !quieto(), bal = o.a + (vivo ? .04 * Math.sin(t * 2.3 + xw * .01) : 0);
+      const vivo = !quieto(), bal = o.a + (vivo ? .09 * Math.sin(t * 2.3 + xw * .01) + .03 * Math.sin(t * 5.1) : 0);
       cx.save(); cx.translate(px, py); cx.scale(sx, sy); cx.drawImage(P.base, 0, 0);
       cx.save(); cx.translate(RUEDA.cx * k, RUEDA.cy * k); cx.rotate(ang); cx.drawImage(P.radios, -RUEDA.cx * k, -RUEDA.cy * k); cx.restore();
       cx.save(); cx.translate(FAROL.px * k, FAROL.py * k); cx.rotate(bal); cx.translate(-FAROL.px * k, -FAROL.py * k); cx.drawImage(P.farol, 0, 0);
-      const fl = vivo ? .55 + .12 * Math.sin(t * 17) + .08 * Math.sin(t * 9.3 + 1) : .55, r = FAROL.glow * k;
+      const fl = vivo ? .62 + .22 * Math.sin(t * 17) + .12 * Math.sin(t * 9.3 + 1) : .6, r = FAROL.glow * k;
       cx.globalCompositeOperation = 'lighter'; cx.globalAlpha = fl; cx.drawImage(P.glow, FAROL.gx * k - r, FAROL.gy * k - r, 2 * r, 2 * r); cx.restore();
       cx.restore(); return true;
     } catch (e) { CACHE.set(im, null); return false; }
+  };
+
+  /** Brillo que respira de un elemento luminoso (cristales, hongos, flores de luz): color sacado del propio sprite, pulso lento y destellos.
+   *  Se llama dentro del bloque de luces aditivas (globalCompositeOperation = 'lighter'). x,y = centro en pantalla, r = radio. */
+  const GLOW = {};
+  function colorDe(im) {
+    const L = leer(im); if (!L) return [190, 225, 255]; let r = 0, g = 0, b = 0, n = 0;
+    for (let i = 0; i < L.px.length; i += 16) { const R = L.px[i], G = L.px[i + 1], B = L.px[i + 2], mx = Math.max(R, G, B); if (L.px[i + 3] < 200 || mx < 150 || mx - Math.min(R, G, B) < 50) continue; r += R; g += G; b += B; n++; }
+    return n > 20 ? [Math.round((r / n + 255) / 2 * .6 + r / n * .4), Math.round((g / n + 255) / 2 * .6 + g / n * .4), Math.round((b / n + 255) / 2 * .6 + b / n * .4)] : [190, 225, 255];
+  }
+  function sprBrillo(c) {
+    const k = c.join(','); if (GLOW[k]) return GLOW[k]; const s = GLOW[k] = mk(64, 64), g = s.getContext('2d'), rg = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    rg.addColorStop(0, 'rgba(' + k + ',.95)'); rg.addColorStop(.4, 'rgba(' + k + ',.35)'); rg.addColorStop(1, 'rgba(' + k + ',0)'); g.fillStyle = rg; g.fillRect(0, 0, 64, 64); return s;
+  }
+  D.brillo = function (cx, im, x, y, r, t, fase, vis) {
+    try {
+      const P = dePrep(im, i => ({ c: colorDe(i) })), c = P ? P.c : [190, 225, 255], viv = !quieto();
+      const pul = viv ? .62 + .38 * Math.sin(t * 1.9 + fase) : .75, rr = r * (viv ? .92 + .12 * Math.sin(t * 1.3 + fase * 1.7) : 1);
+      cx.globalAlpha = clamp(pul * vis * .85, 0, 1); cx.drawImage(sprBrillo(c), x - rr, y - rr, 2 * rr, 2 * rr);
+      if (!viv || lento()) return; cx.fillStyle = 'rgb(255,255,255)';
+      for (let i = 0; i < 2; i++) {   // destellos que suben y se apagan
+        const ph = (t * .7 + fase * .37 + i * .5) % 1, a = Math.pow(Math.sin(Math.PI * ph), 2), px = x + (hash(fase + i) - .5) * r * 1.1, py = y + (hash(fase + i + 4) - .5) * r * .9 - ph * 14, q = 2.5 + 2 * a;
+        cx.globalAlpha = a * vis; cx.fillRect(px - q, py - .8, q * 2, 1.6); cx.fillRect(px - .8, py - q, 1.6, q * 2);
+      }
+    } catch (e) { /* sin brillo */ }
   };
 
   /** Anima el agua de la fuente (se llama justo después de dibujar su sprite). x = centro en pantalla, top = borde de arriba, w = ancho. */
@@ -122,7 +148,7 @@
           const p = (((t * (.75 + .12 * lane) + i / (lo ? 3 : 6) + lane * .17) % 1) + 1) % 1, u = Math.pow(p, 1.35), fade = Math.sin(Math.PI * p);
           const ddx = AGUA.caeDesv * 1.6 * Math.pow(1 - u, .6), a = Math.atan2(AGUA.caeLargo, ddx);
           tx.save(); tx.translate(pathX(u) + lane * 8 * k * (.7 + .5 * u), pathY(u)); tx.rotate(a - Math.PI / 2);
-          tx.fillStyle = i % 2 ? 'rgba(255,255,255,' + (.6 * fade) + ')' : 'rgba(25,120,200,' + (.34 * fade) + ')';
+          tx.fillStyle = i % 2 ? 'rgba(255,255,255,' + (.85 * fade) + ')' : 'rgba(25,120,200,' + (.5 * fade) + ')';
           tx.beginPath(); tx.ellipse(0, 0, 2.6 * k, (7 + 10 * u) * k, 0, 0, 6.2832); tx.fill(); tx.restore();
         }
       }
@@ -131,7 +157,7 @@
       if (!lo) {
         for (let i = 0; i < 3; i++) {   // ondas que se abren en la pileta
           const p = (t * .5 + i / 3) % 1, rx = (8 + p * 60) * k; tx.beginPath(); tx.ellipse(AGUA.sx * k, AGUA.sy * k, rx, rx * .17, 0, 0, 6.2832);
-          tx.strokeStyle = 'rgba(255,255,255,' + (.6 * (1 - p)) + ')'; tx.lineWidth = 2.4 * k; tx.stroke();
+          tx.strokeStyle = 'rgba(255,255,255,' + (.9 * (1 - p)) + ')'; tx.lineWidth = 3.2 * k; tx.stroke();
         }
         [[205, 238], [262, 240], [228, 243], [190, 236]].forEach((q, i) => {   // destellos que se encienden y apagan
           const b = Math.pow(Math.max(0, Math.sin(t * 3 + i * 2.1)), 6); if (b < .05) return; const r = (3 + 4 * b) * k;
@@ -141,9 +167,9 @@
       tx.setTransform(1, 0, 0, 1, 0, 0); tx.globalCompositeOperation = 'destination-in'; tx.drawImage(P.mascara, -P.bx, -P.by);   // solo donde hay agua
       cx.save(); cx.translate(x - w / 2, top); cx.scale(s, s); cx.drawImage(T, P.bx, P.by);
       cx.fillStyle = 'rgb(215,245,255)';   // gotas que saltan al caer el agua
-      for (let i = 0; i < (lo ? 5 : 13); i++) {
+      for (let i = 0; i < (lo ? 7 : 18); i++) {
         const dur = .85 + .4 * hash(i), ph = (t / dur + hash(i + 7)) % 1, tau = ph * dur, gx = AGUA.ix + (hash(i + 3) - .5) * 80 * tau * 2, gy = AGUA.iy - 4 + (-(70 + hash(i + 11) * 80)) * tau + .5 * 320 * tau * tau;
-        if (gy > AGUA.sy + 6) continue; cx.globalAlpha = clamp(1 - ph * ph * ph, 0, 1) * .9; cx.beginPath(); cx.arc(gx * k, gy * k, (1.5 + hash(i + 5) * 1.8) * k, 0, 6.2832); cx.fill();
+        if (gy > AGUA.sy + 6) continue; cx.globalAlpha = clamp(1 - ph * ph * ph, 0, 1) * .9; cx.beginPath(); cx.arc(gx * k, gy * k, (2 + hash(i + 5) * 2.2) * k, 0, 6.2832); cx.fill();
       }
       cx.restore();
     } catch (e) { CACHE.set(im, null); }
