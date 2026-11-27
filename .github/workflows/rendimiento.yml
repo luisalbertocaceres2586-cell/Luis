@@ -17,10 +17,10 @@ jobs:
     name: Presupuesto de peso
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Medir peso (index.html, motor, recursos)
@@ -36,8 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       # Chromium sin pantalla; no se añade a package.json para no tocar package-lock.json
@@ -59,7 +59,7 @@ jobs:
         run: node tests/navegador/webp.mjs
       - name: Guardar capturas
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: capturas-rendimiento
           path: ${{ runner.temp }}/capturas
