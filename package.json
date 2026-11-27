@@ -9,6 +9,7 @@
     "typecheck:basico": "tsc -p tsconfig.basico.json",
     "test": "node tests/run-all.js",
     "verify": "npm run typecheck && npm test",
+    "subir": "node tools/subir.js",
     "rama": "node tools/flujo.js rama",
     "estado": "node tools/flujo.js estado",
     "radar": "node tools/flujo.js radar",
