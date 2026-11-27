@@ -51,4 +51,13 @@ put(280, 200, 235, 248, 255);                                                   
 const m = D.mascaraAgua(s2, AW, AH, 1), g = (x, y) => m[y * AW + x];
 assert.strictEqual(g(225, 155), 1); assert.strictEqual(g(230, 155), 1, 'espuma junto al agua'); assert.strictEqual(g(205, 243), 1, 'pileta oscura');
 assert.strictEqual(g(265, 135), 0, 'la piedra no es agua'); assert.strictEqual(g(280, 200), 0, 'blanco lejos del agua no es espuma');
+
+// 5) Que de verdad se cargue: el Nivel 1 jugado desde el menú NO usa nivel1.html, sino la lista de scripts de perfil-ui.js (cargarNivel1)
+const ui = fs.readFileSync(path.join(__dirname, '../engine/nivel1/perfil-ui.js'), 'utf8');
+const lista = (ui.match(/const lista = \[([^\]]*)\];/) || [])[1];
+assert(lista, 'no se encontró la lista de scripts en perfil-ui.js (cargarNivel1)');
+assert(/'detalles'/.test(lista), "perfil-ui.js debe cargar 'detalles' (si no, las animaciones no aparecen en el juego real)");
+assert(lista.indexOf("'ambiente'") < lista.indexOf("'detalles'") || lista.indexOf("'detalles'") > 0, 'detalles se carga después del motor');
+assert(/engine\/nivel1\/detalles\.js/.test(fs.readFileSync(path.join(__dirname, '../nivel1.html'), 'utf8')), 'nivel1.html también debe cargar detalles.js');
+assert(/engine\/nivel1\/detalles\.js/.test(fs.readFileSync(path.join(__dirname, '../precache.json'), 'utf8')), 'precache.json (modo sin internet) debe incluir detalles.js');
 console.log('detalles-nivel1: OK');
