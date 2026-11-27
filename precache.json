@@ -1,6 +1,6 @@
 {
  "_nota": "Generado por tools/generar_precache.js (lo hace solo GitHub al publicar). No editar a mano.",
- "v": "1514e7122c",
+ "v": "05ef66b346",
  "mb": 72.9,
  "codigo": [
   "engine/combate/jefe-cinematica.js",
@@ -40,6 +40,7 @@
   "engine/nivel1/acertijos.js",
   "engine/nivel1/ambiente.js",
   "engine/nivel1/camara.js",
+  "engine/nivel1/detalles.js",
   "engine/nivel1/director.js",
   "engine/nivel1/elementos.js",
   "engine/nivel1/gen-nivel.js",
