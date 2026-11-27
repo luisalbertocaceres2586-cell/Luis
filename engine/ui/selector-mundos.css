@@ -279,3 +279,11 @@
 /* Mundo 4 · El Mundo Negativo: la tarjeta se ve en negativo (gris, invertida y con contraste) y recupera el color al completarlo */
 .mw-card[data-id=negativo] .mw-escena{filter:grayscale(1) invert(.92) contrast(1.5) brightness(.55);transition:filter 1.4s ease}
 .mw-card[data-id=negativo][data-estado=completado] .mw-escena{filter:none}
+
+/* Candado por progreso: mensaje de qué mundo falta terminar (solo visible si la tarjeta está bloqueada) */
+.mw-req{position:absolute;z-index:5;left:50%;top:calc(38% + clamp(34px,8vh,58px));translate:-50% 0;width:min(86%,300px);text-align:center;
+  padding:8px 12px;border-radius:12px;background:rgba(8,10,30,.82);border:1px solid rgba(255,255,255,.22);color:#fff;
+  font-size:clamp(11px,2.6vw,14px);line-height:1.35;display:none;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.mw-req b{color:var(--acc,#ffd24a)}
+.mw-card[data-estado=bloqueado] .mw-req{display:block}
+.mw-card[data-estado=bloqueado] .mw-chips{display:none}

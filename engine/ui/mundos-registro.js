@@ -182,5 +182,29 @@
   }
   function obtener(id) { return lista.find(m => m.id === id) || null; }
 
-  return { lista, obtener, imagenes };
+  /** Candados por progreso: para cada mundo de la ruta (sin "Próximamente" ni Clásico), dice si está bloqueado
+   *  y qué mundo hay que terminar antes. Reglas:
+   *   - el primer mundo siempre está abierto;
+   *   - un mundo se abre al TERMINAR el anterior;
+   *   - un mundo que el jugador ya empezó o terminó nunca se vuelve a bloquear (no se castiga a quien ya jugaba);
+   *   - modo libre (perfil.mundos.libre === true) abre todos: útil para docentes, padres o pruebas.
+   *  @returns {Record<string, {bloqueado: boolean, requiere: string|null, requiereNombre: string|null}>} */
+  function candados(perfil) {
+    const out = {};
+    const libre = !!(perfil && perfil.mundos && perfil.mundos.libre === true);
+    const ruta = lista.filter(m => !m.fueraDeProgreso && !m.bloqueado);
+    ruta.forEach((m, i) => {
+      const previo = i > 0 ? ruta[i - 1] : null;
+      let bloqueado = false;
+      if (previo && !libre) {
+        const propio = m.progreso ? m.progreso(perfil) : { estado: 'nuevo' };
+        const prev = previo.progreso ? previo.progreso(perfil) : { estado: 'nuevo' };
+        bloqueado = prev.estado !== 'completado' && propio.estado === 'nuevo';
+      }
+      out[m.id] = { bloqueado, requiere: bloqueado ? previo.id : null, requiereNombre: bloqueado ? previo.nombre : null };
+    });
+    return out;
+  }
+
+  return { lista, obtener, imagenes, candados };
 });

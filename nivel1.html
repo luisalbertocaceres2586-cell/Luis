@@ -6,14 +6,36 @@
 <script src="engine/core/calidad.js?v=1"></script>
 <script src="engine/core/compat.js?v=1"></script>
 <script src="engine/core/fisica-visual.js?v=1"></script>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0618">
+<link rel="manifest" href="manifest.json">
 <title>Nivel 1 · La Senda del Aprendiz Ninja (modo de desarrollo)</title>
-<style>html,body{margin:0;height:100%;background:#0a0618;color:#fff;font-family:ui-monospace,monospace}#ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}button{font:inherit;padding:12px 18px;border-radius:8px;border:0;background:#ffc93c;cursor:pointer}</style><link rel="stylesheet" href="engine/ui/fuentes.css?v=1">
+<style>
+html,body{margin:0;height:100%;background:#0a0618;color:var(--nj-text,#f4f6fc);font-family:var(--nj-font-ui,system-ui,sans-serif);
+  overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#ini{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:clamp(14px,3.2vh,26px);text-align:center;
+  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+  background:radial-gradient(ellipse at 50% 30%,#3a2276 0%,#140c40 52%,#05071a 100%)}
+#ini .mundo{font:var(--nj-fs-sm,13px) var(--nj-font-display,system-ui);letter-spacing:.2em;color:var(--nj-cyan,#16c8e8);text-transform:uppercase}
+#ini h1{margin:0;font:clamp(30px,8vw,64px)/1.05 var(--nj-font-display,system-ui);color:var(--nj-gold,#ffc247);text-shadow:var(--nj-title-shadow,0 3px 0 rgba(90,52,0,.85));max-width:14ch}
+#ini p{margin:0;max-width:34ch;font-size:var(--nj-fs-md,15px);color:var(--nj-muted,#aab5d0);line-height:1.45}
+#ini .dev{font-size:var(--nj-fs-xs,11px);color:var(--nj-muted,#aab5d0);opacity:.7}
+#go{font:clamp(20px,5vw,28px) var(--nj-font-display,system-ui);color:#2a1300;cursor:pointer;min-width:min(78vw,280px);min-height:60px;padding:0 28px;
+  border:14px solid transparent;border-width:14px 22px 14px 18px;border-radius:0;background:none;
+  border-image:url(assets/intro-2026/interfaz/boton_principal.webp) 70 110 70 90 fill/14px 22px 14px 18px stretch;
+  filter:drop-shadow(0 6px 12px rgba(255,150,30,.35));transition:transform .18s,filter .18s;animation:ini-pulso 2.4s ease-in-out infinite}
+#go:hover{transform:translateY(-2px) scale(1.03);filter:drop-shadow(0 8px 18px rgba(255,190,70,.6)) brightness(1.1)}
+#go:active{transform:scale(.96)}
+#go:focus-visible{outline:3px solid var(--nj-cyan,#16c8e8);outline-offset:6px}
+@keyframes ini-pulso{50%{transform:scale(1.04)}}
+@media(max-height:420px){#ini{flex-direction:row;flex-wrap:wrap;gap:12px 28px}#ini p{display:none}}
+@media(prefers-reduced-motion:reduce){#go{animation:none}}
+</style><link rel="stylesheet" href="engine/ui/fuentes.css?v=1">
 <link rel="stylesheet" href="engine/ui/tokens.css?v=1">
 <script src="engine/ui/fuentes.js?v=1"></script>
 </head>
 <body>
-<div id="ini"><div>Nivel 1 · modo de desarrollo</div><button id="go">▶ JUGAR</button></div>
+<div id="ini"><div class="mundo">Mundo 1</div><h1>La Senda del Aprendiz</h1><p>Bosque de bambú, cuevas y dojos. Tú eliges el camino.</p><button id="go" type="button">▶ JUGAR</button><div class="dev">modo de desarrollo</div></div>
 <script src="engine/core/tactil.js"></script>
 <script>window.NUBE_SIN_UI=1;</script>
 <script src="engine/nube.js?v=3"></script>

@@ -62,7 +62,15 @@
   // ---------- estado derivado del perfil ----------
   function registro() { return (root.MundosRegistro && root.MundosRegistro.lista) || []; }
   function estado(perfil) {
-    return registro().filter(m => !m.visible || m.visible(perfil)).map(m => ({ mundo: m, prog: m.progreso ? m.progreso(perfil) : { estado: 'nuevo', estrellas: 0 } }));
+    const libre = /[?&]libre=1/.test((root.location && root.location.search) || '');
+    const cand = !libre && root.MundosRegistro && root.MundosRegistro.candados ? root.MundosRegistro.candados(perfil) : {};
+    return registro().filter(m => !m.visible || m.visible(perfil)).map(m => {
+      const prog = m.progreso ? m.progreso(perfil) : { estado: 'nuevo', estrellas: 0 };
+      const c = cand[m.id];
+      // candado por progreso: se muestra como 🔒 y dice qué mundo falta terminar (distinto de "Próximamente")
+      if (c && c.bloqueado) return { mundo: m, prog: Object.assign({}, prog, { estado: 'bloqueado', candado: true, requiere: c.requiere, requiereNombre: c.requiereNombre }) };
+      return { mundo: m, prog };
+    });
   }
   /** Primer mundo jugable sin completar (o null si ya están todos). Es una sugerencia: nada se bloquea. */
   function siguiente(perfil) {
@@ -175,7 +183,7 @@
     const card = el('article', 'mw-card');
     card.tabIndex = 0; card.setAttribute('role', 'option'); card.dataset.id = m.id; card.dataset.estado = p.estado;
     card.style.setProperty('--acc', m.acento); card.style.setProperty('--acc2', m.acento2); card.style.setProperty('--i', i);
-    card.setAttribute('aria-label', m.nombre + (p.estado === 'completado' ? ' (terminado)' : p.estado === 'bloqueado' ? ' (próximamente)' : ''));
+    card.setAttribute('aria-label', m.nombre + (p.estado === 'completado' ? ' (terminado)' : p.estado === 'bloqueado' ? (p.candado ? ' (bloqueado: termina ' + p.requiereNombre + ')' : ' (próximamente)') : ''));
     if (ctx.sig === m.id) card.dataset.sig = '1';
 
     const esc = el('div', 'mw-escena');
@@ -223,6 +231,7 @@
     const tags = { nuevo: '✨ NUEVO', en_curso: '▶ EN CURSO' };
     if (tags[p.estado]) card.appendChild(el('div', 'mw-tag', tags[p.estado] + (ctx.ultimo === m.id ? ' · 🕘' : '')));
     card.appendChild(el('div', 'mw-lock', '🔒'));
+    if (p.candado) card.appendChild(el('div', 'mw-req', 'Termina <b>' + p.requiereNombre + '</b> para desbloquear'));
     const sello = el('div', 'mw-sello', '<small>MUNDO</small><b>✔</b><small>TERMINADO</small>');
     if (p.estado === 'completado' && !ctx.visto[m.id]) sello.classList.add('nuevo');
     card.appendChild(sello);
@@ -247,7 +256,7 @@
     card.appendChild(info);
 
     const tj = { m, p, card, esc, heroe, sprites, fasesBack, fasesFront, fasenom, dots: info.querySelector('.mw-dots'), fase: 0, anims: [], vis: true, activo: false, bgIdx: i };
-    if (!m.bloqueado && root.PreviewMundos && m.demo) tj.demo = root.PreviewMundos.montar(esc, card, m, ctx.heroe, { pausa: reducido });
+    if (!m.bloqueado && p.estado !== 'bloqueado' && root.PreviewMundos && m.demo) tj.demo = root.PreviewMundos.montar(esc, card, m, ctx.heroe, { pausa: reducido });
     return tj;
   }
 
@@ -562,7 +571,7 @@
 
   function elegir(t) {
     if (!R || R.lanzando) return;
-    if (t.m.bloqueado) { SND.bloqueado(); t.card.animate([{ translate: '0' }, { translate: '-7px' }, { translate: '7px' }, { translate: '-4px' }, { translate: '0' }], { duration: 320 }); return; }
+    if (t.m.bloqueado || t.p.estado === 'bloqueado') { SND.bloqueado(); t.card.animate([{ translate: '0' }, { translate: '-7px' }, { translate: '7px' }, { translate: '-4px' }, { translate: '0' }], { duration: 320 }); return; }
     R.lanzando = true; SND.elegir(); registrarPractica(R.perfil);
     try { root.sessionStorage.removeItem('ninja_abrir_mundos'); } catch (e) {}
     const rc = R.root.getBoundingClientRect(), b = t.card.getBoundingClientRect();
