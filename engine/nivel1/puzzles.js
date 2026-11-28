@@ -29,9 +29,25 @@
   // ---------- efectos (hoja 16): imágenes fijas que se agrandan y se desvanecen ----------
   const fxs = [];
   function fx(n, x, y, w, dur, o) { o = o || {}; fxs.push(Object.assign({ n, x, y, w, dur, t: 0, s0: .35, s1: 1.25, rot: 0, vy: 0, add: true, a: 1 }, o)); if (fxs.length > 60) fxs.shift(); }
-  function dibujarFx() {
-    const s = S(), c = cx();
+  /* motas redondas y suaves (reemplazan a las chispas cuadradas): suben desde la placa y se apagan, siempre DETRÁS del héroe */
+  const motas = [];
+  function motasBurst(x, y, ancho) {
+    for (let i = 0; i < 12; i++) motas.push({ x: x + (Math.random() - .5) * ancho * .7, y: y - 4, vx: (Math.random() - .5) * 40, vy: -(40 + Math.random() * 70), t: 0, dur: .9 + Math.random() * .6, r: 5 + Math.random() * 6 });
+    if (motas.length > 80) motas.splice(0, motas.length - 80);
+  }
+  function dibujarMotas(s, c) {
+    for (let i = motas.length - 1; i >= 0; i--) {
+      const m = motas[i]; m.t += 1 / 60; const k = m.t / m.dur; if (k >= 1) { motas.splice(i, 1); continue; }
+      const x = m.x - s.cam + m.vx * m.t, y = m.y + m.vy * m.t * (1 - .35 * k), a = Math.sin(k * Math.PI) * .85, g = c.createRadialGradient(x, y, 0, x, y, m.r * 2);
+      g.addColorStop(0, 'rgba(235,255,240,' + a + ')'); g.addColorStop(.35, 'rgba(120,235,150,' + a * .8 + ')'); g.addColorStop(1, 'rgba(74,222,107,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, m.r * 2, 0, 7); c.fill();
+    }
+  }
+  function dibujarFx(capa) {
+    const s = S(), c = cx(); capa = capa || 'frente';
+    if (capa === 'atras') dibujarMotas(s, c);
     for (let i = fxs.length - 1; i >= 0; i--) {
+      if ((fxs[i].capa || 'frente') !== capa) continue;
       const f = fxs[i]; f.t += 1 / 60; const k = f.t / f.dur; if (k >= 1) { fxs.splice(i, 1); continue; }
       const m = im[f.n]; if (!m) continue; const sc = f.s0 + (f.s1 - f.s0) * ease(k), w = f.w * sc, h = m.height * w / m.width;
       c.save(); c.globalAlpha = f.a * (k < .15 ? k / .15 : 1 - Math.pow((k - .15) / .85, 1.6)); if (f.add) c.globalCompositeOperation = 'lighter';
@@ -94,7 +110,7 @@
       Q.cajas.forEach(c => { if (c.estado === 'ok' && p.y === G && Math.abs(c.x - p.x) < p.w * .34 && c.lift > topPlaca(p) * .7) { if (p.req === 'pesada' && c.peso < 2) ligera = true; else por = 'caja'; } });
       if (!por && (p.req === 'heroe' || p.req === 'cualquiera') && h.suelo && h.pisando && h.pisando.ref === p) por = 'heroe';
       const antes = p.on; p.on = !!por;
-      if (p.on && !antes) { fx('fx_motas', p.x, p.y - 20, 150, 1, { s0: .5, s1: 1, vy: -70 }); core.chispas(p.x, p.y - 40, 8, '#4ade6b'); s.shake = Math.max(s.shake, .06); }
+      if (p.on && !antes) { fx('fx_motas', p.x, p.y - 30, 118, 1.15, { s0: .6, s1: .95, vy: -28, add: false, a: .8, capa: 'atras' }); motasBurst(p.x, p.y, p.w); s.shake = Math.max(s.shake, .06); }
       if (ligera && !p.on && (p.avisoT = (p.avisoT || 0) - dt) <= 0) { p.avisoT = 2.6; core.texto(p.x, p.y - 130, '¡Muy ligera!', '#ffb'); fx('fx_error', p.x, p.y - 40, 70, .5, { add: true, s0: .5, s1: 1 }); }
       p.k += ((p.on ? 1 : 0) - p.k) * Math.min(1, dt * 14);
     });
@@ -180,7 +196,16 @@
     const x = p.x - s.cam, off = im.placa_off, on = im.placa_on; if (!off || !on) return;
     const w = p.w, ho = off.height * w / off.width, hn = on.height * w / on.width;
     cx().save(); cx().globalAlpha = 1; dib('placa_off', x, p.y + 4, w, { a: 1 - p.k }); dib('placa_on', x, p.y + 4, w, { a: p.k }); cx().restore();
-    if (p.k > .3) { const c = cx(); c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = .35 * p.k * (.8 + .2 * Math.sin(s.t * 8)); const g = c.createRadialGradient(x, p.y - 26, 4, x, p.y - 26, 60); g.addColorStop(0, '#4ade6b'); g.addColorStop(1, 'rgba(74,222,107,0)'); c.fillStyle = g; c.fillRect(x - 70, p.y - 90, 140, 130); c.restore(); }
+    if (p.k > .05) {   // aura plana sobre la losa + motas suaves; todo queda bajo los pies y detrás del héroe
+      const c = cx(), pul = .85 + .15 * Math.sin(s.t * 5), R = p.w * .62;
+      c.save(); c.translate(x, p.y - 4); c.scale(1, .28);
+      const g = c.createRadialGradient(0, 0, 2, 0, 0, R); g.addColorStop(0, 'rgba(190,255,205,' + (.5 * p.k * pul) + ')'); g.addColorStop(.55, 'rgba(74,222,107,' + (.26 * p.k) + ')'); g.addColorStop(1, 'rgba(74,222,107,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(0, 0, R, 0, 7); c.fill(); c.restore();
+      for (let i = 0; i < 6; i++) {
+        const ph = (s.t * .5 + i / 6) % 1, mx = x + Math.sin(i * 2.4) * p.w * .32, my = p.y - 8 - ph * 70, al = Math.sin(ph * Math.PI) * .65 * p.k, gm = c.createRadialGradient(mx, my, 0, mx, my, 8);
+        gm.addColorStop(0, 'rgba(235,255,240,' + al + ')'); gm.addColorStop(.4, 'rgba(120,235,150,' + al * .7 + ')'); gm.addColorStop(1, 'rgba(74,222,107,0)'); c.fillStyle = gm; c.beginPath(); c.arc(mx, my, 8, 0, 7); c.fill();
+      }
+    }
     void ho; void hn;
   }
   function dibujarCaja(c, s) {
@@ -223,8 +248,9 @@
       Q.tableros.forEach(tb => { if (vis(tb.x)) dibujarTablero(tb, s); });
       Q.placas.forEach(p => { if (vis(p.x)) dibujarPlaca(p, s); });
       Q.pilares.forEach(p => { if (vis(p.x)) dibujarPilar(p, s); });
+      dibujarFx('atras');
     } else if (capa === 'enemigos') Q.cajas.forEach(cj => { if (vis(cj.x)) dibujarCaja(cj, s); });
-    else if (capa === 'frente') dibujarFx();
+    else if (capa === 'frente') dibujarFx('frente');
     void c;
   };
 
